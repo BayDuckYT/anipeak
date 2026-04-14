@@ -294,6 +294,16 @@ export function AppProvider({ children }) {
     []
   );
 
+  const deleteAnnouncement = useCallback(async (id) => {
+    const { error } = await supabase
+      .from('announcements')
+      .delete()
+      .eq('id', id);
+    
+    if (error) console.error('Duyuru silme hatası:', error);
+  }, []);
+
+
   return (
     <AppContext.Provider
       value={{
@@ -322,6 +332,7 @@ export function AppProvider({ children }) {
         // Announcements
         announcements,
         addAnnouncement,
+        deleteAnnouncement,
       }}
     >
       {children}

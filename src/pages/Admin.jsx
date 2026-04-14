@@ -298,10 +298,10 @@ function AddChapterForm({ seriesList, showToast, sendNotification }) {
 export default function Admin() {
   const { user, maintenanceMode, toggleMaintenance, sendNotification } = useAuth();
   const {
-    series, addChapter, addAnnouncement,
+    series, addChapter, addAnnouncement, deleteAnnouncement,
     registeredUsers, updateRegisteredUser, deleteRegisteredUser,
     updateSeries, deleteSeries, toggleTrend, toggleStatus,
-    chapters, loading: appLoading
+    chapters, announcements, loading: appLoading
   } = useApp();
 
 
@@ -338,7 +338,7 @@ export default function Admin() {
     { label: 'Yeni Bugün',       value: registeredUsers.filter(u => u.joinDate === new Date().toISOString().split('T')[0]).length, icon: Activity,    color: 'from-emerald-600 to-emerald-800',glow: 'rgba(16,185,129,0.3)',  change: 'Bugünkü Kayıt' },
     { label: 'Toplam Bölüm',     value: totalChapters,             icon: BarChart2,   color: 'from-orange-600 to-orange-800',  glow: 'rgba(249,115,22,0.3)',  change: 'Yayında' },
     { label: 'Premium Üye',      value: registeredUsers.filter(u => u.premium).length,  icon: Crown,       color: 'from-amber-600 to-amber-800',    glow: 'rgba(245,158,11,0.3)',  change: 'VIP' },
-    { label: 'Duyurular',        value: series.length > 0 ? series.length * 2 : 0,      icon: Globe,       color: 'from-pink-600 to-pink-800',      glow: 'rgba(236,72,153,0.3)',  change: 'Sistem' },
+    { label: 'Duyurular',        value: announcements.length,      icon: Globe,       color: 'from-pink-600 to-pink-800',      glow: 'rgba(236,72,153,0.3)',  change: 'Sistem' },
     { label: 'Memnuniyet',       value: '100%',                   icon: UserCheck,   color: 'from-violet-600 to-violet-800',  glow: 'rgba(124,58,237,0.3)',  change: 'Kusursuz' },
   ];
 
@@ -377,6 +377,7 @@ export default function Admin() {
     { id: 'content',         label: 'Eserler (Seriler)',        icon: BookOpen },
     { id: 'chapterEditor',   label: 'Bölüm Editörü',            icon: Layers },
     { id: 'add',             label: 'Hızlı Ekle',               icon: PlusCircle },
+    { id: 'announcements',   label: 'Duyuru Yönetimi',          icon: Globe },
     { id: 'enterpriseUsers', label: 'Ruh Yönetimi (Kullanıcılar)', icon: UserCheck },
     { id: 'settings',        label: 'Kainat Ayarları',          icon: Settings },
     { id: 'trash',           label: 'Geri Dönüşüm',             icon: Trash2 },
@@ -523,22 +524,27 @@ export default function Admin() {
                 <Activity size={18} className="text-purple-400" /> Son Kozmik Aktiviteler
               </h3>
               <div className="space-y-3">
-                {[
-                  { action: 'Yeni bölüm yayınlandı', series: 'Ölümsüzlerin Oyunu', time: '2 dk önce', color: 'text-emerald-400' },
-                  { action: 'Yeni Premium Ruh katıldı', series: 'galaksi_okuyucu', time: '8 dk önce', color: 'text-amber-400' },
-                  { action: 'Seri metadata güncellendi', series: 'Gece Yarısı Efsanesi', time: '15 dk önce', color: 'text-blue-400' },
-                  { action: 'Sistem Yöneticisi giriş yaptı', series: 'Yönetici', time: '20 dk önce', color: 'text-red-400' },
-                ].map((a, i) => (
-                  <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/5 px-2 rounded-lg transition-colors gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${a.color.replace('text-', 'bg-')} ${a.color}`} />
-                      <div>
-                        <span className="text-slate-300 text-sm">{a.action}: </span><span className={`text-sm font-black ${a.color}`}>{a.series}</span>
+                {announcements.length > 0 ? (
+                  announcements.slice(0, 6).map((a, i) => (
+                    <div key={a.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/5 px-2 rounded-lg transition-colors gap-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${
+                          a.type === 'chapter' ? 'bg-emerald-400 text-emerald-400' : 
+                          a.type === 'series' ? 'bg-blue-400 text-blue-400' : 
+                          'bg-purple-400 text-purple-400'
+                        }`} />
+                        <div>
+                          <span className="text-slate-300 text-sm">{a.text}</span>
+                        </div>
                       </div>
+                      <span className="text-slate-500 text-xs font-medium bg-black/30 px-2 py-1 rounded-md">
+                        {new Date(a.ts).toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                    <span className="text-slate-500 text-xs font-medium bg-black/30 px-2 py-1 rounded-md">{a.time}</span>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-slate-500 text-center py-4">Henüz aktivite kaydı yok.</div>
+                )}
               </div>
             </div>
           </div>
@@ -708,6 +714,95 @@ export default function Admin() {
 
         {/* Add Chapter */}
         {activeNav === 'add' && <AddChapterForm seriesList={series} showToast={showToast} sendNotification={sendNotification} />}
+
+        {/* Announcements Management Tab */}
+        {activeNav === 'announcements' && (() => {
+          const [newAnn, setNewAnn] = useState('');
+          const [annType, setAnnType] = useState('system');
+
+          return (
+            <div className="space-y-6">
+              <div className="glass border border-white/8 rounded-2xl p-6 shadow-[0_4px_40px_rgba(0,0,0,0.3)]">
+                <h3 className="text-white font-black text-xl mb-4">Yeni Bildirim / Duyuru Yayınla</h3>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <select 
+                    value={annType} 
+                    onChange={e => setAnnType(e.target.value)}
+                    className="bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="system">Sistem Duyurusu</option>
+                    <option value="important">Kritik Uyarı</option>
+                    <option value="event">Etkinlik</option>
+                  </select>
+                  <input 
+                    type="text" 
+                    placeholder="Duyuru metni yazın..." 
+                    value={newAnn} 
+                    onChange={e => setNewAnn(e.target.value)}
+                    className="flex-1 bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
+                  />
+                  <button 
+                    onClick={async () => {
+                      if (!newAnn.trim()) return;
+                      await addAnnouncement(newAnn, annType);
+                      setNewAnn('');
+                      showToast('Duyuru başarıyla evrene fısıldandı!', 'success');
+                    }}
+                    className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-xl text-sm shadow-neon-purple hover:scale-[1.02] transition-transform"
+                  >
+                    YAYINLA
+                  </button>
+                </div>
+              </div>
+
+              <div className="glass border border-white/8 rounded-2xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.3)]">
+                <div className="p-5 border-b border-white/8 bg-black/20">
+                  <h3 className="text-white font-black text-lg">Eski Duyuruları Yönet</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-white/5 bg-black/40">
+                        <th className="text-left text-xs uppercase text-slate-400 font-bold px-5 py-4">Duyuru</th>
+                        <th className="text-left text-xs uppercase text-slate-400 font-bold px-5 py-4">Tip</th>
+                        <th className="text-left text-xs uppercase text-slate-400 font-bold px-5 py-4">Tarih</th>
+                        <th className="text-right text-xs uppercase text-slate-400 font-bold px-5 py-4">İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {announcements.map((a) => (
+                        <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="px-5 py-4 text-slate-200">{a.text}</td>
+                          <td className="px-5 py-4">
+                            <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
+                              a.type === 'chapter' ? 'bg-emerald-500/10 text-emerald-400' :
+                              a.type === 'series' ? 'bg-blue-500/10 text-blue-400' :
+                              'bg-purple-500/10 text-purple-400'
+                            }`}>{a.type}</span>
+                          </td>
+                          <td className="px-5 py-4 text-slate-500 text-xs">
+                            {new Date(a.ts).toLocaleString('tr-TR')}
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            <button 
+                              onClick={async () => {
+                                await deleteAnnouncement(a.id);
+                                showToast('Duyuru tarihin tozlu sayfalarına gömüldü.', 'error');
+                              }}
+                              className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-all"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Enterprise Users Tab ── Primary User Management */}
         {activeNav === 'enterpriseUsers' && (() => {
