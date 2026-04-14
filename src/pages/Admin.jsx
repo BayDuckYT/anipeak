@@ -316,7 +316,6 @@ export default function Admin() {
   const [editingSeries, setEditingSeries] = useState(null);
   const [editingSeriesTab, setEditingSeriesTab] = useState('details');
   const [confirmDeleteSeries, setConfirmDeleteSeries] = useState(null);
-  const [searchUsers, setSearchUsers] = useState('');
 
   if (appLoading) {
     return (
@@ -402,13 +401,6 @@ export default function Admin() {
     setEditingSeries(null);
   };
 
-  const handleSaveUser = (e) => {
-    e.preventDefault();
-    setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
-    showToast('Kullanıcı evren kayıtları güncellendi!', 'success');
-    setEditingUser(null);
-  };
-
   const handleTrendToggle = (id) => {
     toggleTrend(id);
     const target = series.find(x => x.id === id);
@@ -430,11 +422,6 @@ export default function Admin() {
     s.author.toLowerCase().includes(searchSeries.toLowerCase())
   ));
   
-  const filteredUsers = users.filter((u) => 
-    u.name.toLowerCase().includes(searchUsers.toLowerCase()) ||
-    u.email[0].toLowerCase().includes(searchUsers.toLowerCase())
-  );
-
   return (
     <div className="flex min-h-screen pt-16 bg-[#050507]">
       {/* ── SIDEBAR ── */}
@@ -1167,99 +1154,6 @@ export default function Admin() {
                  <button type="button" onClick={() => setEditingSeries(null)} className="px-6 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors">İptal</button>
                  <button onClick={handleSaveSeries} className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 shadow-neon-purple text-white rounded-xl text-sm font-black tracking-wide flex justify-center items-center gap-2 hover:scale-[1.02] transition-transform">
                     <Save size={18} /> DEĞİŞİKLİKLERİ EVRENE YAZ
-                 </button>
-              </div>
-
-            </motion.div>
-          </div>
-        )}
-
-        {editingUser && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="w-full max-w-lg glass-strong border border-white/10 rounded-3xl p-0 relative shadow-[0_0_80px_rgba(59,130,246,0.15)] overflow-hidden flex flex-col">
-              
-              <div className="bg-gradient-to-r from-blue-900/40 to-cyan-900/40 p-5 px-6 border-b border-white/10 flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-3">
-                     <Users size={20} className="text-cyan-400" />
-                     <h3 className="text-xl font-black text-white tracking-tight">Kullanıcı (Ruh) Modülü</h3>
-                  </div>
-                  <button onClick={() => setEditingUser(null)} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"><X size={20} /></button>
-               </div>
-
-              <div className="p-6 space-y-6">
-                
-                <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-black text-2xl shadow-inner border border-white/10">
-                      {editingUser.name.charAt(0)}
-                   </div>
-                   <div className="flex-1 grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[11px] text-cyan-400 mb-1.5 font-black uppercase tracking-widest">Kullanıcı / Mahlas</label>
-                        <input type="text" value={editingUser.name} onChange={e => setEditingUser({...editingUser, name: e.target.value})} className="w-full bg-transparent border-b border-white/20 px-0 py-1 text-xl font-bold text-white focus:outline-none focus:border-cyan-500 transition-colors" />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">E-posta</label>
-                        <input type="email" value={editingUser.email?.[0] || ''} onChange={e => setEditingUser({...editingUser, email: [e.target.value]})} className="w-full bg-transparent border-b border-white/20 px-0 py-1 text-base font-medium text-slate-300 focus:outline-none focus:border-cyan-500 transition-colors" />
-                      </div>
-                   </div>
-                </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Şifre Değiştir</label>
-                    <input type="text" placeholder="Yeni şifre belirle..." onChange={e => setEditingUser({...editingUser, password: e.target.value})} className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Yetki Hiyerarşisi (Sistem Rolü)</label>
-                    <select 
-                       value={editingUser.role} 
-                       onChange={e => setEditingUser({...editingUser, role: e.target.value})} 
-                       className={`w-full border rounded-xl px-4 py-3 text-sm font-black uppercase tracking-wider outline-none cursor-pointer transition-all ${ADMIN_ROLES[editingUser.role] ? ADMIN_ROLES[editingUser.role].color : 'bg-[#0a0a14] border-white/20 text-slate-300'}`}
-                    >
-                      <option value="Kullanıcı" className="bg-[#0a0a14] text-slate-300">Kullanıcı (Sıradan Yetki)</option>
-                      <option value="Admin Yardımcısı" className="bg-[#0a0a14] text-amber-500">Admin Yardımcısı</option>
-                      <option value="Admin" className="bg-[#0a0a14] text-emerald-500">Admin</option>
-                      <option value="Baş Admin Yardımcısı" className="bg-[#0a0a14] text-blue-500">Baş Admin Yardımcısı</option>
-                      <option value="Baş Admin" className="bg-[#0a0a14] text-purple-500">Baş Admin</option>
-                      <option value="Yönetici" className="bg-[#0a0a14] text-red-500">SİSTEM YÖNETİCİSİ (MUTLAK GÜÇ)</option>
-                    </select>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-5">
-                     <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                       <label className="block text-[10px] text-slate-400 mb-2 font-bold uppercase tracking-wider">Hesap Durumu</label>
-                       <select value={editingUser.status} onChange={e => setEditingUser({...editingUser, status: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer">
-                         <option value="Aktif" className="text-emerald-400">Aktif Edilmiş</option>
-                         <option value="Pasif" className="text-red-400">Pasif / Uzaklaştırılmış</option>
-                       </select>
-                     </div>
-                     <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                       <label className="block text-[10px] text-amber-500 mb-2 font-bold uppercase tracking-wider drop-shadow-md">Premium İzinleri</label>
-                       <div className="flex items-center gap-2 mt-1 relative cursor-pointer group" onClick={() => setEditingUser({...editingUser, premium: !editingUser.premium})}>
-                         <div className={`w-10 h-5 rounded-full transition-colors relative ${editingUser.premium ? 'bg-amber-500' : 'bg-white/10'}`}>
-                           <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${editingUser.premium ? 'translate-x-5' : ''}`} />
-                         </div>
-                         <span className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors">VIP Zorla</span>
-                       </div>
-                     </div>
-                  </div>
-
-                  <div>
-                     <label className="block text-[11px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider flex items-center gap-2"><BookOpen size={14}/> Okuma Geçmişi (Manipülasyon)</label>
-                     <div className="flex items-center gap-3">
-                        <input type="number" value={editingUser.reads} onChange={e => setEditingUser({...editingUser, reads: e.target.value})} className="flex-1 bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-lg font-black text-white focus:outline-none focus:border-cyan-500" />
-                        <span className="text-slate-500 text-sm font-bold uppercase">BÖLÜM OKUMUŞ</span>
-                     </div>
-                  </div>
-
-                </div>
-
-              </div>
-
-              <div className="p-5 border-t border-white/10 bg-black/40 shrink-0 flex items-center justify-end gap-3">
-                 <button type="button" onClick={() => setEditingUser(null)} className="px-6 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors">İptal Et</button>
-                 <button onClick={handleSaveUser} className="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 shadow-[0_0_20px_rgba(6,182,212,0.4)] text-white rounded-xl text-sm font-black tracking-widest flex justify-center items-center gap-2 hover:scale-[1.02] transition-transform">
-                    RUHU ŞEKİLLENDİR
                  </button>
               </div>
 
