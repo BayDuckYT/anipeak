@@ -34,8 +34,9 @@ export default function AuthModal({ mode, onClose }) {
     setTimeout(() => {
       const finalUsername = form.username || form.email.split('@')[0];
       if (tab === 'register') {
-        registerUser(finalUsername, form.email, 'email');
+        registerUser({ username: finalUsername, email: form.email, provider: 'email' });
       }
+
       login({ username: finalUsername, email: form.email, password: form.password });
       setLoading(false);
       setSuccess(true);

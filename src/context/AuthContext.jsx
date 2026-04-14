@@ -81,6 +81,8 @@ export function AuthProvider({ children }) {
       isPremium: role === 'Yönetici' ? true : false,
       totalRead: 0,
     };
+
+
     setUser(userData);
     localStorage.setItem('anipeak_user', JSON.stringify(userData));
   };

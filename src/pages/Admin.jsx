@@ -10,27 +10,17 @@ import {
   Activity, DollarSign, UserCheck, Save, ShieldAlert, SkipBack,
   Flame, Layers
 } from 'lucide-react';
-import { adminStats, adminSeries as initialSeries } from '../data/mockData.js';
 import ChapterEditor from '../components/ChapterEditor.jsx';
 
 export const ADMIN_ROLES = {
-  'Yönetici':               { color: 'text-red-500 bg-red-500/10 border-red-500/30',         badge: 'bg-gradient-to-br from-red-600 to-red-900',       access: ['dashboard', 'content', 'chapterEditor', 'add', 'users', 'enterpriseUsers', 'settings', 'trash'] },
-  'Baş Admin':              { color: 'text-purple-400 bg-purple-400/10 border-purple-400/30', badge: 'bg-gradient-to-br from-purple-500 to-indigo-600',  access: ['dashboard', 'content', 'chapterEditor', 'add', 'users', 'enterpriseUsers', 'trash'] },
+  'Yönetici':               { color: 'text-red-500 bg-red-500/10 border-red-500/30',         badge: 'bg-gradient-to-br from-red-600 to-red-900',       access: ['dashboard', 'content', 'chapterEditor', 'add', 'enterpriseUsers', 'settings', 'trash'] },
+  'Baş Admin':              { color: 'text-purple-400 bg-purple-400/10 border-purple-400/30', badge: 'bg-gradient-to-br from-purple-500 to-indigo-600',  access: ['dashboard', 'content', 'chapterEditor', 'add', 'enterpriseUsers', 'trash'] },
   'Baş Admin Yardımcısı':  { color: 'text-blue-400 bg-blue-400/10 border-blue-400/30',       badge: 'bg-gradient-to-br from-blue-500 to-cyan-600',     access: ['dashboard', 'content', 'chapterEditor', 'add', 'trash'] },
   'Admin':                  { color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30', badge: 'bg-gradient-to-br from-emerald-500 to-teal-600', access: ['dashboard', 'content', 'chapterEditor', 'trash'] },
   'Admin Yardımcısı':      { color: 'text-amber-400 bg-amber-400/10 border-amber-400/30',     badge: 'bg-gradient-to-br from-amber-500 to-orange-600',  access: ['dashboard'] },
 };
 
-const metricCards = [
-  { label: 'Toplam Seri',      value: adminStats.totalSeries,    icon: BookOpen,    color: 'from-purple-600 to-purple-800',  glow: 'rgba(168,85,247,0.3)',  change: '+8 bu ay' },
-  { label: 'Toplam Okunma',    value: adminStats.totalReads,     icon: Eye,         color: 'from-blue-600 to-blue-800',      glow: 'rgba(59,130,246,0.3)',  change: '+124K bu hafta' },
-  { label: 'Aktif Kullanıcı',  value: adminStats.activeUsers,   icon: Users,       color: 'from-cyan-600 to-cyan-800',      glow: 'rgba(6,182,212,0.3)',   change: '+2.1K bugün' },
-  { label: 'Günlük Yeni',      value: adminStats.newToday,      icon: Activity,    color: 'from-emerald-600 to-emerald-800',glow: 'rgba(16,185,129,0.3)',  change: '↑ %34 dün' },
-  { label: 'Toplam Bölüm',     value: adminStats.totalChapters, icon: BarChart2,   color: 'from-orange-600 to-orange-800',  glow: 'rgba(249,115,22,0.3)',  change: '+47 bu hafta' },
-  { label: 'Premium Üye',      value: adminStats.premiumUsers,  icon: Crown,       color: 'from-amber-600 to-amber-800',    glow: 'rgba(245,158,11,0.3)',  change: '+320 bu ay' },
-  { label: 'Gelir',            value: adminStats.revenue,       icon: DollarSign,  color: 'from-pink-600 to-pink-800',      glow: 'rgba(236,72,153,0.3)',  change: '+₺12.4K' },
-  { label: 'Memnuniyet',       value: adminStats.satisfaction,  icon: UserCheck,   color: 'from-violet-600 to-violet-800',  glow: 'rgba(124,58,237,0.3)',  change: '↑ %1.2' },
-];
+
 
 function MetricCard({ card, index }) {
   return (
@@ -310,8 +300,11 @@ export default function Admin() {
   const {
     series, addChapter, addAnnouncement,
     registeredUsers, updateRegisteredUser, deleteRegisteredUser,
-    updateSeries, deleteSeries, toggleTrend, toggleStatus
+    updateSeries, deleteSeries, toggleTrend, toggleStatus,
+    chapters, loading: appLoading
   } = useApp();
+
+
   const [searchEnterprise, setSearchEnterprise] = useState('');
   const [editingEnterpriseUser, setEditingEnterpriseUser] = useState(null);
   const [confirmDeleteEnterprise, setConfirmDeleteEnterprise] = useState(null);
@@ -323,19 +316,31 @@ export default function Admin() {
   const [editingSeries, setEditingSeries] = useState(null);
   const [editingSeriesTab, setEditingSeriesTab] = useState('details');
   const [confirmDeleteSeries, setConfirmDeleteSeries] = useState(null);
-
-  const [users, setUsers] = useState(Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1,
-    name: ['Ahmet K.', 'Ece S.', 'Burak T.', 'Zeynep A.', 'Can M.', 'Selin D.', 'Emre Y.', 'Ayşe B.'][i],
-    email: [`user${i + 1}@mail.com`],
-    joined: `2024-0${(i % 9) + 1}-${String(i * 4 + 1).padStart(2, '0')}`,
-    role: ['Yönetici', 'Baş Admin', 'Baş Admin Yardımcısı', 'Admin', 'Admin Yardımcısı', 'Kullanıcı', 'Kullanıcı', 'Kullanıcı'][i],
-    status: i % 7 !== 6 ? 'Aktif' : 'Pasif',
-    premium: i % 3 === 0,
-    reads: Math.floor(Math.random() * 500 + 50)
-  })));
-  const [editingUser, setEditingUser] = useState(null);
   const [searchUsers, setSearchUsers] = useState('');
+
+  if (appLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050507]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <div className="text-purple-400 font-black tracking-widest animate-pulse uppercase text-xs">Kozmik Veriler Senkronize Ediliyor...</div>
+        </div>
+      </div>
+    );
+  }
+
+  const totalChapters = Object.values(chapters).reduce((acc, curr) => acc + curr.length, 0);
+
+  const metricCards = [
+    { label: 'Toplam Seri',      value: series.length,             icon: BookOpen,    color: 'from-purple-600 to-purple-800',  glow: 'rgba(168,85,247,0.3)',  change: 'Canlı Veri' },
+    { label: 'Toplam Okunma',    value: series.reduce((acc, s) => acc + (s.reads_num || 0), 0), icon: Eye,         color: 'from-blue-600 to-blue-800',      glow: 'rgba(59,130,246,0.3)',  change: 'Tüm Zamanlar' },
+    { label: 'Kayıtlı Ruhlar',   value: registeredUsers.length,    icon: Users,       color: 'from-cyan-600 to-cyan-800',      glow: 'rgba(6,182,212,0.3)',   change: 'Global Kayıt' },
+    { label: 'Yeni Bugün',       value: registeredUsers.filter(u => u.joinDate === new Date().toISOString().split('T')[0]).length, icon: Activity,    color: 'from-emerald-600 to-emerald-800',glow: 'rgba(16,185,129,0.3)',  change: 'Bugünkü Kayıt' },
+    { label: 'Toplam Bölüm',     value: totalChapters,             icon: BarChart2,   color: 'from-orange-600 to-orange-800',  glow: 'rgba(249,115,22,0.3)',  change: 'Yayında' },
+    { label: 'Premium Üye',      value: registeredUsers.filter(u => u.premium).length,  icon: Crown,       color: 'from-amber-600 to-amber-800',    glow: 'rgba(245,158,11,0.3)',  change: 'VIP' },
+    { label: 'Duyurular',        value: series.length > 0 ? series.length * 2 : 0,      icon: Globe,       color: 'from-pink-600 to-pink-800',      glow: 'rgba(236,72,153,0.3)',  change: 'Sistem' },
+    { label: 'Memnuniyet',       value: '100%',                   icon: UserCheck,   color: 'from-violet-600 to-violet-800',  glow: 'rgba(124,58,237,0.3)',  change: 'Kusursuz' },
+  ];
 
   // Settings mock state
   const [settingPrefs, setSettingPrefs] = useState({ newRegisters: true, premiumFeatures: true, emailNotifs: true, tempMaintenance: maintenanceMode });
@@ -369,14 +374,14 @@ export default function Admin() {
   // Determine allowed menus based on rank
   const allNavItems = [
     { id: 'dashboard',       label: 'Dashboard',                icon: LayoutDashboard },
-    { id: 'content',         label: 'Kozmik Eserler (Seriler)', icon: BookOpen },
+    { id: 'content',         label: 'Eserler (Seriler)',        icon: BookOpen },
     { id: 'chapterEditor',   label: 'Bölüm Editörü',            icon: Layers },
-    { id: 'add',             label: 'Bölüm Ekle',               icon: PlusCircle },
-    { id: 'users',           label: 'Ruhlar (Kullanıcılar)',    icon: Users },
-    { id: 'enterpriseUsers', label: 'Enterprise Kullanıcılar',  icon: UserCheck },
+    { id: 'add',             label: 'Hızlı Ekle',               icon: PlusCircle },
+    { id: 'enterpriseUsers', label: 'Ruh Yönetimi (Kullanıcılar)', icon: UserCheck },
     { id: 'settings',        label: 'Kainat Ayarları',          icon: Settings },
-    { id: 'trash',           label: 'Çöp Kutusu (Silinenler)',  icon: Trash2 },
+    { id: 'trash',           label: 'Geri Dönüşüm',             icon: Trash2 },
   ];
+
   const allowedNavs = allNavItems.filter(n => roleConfig.access.includes(n.id));
 
   // Switch tab safely if current activeNav is restricted
@@ -704,68 +709,9 @@ export default function Admin() {
         {/* Add Chapter */}
         {activeNav === 'add' && <AddChapterForm seriesList={series} showToast={showToast} sendNotification={sendNotification} />}
 
-        {/* Users Table */}
-        {activeNav === 'users' && (
-          <div className="glass border border-white/8 rounded-2xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.3)]">
-            <div className="p-5 border-b border-white/8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-black/20">
-              <h3 className="text-white font-bold text-lg">Ruhlar (Kullanıcı Listesi)</h3>
-              <div className="relative">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input type="text" placeholder="İsim, E-posta bul..." value={searchUsers} onChange={(e) => setSearchUsers(e.target.value)} className="bg-[#0a0a14] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all w-full sm:w-64" />
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/5 bg-black/40">
-                    {['Kullanıcı', 'Tarih / Okuma', 'Plan', 'Sistem Rolü', 'Durum', 'İşlem'].map((h) => <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-5 py-4">{h}</th>)}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers?.map((u) => (
-                    <motion.tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      <td className="px-5 py-3">
-                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-black text-xs shadow-inner">
-                               {u.name.charAt(0)}
-                            </div>
-                            <div>
-                               <p className="text-white font-bold text-sm">{u.name}</p>
-                               <p className="text-slate-500 text-[10px]">{u.email}</p>
-                            </div>
-                         </div>
-                      </td>
-                      <td className="px-5 py-3">
-                         <p className="text-slate-300 text-xs font-semibold">{u.joined}</p>
-                         <p className="text-slate-500 text-[10px]"><BookOpen size={10} className="inline mr-1"/>{u.reads} Bölüm</p>
-                      </td>
-                      <td className="px-5 py-3">{u.premium ? <span className="flex items-center gap-1 text-amber-500 text-xs font-bold drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]"><Crown size={12} className="fill-amber-500" />Premium</span> : <span className="text-slate-500 text-xs font-semibold">Standart</span>}</td>
-                      <td className="px-5 py-3">
-                        {ADMIN_ROLES[u.role] ? (
-                          <span className={`inline-flex px-2.5 py-1.5 rounded-lg border text-[9px] font-black uppercase tracking-widest shadow-md ${ADMIN_ROLES[u.role].color}`}>
-                            {u.role}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 border border-slate-600/50 bg-slate-800/30 px-2.5 py-1.5 rounded-lg uppercase text-[9px] font-black tracking-widest">Kullanıcı</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-3"><span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg border ${u.status === 'Aktif' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.2)]' : 'text-red-400 bg-red-500/10 border-red-500/30 shadow-[0_0_8px_rgba(239,68,68,0.2)]'}`}>{u.status}</span></td>
-                      <td className="px-5 py-3">
-                        <div className="flex gap-2">
-                           <button onClick={() => setEditingUser(u)} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all border border-transparent hover:border-blue-500/30"><Edit3 size={14} /></button>
-                           <button onClick={() => { setUsers(users.filter(x => x.id !== u.id)); showToast('Kullanıcı sistemden sürgün edildi', 'error'); }} className="p-2 text-red-500 hover:bg-red-500/20 hover:text-red-400 border border-transparent hover:border-red-500/30 rounded-lg transition-all"><Trash2 size={14} /></button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── Enterprise Users Tab ── */}
+        {/* Enterprise Users Tab ── Primary User Management */}
         {activeNav === 'enterpriseUsers' && (() => {
+
           const filtered = registeredUsers.filter(u =>
             u.username?.toLowerCase().includes(searchEnterprise.toLowerCase()) ||
             u.email?.toLowerCase().includes(searchEnterprise.toLowerCase())
