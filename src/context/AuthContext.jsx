@@ -61,12 +61,25 @@ export function AuthProvider({ children }) {
       return merged;
     } catch (err) {
       console.error('[Auth] FetchProfile Kritik Hata:', err);
-      // Hata durumunda döngüyü kırmak için yedek profil ver
-      const fallbackUser = {
+      // Hata veya timeout durumunda döngüyü kırmak için yedek profil ver
+      let cachedUser = null;
+      try {
+        const cached = localStorage.getItem('anipeak_user_cache');
+        if (cached) cachedUser = JSON.parse(cached);
+      } catch (e) {}
+
+      // Cache varsa onu kullan, yoksa boş bir kullanıcı oluştur
+      const fallbackUser = (cachedUser && cachedUser.id === authUser.id) ? cachedUser : {
         ...authUser,
         username: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
         role: 'Kullanıcı'
       };
+
+      // Garantili Kurucu (Owner) Koruması (Ağ çökse bile yetki düşmesin)
+      if (authUser.email === 'murathanozel134@gmail.com') {
+         fallbackUser.role = 'Baş Admin';
+      }
+
       setUser(fallbackUser);
       return fallbackUser;
     }
@@ -198,7 +211,8 @@ export function AuthProvider({ children }) {
         try {
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
             if (session?.user) {
-              setLoading(true); // Veri beklerken loading aç
+              // Sadece İLK girişte loading göster, arka plan yenilemelerinde (sekme değişimi vb) UI'ı dondurma
+              if (event === 'SIGNED_IN') setLoading(true); 
               await fetchProfile(session.user);
               subscribeToProfile(session.user.id);
             }
