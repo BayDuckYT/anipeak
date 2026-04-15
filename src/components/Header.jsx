@@ -161,137 +161,157 @@ export default function Header({ onAuthOpen }) {
               <Shield size={14} /> <span className="hidden lg:inline">Kozmik Oda</span>
             </Link>
 
-            {user ? (
-              <>
-                {/* Notifications */}
-                <div className="relative" ref={notifRef}>
-                  <button
-                    onClick={() => { setNotifOpen(!notifOpen); if (!notifOpen) markAllRead(); }}
-                    className="relative p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
-                  >
-                    <Bell size={18} />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-1 right-1 w-4 h-4 bg-purple-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center">
-                        {unreadCount}
-                      </span>
+          {/* Notifications Bell - Always Visible */}
+          <div className="relative" ref={notifRef}>
+            <button
+              onClick={() => { setNotifOpen(!notifOpen); if (!notifOpen && user) markAllRead(); }}
+              className="relative p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
+            >
+              <Bell size={18} />
+              {user && unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-purple-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            <AnimatePresence>
+              {notifOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  className="absolute right-0 top-full mt-2 w-80 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
+                >
+                  <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between">
+                    <span className="text-white text-sm font-bold">Bildirimler</span>
+                    {user && (
+                      <button onClick={markAllRead} className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                        <CheckCheck size={12} /> Tümü Okundu
+                      </button>
                     )}
-                  </button>
-                  <AnimatePresence>
-                    {notifOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        className="absolute right-0 top-full mt-2 w-80 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
-                      >
-                        <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between">
-                          <span className="text-white text-sm font-bold">Bildirimler</span>
-                          <button onClick={markAllRead} className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1">
-                            <CheckCheck size={12} /> Tümü Okundu
-                          </button>
-                        </div>
-                        <div className="max-h-80 overflow-y-auto">
-                          {notifications?.map((n) => (
-                            <div key={n.id} className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors ${!n.read ? 'bg-purple-500/5' : ''}`}>
-                              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.read ? 'bg-purple-400' : 'bg-slate-700'}`} />
-                              <div className="min-w-0">
-                                <p className="text-slate-300 text-xs leading-relaxed">{n?.text}</p>
-                                <p className="text-slate-600 text-[10px] mt-1">{n?.time}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Profile */}
-                <div className="relative" ref={profileRef}>
-                  <button
-                    onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition-all"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple">
-                      {avatarLetter}
-                    </div>
-                    <div className="hidden md:block text-left">
-                      <p className="text-white text-xs font-semibold leading-tight">{user.username}</p>
-                    </div>
-                    <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  <AnimatePresence>
-                    {profileOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        className="absolute right-0 top-full mt-2 w-56 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
-                      >
-                        {/* User info header */}
-                        <div className="px-4 py-3 border-b border-white/8 bg-gradient-to-r from-purple-500/10 to-blue-500/10">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold">
-                              {avatarLetter}
-                            </div>
-                            <div>
-                              <p className="text-white text-sm font-bold">{user.username}</p>
-                              <p className="text-slate-400 text-[10px] truncate">{user.email}</p>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {user ? (
+                      notifications?.length > 0 ? (
+                        notifications.map((n) => (
+                          <div key={n.id} className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors ${!n.read ? 'bg-purple-500/5' : ''}`}>
+                            <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.read ? 'bg-purple-400' : 'bg-slate-700'}`} />
+                            <div className="min-w-0">
+                              <p className="text-slate-300 text-xs leading-relaxed">{n?.text}</p>
+                              <p className="text-slate-600 text-[10px] mt-1">{n?.time}</p>
                             </div>
                           </div>
-                        </div>
-
-                        <div className="p-1.5">
-                          <Link
-                            to="/profile"
-                            onClick={() => setProfileOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm"
-                          >
-                            <Library size={15} className="text-purple-400" />
-                            Okuduklarım
-                          </Link>
-                          <Link
-                            to="/profile?tab=settings"
-                            onClick={() => setProfileOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm"
-                          >
-                            <Settings size={15} className="text-blue-400" />
-                            Ayarlar
-                          </Link>
-
-                        </div>
-
-                        <div className="p-1.5 border-t border-white/8">
-                          <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm"
-                          >
-                            <LogOut size={15} />
-                            Çıkış Yap
-                          </button>
-                        </div>
-                      </motion.div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-6 text-center text-slate-500 text-xs">Henüz bildirim yok.</div>
+                      )
+                    ) : (
+                      <div className="px-4 py-6 text-center">
+                        <Bell size={28} className="text-purple-400 mx-auto mb-3 opacity-60" />
+                        <p className="text-slate-300 text-xs font-semibold mb-1">Bildirimleri görmek için giriş yap</p>
+                        <p className="text-slate-500 text-[10px] mb-4">Yeni bölüm ve duyurulardan haberdar ol!</p>
+                        <button
+                          onClick={() => { setNotifOpen(false); onAuthOpen('login'); }}
+                          className="w-full py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                        >
+                          Giriş Yap
+                        </button>
+                      </div>
                     )}
-                  </AnimatePresence>
-                </div>
-              </>
-            ) : (
-              <>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {user ? (
+            <>
+              {/* Profile */}
+              <div className="relative" ref={profileRef}>
                 <button
-                  onClick={() => onAuthOpen('login')}
-                  className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+                  onClick={() => setProfileOpen(!profileOpen)}
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition-all"
                 >
-                  <LogIn size={15} /> Giriş
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple">
+                    {avatarLetter}
+                  </div>
+                  <div className="hidden md:block text-left">
+                    <p className="text-white text-xs font-semibold leading-tight">{user.username}</p>
+                  </div>
+                  <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <button
-                  onClick={() => onAuthOpen('register')}
-                  className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple"
-                >
-                  <UserPlus size={15} /> Kayıt Ol
-                </button>
-              </>
-            )}
+
+                <AnimatePresence>
+                  {profileOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-56 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
+                    >
+                      {/* User info header */}
+                      <div className="px-4 py-3 border-b border-white/8 bg-gradient-to-r from-purple-500/10 to-blue-500/10">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold">
+                            {avatarLetter}
+                          </div>
+                          <div>
+                            <p className="text-white text-sm font-bold">{user.username}</p>
+                            <p className="text-slate-400 text-[10px] truncate">{user.email}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-1.5">
+                        <Link
+                          to="/profile"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm"
+                        >
+                          <Library size={15} className="text-purple-400" />
+                          Okuduklarım
+                        </Link>
+                        <Link
+                          to="/profile?tab=settings"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm"
+                        >
+                          <Settings size={15} className="text-blue-400" />
+                          Ayarlar
+                        </Link>
+
+                      </div>
+
+                      <div className="p-1.5 border-t border-white/8">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm"
+                        >
+                          <LogOut size={15} />
+                          Çıkış Yap
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => onAuthOpen('login')}
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+              >
+                <LogIn size={15} /> Giriş
+              </button>
+              <button
+                onClick={() => onAuthOpen('register')}
+                className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple"
+              >
+                <UserPlus size={15} /> Kayıt Ol
+              </button>
+            </>
+          )}
 
             {/* Mobile toggle */}
             <button
