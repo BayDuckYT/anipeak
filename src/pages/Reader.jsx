@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Settings2, Sun, Moon,
-  Maximize2, Minimize2, Home, Heart, MessageSquare, Send
+  Maximize2, Minimize2, Home, Heart, MessageSquare, Send, BookOpen
 } from 'lucide-react';
-import { manhwaData, readerPages } from '../data/mockData.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
+import CommentSystem from '../components/CommentSystem.jsx';
 
 function ReaderImage({ src, alt, idx, chapter }) {
   const [error, setError] = useState(false);
@@ -22,7 +22,8 @@ function ReaderImage({ src, alt, idx, chapter }) {
     );
   }
 
-  const imageSrc = src?.startsWith('data:') ? src : `${src}?chapter=${chapter}`;
+  // Ensure src is valid
+  const imageSrc = src?.startsWith('data:') ? src : src;
 
   return (
     <motion.img
@@ -44,7 +45,7 @@ export default function Reader() {
   const { id, chapter: chapterParam } = useParams();
   const navigate = useNavigate();
   const { user, addToHistory } = useAuth();
-  const { series, chapters } = useApp();
+  const { series, getChapters } = useApp();
   
   const handleFullscreen = () => {
     try {
@@ -56,8 +57,8 @@ export default function Reader() {
     } catch(e) {}
   };
   
-  const manhwaId = Number(id);
-  const manhwa = series.find((m) => String(m.id) === String(id));
+  const manhwaId = id;
+  const manhwa = useMemo(() => series.find((m) => String(m.id) === String(id)), [series, id]);
   const initialChapter = Number(chapterParam) || 1;
 
   const [chapter, setChapter] = useState(initialChapter);
@@ -66,29 +67,24 @@ export default function Reader() {
   const [showPanel, setShowPanel] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [liked, setLiked] = useState(false);
-  const [comments, setComments] = useState([
-    { id: 1, user: 'KaranlıkAvcı', text: 'Bu bölüm efsaneydi! Çizimler harika olmuş.', time: '2 saat önce', likes: 24, userLiked: false, role: 'Kullanıcı' },
-    { id: 2, user: 'AnimeSever99', text: 'Sonraki bölümü sabırsızlıkla bekliyorum. Acaba ne olacak?', time: '5 saat önce', likes: 12, userLiked: false, role: 'Kullanıcı' },
-    { id: 3, user: 'Yönetici', text: 'Okuduğum en iyi serilerden biri kesinlikle. İyi takipler!', time: '1 gün önce', likes: 188, userLiked: false, role: 'Yönetici' },
-  ]);
-  const [newComment, setNewComment] = useState('');
 
   const panelRef = useRef(null);
   const lastScrollY = useRef(0);
 
+  // All chapters for this manhwa
+  const contextChapters = useMemo(() => getChapters(manhwa?.id), [getChapters, manhwa?.id]);
+
   // Update history when chapter changes
   useEffect(() => {
-    if (user) {
-      addToHistory(manhwaId, chapter);
+    if (user && manhwa?.id) {
+      addToHistory(manhwa.id, chapter);
     }
-  }, [chapter, manhwaId, user, addToHistory]);
+  }, [chapter, manhwa?.id, user, addToHistory]);
 
-  // Sync URL when chapter changes
+  // Sync state if URL changes externally
   useEffect(() => {
-    if (chapter !== initialChapter) {
-      navigate(`/read/${manhwaId}/${chapter}`, { replace: true });
-    }
-  }, [chapter, manhwaId, initialChapter, navigate]);
+    setChapter(Number(chapterParam));
+  }, [chapterParam]);
 
   // Auto-hide top bar on scroll down
   useEffect(() => {
@@ -116,45 +112,18 @@ export default function Reader() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const handleAddComment = (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-    if (!user) {
-      alert("Yorum yapmak için giriş yapmalısınız!");
-      return;
-    }
-    const comment = {
-      id: Date.now(),
-      user: user.username,
-      text: newComment,
-      time: 'Şimdi',
-      likes: 0,
-      userLiked: false,
-      role: user.role || 'Kullanıcı'
-    };
-    setComments([comment, ...comments]);
-    setNewComment('');
-  };
+  if (!manhwa) return null;
 
-  const handleLikeComment = (commentId) => {
-    if (!user) {
-      alert("Yorumu beğenmek için giriş yapmalısınız!");
-      return;
-    }
-    setComments((prev) => prev.map((c) => {
-      if (c.id === commentId) {
-        return c.userLiked
-          ? { ...c, likes: c.likes - 1, userLiked: false }
-          : { ...c, likes: c.likes + 1, userLiked: true };
-      }
-      return c;
-    }));
-  };
+  const totalChapters = contextChapters.length || 0;
+  const activeChapterData = contextChapters.find(c => Number(c.number) === Number(chapter));
+  const pages = activeChapterData?.pages || [];
 
-  const contextChapters = chapters[manhwaId] || [];
-  const totalChapters = manhwa?.chapters || contextChapters.length || 0;
-  const activeChapterData = contextChapters.find(c => String(c.number) === String(chapter));
-  const pages = activeChapterData && activeChapterData.pages && activeChapterData.pages.length > 0 ? activeChapterData.pages : readerPages;
+  const handleChapterTab = (newCh) => {
+    setChapter(newCh);
+    navigate(`/read/${manhwa.id}/${newCh}`);
+    window.scrollTo(0,0);
+    setShowPanel(false);
+  };
 
   return (
     <div
@@ -174,7 +143,7 @@ export default function Reader() {
             {/* Left */}
             <div className="flex items-center gap-3">
               <Link
-                to={`/manhwa/${manhwaId}`}
+                to={`/manhwa/${manhwa.id}`}
                 className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm"
               >
                 <ArrowLeft size={16} />
@@ -185,25 +154,28 @@ export default function Reader() {
                 <p className="text-white font-semibold text-sm leading-tight line-clamp-1 max-w-[180px] sm:max-w-xs">
                   {manhwa.title}
                 </p>
-                <p className="text-slate-500 text-xs">Bölüm {chapter}</p>
+                <p className="text-slate-500 text-xs text-uppercase font-black tracking-widest">Bölüm {chapter}</p>
               </div>
             </div>
 
             {/* Chapter selector */}
             <div className="hidden sm:flex items-center gap-2">
               <button
-                disabled={chapter <= 1}
-                onClick={() => { setChapter((c) => Math.max(1, c - 1)); window.scrollTo(0,0); }}
+                disabled={chapter <= (contextChapters[contextChapters.length - 1]?.number || 1)}
+                onClick={() => handleChapterTab(chapter - 1)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-all"
               >
                 <ChevronLeft size={16} />
               </button>
-              <span className="text-sm text-slate-300 font-medium px-1">
-                {chapter} / {totalChapters}
-              </span>
+              <button 
+                onClick={() => setShowPanel(!showPanel)}
+                className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white hover:border-purple-500/50 transition-all flex items-center gap-2"
+              >
+                Bölüm {chapter} <ChevronDown size={12} className={showPanel ? 'rotate-180' : ''} />
+              </button>
               <button
-                disabled={chapter >= totalChapters}
-                onClick={() => { setChapter((c) => Math.min(totalChapters, c + 1)); window.scrollTo(0,0); }}
+                disabled={chapter >= (contextChapters[0]?.number || 1)}
+                onClick={() => handleChapterTab(chapter + 1)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-all"
               >
                 <ChevronRight size={16} />
@@ -256,34 +228,21 @@ export default function Reader() {
                     </div>
                     <div className="mb-3">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center justify-between">
-                        Tüm Bölümler <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px]">{contextChapters.length || totalChapters}B</span>
+                        Tüm Bölümler <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px]">{contextChapters.length}B</span>
                       </p>
                       <div className="max-h-56 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar">
-                        {contextChapters?.length > 0 ? (
-                           contextChapters?.map((ch) => (
-                              <button
-                                key={ch.id}
-                                onClick={() => { setChapter(ch.number); window.scrollTo(0,0); setShowPanel(false); }}
-                                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between group ${String(ch.number) === String(chapter) ? 'bg-purple-600 border border-purple-500 shadow-neon-purple text-white font-bold' : 'bg-white/5 border border-transparent text-slate-300 hover:bg-white/10'}`}
-                              >
-                                <span className="flex-1 truncate">
-                                   Bölüm {ch.number}
-                                   {ch.title && <span className="ml-2 text-xs text-slate-400 font-normal truncate group-hover:text-slate-300 transition-colors">— {ch.title}</span>}
-                                </span>
-                              </button>
-                           ))
-                        ) : (
-                          // Fallback to sequential auto-generation if not in DB
-                          Array.from({ length: totalChapters }, (_, i) => (
-                             <button
-                                key={i + 1}
-                                onClick={() => { setChapter(i + 1); window.scrollTo(0,0); setShowPanel(false); }}
-                                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${String(i + 1) === String(chapter) ? 'bg-purple-600 border border-purple-500 shadow-neon-purple text-white font-bold' : 'bg-white/5 border border-transparent text-slate-300 hover:bg-white/10'}`}
-                             >
-                               Bölüm {i + 1}
-                             </button>
-                          ))
-                        )}
+                        {contextChapters.map((ch) => (
+                           <button
+                             key={ch.id}
+                             onClick={() => handleChapterTab(ch.number)}
+                             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between group ${Number(ch.number) === Number(chapter) ? 'bg-purple-600 border border-purple-500 shadow-neon-purple text-white font-bold' : 'bg-white/5 border border-transparent text-slate-300 hover:bg-white/10'}`}
+                           >
+                             <span className="flex-1 truncate">
+                                Bölüm {ch.number}
+                                {ch.title && <span className="ml-2 text-xs text-slate-400 font-normal truncate group-hover:text-slate-300 transition-colors">— {ch.title}</span>}
+                             </span>
+                           </button>
+                        ))}
                       </div>
                     </div>
                   </motion.div>
@@ -321,14 +280,14 @@ export default function Reader() {
         {!zenMode && (
           <div className="w-full max-w-2xl text-center py-6 px-4">
             <h1 className="text-lg font-bold text-white mb-1">{manhwa.title}</h1>
-            <p className="text-slate-500 text-sm">Bölüm {chapter}</p>
+            <p className="text-slate-500 text-sm font-black tracking-widest uppercase">Bölüm {chapter}</p>
             <div className="mt-3 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
           </div>
         )}
 
         {/* Pages — webtoon vertical scroll */}
-        <div className="w-full max-w-2xl mx-auto">
-          {pages?.map((src, idx) => (
+        <div className="w-full max-w-2xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+          {pages.length > 0 ? pages.map((src, idx) => (
             <ReaderImage 
               key={`${chapter}-${idx}`} 
               src={src} 
@@ -336,38 +295,47 @@ export default function Reader() {
               idx={idx} 
               chapter={chapter} 
             />
-          ))}
+          )) : (
+            <div className="py-40 text-center glass border border-white/5 rounded-3xl mx-4">
+                <BookOpen size={48} className="text-slate-700 mx-auto mb-4" />
+                <p className="text-slate-500 font-bold">Bu bölüm için sayfa yüklenemedi.</p>
+                <p className="text-slate-600 text-xs mt-2">Editör henüz sayfaları girmemiş olabilir.</p>
+            </div>
+          )}
         </div>
 
         {/* ── CHAPTER NAV BOTTOM ── */}
         <div className="w-full max-w-2xl mx-auto pt-10 pb-6 px-4">
           <div className="glass border border-white/10 rounded-2xl p-6 text-center">
             <p className="text-slate-400 text-sm mb-4">
-              {chapter < totalChapters
-                ? `Bölüm ${chapter + 1}'e geçmeye hazır mısın?`
-                : 'Bu seri için tüm bölümleri okudun! 🎉'}
+              Bölüm {chapter} tamamlandı. Devam etmek ister misin?
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
-              {chapter > 1 && (
-                <button
-                  onClick={() => { setChapter((c) => c - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-white/10 text-slate-300 hover:border-purple-500/40 hover:text-white transition-all text-sm font-medium"
-                >
-                  <ChevronLeft size={16} />
-                  Önceki Bölüm
-                </button>
-              )}
-              {chapter < totalChapters && (
-                <button
-                  onClick={() => { setChapter((c) => c + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple"
-                >
-                  Sonraki Bölüm
-                  <ChevronRight size={16} />
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  const prev = contextChapters.find(c => Number(c.number) < Number(chapter));
+                  if (prev) handleChapterTab(prev.number);
+                }}
+                disabled={!contextChapters.some(c => Number(c.number) < Number(chapter))}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-white/10 text-slate-300 hover:border-purple-500/40 hover:text-white transition-all text-sm font-medium disabled:opacity-20"
+              >
+                <ChevronLeft size={16} />
+                Önceki Bölüm
+              </button>
+              
+              <button
+                onClick={() => {
+                  const next = [...contextChapters].reverse().find(c => Number(c.number) > Number(chapter));
+                  if (next) handleChapterTab(next.number);
+                }}
+                disabled={!contextChapters.some(c => Number(c.number) > Number(chapter))}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple disabled:opacity-20"
+              >
+                Sonraki Bölüm
+                <ChevronRight size={16} />
+              </button>
             </div>
-            {/* Actions: Home, Like */}
+            
             <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-white/10">
               <button
                 onClick={() => setLiked(!liked)}
@@ -382,68 +350,19 @@ export default function Reader() {
           </div>
         </div>
 
-        {/* ── COMMENTS SECTION ── */}
+        {/* ── REAL-TIME COMMENTS SECTION ── */}
         {!zenMode && (
           <div className="w-full max-w-2xl mx-auto pb-20 px-4">
-            <div className="glass border border-white/10 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <MessageSquare size={20} className="text-purple-400" />
-                Yorumlar ({comments.length})
-              </h3>
-              
-              <form onSubmit={handleAddComment} className="mb-8 relative">
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder={user ? "Bu bölüm hakkında ne düşünüyorsun?" : "Yorum yapmak için giriş yapmalısın..."}
-                  disabled={!user}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-4 pr-12 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.3)] transition-all disabled:opacity-50"
-                />
-                <button
-                  type="submit"
-                  disabled={!user || !newComment.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-purple-400 hover:bg-purple-500/20 disabled:opacity-50 transition-all"
-                >
-                  <Send size={18} />
-                </button>
-              </form>
-
-              <div className="space-y-4">
-                {comments.map((comment) => (
-                  <div key={comment.id} className={`flex gap-4 p-4 rounded-xl border transition-colors ${comment.role === 'Yönetici' ? 'bg-red-500/5 border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.05)]' : 'bg-white/5 border-white/5 hover:border-white/10'}`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg ${comment.role === 'Yönetici' ? 'bg-gradient-to-br from-red-600 to-red-900 shadow-red-500/30' : 'bg-gradient-to-br from-purple-600 to-blue-600'}`}>
-                      {comment.user.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                         <div className="flex items-center gap-2">
-                           <span className={`text-sm font-bold ${comment.role === 'Yönetici' ? 'text-red-500 line-clamp-1' : 'text-white'}`}>{comment.user}</span>
-                           {comment.role && comment.role !== 'Kullanıcı' && (
-                             <span className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded border ${comment.role === 'Yönetici' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-purple-500/20 text-purple-400 border-purple-500/30'}`}>
-                               {comment.role}
-                             </span>
-                           )}
-                         </div>
-                        <span className="text-[10px] text-slate-500 whitespace-nowrap ml-2">{comment.time}</span>
-                      </div>
-                      <p className={`text-sm leading-relaxed mb-3 ${comment.role === 'Yönetici' ? 'text-red-200' : 'text-slate-300'}`}>
-                        {comment.text}
-                      </p>
-                      <button
-                        onClick={() => handleLikeComment(comment.id)}
-                         className={`flex items-center gap-1.5 text-xs font-semibold hover:text-pink-400 transition-colors ${comment.userLiked ? 'text-pink-400' : 'text-slate-500'}`}
-                      >
-                        <Heart size={14} className={comment.userLiked ? 'fill-pink-400' : ''} /> {comment.likes} Beğeni
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+             <CommentSystem seriesId={manhwa.id} chapterId={chapter} />
           </div>
         )}
       </motion.div>
     </div>
   );
+}
+
+function ChevronDown({ size, className }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>
+    );
 }

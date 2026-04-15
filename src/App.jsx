@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ShieldAlert, Key } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
-import { AppProvider } from './context/AppContext.jsx';
+import { AppProvider, useApp } from './context/AppContext.jsx';
 import Header from './components/Header.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import Home from './pages/Home.jsx';
@@ -15,6 +15,19 @@ import ProfilePage from './pages/ProfilePage.jsx';
 import AllSeries from './pages/AllSeries.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
+// Role-based Route Protection
+function AdminRoute({ children }) {
+  const { isEditor, loading } = useAuth();
+  if (loading) return null;
+  return isEditor ? children : <Navigate to="/" />;
+}
+
+function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return user ? children : <Navigate to="/" />;
+}
+
 function AnimatedRoutes({ onAuthOpen }) {
   const location = useLocation();
   return (
@@ -24,8 +37,8 @@ function AnimatedRoutes({ onAuthOpen }) {
         <Route path="/all-series" element={<AllSeries />} />
         <Route path="/manhwa/:id" element={<ManhwaDetail onAuthOpen={onAuthOpen} />} />
         <Route path="/read/:id/:chapter" element={<Reader />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+        <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
       </Routes>
     </AnimatePresence>
   );
@@ -41,13 +54,11 @@ function MaintenanceScreen({ onAuthOpen }) {
         </button>
       </div>
 
-      {/* Background Glows */}
       <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[120px]" />
           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-orange-600/10 rounded-full blur-[100px]" />
       </div>
       
-      {/* Maintenance Card */}
       <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-strong border border-red-500/20 rounded-3xl p-10 max-w-lg text-center relative z-10 shadow-[0_0_100px_rgba(239,68,68,0.15)]">
          <ShieldAlert size={80} className="text-red-500 mx-auto mb-6 opacity-90 animate-pulse" />
          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">SİSTEM BAKIMDA</h1>
@@ -68,10 +79,11 @@ function MaintenanceScreen({ onAuthOpen }) {
 
 function AppContent() {
   const [authModal, setAuthModal] = useState(null);
-  const { maintenanceMode, user } = useAuth();
+  const { maintenanceMode } = useApp();
+  const { user, isOwner } = useAuth();
   
-  // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
-  const isMaintenanceBlocked = maintenanceMode && (!user || (user.role !== 'Yönetici' && user.role !== 'Baş Admin'));
+  // Bakım modundayken, eğer giriş yapan kişi BAŞ ADMİN DEĞİLSE ekranı kapat
+  const isMaintenanceBlocked = maintenanceMode && !isOwner;
 
   return (
     <>
@@ -84,7 +96,7 @@ function AppContent() {
               {maintenanceMode && (
                 <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-red-600 to-red-900 border-b border-red-500/50 text-white text-xs font-black py-1.5 uppercase tracking-widest shadow-lg overflow-hidden flex items-center">
                    <marquee scrollamount="8" className="w-full drop-shadow-md">
-                     🚨 SİSTEM BAKIMDA 🚨 • SADECE ADMİNLERE ÖZEL MOD AKTİF • LÜTFEN YAPTIĞINIZ DEĞİŞİKLİKLERE DİKKAT EDİNİZ • 🚨 SİSTEM BAKIMDA 🚨
+                     🚨 SİSTEM BAKIMDA 🚨 • SADECE BAŞ ADMİN MODU AKTİF • LÜTFEN YAPTIĞINIZ DEĞİŞİKLİKLERE DİKKAT EDİNİZ • 🚨 SİSTEM BAKIMDA 🚨
                    </marquee>
                 </div>
               )}

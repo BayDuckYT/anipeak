@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Star, Eye, BookOpen, Clock, CheckCircle, Crown, Play, Filter, Flame } from 'lucide-react';
@@ -6,12 +6,12 @@ import { useApp } from '../context/AppContext.jsx';
 
 const statusColors = {
   'Devam Ediyor': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
-  'Tamamlandı':   'text-blue-400 bg-blue-400/10 border-blue-400/30',
+  'TamamlandÄ±':   'text-blue-400 bg-blue-400/10 border-blue-400/30',
 };
 
 const statusIcons = {
   'Devam Ediyor': <Clock size={10} />,
-  'Tamamlandı':   <CheckCircle size={10} />,
+  'TamamlandÄ±':   <CheckCircle size={10} />,
 };
 
 function ManhwaCard({ item, index }) {
@@ -77,11 +77,11 @@ function ManhwaCard({ item, index }) {
             <div className="mt-auto flex items-center gap-3 text-slate-500 text-xs pt-1">
               <span className="flex items-center gap-1">
                 <Eye size={11} />
-                {item.reads}
+                {item.reads_num}
               </span>
               <span className="flex items-center gap-1">
                 <BookOpen size={11} />
-                {item.chapters} Bölüm
+                {(item.chapter_count || 0)} BÃ¶lÃ¼m
               </span>
             </div>
           </div>
@@ -94,18 +94,18 @@ function ManhwaCard({ item, index }) {
 export default function AllSeries() {
   const { series } = useApp();
   const [search, setSearch] = useState('');
-  const [activeGenre, setActiveGenre] = useState('Tümü');
+  const [activeGenre, setActiveGenre] = useState('TÃ¼mÃ¼');
 
-  const allGenres = ['Tümü', ...new Set(series.filter(s => !s.isDeleted).flatMap(m => {
+  const allGenres = ['TÃ¼mÃ¼', ...new Set(series.filter(s => !s.is_deleted).flatMap(m => {
     const docGenres = Array.isArray(m.genre) ? m.genre : m.genre ? [m.genre] : m.tags || [];
     return docGenres;
   }))];
 
   const filteredData = series.filter(m => {
-    if (m.isDeleted) return false;
+    if (m.is_deleted) return false;
     const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase()) || (m.author && m.author.toLowerCase().includes(search.toLowerCase()));
     const docGenres = Array.isArray(m.genre) ? m.genre : m.genre ? [m.genre] : m.tags || [];
-    const matchesGenre = activeGenre === 'Tümü' || docGenres.includes(activeGenre);
+    const matchesGenre = activeGenre === 'TÃ¼mÃ¼' || docGenres.includes(activeGenre);
     return matchesSearch && matchesGenre;
   });
 
@@ -120,13 +120,13 @@ export default function AllSeries() {
            <div>
              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 mb-4">
                 <Flame size={14} className="text-purple-400" />
-                <span className="text-xs font-bold text-purple-300 tracking-wider uppercase">Evrensel Arşiv</span>
+                <span className="text-xs font-bold text-purple-300 tracking-wider uppercase">Evrensel ArÅŸiv</span>
              </motion.div>
              <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-3">
-               Tüm <span className="gradient-text">Seriler</span>
+               TÃ¼m <span className="gradient-text">Seriler</span>
              </motion.h1>
              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-slate-400 max-w-lg">
-                AniPeak'in devasa kozmik kütüphanesini keşfedin. Aksiyondan romantizme, binlerce efsanevi eser sizi bekliyor.
+                AniPeak'in devasa kozmik kÃ¼tÃ¼phanesini keÅŸfedin. Aksiyondan romantizme, binlerce efsanevi eser sizi bekliyor.
              </motion.p>
            </div>
            
@@ -174,11 +174,12 @@ export default function AllSeries() {
       ) : (
         <div className="py-20 text-center glass border border-white/10 rounded-3xl">
            <Search size={48} className="mx-auto text-slate-600 mb-4" />
-           <h3 className="text-xl font-bold text-white mb-2">Eser Bulunamadı</h3>
-           <p className="text-slate-500">Aradığınız kriterlere uygun bir seri kozmik kütüphanemizde bulunmuyor.</p>
-           <button onClick={() => {setSearch(''); setActiveGenre('Tümü');}} className="mt-6 px-6 py-2.5 rounded-xl bg-purple-500/10 text-purple-400 font-bold hover:bg-purple-500/20 transition-colors">Filtreleri Temizle</button>
+           <h3 className="text-xl font-bold text-white mb-2">Eser BulunamadÄ±</h3>
+           <p className="text-slate-500">AradÄ±ÄŸÄ±nÄ±z kriterlere uygun bir seri kozmik kÃ¼tÃ¼phanemizde bulunmuyor.</p>
+           <button onClick={() => {setSearch(''); setActiveGenre('TÃ¼mÃ¼');}} className="mt-6 px-6 py-2.5 rounded-xl bg-purple-500/10 text-purple-400 font-bold hover:bg-purple-500/20 transition-colors">Filtreleri Temizle</button>
         </div>
       )}
     </main>
   );
 }
+

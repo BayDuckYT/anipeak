@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,11 +10,11 @@ import { useApp } from '../context/AppContext.jsx';
 
 const statusColors = {
   'Devam Ediyor': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
-  'Tamamlandı':   'text-blue-400 bg-blue-400/10 border-blue-400/30',
+  'TamamlandÄ±':   'text-blue-400 bg-blue-400/10 border-blue-400/30',
 };
 const statusIcons = {
   'Devam Ediyor': <Clock size={10} />,
-  'Tamamlandı':   <CheckCircle size={10} />,
+  'TamamlandÄ±':   <CheckCircle size={10} />,
 };
 
 function ManhwaCard({ item, index, trendRank }) {
@@ -51,7 +51,7 @@ function ManhwaCard({ item, index, trendRank }) {
                 )}
                 {item.hasNewChapter && (
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/90 text-white text-[10px] font-black w-fit animate-pulse">
-                    <Sparkles size={9} /> YENİ BÖLÜM
+                    <Sparkles size={9} /> YENÄ° BÃ–LÃœM
                   </span>
                 )}
               </div>
@@ -89,8 +89,8 @@ function ManhwaCard({ item, index, trendRank }) {
               ))}
             </div>
             <div className="flex items-center gap-3 text-slate-500 text-xs">
-              <span className="flex items-center gap-1"><Eye size={11} />{item.reads}</span>
-              <span className="flex items-center gap-1"><BookOpen size={11} />{item.chapters} Bölüm</span>
+              <span className="flex items-center gap-1"><Eye size={11} />{item.reads_num}</span>
+              <span className="flex items-center gap-1"><BookOpen size={11} />{item.chapters} BÃ¶lÃ¼m</span>
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@ function ManhwaCard({ item, index, trendRank }) {
   );
 }
 
-// ── Announcement ticker item
+// â”€â”€ Announcement ticker item
 function AnnouncementItem({ ann, index }) {
   const colors = {
     chapter: 'border-purple-500/30 bg-purple-500/5',
@@ -132,7 +132,7 @@ export default function Home({ onAuthOpen }) {
   const { sortedSeries, announcements } = useApp();
   const validSeries = sortedSeries.filter(s => !s.isDeleted);
 
-  // Featured — highest trending + most reads
+  // Featured â€” highest trending + most reads
   const featuredItem = validSeries.length > 0 ? validSeries[0] : null;
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export default function Home({ onAuthOpen }) {
   return (
     <main className="min-h-screen" id="home-top">
 
-      {/* ── HERO ── */}
+      {/* â”€â”€ HERO â”€â”€ */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[120px]" />
@@ -176,7 +176,7 @@ export default function Home({ onAuthOpen }) {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left — Text */}
+            {/* Left â€” Text */}
             <div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
@@ -184,7 +184,7 @@ export default function Home({ onAuthOpen }) {
               >
                 <Flame size={14} className="text-orange-400 animate-pulse" />
                 <span className="text-sm text-slate-300 font-medium">
-                  <span className="text-purple-400 font-bold">2.4M+</span> aktif okuyucu katıldı
+                  <span className="text-purple-400 font-bold">2.4M+</span> aktif okuyucu katÄ±ldÄ±
                 </span>
               </motion.div>
 
@@ -194,18 +194,18 @@ export default function Home({ onAuthOpen }) {
               >
                 <span className="text-white">Efsanevi</span>
                 <br />
-                <span className="gradient-text">Serüven</span>
+                <span className="gradient-text">SerÃ¼ven</span>
                 <br />
                 <span className="text-white">Burada</span>{' '}
-                <span className="text-slate-400">Başlıyor</span>
+                <span className="text-slate-400">BaÅŸlÄ±yor</span>
               </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg"
               >
-                Binlerce premium Manhwa ve Webtoon serisine tek platformdan eriş.
-                Koyu mod, sonsuz scroll ve sıfır gecikme ile kusursuz okuma deneyimi.
+                Binlerce premium Manhwa ve Webtoon serisine tek platformdan eriÅŸ.
+                Koyu mod, sonsuz scroll ve sÄ±fÄ±r gecikme ile kusursuz okuma deneyimi.
               </motion.p>
 
               <motion.div
@@ -217,13 +217,13 @@ export default function Home({ onAuthOpen }) {
                   className="flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-base hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple hover:shadow-[0_0_40px_rgba(168,85,247,0.5)]"
                 >
                   <Zap size={18} />
-                  {user ? 'Trendleri Keşfet' : 'Ücretsiz Başla'}
+                  {user ? 'Trendleri KeÅŸfet' : 'Ãœcretsiz BaÅŸla'}
                 </button>
                 <button
                   onClick={() => trendRef.current?.scrollIntoView({ behavior: 'smooth' })}
                   className="flex items-center gap-2 px-7 py-3.5 rounded-xl glass border border-white/15 text-white font-semibold text-base hover:border-purple-500/40 hover:bg-purple-500/10 transition-all"
                 >
-                  Trendleri Keşfet <ChevronRight size={18} />
+                  Trendleri KeÅŸfet <ChevronRight size={18} />
                 </button>
               </motion.div>
 
@@ -233,8 +233,8 @@ export default function Home({ onAuthOpen }) {
               >
                 {[
                   { label: 'Aktif Seri', value: '120+' },
-                  { label: 'Bölüm', value: '8.7K+' },
-                  { label: 'Kullanıcı', value: '48K+' },
+                  { label: 'BÃ¶lÃ¼m', value: '8.7K+' },
+                  { label: 'KullanÄ±cÄ±', value: '48K+' },
                 ].map((s) => (
                   <div key={s.label}>
                     <div className="text-2xl font-black gradient-text">{s.value}</div>
@@ -244,7 +244,7 @@ export default function Home({ onAuthOpen }) {
               </motion.div>
             </div>
 
-            {/* Right — Featured card */}
+            {/* Right â€” Featured card */}
             {featuredItem && (
               <motion.div
                 initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
@@ -269,7 +269,7 @@ export default function Home({ onAuthOpen }) {
                         </span>
                         {featuredItem.hasNewChapter && (
                           <span className="px-2.5 py-1 rounded-xl bg-emerald-500/90 text-white text-xs font-black flex items-center gap-1 animate-pulse">
-                            <Sparkles size={11} /> YENİ BÖLÜM
+                            <Sparkles size={11} /> YENÄ° BÃ–LÃœM
                           </span>
                         )}
                       </div>
@@ -280,7 +280,7 @@ export default function Home({ onAuthOpen }) {
                           {featuredItem.rating}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Eye size={14} /> {featuredItem.reads} okuma
+                          <Eye size={14} /> {featuredItem.reads_num} okuma
                         </span>
                       </div>
                     </div>
@@ -293,7 +293,7 @@ export default function Home({ onAuthOpen }) {
                     <div className="flex items-center gap-2">
                       <TrendingUp size={16} className="text-emerald-400" />
                       <div>
-                        <div className="text-white text-xs font-bold">{featuredItem.reads}</div>
+                        <div className="text-white text-xs font-bold">{featuredItem.reads_num}</div>
                         <div className="text-slate-500 text-[10px]">Okuma</div>
                       </div>
                     </div>
@@ -320,7 +320,7 @@ export default function Home({ onAuthOpen }) {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#050507] to-transparent" />
       </section>
 
-      {/* ── SON HABERLER / OTOMATIK DUYURULAR ── */}
+      {/* â”€â”€ SON HABERLER / OTOMATIK DUYURULAR â”€â”€ */}
       {announcements.length > 0 && (
         <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-4">
           <motion.div
@@ -333,7 +333,7 @@ export default function Home({ onAuthOpen }) {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-neon-purple">
                 <Bell size={15} className="text-white" />
               </div>
-              <h2 className="text-white font-black text-base">Son Güncellemeler</h2>
+              <h2 className="text-white font-black text-base">Son GÃ¼ncellemeler</h2>
               <span className="text-[10px] text-slate-600 bg-white/5 border border-white/8 px-2 py-0.5 rounded-full ml-1">
                 CANLI
               </span>
@@ -349,7 +349,7 @@ export default function Home({ onAuthOpen }) {
         </section>
       )}
 
-      {/* ── TRENDING GRID ── */}
+      {/* â”€â”€ TRENDING GRID â”€â”€ */}
       <section ref={trendRef} id="trendler" className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -364,18 +364,18 @@ export default function Home({ onAuthOpen }) {
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="text-3xl sm:text-4xl font-black text-white"
             >
-              🔥 Trendler
+              ğŸ”¥ Trendler
             </motion.h2>
           </div>
           <Link
             to="/all-series"
             className="hidden sm:flex items-center gap-1 text-sm text-purple-400 hover:text-purple-300 font-medium transition-colors"
           >
-            Tümünü Gör <ChevronRight size={16} />
+            TÃ¼mÃ¼nÃ¼ GÃ¶r <ChevronRight size={16} />
           </Link>
         </div>
 
-        {/* Grid — sorted: trending first, new chapter highlighted */}
+        {/* Grid â€” sorted: trending first, new chapter highlighted */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {validSeries?.map((item, i) => (
             <ManhwaCard
@@ -388,7 +388,7 @@ export default function Home({ onAuthOpen }) {
         </div>
       </section>
 
-      {/* ── CTA BANNER ── */}
+      {/* â”€â”€ CTA BANNER â”€â”€ */}
       <section className="py-20 px-4">
         <motion.div
           initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
@@ -399,15 +399,15 @@ export default function Home({ onAuthOpen }) {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-purple-600/30 blur-3xl" />
           <div className="relative z-10 text-center py-16 px-6">
             <Crown size={40} className="text-amber-400 mx-auto mb-4" />
-            <h3 className="text-3xl sm:text-4xl font-black text-white mb-3">Premium'a Geç, Sınırları Kır</h3>
+            <h3 className="text-3xl sm:text-4xl font-black text-white mb-3">Premium'a GeÃ§, SÄ±nÄ±rlarÄ± KÄ±r</h3>
             <p className="text-slate-400 mb-8 max-w-lg mx-auto">
-              Tüm içeriklere reklamsız erişim, erken bölüm okuma ve özel rozetler.
+              TÃ¼m iÃ§eriklere reklamsÄ±z eriÅŸim, erken bÃ¶lÃ¼m okuma ve Ã¶zel rozetler.
             </p>
             <button
               onClick={handleHeroBtnClick}
               className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold text-base hover:from-amber-400 hover:to-orange-400 transition-all shadow-[0_0_30px_rgba(245,158,11,0.4)]"
             >
-              {user ? 'Trendleri Keşfet' : "Premium'u Keşfet"}
+              {user ? 'Trendleri KeÅŸfet' : "Premium'u KeÅŸfet"}
             </button>
           </div>
         </motion.div>
@@ -417,14 +417,15 @@ export default function Home({ onAuthOpen }) {
       <footer className="border-t border-white/5 py-10 px-4 text-center text-slate-600 text-sm">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="gradient-text font-black text-lg">AniPeak</span>
-          <span>© 2026 AniPeak. Tüm hakları saklıdır.</span>
+          <span>Â© 2026 AniPeak. TÃ¼m haklarÄ± saklÄ±dÄ±r.</span>
           <div className="flex gap-5">
             <a href="#" className="hover:text-slate-400 transition-colors">Gizlilik</a>
-            <a href="#" className="hover:text-slate-400 transition-colors">Şartlar</a>
-            <a href="#" className="hover:text-slate-400 transition-colors">İletişim</a>
+            <a href="#" className="hover:text-slate-400 transition-colors">Åartlar</a>
+            <a href="#" className="hover:text-slate-400 transition-colors">Ä°letiÅŸim</a>
           </div>
         </div>
       </footer>
     </main>
   );
 }
+
