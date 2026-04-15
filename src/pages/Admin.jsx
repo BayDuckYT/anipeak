@@ -154,12 +154,21 @@ function QuickAddForm({ seriesList, showToast }) {
     e.preventDefault();
     if (!selectedId) { showToast('Seri seçin!', 'error'); return; }
     if (!chapterNum)  { showToast('Bölüm no gerekli!', 'error'); return; }
+    
+    const parsedNum = parseFloat(chapterNum.toString().replace(',','.'));
+    if (isNaN(parsedNum)) { showToast('Bölüm no sadece sayı olmalıdır!', 'error'); return; }
+
     const pages = pageUrls.split('\n').map(u => u.trim()).filter(Boolean);
-    await addChapter(Number(selectedId), { number: Number(chapterNum), title: chapterTitle, pages, isPremium });
-    showToast(`🚀 Bölüm ${chapterNum} yayınlandı!`, 'success');
-    setChapterNum(''); setChapterTitle(''); setPageUrls(''); setIsPremium(false);
-    setSubmitted('chapter');
-    setTimeout(() => setSubmitted(null), 3000);
+    
+    try {
+      await addChapter(Number(selectedId), { number: parsedNum, title: chapterTitle, pages, isPremium });
+      showToast(`🚀 Bölüm ${parsedNum} yayınlandı!`, 'success');
+      setChapterNum(''); setChapterTitle(''); setPageUrls(''); setIsPremium(false);
+      setSubmitted('chapter');
+      setTimeout(() => setSubmitted(null), 3000);
+    } catch (err) {
+      showToast('Bölüm eklenirken hata oluştu: ' + (err.message || 'Bilinmeyen hata'), 'error');
+    }
   };
 
   const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-all';
@@ -798,6 +807,7 @@ export default function Admin() {
         {safeActiveNav === 'announcements' && <AnnouncementsPanel showToast={showToast} />}
         {safeActiveNav === 'users' && <UsersPanel showToast={showToast} />}
         {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
+        {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
 
         {/* Universe Settings */}
         {safeActiveNav === 'settings' && (

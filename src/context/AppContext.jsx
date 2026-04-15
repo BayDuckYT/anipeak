@@ -133,7 +133,12 @@ export function AppProvider({ children }) {
       .select()
       .single();
 
-    if (!error) {
+    if (error) {
+      console.error('[AppContext] Bölüm Eklenemedi:', error);
+      throw error;
+    }
+
+    if (data) {
       const target = series.find(s => String(s.id) === String(seriesId));
       await supabase.from('announcements').insert([{
         type: 'chapter',
