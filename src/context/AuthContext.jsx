@@ -225,6 +225,9 @@ export function AuthProvider({ children }) {
       return data;
     } catch (err) {
       console.error('[Auth] Login error:', err);
+      if (typeof window !== 'undefined') {
+        window.__AUTH_ERROR__ = `Giriş Hatası: ${err.message}`;
+      }
       throw err;
     }
   };
@@ -251,6 +254,9 @@ export function AuthProvider({ children }) {
       return data;
     } catch (err) {
       console.error('[Auth] Signup error:', err);
+      if (typeof window !== 'undefined') {
+        window.__AUTH_ERROR__ = `Kayıt Hatası: ${err.message}`;
+      }
       throw err;
     }
   };
