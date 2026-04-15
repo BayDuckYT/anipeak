@@ -197,7 +197,7 @@ export function AuthProvider({ children }) {
   }, [fetchProfile, subscribeToProfile]);
 
   // ── Auth Actions ──────────────────────────────────────────────────────
-  const withTimeout = (promise, timeoutMs = 10000) => {
+  const withTimeout = (promise, timeoutMs = 20000) => {
     return Promise.race([
       promise,
       new Promise((_, reject) =>

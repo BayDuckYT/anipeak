@@ -68,18 +68,31 @@ export function AppProvider({ children }) {
     if (data?.value) setMaintenanceMode(!!data.value.enabled);
   }, []);
 
-  // ── Bootstrap all data ───────────────────────────────────────────────
+  // ── Bootstrap all data (sequential to avoid exhausting Supabase free tier connection pool) ────
   useEffect(() => {
+    const fetchWithRetry = async (fn, retries = 2, delayMs = 800) => {
+      for (let i = 0; i <= retries; i++) {
+        try {
+          await fn();
+          return;
+        } catch (err) {
+          if (i < retries) {
+            await new Promise(r => setTimeout(r, delayMs * (i + 1)));
+          }
+        }
+      }
+    };
+
     const boot = async () => {
       try {
         setLoading(true);
-        await Promise.all([
-          loadSeries(),
-          loadChapters(),
-          loadAnnouncements(),
-          loadProfiles(),
-          loadMaintenance(),
-        ]);
+        // Sequential to avoid hitting Supabase free tier connection pool limit
+        await fetchWithRetry(loadSeries);
+        await fetchWithRetry(loadChapters);
+        await fetchWithRetry(loadAnnouncements);
+        await fetchWithRetry(loadMaintenance);
+        // Profiles are admin-only, load last and non-blocking
+        loadProfiles().catch(err => console.warn('[AppCtx] Profiller yüklenemedi:', err.message));
       } catch (err) {
         console.error("[AppContext] Bootstrap Hatası:", err);
       } finally {
