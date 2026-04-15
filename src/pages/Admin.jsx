@@ -146,7 +146,11 @@ function QuickAddForm({ seriesList, showToast }) {
       setSubmitted('series');
       setTimeout(() => setSubmitted(null), 3000);
     } catch (err) {
-      showToast('Seri eklenirken hata oluştu: ' + (err.message || 'Bilinmeyen hata'), 'error');
+      if (err.message && err.message.includes('stole it')) {
+         showToast('Sistem arka planda senkronize oluyor, lütfen butona tekrar basın.', 'info');
+      } else {
+         showToast('Seri eklenirken hata oluştu: ' + (err.message || 'Bilinmeyen hata'), 'error');
+      }
     }
   };
 
