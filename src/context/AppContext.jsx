@@ -71,15 +71,20 @@ export function AppProvider({ children }) {
   // ── Bootstrap all data ───────────────────────────────────────────────
   useEffect(() => {
     const boot = async () => {
-      setLoading(true);
-      await Promise.all([
-        loadSeries(),
-        loadChapters(),
-        loadAnnouncements(),
-        loadProfiles(),
-        loadMaintenance(),
-      ]);
-      setLoading(false);
+      try {
+        setLoading(true);
+        await Promise.all([
+          loadSeries(),
+          loadChapters(),
+          loadAnnouncements(),
+          loadProfiles(),
+          loadMaintenance(),
+        ]);
+      } catch (err) {
+        console.error("[AppContext] Bootstrap Hatası:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     boot();

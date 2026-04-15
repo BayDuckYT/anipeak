@@ -83,7 +83,7 @@ function AppContent() {
   const { user, isOwner } = useAuth();
 
   // ── Global Stability Listeners ──────────────────────────────────────
-  useState(() => {
+  useEffect(() => {
     const handleError = (e) => {
       console.error("[KOZMİK ÇÖKME]", e);
       // Small delay to allow the error to settle, then reload if critical
@@ -97,7 +97,7 @@ function AppContent() {
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleError);
     };
-  });
+  }, []);
   
   // Bakım modundayken, eğer giriş yapan kişi BAŞ ADMİN DEĞİLSE ekranı kapat
   const isMaintenanceBlocked = maintenanceMode && !isOwner;

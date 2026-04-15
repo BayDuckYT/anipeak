@@ -45,6 +45,15 @@ export function AuthProvider({ children }) {
     return merged;
   }, []);
 
+  // [KOZMİK BİLDİRİM] Unified notification sender
+  const sendNotification = useCallback(async (text, type = 'system') => {
+    try {
+      await supabase.from('announcements').insert([{ text, type, created_at: new Date().toISOString() }]);
+    } catch (err) {
+      console.error('[Auth] Bildirim gönderilemedi:', err);
+    }
+  }, []);
+
   // â”€â”€ Subscribe to own profile changes (role update, etc.) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const subscribeToProfile = useCallback((userId) => {
     if (profileChannelRef.current) {
@@ -119,29 +128,39 @@ export function AuthProvider({ children }) {
     let mounted = true;
 
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (mounted && session?.user) {
-        await fetchProfile(session.user);
-        subscribeToProfile(session.user.id);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted && session?.user) {
+          await fetchProfile(session.user);
+          subscribeToProfile(session.user.id);
+        }
+      } catch (err) {
+        console.error("[Auth] Başlatma Hatası:", err);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      if (mounted) setLoading(false);
     };
 
     init();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-      if (session?.user) {
-        await fetchProfile(session.user);
-        subscribeToProfile(session.user.id);
-      } else {
-        setUser(null);
-        if (profileChannelRef.current) {
-          supabase.removeChannel(profileChannelRef.current);
-          profileChannelRef.current = null;
+      try {
+        if (session?.user) {
+          await fetchProfile(session.user);
+          subscribeToProfile(session.user.id);
+        } else {
+          setUser(null);
+          if (profileChannelRef.current) {
+            supabase.removeChannel(profileChannelRef.current);
+            profileChannelRef.current = null;
+          }
         }
+      } catch (err) {
+        console.error("[Auth] State Değişim Hatası:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {
