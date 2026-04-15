@@ -321,16 +321,18 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    // 1. İstemci (tarayıcı) tarafındaki HER ŞEYİ KESİNLİKLE SİL
+    setUser(null);
+    setReadingHistory([]);
+    localStorage.removeItem('anipeak_user_cache');
+    
+    // 2. Sunucuya (Supabase) çıkış isteği yolla (Ağ kopuksa bile site çıkış yapmış gibi çalışmaya devam etsin)
     try {
       await supabase.auth.signOut();
-      setUser(null);
-      setReadingHistory([]);
-      localStorage.removeItem('anipeak_user_cache'); // Yedek oturumu temizle
-      // Force reload to clear all persistent states and context data
-      window.location.href = '/';
     } catch (err) {
       console.error('Logout error:', err);
-      window.location.reload();
+    } finally {
+      window.location.href = '/';
     }
   };
 

@@ -16,21 +16,22 @@ export function AppProvider({ children }) {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
-  // ── Granular fetchers ────────────────────────────────────────────────
   const loadSeries = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('series')
       .select('*')
       .order('is_trending', { ascending: false })
       .order('reads_num',   { ascending: false });
+    if (error) throw error;
     if (data) setSeries(data);
   }, []);
 
   const loadChapters = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('chapters')
       .select('*')
       .order('number', { ascending: false });
+    if (error) throw error;
     if (data) {
       const grouped = data.reduce((acc, ch) => {
         const key = String(ch.series_id);
@@ -43,11 +44,12 @@ export function AppProvider({ children }) {
   }, []);
 
   const loadAnnouncements = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('announcements')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(30);
+    if (error) throw error;
     if (data) setAnnouncements(data);
   }, []);
 
