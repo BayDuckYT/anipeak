@@ -104,8 +104,16 @@ export default function CommentSystem({ seriesId, chapterNum }) {
           </div>
         </form>
       ) : (
-        <div className="glass border border-white/10 rounded-2xl p-8 text-center mb-8">
-          <p className="text-slate-400 text-sm mb-4">Yorum yapmak için giriş yapmalısın.</p>
+        <div className="glass border border-purple-500/20 rounded-2xl p-6 text-center mb-8 bg-purple-500/5">
+          <MessageSquare size={32} className="text-purple-400 mx-auto mb-3 opacity-70" />
+          <p className="text-slate-200 text-sm font-bold mb-1">Yorum yapmak için giriş yapmalısın</p>
+          <p className="text-slate-500 text-xs mb-4">Topluluğa katıl, düşüncelerini paylaş!</p>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }))}
+            className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-xl text-sm shadow-neon-purple hover:scale-[1.02] transition-all"
+          >
+            Giriş Yap / Kayıt Ol
+          </button>
         </div>
       )}
 

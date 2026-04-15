@@ -893,7 +893,7 @@ export default function Admin() {
                </button>
             </div>
             <div className="h-full w-full overflow-y-auto custom-scrollbar">
-              <ChapterEditor />
+              <ChapterEditor seriesList={series.filter(s => !s.is_deleted)} showToast={showToast} />
             </div>
           </div>
         )}
