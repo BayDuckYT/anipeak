@@ -127,28 +127,32 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    // [KOZMİK GÜVENLİK] Safety Timeout: Force loading to false if Supabase hangs
+    // Safety Timeout: force loading=false after 5s so UI always shows
     const safetyTimeout = setTimeout(() => {
-      if (mounted && loading) {
-        console.warn("[Auth] Başlatma zaman aşımına uğradı, UI zorla açılıyor...");
+      if (mounted) {
+        console.warn("[Auth] Zaman aşımı — UI zorla açılıyor");
         setLoading(false);
       }
-    }, 6000);
+    }, 5000);
 
     const init = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // 8 saniye içinde session gelmezse ağ hatası say, kullanıcıyı çıkarma
+        const sessionPromise = supabase.auth.getSession();
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('getSession timeout')), 8000)
+        );
+        const { data: { session }, error } = await Promise.race([sessionPromise, timeout]);
+
         if (error) throw error;
-        
         if (mounted && session?.user) {
           await fetchProfile(session.user);
           subscribeToProfile(session.user.id);
         }
       } catch (err) {
-        console.error("[Auth] Başlatma Hatası:", err);
-        if (mounted) {
-          window.__AUTH_ERROR__ = err.message;
-        }
+        // Ağ hatası: kullanıcıyı çıkatma, sadece logla
+        console.warn("[Auth] Session yüklenemedi (ağ hatası), oturum korunuyor:", err.message);
+        window.__AUTH_ERROR__ = err.message;
       } finally {
         if (mounted) {
           setLoading(false);
@@ -163,21 +167,28 @@ export function AuthProvider({ children }) {
     try {
       const response = supabase.auth.onAuthStateChange(async (event, session) => {
         if (!mounted) return;
+        console.log('[Auth] Event:', event);
         try {
-          if (session?.user) {
-            await fetchProfile(session.user);
-            subscribeToProfile(session.user.id);
-          } else {
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+            // Kullanıcı giriş yaptı veya token yenilendi
+            if (session?.user) {
+              await fetchProfile(session.user);
+              subscribeToProfile(session.user.id);
+            }
+          } else if (event === 'SIGNED_OUT') {
+            // Sadece açık çıkış yapıldığında kullanıcıyı temizle
             setUser(null);
             if (profileChannelRef.current) {
               supabase.removeChannel(profileChannelRef.current);
               profileChannelRef.current = null;
             }
           }
+          // INITIAL_SESSION, PASSWORD_RECOVERY gibi diğer eventler için
+          // kullanıcıyı ne giriş ne çıkış yaptır — ağ hatası gibi davran
         } catch (err) {
           console.error("[Auth] State Değişim Hatası:", err);
         } finally {
-          setLoading(false);
+          if (mounted) setLoading(false);
         }
       });
       subscription = response?.data?.subscription;
