@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext, closestCenter, PointerSensor, KeyboardSensor,
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 
-// â”€â”€ Unique ID generator
+// ── Unique ID generator
 let _uid = 0;
 const uid = () => `pg-${++_uid}-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -35,7 +35,7 @@ const uploadToImgBB = async (base64Image) => {
   if (result.success) {
     return result.data.url;
   } else {
-    throw new Error(result.error?.message || 'YÃ¼kleme baÅŸarÄ±sÄ±z');
+    throw new Error(result.error?.message || 'Yükleme başarısız');
   }
 };
 
@@ -66,9 +66,9 @@ const compressImage = (file, maxWidth = 1200, quality = 0.7) => {
   });
 };
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────
 //  Sortable Page Card
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────
 function SortablePage({ page, index, onDelete, onReplace }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: page.id });
@@ -97,7 +97,7 @@ function SortablePage({ page, index, onDelete, onReplace }) {
             {...attributes}
             {...listeners}
             className="p-1 rounded text-slate-600 hover:text-slate-300 cursor-grab active:cursor-grabbing transition-colors touch-none"
-            title="SÃ¼rÃ¼kle"
+            title="Sürükle"
           >
             <GripVertical size={13} />
           </button>
@@ -118,7 +118,7 @@ function SortablePage({ page, index, onDelete, onReplace }) {
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-slate-700 gap-1">
               <ImageIcon size={18} />
-              <span className="text-[9px]">GÃ¶rsel yok</span>
+              <span className="text-[9px]">Görsel yok</span>
             </div>
           )}
 
@@ -126,14 +126,14 @@ function SortablePage({ page, index, onDelete, onReplace }) {
           <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
             <button
               onClick={() => fileRef.current?.click()}
-              title="GÃ¶rseli DeÄŸiÅŸtir"
+              title="Görseli Değiştir"
               className="p-2 rounded-lg bg-blue-600/85 text-white hover:bg-blue-500 transition-colors shadow-lg"
             >
               <ImageIcon size={13} />
             </button>
             <button
               onClick={() => onDelete(page.id)}
-              title="SayfayÄ± Sil"
+              title="Sayfayı Sil"
               className="p-2 rounded-lg bg-red-600/85 text-white hover:bg-red-500 transition-colors shadow-lg"
             >
               <Trash2 size={13} />
@@ -145,7 +145,7 @@ function SortablePage({ page, index, onDelete, onReplace }) {
         <div className="px-2 py-1.5 bg-black/80">
           <span className="text-[10px] text-slate-400 font-mono tracking-wider leading-none block truncate text-center">
             {page.name
-              ? page.name.length > 20 ? page.name.slice(0, 18) + 'â€¦' : page.name
+              ? page.name.length > 20 ? page.name.slice(0, 18) + '...' : page.name
               : `sayfa_${String(index + 1).padStart(2, '0')}.jpg`}
           </span>
         </div>
@@ -166,9 +166,9 @@ function SortablePage({ page, index, onDelete, onReplace }) {
   );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────
 //  Webtoon Preview Modal
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────
 function PreviewModal({ pages, series, chapterNum, onClose }) {
   return (
     <div className="fixed inset-0 z-[300] bg-[#050507] flex flex-col">
@@ -180,10 +180,10 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
           </div>
           <div>
             <p className="text-white font-black text-sm leading-none">
-              {series?.title || 'Seri AdÄ±'}
+              {series?.title || 'Seri Adı'}
             </p>
             <p className="text-purple-400 text-[11px] mt-0.5">
-              BÃ¶lÃ¼m {chapterNum || '?'} â€¢ Okuyucu GÃ¶zÃ¼yle Webtoon Ã–nizleme
+              Bölüm {chapterNum || '?'} • Okuyucu Gözüyle Webtoon Önizleme
             </p>
           </div>
         </div>
@@ -208,7 +208,7 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
             <div className="h-64 flex items-center justify-center text-slate-600">
               <div className="text-center">
                 <Layers size={36} className="mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Ã–nizlenecek sayfa yok</p>
+                <p className="text-sm">Önizlenecek sayfa yok</p>
               </div>
             </div>
           ) : (
@@ -225,7 +225,7 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
                   <div className="w-full h-72 bg-slate-900/50 border border-white/5 flex items-center justify-center text-slate-600">
                     <div className="text-center">
                       <ImageIcon size={28} className="mx-auto mb-2 opacity-40" />
-                      <p className="text-xs">Sayfa gÃ¶rseli yok</p>
+                      <p className="text-xs">Sayfa görseli yok</p>
                     </div>
                   </div>
                 )}
@@ -241,8 +241,8 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-neon-purple">
               <Check size={26} className="text-white" />
             </div>
-            <p className="text-slate-300 font-black text-sm">BÃ¶lÃ¼m Sonu</p>
-            <p className="text-slate-600 text-xs">Ã–nizleme tamamlandÄ±</p>
+            <p className="text-slate-300 font-black text-sm">Bölüm Sonu</p>
+            <p className="text-slate-600 text-xs">Önizleme tamamlandı</p>
           </div>
         </div>
       </div>
@@ -250,10 +250,10 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
   );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────
 //  Main ChapterEditor Export
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export default function ChapterEditor({ seriesList, showToast }) {
+// ──────────────────────────────────────────
+export default function ChapterEditor({ seriesList = [], showToast = () => {} }) {
   const { getChapters, addChapter, updateChapter, deleteChapter } = useApp();
   const [selectedSeriesId, setSelectedSeriesId] = useState('');
   const [chapterMode, setChapterMode]           = useState('new');
@@ -278,9 +278,9 @@ export default function ChapterEditor({ seriesList, showToast }) {
     setEditingChapterId(ch.id);
     setChapterNum(ch.number);
     setChapterTitle(ch.title || '');
-    setIsPremium(ch.isPremium || false);
-    setPages(ch.pages.map((url, i) => ({ id: uid(), name: `page_${i+1}.jpg`, url, isFile: false })));
-    showToast(`BÃ¶lÃ¼m ${ch.number} dÃ¼zenlenmek Ã¼zere yÃ¼klendi.`, 'info');
+    setIsPremium(ch.is_premium || false);
+    setPages((ch.pages || []).map((url, i) => ({ id: uid(), name: `page_${i+1}.jpg`, url, isFile: false })));
+    showToast(`Bölüm ${ch.number} düzenlenmek üzere yüklendi.`, 'info');
   };
 
   const sensors = useSensors(
@@ -288,7 +288,6 @@ export default function ChapterEditor({ seriesList, showToast }) {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-    // â”€â”€ File processing: sort numerically by filename and convert to Base64
   const processFiles = useCallback(async (files) => {
     const imageFiles = Array.from(files)
       .filter(f => f.type.startsWith('image/'))
@@ -297,12 +296,12 @@ export default function ChapterEditor({ seriesList, showToast }) {
       );
 
     if (!imageFiles.length) {
-      showToast('GeÃ§erli gÃ¶rsel dosyasÄ± bulunamadÄ±!', 'error');
+      showToast('Geçerli görsel dosyası bulunamadı!', 'error');
       return;
     }
 
     try {
-      showToast(`${imageFiles.length} gÃ¶rsel buluta yÃ¼kleniyor...`, 'info');
+      showToast(`${imageFiles.length} görsel buluta yükleniyor...`, 'info');
       
       const uploadedPages = await Promise.all(imageFiles.map(async (file) => {
         const compressed = await compressImage(file);
@@ -316,14 +315,13 @@ export default function ChapterEditor({ seriesList, showToast }) {
       }));
 
       setPages(prev => [...prev, ...uploadedPages]);
-      showToast(`âœ… ${imageFiles.length} sayfa baÅŸarÄ±yla buluta yÃ¼klendi!`, 'success');
+      showToast(`✅ ${imageFiles.length} sayfa başarıyla buluta yüklendi!`, 'success');
     } catch (err) {
-      console.error("Bulut yÃ¼kleme hatasÄ±:", err);
-      showToast('GÃ¶rseller buluta aktarÄ±lamadÄ±. LÃ¼tfen API anahtarÄ±nÄ± kontrol edin.', 'error');
+      console.error("Bulut yükleme hatası:", err);
+      showToast('Görseller buluta aktarılamadı. Lütfen API anahtarını kontrol edin.', 'error');
     }
   }, [showToast]);
 
-  // â”€â”€ Drop zone handlers
   const handleFileDrop = useCallback((e) => {
     e.preventDefault();
     setIsDraggingFiles(false);
@@ -339,7 +337,6 @@ export default function ChapterEditor({ seriesList, showToast }) {
     if (!e.currentTarget.contains(e.relatedTarget)) setIsDraggingFiles(false);
   }, []);
 
-  // â”€â”€ @dnd-kit handlers
   const handleDragStart  = ({ active }) => setActiveId(active.id);
   const handleDragCancel = () => setActiveId(null);
   const handleDragEnd    = ({ active, over }) => {
@@ -355,17 +352,16 @@ export default function ChapterEditor({ seriesList, showToast }) {
   const handleDeletePage  = useCallback((id) => setPages(prev => prev.filter(p => p.id !== id)), []);
   const handleReplacePage = useCallback(async (id, file) => {
     try {
-      showToast('GÃ¶rsel buluta yÃ¼kleniyor...', 'info');
+      showToast('Görsel buluta yükleniyor...', 'info');
       const compressed = await compressImage(file);
       const url = await uploadToImgBB(compressed);
       setPages(prev => prev.map(p => p.id === id ? { ...p, url, name: file.name } : p));
-      showToast('Sayfa baÅŸarÄ±yla buluta yÃ¼klendi.', 'success');
+      showToast('Sayfa başarıyla buluta yüklendi.', 'success');
     } catch (err) {
-      showToast('Bulut yÃ¼kleme hatasÄ±!', 'error');
+      showToast('Bulut yükleme hatası!', 'error');
     }
   }, [showToast]);
 
-  // â”€â”€ Add pages via URL list
   const handleAddUrls = () => {
     const lines = urlInput.split('\n').map(u => u.trim()).filter(Boolean);
     if (!lines.length) return;
@@ -378,71 +374,71 @@ export default function ChapterEditor({ seriesList, showToast }) {
     setPages(prev => [...prev, ...newPages]);
     setUrlInput('');
     setShowUrlInput(false);
-    showToast(`${lines.length} URL sayfasÄ± eklendi!`, 'success');
+    showToast(`${lines.length} URL sayfası eklendi!`, 'success');
   };
 
-  // â”€â”€ Publish
-  const handlePublish = () => {
-    if (!selectedSeriesId) { showToast('LÃ¼tfen bir seri seÃ§in!', 'error'); return; }
-    if (!chapterNum)        { showToast('BÃ¶lÃ¼m numarasÄ± gerekli!', 'error'); return; }
+  const handlePublish = async () => {
+    if (!selectedSeriesId) { showToast('Lütfen bir seri seçin!', 'error'); return; }
+    if (!chapterNum)        { showToast('Bölüm numarası gerekli!', 'error'); return; }
     if (!pages.length)      { showToast('En az bir sayfa ekleyin!', 'error'); return; }
     
     const pagesUrls = pages.map(p => p.url);
-    if (chapterMode === 'edit' && editingChapterId) {
-      updateChapter(editingChapterId, {
-        number: Number(chapterNum),
-        title: chapterTitle,
-        pages: pagesUrls,
-        is_premium: isPremium
-      });
-      showToast(`âœ¨ BÃ¶lÃ¼m ${chapterNum} gÃ¼ncellendi! (${pages.length} sayfa)`, 'success');
-    } else {
-      addChapter(Number(selectedSeriesId), {
-        number: Number(chapterNum),
-        title: chapterTitle,
-        pages: pagesUrls,
-        isPremium
-      });
-      showToast(`ğŸš€ BÃ¶lÃ¼m ${chapterNum} baÅŸarÄ±yla yayÄ±nlandÄ±! (${pages.length} sayfa)`, 'success');
+    try {
+      if (chapterMode === 'edit' && editingChapterId) {
+        await updateChapter(editingChapterId, {
+          number: Number(chapterNum),
+          title: chapterTitle,
+          pages: pagesUrls,
+          is_premium: isPremium
+        });
+        showToast(`✨ Bölüm ${chapterNum} güncellendi! (${pages.length} sayfa)`, 'success');
+      } else {
+        await addChapter(Number(selectedSeriesId), {
+          number: Number(chapterNum),
+          title: chapterTitle,
+          pages: pagesUrls,
+          isPremium
+        });
+        showToast(`🚀 Bölüm ${chapterNum} başarıyla yayınlandı! (${pages.length} sayfa)`, 'success');
+      }
+      
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+        setChapterMode('new');
+        setEditingChapterId(null);
+        setChapterNum('');
+        setChapterTitle('');
+        setPages([]);
+        setIsPremium(false);
+      }, 2000);
+    } catch (err) {
+      showToast('Hatayı kaydetme hatası!', 'error');
     }
-    
-    setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-      setChapterMode('new');
-      setEditingChapterId(null);
-      setChapterNum('');
-      setChapterTitle('');
-      setPages([]);
-      setIsPremium(false);
-    }, 2000);
   };
 
   const activePageData = activeId ? pages.find(p => p.id === activeId) : null;
 
   return (
-    <div className="space-y-5 max-w-full">
-
-      {/* â”€â”€ Page header â”€â”€ */}
+    <div className="space-y-5 max-w-full p-4 sm:p-6">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-black text-white">BÃ¶lÃ¼m EditÃ¶rÃ¼</h2>
+          <h2 className="text-2xl font-black text-white">Bölüm Editörü</h2>
           <p className="text-slate-500 text-sm mt-1">
-            Toplu yÃ¼kleme Â· SÃ¼rÃ¼kle-bÄ±rak sÄ±ralama Â· Webtoon Ã¶nizleme
+            Toplu yükleme · Sürükle-bırak sıralama · Webtoon önizleme
           </p>
         </div>
         {pages.length > 0 && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 text-xs font-bold">
             <FileImage size={12} />
-            {pages.length} Sayfa YÃ¼klÃ¼
+            {pages.length} Sayfa Yüklü
           </div>
         )}
       </div>
 
-      {/* â”€â”€ Series & Chapter selector â”€â”€ */}
       <div className="glass border border-white/8 rounded-2xl p-5">
         <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-4">
-          BÃ¶lÃ¼m TanÄ±mÄ±
+          Bölüm Tanımı
         </p>
         <div className="grid sm:grid-cols-3 gap-4">
           <div>
@@ -454,7 +450,7 @@ export default function ChapterEditor({ seriesList, showToast }) {
               onChange={e => setSelectedSeriesId(e.target.value)}
               className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.25)] transition-all cursor-pointer"
             >
-              <option value="">â€” Seri SeÃ§in â€”</option>
+              <option value="">— Seri Seçin —</option>
               {seriesList.map(s => (
                 <option key={s.id} value={s.id} className="bg-[#0a0a14]">
                   {s.title}
@@ -464,31 +460,30 @@ export default function ChapterEditor({ seriesList, showToast }) {
           </div>
           <div>
             <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">
-              BÃ¶lÃ¼m No *
+              Bölüm No *
             </label>
             <input
               type="text"
               value={chapterNum}
               onChange={e => setChapterNum(e.target.value)}
-              placeholder="188, Ã–zel, vb."
+              placeholder="188, Özel, vb."
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-all"
             />
           </div>
           <div>
             <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">
-              BÃ¶lÃ¼m BaÅŸlÄ±ÄŸÄ±
+              Bölüm Başlığı
             </label>
             <input
               type="text"
               value={chapterTitle}
               onChange={e => setChapterTitle(e.target.value)}
-              placeholder="Ä°steÄŸe baÄŸlÄ±..."
+              placeholder="İsteğe bağlı..."
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-all"
             />
           </div>
         </div>
 
-        {/* Premium toggle */}
         <div className="mt-4">
           <button
             onClick={() => setIsPremium(p => !p)}
@@ -510,7 +505,7 @@ export default function ChapterEditor({ seriesList, showToast }) {
                 isPremium ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-400'
               }`}
             >
-              Premium Ä°Ã§erik
+              Premium İçerik
             </span>
           </button>
         </div>
@@ -520,22 +515,22 @@ export default function ChapterEditor({ seriesList, showToast }) {
         {selectedSeriesId && existingChapters.length > 0 && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="glass border border-white/8 rounded-2xl p-5 overflow-hidden">
              <div className="flex items-center justify-between mb-3">
-               <h3 className="text-[11px] text-blue-400 font-black uppercase tracking-widest flex items-center gap-2"><Layers size={14} /> Mevcut BÃ¶lÃ¼mler (YÃ¶netim)</h3>
+               <h3 className="text-[11px] text-blue-400 font-black uppercase tracking-widest flex items-center gap-2"><Layers size={14} /> Mevcut Bölümler (Yönetim)</h3>
                <button onClick={() => { setChapterMode('new'); setPages([]); setChapterNum(''); setChapterTitle(''); setIsPremium(false); setEditingChapterId(null); }} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${chapterMode==='new'?'bg-blue-600 text-white':'bg-white/5 text-slate-400 hover:bg-white/10'}`}><Plus size={12} className="inline mr-1" />Yeni Ekle</button>
              </div>
-             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[340px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 p-1">
+             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[340px] overflow-y-auto custom-scrollbar p-1">
                {existingChapters.map(ch => (
                  <div key={ch.id} className={`flex flex-col p-3 rounded-xl border transition-all ${editingChapterId === ch.id ? 'bg-blue-600/30 border-blue-500/50 shadow-neon-blue scale-105' : 'bg-black/60 border-white/10 hover:border-white/30 hover:bg-white/5'}`}>
                     <div className="flex items-center justify-between">
                        <button onClick={() => handleLoadChapter(ch)} className="text-left text-sm text-white font-black flex-1 truncate pr-2">
-                         BÃ¶lÃ¼m {ch.number}
+                         Bölüm {ch.number}
                        </button>
-                       <button onClick={() => { if(window.confirm('Bu bÃ¶lÃ¼mÃ¼ kalÄ±cÄ± olarak yok etmek istiyor musunuz?')){ deleteChapter(ch.id); setPages([]); setChapterMode('new'); showToast('BÃ¶lÃ¼m yokedildi', 'error');} }} className="text-red-400 hover:text-white p-1.5 bg-red-500/10 hover:bg-red-600 rounded-lg transition-colors shadow-lg"><Trash2 size={14} /></button>
+                       <button onClick={() => { if(window.confirm('Bu bölümü kalıcı olarak silmek istiyor musunuz?')){ deleteChapter(ch.id); setPages([]); setChapterMode('new'); showToast('Bölüm silindi', 'error');} }} className="text-red-400 hover:text-white p-1.5 bg-red-500/10 hover:bg-red-600 rounded-lg transition-colors shadow-lg"><Trash2 size={14} /></button>
                     </div>
                     {ch.pages && ch.pages.length > 0 ? (
-                       <div className="text-[10px] text-green-400/80 mt-1.5 font-bold tracking-wider">{ch.pages.length} Sayfa YÃ¼klÃ¼</div>
+                       <div className="text-[10px] text-green-400/80 mt-1.5 font-bold tracking-wider">{ch.pages.length} Sayfa Yüklü</div>
                     ) : (
-                       <div className="text-[10px] text-red-400/60 mt-1.5 font-bold tracking-wider">Ä°Ã§erik Yok</div>
+                       <div className="text-[10px] text-red-400/60 mt-1.5 font-bold tracking-wider">İçerik Yok</div>
                     )}
                  </div>
                ))}
@@ -544,7 +539,6 @@ export default function ChapterEditor({ seriesList, showToast }) {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€ Bulk Upload Drop Zone â”€â”€ */}
       <div
         onDrop={handleFileDrop}
         onDragOver={handleDragOver}
@@ -556,7 +550,6 @@ export default function ChapterEditor({ seriesList, showToast }) {
             : 'border-white/10 hover:border-purple-500/40 hover:bg-purple-500/3 group'
         }`}
       >
-        {/* Animated background grid */}
         <div className="absolute inset-0 pointer-events-none opacity-5"
           style={{
             backgroundImage: 'linear-gradient(rgba(168,85,247,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.5) 1px, transparent 1px)',
@@ -599,11 +592,11 @@ export default function ChapterEditor({ seriesList, showToast }) {
               }`}
             >
               {isDraggingFiles
-                ? 'âš¡ BÄ±rak! SayfalarÄ± AlÄ±yorum...'
-                : 'JPG / PNG SayfalarÄ±nÄ± Buraya SÃ¼rÃ¼kle & BÄ±rak'}
+                ? '⚡ Bırak! Sayfaları Alıyorum...'
+                : 'JPG / PNG Sayfalarını Buraya Sürükle & Bırak'}
             </p>
             <p className="text-slate-600 text-sm mt-1.5">
-              veya tÄ±kla ve seÃ§ &nbsp;â€¢&nbsp; Dosya ismine gÃ¶re otomatik sÄ±ralanÄ±r (01, 02, 03...)
+              veya tıkla ve seç &nbsp;•&nbsp; Dosya ismine göre otomatik sıralanır (01, 02, 03...)
             </p>
           </div>
 
@@ -620,7 +613,6 @@ export default function ChapterEditor({ seriesList, showToast }) {
         </div>
       </div>
 
-      {/* â”€â”€ Action Bar â”€â”€ */}
       <AnimatePresence>
         {pages.length > 0 && (
           <motion.div
@@ -633,7 +625,7 @@ export default function ChapterEditor({ seriesList, showToast }) {
               onClick={() => setPreviewOpen(true)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600/15 border border-blue-500/25 text-blue-300 font-bold text-sm hover:bg-blue-600/25 hover:border-blue-500/40 transition-all"
             >
-              <Eye size={15} /> Okuyucu GÃ¶zÃ¼yle Ã–n Ä°zle
+              <Eye size={15} /> Okuyucu Gözüyle Ön İzle
             </button>
             <button
               onClick={() => setShowUrlInput(v => !v)}
@@ -643,10 +635,10 @@ export default function ChapterEditor({ seriesList, showToast }) {
             </button>
             <div className="w-px h-5 bg-white/10 mx-1" />
             <button
-              onClick={() => { setPages([]); showToast('TÃ¼m sayfalar temizlendi', 'error'); }}
+              onClick={() => { setPages([]); showToast('Tüm sayfalar temizlendi', 'error'); }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-red-400/70 font-bold text-sm hover:text-red-400 hover:bg-red-500/10 transition-all"
             >
-              <RotateCcw size={13} /> SÄ±fÄ±rla
+              <RotateCcw size={13} /> Sıfırla
             </button>
             <div className="flex-1" />
             <button
@@ -658,15 +650,14 @@ export default function ChapterEditor({ seriesList, showToast }) {
               }`}
             >
               {saved
-                ? <><Check size={15} /> YayÄ±nlandÄ±!</>
-                : <><Save size={15} /> BÃ¶lÃ¼mÃ¼ YayÄ±nla</>
+                ? <><Check size={15} /> Yayınlandı!</>
+                : <><Save size={15} /> Bölümü Yayınla</>
               }
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* â”€â”€ URL Input Panel â”€â”€ */}
       <AnimatePresence>
         {showUrlInput && (
           <motion.div
@@ -677,7 +668,7 @@ export default function ChapterEditor({ seriesList, showToast }) {
           >
             <div className="glass border border-white/10 rounded-2xl p-5 mt-1">
               <label className="block text-[11px] text-purple-400 mb-2 font-black uppercase tracking-widest">
-                URL Listesi (Her SatÄ±ra Bir URL)
+                URL Listesi (Her Satıra Bir URL)
               </label>
               <textarea
                 value={urlInput}
@@ -697,7 +688,7 @@ export default function ChapterEditor({ seriesList, showToast }) {
                   onClick={() => { setShowUrlInput(false); setUrlInput(''); }}
                   className="px-5 py-2 rounded-xl bg-white/5 text-slate-400 font-bold text-sm hover:bg-white/10 transition-colors"
                 >
-                  Ä°ptal
+                  İptal
                 </button>
               </div>
             </div>
@@ -705,17 +696,16 @@ export default function ChapterEditor({ seriesList, showToast }) {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€ Sortable Page Grid â”€â”€ */}
       {pages.length > 0 && (
         <div className="glass border border-white/8 rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <h3 className="text-white font-black text-sm">Sayfa SÄ±ralama EditÃ¶rÃ¼</h3>
+            <h3 className="text-white font-black text-sm">Sayfa Sıralama Editörü</h3>
             <span className="text-[10px] text-slate-600 bg-white/5 border border-white/8 px-2.5 py-1 rounded-full">
               {pages.length} Sayfa
             </span>
             <div className="flex items-center gap-1.5 text-[10px] text-purple-400/60 ml-1">
               <GripVertical size={11} />
-              SÃ¼rÃ¼kle &amp; bÄ±rak ile sÄ±ralamayÄ± deÄŸiÅŸtir
+              Sürükle & bırak ile sıralamayı değiştir
             </div>
           </div>
 
@@ -755,7 +745,7 @@ export default function ChapterEditor({ seriesList, showToast }) {
                   {activePageData.url ? (
                     <img
                       src={activePageData.url}
-                      alt="sÃ¼rÃ¼kleniyor"
+                      alt="sürükleniyor"
                       className="w-full aspect-[3/4] object-cover"
                       draggable={false}
                     />
@@ -771,15 +761,13 @@ export default function ChapterEditor({ seriesList, showToast }) {
         </div>
       )}
 
-      {/* â”€â”€ Empty state â”€â”€ */}
       {pages.length === 0 && (
         <div className="text-center py-6 text-slate-700">
           <Layers size={34} className="mx-auto mb-3 opacity-25" />
-          <p className="text-sm">SayfalarÄ± yÃ¼klemek iÃ§in yukarÄ±daki alana sÃ¼rÃ¼kle veya tÄ±kla</p>
+          <p className="text-sm">Sayfaları yüklemek için yukarıdaki alana sürükle veya tıkla</p>
         </div>
       )}
 
-      {/* â”€â”€ Preview Overlay â”€â”€ */}
       <AnimatePresence>
         {previewOpen && (
           <motion.div
@@ -800,4 +788,3 @@ export default function ChapterEditor({ seriesList, showToast }) {
     </div>
   );
 }
-

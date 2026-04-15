@@ -42,7 +42,11 @@ export default function AuthModal({ mode, onClose }) {
       }, 1200);
     } catch (err) {
       console.error('Auth Error:', err);
-      setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      if (err.message === 'Failed to fetch') {
+        setError('Bağlantı engellendi! Lütfen AdBlocker, VPN veya Brave Kalkanları kullanıyorsanız devredışı bırakıp sayfayı yenileyin.');
+      } else {
+        setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,8 +56,6 @@ export default function AuthModal({ mode, onClose }) {
     setLoading(true);
     try {
       await loginWithGoogle();
-      // Google redirects, so no need for success state here usually, 
-      // but if it returns, success is true.
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -205,7 +207,7 @@ export default function AuthModal({ mode, onClose }) {
                       exit={{ opacity: 0 }}
                       className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2"
                     >
-                      ⚠ {error}
+                      ⚠️ {error}
                     </motion.p>
                   )}
                 </AnimatePresence>

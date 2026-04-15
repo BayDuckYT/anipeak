@@ -453,7 +453,7 @@ function UsersPanel({ showToast }) {
         {editingUser && (
           <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-md glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.2)]">
+              className="w-full max-w-md glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.25)]">
               <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-5 px-6 border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <UserCheck size={20} className="text-purple-400" />
@@ -806,165 +806,117 @@ export default function Admin() {
                 </tbody>
               </table>
             ) : (
-              <div className="p-10 text-center text-slate-500">Çöp kutusu tertemiz. 🌟</div>
+              <div className="py-20 text-center text-slate-500">Çöp kutusu boş.</div>
             )}
           </div>
         )}
 
-        {/* Chapter Editor */}
-        {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
-
-        {/* Quick Add */}
-        {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
-
-        {/* Announcements — now a proper sub-component */}
+        {/* Other tabs like announcements and users are simple enough */}
         {safeActiveNav === 'announcements' && <AnnouncementsPanel showToast={showToast} />}
-
-        {/* Users — now a proper sub-component */}
         {safeActiveNav === 'users' && <UsersPanel showToast={showToast} />}
 
-        {/* Settings */}
-        {safeActiveNav === 'settings' && (
-          <div className="glass border border-white/8 rounded-2xl p-6 sm:p-8 max-w-2xl space-y-8">
-            <div>
-              <h3 className="text-white font-black text-2xl tracking-tight mb-2">Kainat Ayarları</h3>
-              <p className="text-slate-400 text-sm">Bakım modu ve platform izinlerini yönetin.</p>
-            </div>
-            <div className="flex items-center justify-between py-4 px-4 rounded-2xl border border-transparent hover:bg-white/5 hover:border-white/10 transition-all">
-              <div className="max-w-[70%]">
-                <p className="text-white text-base font-bold flex items-center gap-2">
-                  <ShieldAlert size={16} className={maintenanceMode ? 'text-red-500 animate-pulse' : 'text-slate-500'} />
-                  Acil Bakım Modu
-                </p>
-                <p className="text-slate-500 text-sm mt-1 leading-relaxed">Açıldığında site dışarıdan erişime kapanır. Sadece Baş Admin görebilir.</p>
-              </div>
-              <label className="relative cursor-pointer">
-                <input type="checkbox" checked={settingPrefs.tempMaintenance}
-                  onChange={e => setSettingPrefs(p => ({...p, tempMaintenance: e.target.checked}))}
-                  className="sr-only peer" />
-                <div className="w-14 h-7 bg-white/10 rounded-full peer peer-checked:bg-red-600 transition-colors after:content-[''] after:absolute after:top-1 after:left-1 after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-7 after:shadow-sm" />
-              </label>
-            </div>
-            <button onClick={async () => { await toggleMaintenance(settingPrefs.tempMaintenance); showToast('Ayarlar kaydedildi!', 'success'); }}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black text-sm shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
-              <Save size={18} /> AYARLARI KAYDET
-            </button>
-          </div>
-        )}
       </motion.main>
-
-      {/* ── Edit Series Modal ── */}
+      
+      {/* Toast */}
       <AnimatePresence>
-        {editingSeries && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <motion.div initial={{ scale:0.9, opacity:0, y:20 }} animate={{ scale:1, opacity:1, y:0 }} exit={{ scale:0.9, opacity:0, y:20 }}
-              className="w-full max-w-2xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.15)] flex flex-col max-h-[90vh]">
-              <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 p-5 px-6 border-b border-white/10 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-3">
-                  <Edit3 size={20} className="text-purple-400" />
-                  <h3 className="text-xl font-black text-white">Seri Düzenle</h3>
-                </div>
-                <div className="flex bg-black/40 rounded-lg p-1 border border-white/10">
-                  {['details','chapters'].map(t => (
-                    <button key={t} onClick={() => setEditingSeriesTab(t)}
-                      className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${editingSeriesTab===t?'bg-purple-600 text-white shadow-lg':'text-slate-400 hover:text-white'}`}>
-                      {t === 'details' ? 'Genel' : 'Bölümler'}
-                    </button>
-                  ))}
-                </div>
-                <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl"><X size={20}/></button>
-              </div>
+        {toast && (
+          <motion.div initial={{ opacity:0, y:50 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:50 }}
+            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 glass-strong border ${
+              toast.type === 'error' ? 'border-red-500/50 text-red-200' :
+              toast.type === 'info'  ? 'border-blue-500/50 text-blue-200' :
+              'border-emerald-500/50 text-emerald-200'
+            }`}>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${
+              toast.type === 'error' ? 'bg-red-500' :
+              toast.type === 'info'  ? 'bg-blue-500' :
+              'bg-emerald-500'
+            }`} />
+            <span className="text-sm font-bold">{toast.msg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-              <div className="p-6 overflow-y-auto space-y-6">
-                {editingSeriesTab === 'details' ? (
-                  <>
-                    <div className="flex flex-col sm:flex-row gap-6">
-                      <img src={editingSeries.cover} alt="Kapak" className="w-32 h-44 sm:w-40 sm:h-56 rounded-2xl object-cover border border-white/10 flex-shrink-0" />
-                      <div className="flex-1 space-y-4">
-                        <div>
-                          <label className="block text-[11px] text-purple-400 mb-1.5 font-black uppercase tracking-widest">Eser Başlığı</label>
-                          <input type="text" value={editingSeries.title} onChange={e => setEditingSeries(p => ({...p, title: e.target.value}))}
-                            className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-base font-bold text-white focus:outline-none focus:border-purple-500 transition-all" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-[11px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Yazar</label>
-                            <input type="text" value={editingSeries.author || ''} onChange={e => setEditingSeries(p => ({...p, author: e.target.value}))}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors" />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Yıl</label>
-                            <input type="text" value={editingSeries.year || ''} onChange={e => setEditingSeries(p => ({...p, year: e.target.value}))}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[11px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Açıklama</label>
-                      <textarea value={editingSeries.description || ''} onChange={e => setEditingSeries(p => ({...p, description: e.target.value}))}
-                        rows={4} className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-purple-500 transition-all resize-none" />
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-                      <div>
-                        <label className="block text-[10px] text-slate-400 mb-1.5 font-bold uppercase">Puan</label>
-                        <input type="number" step="0.1" max="10" min="0" value={editingSeries.rating || 0} onChange={e => setEditingSeries(p => ({...p, rating: e.target.value}))}
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-amber-400 font-bold focus:border-amber-500 outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-slate-400 mb-1.5 font-bold uppercase">Okunma</label>
-                        <input type="number" value={editingSeries.reads_num || 0} onChange={e => setEditingSeries(p => ({...p, reads_num: e.target.value}))}
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-blue-400 font-bold focus:border-blue-500 outline-none" />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[10px] text-slate-400 mb-1.5 font-bold uppercase">Durum</label>
-                        <select value={editingSeries.status || 'Devam Ediyor'} onChange={e => setEditingSeries(p => ({...p, status: e.target.value}))}
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-bold focus:border-purple-500 outline-none cursor-pointer">
-                          <option value="Devam Ediyor">Devam Ediyor</option>
-                          <option value="Tamamlandı">Tamamlandı</option>
-                        </select>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-4">
-                    <p className="text-slate-400 text-sm">Bölüm sayfaları ChapterEditor'dan yönetilebilir.</p>
-                    <div className="max-h-[40vh] overflow-y-auto space-y-2">
-                      {(chapters[String(editingSeries.id)] || []).map(ch => (
-                        <div key={ch.id} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3">
-                          <span className="text-white font-bold text-sm">Bölüm {ch.number} {ch.title ? `— ${ch.title}` : ''}</span>
-                          <span className="text-slate-500 text-xs">{ch.pages?.length || 0} sayfa</span>
-                        </div>
-                      ))}
-                      {(chapters[String(editingSeries.id)] || []).length === 0 && (
-                        <div className="text-slate-500 text-center py-6">Henüz bölüm eklenmemiş.</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-5 border-t border-white/10 bg-[#0a0a14] shrink-0 flex items-center justify-end gap-3">
-                <button onClick={() => setEditingSeries(null)} className="px-6 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors">İptal</button>
-                <button onClick={handleSaveSeries} className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 shadow-neon-purple text-white rounded-xl text-sm font-black flex items-center gap-2 hover:scale-[1.02] transition-transform">
-                  <Save size={18} /> DEĞİŞİKLİKLERİ KAYDET
-                </button>
-              </div>
-            </motion.div>
+      {/* Chapter Editor Modal */}
+      <AnimatePresence>
+        {safeActiveNav === 'chapterEditor' && (
+          <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl pt-16">
+            <div className="absolute top-4 right-8 z-[110] flex gap-4">
+               <button onClick={() => setActiveNav('dashboard')} className="p-3 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all flex items-center gap-2 font-bold">
+                 <X size={20} /> Editörü Kapat
+               </button>
+            </div>
+            <div className="h-full w-full overflow-y-auto custom-scrollbar">
+              <ChapterEditor />
+            </div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* ── Toast ── */}
+      {/* Editing Series Modal */}
       <AnimatePresence>
-        {toast && (
-          <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:30 }}
-            className={`fixed bottom-6 right-6 z-[200] flex items-center gap-2 px-5 py-4 rounded-2xl glass-strong border shadow-[0_10px_40px_rgba(0,0,0,0.5)] text-sm font-black tracking-wide ${
-              toast.type === 'error' ? 'border-red-500/50 text-red-400 bg-red-950/80' :
-              toast.type === 'info'  ? 'border-blue-500/50 text-blue-400 bg-blue-950/80' :
-              'border-emerald-500/50 text-emerald-400 bg-emerald-950/80'}`}>
-            <Check size={18} /> {toast.msg}
-          </motion.div>
+        {editingSeries && (
+          <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+               className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+               <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                  <h3 className="text-2xl font-black text-white">Seri Düzenle: {editingSeries.title}</h3>
+                  <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl"><X size={24}/></button>
+               </div>
+               
+               <form onSubmit={handleSaveSeries} className="p-6 space-y-6">
+                 <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                       <div>
+                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Başlık</label>
+                         <input type="text" value={editingSeries.title} onChange={e => setEditingSeries({...editingSeries, title: e.target.value})}
+                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
+                       </div>
+                       <div>
+                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Yazar</label>
+                         <input type="text" value={editingSeries.author || ''} onChange={e => setEditingSeries({...editingSeries, author: e.target.value})}
+                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
+                       </div>
+                       <div>
+                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Açıklama</label>
+                         <textarea rows={4} value={editingSeries.description || ''} onChange={e => setEditingSeries({...editingSeries, description: e.target.value})}
+                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none resize-none" />
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                       <div>
+                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Kapak Görseli</label>
+                         <div className="flex gap-4 items-start">
+                            <img src={editingSeries.cover} className="w-24 h-32 rounded-xl object-cover border border-white/10 shadow-lg" alt="" />
+                            <input type="url" value={editingSeries.cover} onChange={e => setEditingSeries({...editingSeries, cover: e.target.value})}
+                              className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" />
+                         </div>
+                       </div>
+                       <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Puan</label>
+                            <input type="number" step="0.1" value={editingSeries.rating} onChange={e => setEditingSeries({...editingSeries, rating: Number(e.target.value)})}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Durum</label>
+                            <select value={editingSeries.status} onChange={e => setEditingSeries({...editingSeries, status: e.target.value})}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none cursor-pointer">
+                              <option value="Devam Ediyor">Devam Ediyor</option>
+                              <option value="Tamamlandı">Tamamlandı</option>
+                            </select>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+                 <div className="pt-6 border-t border-white/10 flex justify-end gap-3">
+                    <button type="button" onClick={() => setEditingSeries(null)} className="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold">Vazgeç</button>
+                    <button type="submit" className="px-10 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
+                       <Save size={18} /> Değişiklikleri Kaydet
+                    </button>
+                 </div>
+               </form>
+             </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

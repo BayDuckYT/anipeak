@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Link, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,8 +23,8 @@ export default function ProfilePage() {
   })).filter(h => h.manhwa) || [];
 
   return (
-    <main className="min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* â”€â”€ PROFILE HEADER â”€â”€ */}
+    <main className="min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl auto">
+      {/* ── PROFILE HEADER ── */}
       <div className="glass border border-white/10 rounded-3xl p-6 sm:p-10 mb-8 relative overflow-hidden">
         {/* Glows */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
@@ -40,17 +40,21 @@ export default function ProfilePage() {
             <p className="text-slate-400 text-sm mb-4">{user.email}</p>
             
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-              {user.isPremium ? (
+              {(user.role === 'Baş Admin' || user.role === 'Yönetici') ? (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
-                  <Crown size={14} /> PREMIUM ÃœYE
+                  <Crown size={14} /> {user.role.toUpperCase()}
+                </span>
+              ) : user.isPremium ? (
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
+                  <Crown size={14} /> PREMIUM ÜYE
                 </span>
               ) : (
                 <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold hover:bg-purple-500/20 transition-colors">
-                  <Crown size={14} /> PREMIUM'A GEÃ‡
+                  <Crown size={14} /> PREMIUM'A GEÇ
                 </button>
               )}
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass border-white/10 text-slate-300 text-xs font-bold">
-                <BookOpen size={14} /> {user.totalRead || richHistory.length} BÃ¶lÃ¼m Okundu
+                <BookOpen size={14} /> {user.totalRead || richHistory.length} Bölüm Okundu
               </span>
             </div>
           </div>
@@ -58,11 +62,11 @@ export default function ProfilePage() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
-        {/* â”€â”€ SIDEBAR â”€â”€ */}
+        {/* ── SIDEBAR ── */}
         <div className="w-full md:w-64 flex-shrink-0 space-y-2">
           {[
-            { id: 'history', label: 'OkuduklarÄ±m', icon: History },
-            { id: 'settings', label: 'Hesap AyarlarÄ±', icon: Settings },
+            { id: 'history', label: 'Okuduklarım', icon: History },
+            { id: 'settings', label: 'Hesap Ayarları', icon: Settings },
             { id: 'notifications', label: 'Bildirim Tercihleri', icon: Bell },
           ].map(tab => (
             <button
@@ -79,14 +83,16 @@ export default function ProfilePage() {
               {activeTab === tab.id && <ChevronRight size={16} className="ml-auto" />}
             </button>
           ))}
-          {/* Admin link if user is admin (fake check) */}
-          <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold glass border border-amber-500/20 text-amber-400 hover:bg-amber-500/10 transition-all mt-4">
-            <LayoutDashboard size={18} />
-            YÃ¶netim Paneli
-          </Link>
+          {/* Admin link if user is admin */}
+          {(user.role === 'Baş Admin' || user.role === 'Yönetici' || user.role === 'Admin Yardımcısı') && (
+            <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold glass border border-amber-500/20 text-amber-400 hover:bg-amber-500/10 transition-all mt-4">
+              <LayoutDashboard size={18} />
+              Yönetim Paneli
+            </Link>
+          )}
         </div>
 
-        {/* â”€â”€ MAIN CONTENT â”€â”€ */}
+        {/* ── MAIN CONTENT ── */}
         <div className="flex-1 min-w-0 pb-20">
           <AnimatePresence mode="wait">
             
@@ -98,9 +104,9 @@ export default function ProfilePage() {
                 {richHistory.length === 0 ? (
                   <div className="glass border border-white/10 rounded-2xl p-10 text-center">
                     <BookOpen size={48} className="mx-auto text-slate-600 mb-4" />
-                    <h3 className="text-white font-bold mb-2">HenÃ¼z seriye baÅŸlamadÄ±n</h3>
-                    <p className="text-slate-400 text-sm mb-6">KeÅŸfetmeye baÅŸla ve maceraya katÄ±l!</p>
-                    <Link to="/" className="px-6 py-2.5 bg-purple-600 text-white rounded-lg text-sm font-bold">Serileri KeÅŸfet</Link>
+                    <h3 className="text-white font-bold mb-2">Henüz seriye başlamadın</h3>
+                    <p className="text-slate-400 text-sm mb-6">Keşfetmeye başla ve maceraya katıl!</p>
+                    <Link to="/" className="px-6 py-2.5 bg-purple-600 text-white rounded-lg text-sm font-bold">Serileri Keşfet</Link>
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-4">
@@ -109,7 +115,7 @@ export default function ProfilePage() {
                         <img src={item.manhwa.cover} alt={item.manhwa.title} className="w-20 h-28 object-cover rounded-lg border border-white/10" />
                         <div className="flex-1 min-w-0 flex flex-col pt-1">
                           <h3 className="text-white font-bold text-sm truncate mb-1">{item.manhwa.title}</h3>
-                          <p className="text-purple-400 text-xs font-semibold mb-2">KaldÄ±ÄŸÄ±n BÃ¶lÃ¼m: {item.lastChapter}</p>
+                          <p className="text-purple-400 text-xs font-semibold mb-2">Kaldığın Bölüm: {item.lastChapter}</p>
                           <p className="text-slate-500 text-[10px] mb-auto">Son okuma: {new Date(item.updatedAt).toLocaleDateString('tr-TR')}</p>
                           
                           <Link to={`/read/${item.manhwaId}/${item.lastChapter}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-slate-300 text-xs font-semibold hover:bg-purple-600 hover:text-white transition-all w-fit mt-2">
@@ -129,7 +135,7 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold text-white mb-6">Hesap Bilgileri</h2>
                 <form className="max-w-md space-y-4" onSubmit={e => e.preventDefault()}>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">KullanÄ±cÄ± AdÄ±</label>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">Kullanıcı Adı</label>
                     <input type="text" defaultValue={user.username} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 transition-all" />
                   </div>
                   <div>
@@ -137,11 +143,11 @@ export default function ProfilePage() {
                     <input type="email" defaultValue={user.email} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 bg-black/20" disabled />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">Yeni Åifre</label>
-                    <input type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 transition-all" />
+                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">Yeni Şifre</label>
+                    <input type="password" placeholder="••••••••" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 transition-all" />
                   </div>
                   <button className="px-6 py-3 bg-purple-600 text-white rounded-xl text-sm font-bold shadow-neon-purple mt-2">
-                    AyarlarÄ± Kaydet
+                    Ayarları Kaydet
                   </button>
                 </form>
               </motion.div>
@@ -153,9 +159,9 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold text-white mb-6">Bildirim Tercihleri</h2>
                 <div className="max-w-md space-y-4">
                   {[
-                    { id: 'notif_new', title: 'Yeni BÃ¶lÃ¼m UyarÄ±larÄ±', desc: 'Takip ettiÄŸiniz serilere yeni bÃ¶lÃ¼m eklendiÄŸinde anÄ±nda haber verilir.' },
-                    { id: 'notif_sys', title: 'Sistem DuyurularÄ±', desc: 'BakÄ±m, gÃ¼ncelleme ve site ile ilgili genel bilgilendirme mesajlarÄ±.' },
-                    { id: 'notif_promo', title: 'Premium ve Kampanyalar', desc: 'Size Ã¶zel indirim ve hediyelerden e-posta ile haberdar olun.' }
+                    { id: 'notif_new', title: 'Yeni Bölüm Uyarıları', desc: 'Takip ettiğiniz serilere yeni bölüm eklendiğinde anında haber verilir.' },
+                    { id: 'notif_sys', title: 'Sistem Duyuruları', desc: 'Bakım, güncelleme ve site ile ilgili genel bilgilendirme mesajları.' },
+                    { id: 'notif_promo', title: 'Premium ve Kampanyalar', desc: 'Size özel indirim ve hediyelerden e-posta ile haberdar olun.' }
                   ].map((notif) => (
                     <div key={notif.id} className="flex items-center justify-between p-4 glass border border-white/10 rounded-2xl hover:bg-white/5 transition-colors group">
                       <div className="pr-4">
@@ -182,4 +188,3 @@ export default function ProfilePage() {
     </main>
   );
 }
-

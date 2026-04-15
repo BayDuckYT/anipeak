@@ -263,7 +263,7 @@ export default function Home({ onAuthOpen }) {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex items-center gap-2 mb-2">
+                       <div className="flex items-center gap-2 mb-2">
                         <span className="px-2.5 py-1 rounded-xl bg-red-500/90 text-white text-xs font-bold flex items-center gap-1">
                           <Flame size={11} /> #1 TREND
                         </span>

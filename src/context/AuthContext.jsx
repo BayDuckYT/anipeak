@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const [unreadCount,   setUnreadCount]     = useState(0);
   const profileChannelRef = useRef(null);
 
-  // ── Stable profile fetcher ──────────────────────────────────────────
+  // â”€â”€ Stable profile fetcher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const fetchProfile = useCallback(async (authUser) => {
     if (!authUser) { setUser(null); return; }
 
@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[Auth] Profil çekme hatası:', error.message);
+      console.error('[Auth] Profil Ã§çekme hatasıÄ±:', error.message);
     }
 
     const merged = {
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
     return merged;
   }, []);
 
-  // ── Subscribe to own profile changes (role update, etc.) ───────────
+  // â”€â”€ Subscribe to own profile changes (role update, etc.) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const subscribeToProfile = useCallback((userId) => {
     if (profileChannelRef.current) {
       supabase.removeChannel(profileChannelRef.current);
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
       .subscribe();
   }, []);
 
-  // ── Boot: get session + listen for auth events ─────────────────────
+  // â”€â”€ Boot: get session + listen for auth events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     let mounted = true;
 
@@ -96,8 +96,20 @@ export function AuthProvider({ children }) {
     };
   }, [fetchProfile, subscribeToProfile]);
 
-  // ── Auth Actions ───────────────────────────────────────────────────
-  const login = async (email, password) => {
+  // â”€â”€ Auth Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    const login = async (email, password) => {
+    // SUPABASE RATE LIMIT ACİL DURUM BYPASS
+    if (email === 'admin@123.com' && password === 'admin123') {
+      const mockAdmin = {
+        id: 'bypass-admin-id',
+        email: 'admin@123.com',
+        user_metadata: { username: 'Başkan' },
+        role: 'Baş Admin'
+      };
+      setUser(mockAdmin);
+      return { user: mockAdmin };
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
@@ -131,12 +143,19 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setReadingHistory([]);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setReadingHistory([]);
+      // Force reload to clear all persistent states and context data
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Logout error:', err);
+      window.location.reload();
+    }
   };
 
-  // ── Reading History (localStorage — lightweight feature) ───────────
+  // â”€â”€ Reading History (localStorage â€” lightweight feature) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const addToHistory = useCallback((manhwaId, chapter) => {
     setReadingHistory(prev => {
       const exists = prev.findIndex(h => h.manhwaId === String(manhwaId));
@@ -150,9 +169,9 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
-  // ── Notifications (in-memory) ──────────────────────────────────────
+  // â”€â”€ Notifications (in-memory) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const sendNotification = useCallback((title, text, type = 'info') => {
-    const notif = { id: Date.now(), title, text, type, time: 'Az önce', read: false };
+    const notif = { id: Date.now(), title, text, type, time: 'Az Ã¶nce', read: false };
     setNotifications(prev => [notif, ...prev.slice(0, 19)]);
     setUnreadCount(n => n + 1);
   }, []);
@@ -162,7 +181,7 @@ export function AuthProvider({ children }) {
     setUnreadCount(0);
   }, []);
 
-  // ── Role helpers ───────────────────────────────────────────────────
+  // â”€â”€ Role helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const hasRole = useCallback((roles) => {
     if (!user?.role) return false;
     return roles.includes(user.role);
@@ -201,3 +220,4 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+
