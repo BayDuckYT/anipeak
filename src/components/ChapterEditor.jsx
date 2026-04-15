@@ -484,31 +484,6 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
           </div>
         </div>
 
-        <div className="mt-4">
-          <button
-            onClick={() => setIsPremium(p => !p)}
-            className="flex items-center gap-2.5 select-none group"
-          >
-            <div
-              className={`w-9 h-5 rounded-full relative transition-colors duration-200 ${
-                isPremium ? 'bg-amber-500' : 'bg-white/10 group-hover:bg-white/15'
-              }`}
-            >
-              <div
-                className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-                  isPremium ? 'translate-x-4' : ''
-                }`}
-              />
-            </div>
-            <span
-              className={`text-xs font-bold transition-colors ${
-                isPremium ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-400'
-              }`}
-            >
-              Premium İçerik
-            </span>
-          </button>
-        </div>
       </div>
 
       <AnimatePresence>

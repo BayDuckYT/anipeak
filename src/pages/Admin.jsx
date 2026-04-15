@@ -229,17 +229,9 @@ function QuickAddForm({ seriesList, showToast }) {
             </label>
           </div>
           <textarea rows={4} value={pageUrls} onChange={e => setPageUrls(e.target.value)} className={`${inputCls} resize-none font-mono text-[10px]`} placeholder="https://...\nhttps://..." />
-          <div className="flex items-center gap-4">
-             <label className="flex items-center gap-2 cursor-pointer group" onClick={() => setIsPremium(!isPremium)}>
-                <div className={`w-10 h-5 rounded-full relative transition-colors ${isPremium ? 'bg-amber-500' : 'bg-white/10'}`}>
-                   <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${isPremium ? 'translate-x-5' : ''}`} />
-                </div>
-                <span className={`text-xs font-bold ${isPremium ? 'text-amber-400' : 'text-slate-500'}`}>Premium</span>
-             </label>
-             <button type="submit" className={`flex-1 py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${submitted === 'chapter' ? 'bg-emerald-600 text-white' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-neon-purple'}`}>
-                {submitted === 'chapter' ? <Check size={18} /> : <Save size={18} />} BÖLÜMÜ YAYINLA
+          <button type="submit" className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${submitted === 'chapter' ? 'bg-emerald-600 text-white' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-neon-purple'}`}>
+             {submitted === 'chapter' ? <Check size={18} /> : <Save size={18} />} BÖLÜMÜ YAYINLA
              </button>
-          </div>
         </form>
       </div>
     </div>
@@ -553,7 +545,6 @@ export default function Admin() {
     { label: 'Kullanıcılar',   value: registeredUsers.length,   icon: Users,     color: 'from-cyan-600 to-cyan-800',    glow: 'rgba(6,182,212,0.3)',   change: 'Kayıtlı' },
     { label: 'Toplam Bölüm',   value: totalChapters,            icon: BookOpen,  color: 'from-orange-600 to-orange-800',glow: 'rgba(249,115,22,0.3)',  change: 'Yayında' },
     { label: 'Duyurular',      value: announcements.length,     icon: Globe,     color: 'from-pink-600 to-pink-800',    glow: 'rgba(236,72,153,0.3)',  change: 'Sistem' },
-    { label: 'Premium Üye',    value: registeredUsers.filter(u=>u.premium).length, icon: Crown, color: 'from-amber-600 to-amber-800', glow: 'rgba(245,158,11,0.3)', change: 'VIP' },
   ];
 
   const filteredSeries  = series.filter(s => !s.is_deleted && (s.title||'').toLowerCase().includes(searchSeries.toLowerCase()));

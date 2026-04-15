@@ -204,7 +204,7 @@ export default function Home({ onAuthOpen }) {
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg"
               >
-                Binlerce premium Manhwa ve Webtoon serisine tek platformdan eriş.
+                Binlerce eşsiz Manhwa ve Webtoon serisine tek platformdan eriş.
                 Koyu mod, sonsuz scroll ve sıfır gecikme ile kusursuz okuma deneyimi.
               </motion.p>
 
@@ -398,16 +398,16 @@ export default function Home({ onAuthOpen }) {
           <div className="absolute inset-0 border border-purple-500/20 rounded-3xl" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-purple-600/30 blur-3xl" />
           <div className="relative z-10 text-center py-16 px-6">
-            <Crown size={40} className="text-amber-400 mx-auto mb-4" />
-            <h3 className="text-3xl sm:text-4xl font-black text-white mb-3">Premium'a Geç, Sınırları Kır</h3>
+            <Flame size={40} className="text-orange-400 mx-auto mb-4" />
+            <h3 className="text-3xl sm:text-4xl font-black text-white mb-3">Tüm Serileri Keşfet</h3>
             <p className="text-slate-400 mb-8 max-w-lg mx-auto">
-              Tüm içeriklere reklamsız erişim, erken bölüm okuma ve özel rozetler.
+              Binlerce Manhwa ve Webtoon serisine ücretsiz eriş. Okumaya hemen başla!
             </p>
             <button
               onClick={handleHeroBtnClick}
-              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold text-base hover:from-amber-400 hover:to-orange-400 transition-all shadow-[0_0_30px_rgba(245,158,11,0.4)]"
+              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-base hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple"
             >
-              {user ? 'Trendleri Keşfet' : "Premium'u Keşfet"}
+              {user ? 'Trendleri Keşfet' : 'Hemen Başla'}
             </button>
           </div>
         </motion.div>

@@ -229,11 +229,6 @@ export default function ManhwaDetail({ onAuthOpen }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-white font-bold group-hover:text-purple-300 transition-colors">Bölüm {ch.number}</span>
-                      {ch.is_premium && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-500 text-[10px] font-black border border-amber-400/20 uppercase tracking-tighter">
-                          <Lock size={10} /> Premium
-                        </span>
-                      )}
                     </div>
                     {ch.title && <p className="text-slate-500 text-xs truncate uppercase tracking-widest font-black">{ch.title}</p>}
                   </div>

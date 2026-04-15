@@ -40,18 +40,10 @@ export default function ProfilePage() {
             <p className="text-slate-400 text-sm mb-4">{user.email}</p>
             
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-              {(user.role === 'Baş Admin' || user.role === 'Yönetici') ? (
+              {(user.role === 'Baş Admin' || user.role === 'Yönetici') && (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
                   <Crown size={14} /> {user.role.toUpperCase()}
                 </span>
-              ) : user.isPremium ? (
-                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
-                  <Crown size={14} /> PREMIUM ÜYE
-                </span>
-              ) : (
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold hover:bg-purple-500/20 transition-colors">
-                  <Crown size={14} /> PREMIUM'A GEÇ
-                </button>
               )}
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass border-white/10 text-slate-300 text-xs font-bold">
                 <BookOpen size={14} /> {user.totalRead || richHistory.length} Bölüm Okundu
@@ -161,7 +153,7 @@ export default function ProfilePage() {
                   {[
                     { id: 'notif_new', title: 'Yeni Bölüm Uyarıları', desc: 'Takip ettiğiniz serilere yeni bölüm eklendiğinde anında haber verilir.' },
                     { id: 'notif_sys', title: 'Sistem Duyuruları', desc: 'Bakım, güncelleme ve site ile ilgili genel bilgilendirme mesajları.' },
-                    { id: 'notif_promo', title: 'Premium ve Kampanyalar', desc: 'Size özel indirim ve hediyelerden e-posta ile haberdar olun.' }
+                    { id: 'notif_promo', title: 'Kampanyalar ve Duyurular', desc: 'Size özel indirim ve hediyelerden e-posta ile haberdar olun.' }
                   ].map((notif) => (
                     <div key={notif.id} className="flex items-center justify-between p-4 glass border border-white/10 rounded-2xl hover:bg-white/5 transition-colors group">
                       <div className="pr-4">

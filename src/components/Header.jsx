@@ -217,7 +217,6 @@ export default function Header({ onAuthOpen }) {
                     </div>
                     <div className="hidden md:block text-left">
                       <p className="text-white text-xs font-semibold leading-tight">{user.username}</p>
-                      {user.isPremium && <p className="text-amber-400 text-[9px] flex items-center gap-0.5"><Crown size={8} /> Premium</p>}
                     </div>
                     <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -260,15 +259,7 @@ export default function Header({ onAuthOpen }) {
                             <Settings size={15} className="text-blue-400" />
                             Ayarlar
                           </Link>
-                          {!user.isPremium && (
-                            <button
-                              onClick={() => setProfileOpen(false)}
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-amber-400 hover:bg-amber-500/10 transition-all text-sm"
-                            >
-                              <Crown size={15} />
-                              Premium'a Geç
-                            </button>
-                          )}
+
                         </div>
 
                         <div className="p-1.5 border-t border-white/8">
