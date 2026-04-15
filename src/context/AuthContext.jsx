@@ -146,6 +146,9 @@ export function AuthProvider({ children }) {
         }
       } catch (err) {
         console.error("[Auth] Başlatma Hatası:", err);
+        if (mounted) {
+          window.__AUTH_ERROR__ = err.message;
+        }
       } finally {
         if (mounted) {
           setLoading(false);

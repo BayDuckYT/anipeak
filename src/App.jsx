@@ -77,6 +77,56 @@ function MaintenanceScreen({ onAuthOpen }) {
   );
 }
 
+function ConnectionDiagnostic() {
+  const [show, setShow] = useState(false);
+  const debugData = window.__SUPABASE_DEBUG__ || {};
+  const authErr = window.__AUTH_ERROR__;
+
+  // Sadece hatayla karşılaşıldığında veya tıklatıldığında göster
+  if (!show && !authErr) {
+    return (
+      <button 
+        onClick={() => setShow(true)}
+        className="fixed bottom-4 right-4 z-[1000] w-6 h-6 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-[10px] text-slate-500 hover:bg-white/10 transition-all"
+      >
+        ?
+      </button>
+    );
+  }
+
+  return (
+    <div className="fixed bottom-4 right-4 z-[1000] p-4 glass-strong border border-amber-500/30 rounded-2xl shadow-2xl max-w-[280px] text-[11px] animate-float">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-bold text-amber-500 uppercase tracking-widest">Bağlantı Teşhisi</span>
+        <button onClick={() => setShow(false)} className="text-slate-500 hover:text-white">✕</button>
+      </div>
+      <div className="space-y-1.5 text-slate-300">
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span className="opacity-60">Domain:</span>
+          <span className="font-mono">{debugData.domain}</span>
+        </div>
+        <div className="flex justify-between border-b border-white/10 pb-1">
+          <span className="opacity-60">Supabase:</span>
+          <span className="font-mono text-blue-400">{debugData.url}</span>
+        </div>
+        <div className="pt-1">
+          <span className="block opacity-60 mb-1">Durum / Hata:</span>
+          {authErr ? (
+            <span className="text-red-400 leading-tight block bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+              ⚠️ {authErr}
+            </span>
+          ) : (
+            <span className="text-emerald-400">Bağlantı Aktif (veya Bekleniyor)</span>
+          )}
+        </div>
+        <p className="text-[9px] text-slate-500 mt-2 leading-tight italic">
+          Not: Eğer hata "Failed to fetch" ise, lütfen AdBlocker veya Brave Shields kapatıp deneyiniz.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const [authModal, setAuthModal] = useState(null);
   const { maintenanceMode } = useApp();
@@ -135,6 +185,8 @@ function AppContent() {
               />
             )}
           </AnimatePresence>
+
+          <ConnectionDiagnostic />
         </div>
       </BrowserRouter>
     </>
