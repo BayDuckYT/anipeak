@@ -120,7 +120,7 @@ function ConnectionDiagnostic() {
         
         <div className="mt-4">
           <span className="block opacity-50 mb-1.5 uppercase tracking-tighter text-[9px]">Mevcut Durum:</span>
-          {authErr ? (
+          {authErr && !authErr.includes('stole it') ? (
             <div className="text-red-400 font-bold leading-tight bg-red-500/10 p-3 rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
               ❌ {authErr}
             </div>
