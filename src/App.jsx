@@ -143,12 +143,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <AuthProvider>
-        <ErrorBoundary>
+    <ErrorBoundary>
+      <AppProvider>
+        <AuthProvider>
           <AppContent />
-        </ErrorBoundary>
-      </AuthProvider>
-    </AppProvider>
+        </AuthProvider>
+      </AppProvider>
+    </ErrorBoundary>
   );
 }

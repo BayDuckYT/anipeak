@@ -127,9 +127,19 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
+    // [KOZMİK GÜVENLİK] Safety Timeout: Force loading to false if Supabase hangs
+    const safetyTimeout = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn("[Auth] Başlatma zaman aşımına uğradı, UI zorla açılıyor...");
+        setLoading(false);
+      }
+    }, 6000);
+
     const init = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
         if (mounted && session?.user) {
           await fetchProfile(session.user);
           subscribeToProfile(session.user.id);
@@ -137,35 +147,46 @@ export function AuthProvider({ children }) {
       } catch (err) {
         console.error("[Auth] Başlatma Hatası:", err);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          clearTimeout(safetyTimeout);
+        }
       }
     };
 
     init();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-      try {
-        if (session?.user) {
-          await fetchProfile(session.user);
-          subscribeToProfile(session.user.id);
-        } else {
-          setUser(null);
-          if (profileChannelRef.current) {
-            supabase.removeChannel(profileChannelRef.current);
-            profileChannelRef.current = null;
+    let subscription = null;
+    try {
+      const response = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (!mounted) return;
+        try {
+          if (session?.user) {
+            await fetchProfile(session.user);
+            subscribeToProfile(session.user.id);
+          } else {
+            setUser(null);
+            if (profileChannelRef.current) {
+              supabase.removeChannel(profileChannelRef.current);
+              profileChannelRef.current = null;
+            }
           }
+        } catch (err) {
+          console.error("[Auth] State Değişim Hatası:", err);
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error("[Auth] State Değişim Hatası:", err);
-      } finally {
-        setLoading(false);
-      }
-    });
+      });
+      subscription = response?.data?.subscription;
+    } catch (err) {
+      console.error("[Auth] Listener Kurulamadı:", err);
+      setLoading(false);
+    }
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      clearTimeout(safetyTimeout);
+      if (subscription) subscription.unsubscribe();
       if (profileChannelRef.current) {
         supabase.removeChannel(profileChannelRef.current);
       }
