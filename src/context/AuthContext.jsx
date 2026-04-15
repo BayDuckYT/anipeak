@@ -21,36 +21,55 @@ export function AuthProvider({ children }) {
   const [unreadCount,   setUnreadCount]     = useState(0);
   const profileChannelRef = useRef(null);
 
-  // â”€â”€ Stable profile fetcher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Stable profile fetcher ─────────────────────────────────────────
   const fetchProfile = useCallback(async (authUser) => {
     if (!authUser) { setUser(null); return; }
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', authUser.id)
-      .single();
+    try {
+      // PROFIL ÇEKME İŞLEMİNE TIMEOUT EKLENDİ
+      const profilePromise = supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+        
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profil yükleme zaman aşımı')), 8000)
+      );
 
-    if (error && error.code !== 'PGRST116') {
-      console.error('[Auth] Profil çekme hatası:', error.message);
+      const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('[Auth] Profil çekme hatası:', error.message);
+      }
+
+      // [KOZMİK YETKİ] Hardcoded Admin bypass for the owner
+      const isCosmicOwner = authUser.email === 'murathanozel134@gmail.com';
+
+      const merged = {
+        ...authUser,
+        username:  data?.username  || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
+        role:      isCosmicOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
+        avatar:    data?.avatar_url || authUser.user_metadata?.avatar_url || null,
+        premium:   data?.premium   || false,
+        status:    data?.status    || 'Aktif',
+      };
+
+      setUser(merged);
+      // [KOZMİK SÜREKLİLİK] Başarılı profili hafızaya yedekle
+      localStorage.setItem('anipeak_user_cache', JSON.stringify(merged));
+      return merged;
+    } catch (err) {
+      console.error('[Auth] FetchProfile Kritik Hata:', err);
+      // Hata durumunda döngüyü kırmak için yedek profil ver
+      const fallbackUser = {
+        ...authUser,
+        username: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
+        role: 'Kullanıcı'
+      };
+      setUser(fallbackUser);
+      return fallbackUser;
     }
-
-    // [KOZMİK YETKİ] Hardcoded Admin bypass for the owner
-    const isCosmicOwner = authUser.email === 'murathanozel134@gmail.com';
-
-    const merged = {
-      ...authUser,
-      username:  data?.username  || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Ruh',
-      role:      isCosmicOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
-      avatar:    data?.avatar_url || authUser.user_metadata?.avatar_url || null,
-      premium:   data?.premium   || false,
-      status:    data?.status    || 'Aktif',
-    };
-
-    setUser(merged);
-    // [KOZMİK SÜREKLİLİK] Başarılı profili hafızaya yedekle
-    localStorage.setItem('anipeak_user_cache', JSON.stringify(merged));
-    return merged;
   }, []);
 
   // [KOZMİK BİLDİRİM] Unified notification sender
@@ -175,28 +194,29 @@ export function AuthProvider({ children }) {
     try {
       const response = supabase.auth.onAuthStateChange(async (event, session) => {
         if (!mounted) return;
-        console.log('[Auth] Event:', event);
+        
         try {
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-            // Kullanıcı giriş yaptı veya token yenilendi
             if (session?.user) {
+              setLoading(true); // Veri beklerken loading aç
               await fetchProfile(session.user);
               subscribeToProfile(session.user.id);
             }
           } else if (event === 'SIGNED_OUT') {
-            // Sadece açık çıkış yapıldığında kullanıcıyı temizle
             setUser(null);
+            localStorage.removeItem('anipeak_user_cache');
             if (profileChannelRef.current) {
               supabase.removeChannel(profileChannelRef.current);
               profileChannelRef.current = null;
             }
+            // Sayfa döngüsünü engellemek için direkt kök dizine gönder
+            window.location.href = '/';
           }
-          // INITIAL_SESSION, PASSWORD_RECOVERY gibi diğer eventler için
-          // kullanıcıyı ne giriş ne çıkış yaptır — ağ hatası gibi davran
         } catch (err) {
           console.error("[Auth] State Değişim Hatası:", err);
+          window.__AUTH_ERROR__ = "Giriş işlemi tamamlanamadı. Sayfayı yenileyin.";
         } finally {
-          if (mounted) setLoading(false);
+          if (mounted) setLoading(false); // Her durumda loading kapat
         }
       });
       subscription = response?.data?.subscription;
