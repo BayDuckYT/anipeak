@@ -275,7 +275,7 @@ export function AppProvider({ children }) {
     deleteComment,
     // Users
     registeredUsers,
-    updateProfileRole,
+    updateProfile,
     deleteProfile,
   };
 

@@ -17,6 +17,26 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      if (this.props.mini) {
+        return (
+          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+            <div className="glass-strong border border-red-500/20 rounded-2xl p-8 max-w-sm shadow-xl">
+               <ShieldAlert size={40} className="text-red-500 mx-auto mb-4 opacity-80" />
+               <h3 className="text-lg font-black text-white mb-2 uppercase tracking-tight">BÖLGESEL HATA</h3>
+               <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                 Bu içerik yüklenirken bir sorun oluştu. Diğer sayfalar hâlâ çalışır durumda!
+               </p>
+               <button 
+                  onClick={() => window.location.reload()}
+                  className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+               >
+                 <RotateCcw size={14} /> Tekrar Dene
+               </button>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="min-h-screen bg-[#050507] flex items-center justify-center p-6 text-center">
           <div className="glass-strong border border-red-500/20 rounded-3xl p-10 max-w-lg shadow-[0_0_100px_rgba(239,68,68,0.15)] relative overflow-hidden">

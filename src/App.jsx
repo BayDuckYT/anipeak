@@ -119,7 +119,9 @@ function AppContent() {
               )}
               <div className={maintenanceMode ? "pt-7" : ""}>
                  <Header onAuthOpen={(mode) => setAuthModal(mode)} />
-                 <AnimatedRoutes onAuthOpen={(mode) => setAuthModal(mode)} />
+                 <ErrorBoundary mini>
+                   <AnimatedRoutes onAuthOpen={(mode) => setAuthModal(mode)} />
+                 </ErrorBoundary>
               </div>
             </>
           )}
@@ -141,12 +143,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <AppProvider>
-        <AuthProvider>
+    <AppProvider>
+      <AuthProvider>
+        <ErrorBoundary>
           <AppContent />
-        </AuthProvider>
-      </AppProvider>
-    </ErrorBoundary>
+        </ErrorBoundary>
+      </AuthProvider>
+    </AppProvider>
   );
 }
