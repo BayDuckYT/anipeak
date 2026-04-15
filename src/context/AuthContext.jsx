@@ -4,15 +4,21 @@ import { supabase } from '../lib/supabaseClient';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user,    setUser]    = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [readingHistory, setReadingHistory] = useState([]);
-  const [notifications, setNotifications]   = useState([]);
-  const [unreadCount,   setUnreadCount]     = useState(0);
   const [readIds,       setReadIds]         = useState(() => {
     try { return JSON.parse(localStorage.getItem('anipeak_read_notifs') || '[]'); }
     catch { return []; }
   });
+  const [user, setUser] = useState(() => {
+    // [KOZMİK ÖNBELLEK] Optimistik başlangıç: Supabase'den önce hafızadaki kullanıcıyı yükle
+    try {
+      const cached = localStorage.getItem('anipeak_user_cache');
+      return cached ? JSON.parse(cached) : null;
+    } catch { return null; }
+  });
+  const [loading, setLoading] = useState(true);
+  const [readingHistory, setReadingHistory] = useState([]);
+  const [notifications, setNotifications]   = useState([]);
+  const [unreadCount,   setUnreadCount]     = useState(0);
   const profileChannelRef = useRef(null);
 
   // â”€â”€ Stable profile fetcher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -42,6 +48,8 @@ export function AuthProvider({ children }) {
     };
 
     setUser(merged);
+    // [KOZMİK SÜREKLİLİK] Başarılı profili hafızaya yedekle
+    localStorage.setItem('anipeak_user_cache', JSON.stringify(merged));
     return merged;
   }, []);
 
@@ -283,6 +291,7 @@ export function AuthProvider({ children }) {
       await supabase.auth.signOut();
       setUser(null);
       setReadingHistory([]);
+      localStorage.removeItem('anipeak_user_cache'); // Yedek oturumu temizle
       // Force reload to clear all persistent states and context data
       window.location.href = '/';
     } catch (err) {

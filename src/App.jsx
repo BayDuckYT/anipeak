@@ -136,6 +136,13 @@ function ConnectionDiagnostic() {
             <strong className="text-amber-500">İPUCU:</strong> Bu hata genellikle bir <strong className="text-white">AdBlocker</strong> veya <strong className="text-white">Brave Kalkanı</strong>'nın Supabase'i engellediğini gösterir.
           </div>
         )}
+
+        {authErr && authErr.includes('timeout') && (
+          <div className="text-[9px] text-slate-400 bg-red-500/5 p-2.5 rounded-lg border border-red-500/20 leading-relaxed mt-2">
+            <strong className="text-red-500">DİKKAT:</strong> Supabase senin IP adresini geçici olarak kısıtlamış (Rate Limit) olabilir. <br/> 
+            <strong className="text-white">ÇÖZÜM:</strong> Giriş Yap'a 15-20 dk sonra tekrar dene veya Google ile devam etmeyi denemelisin.
+          </div>
+        )}
       </div>
     </div>
   );
