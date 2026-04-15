@@ -16,6 +16,15 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
+// [KOZMİK TEMİZLİK] Takılan Auth verilerini temizle
+try {
+  const authKey = 'sb-nkvxavrhsoazpeucscso-auth-token'; // Specific to this project
+  const currentAuth = localStorage.getItem(authKey);
+  if (currentAuth && currentAuth.includes('error')) {
+    localStorage.removeItem(authKey);
+  }
+} catch (e) {}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
