@@ -154,13 +154,23 @@ export function AppProvider({ children }) {
 
   // ── Series ────────────────────────────────────────────────────────────
   const addSeries = useCallback(async (payload) => {
+    // Schema defines genre as TEXT[]. Ensure we send an array.
+    const genreArray = Array.isArray(payload.genre)
+      ? payload.genre
+      : (payload.genre ? [payload.genre] : []);
+
     const { data, error } = await supabase
       .from('series')
-      .insert([{ ...payload, reads_num: 0, rating: 0.0 }])
+      .insert([{ ...payload, genre: genreArray, reads_num: 0, rating: 0.0 }])
       .select()
       .single();
 
-    if (!error && data) {
+    if (error) {
+      console.error('[AppContext] Seri Eklenemedi:', error);
+      throw error;
+    }
+
+    if (data) {
       await supabase.from('announcements').insert([{
         type: 'series',
         text: `✨ Yeni Seri: "${payload.title}" Yayına Girdi!`,

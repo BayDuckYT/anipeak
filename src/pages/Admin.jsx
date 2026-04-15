@@ -138,11 +138,16 @@ function QuickAddForm({ seriesList, showToast }) {
   const handleAddSeries = async (e) => {
     e.preventDefault();
     if (!newSeries.title || !newSeries.cover) { showToast('Başlık ve kapak gerekli!', 'error'); return; }
-    await addSeries(newSeries);
-    showToast('Seri başarıyla oluşturuldu!', 'success');
-    setNewSeries({ title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor' });
-    setSubmitted('series');
-    setTimeout(() => setSubmitted(null), 3000);
+    
+    try {
+      await addSeries(newSeries);
+      showToast('Seri başarıyla oluşturuldu!', 'success');
+      setNewSeries({ title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor' });
+      setSubmitted('series');
+      setTimeout(() => setSubmitted(null), 3000);
+    } catch (err) {
+      showToast('Seri eklenirken hata oluştu: ' + (err.message || 'Bilinmeyen hata'), 'error');
+    }
   };
 
   const handleAddChapter = async (e) => {
