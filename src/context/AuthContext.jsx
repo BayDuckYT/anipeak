@@ -22,13 +22,16 @@ export function AuthProvider({ children }) {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('[Auth] Profil Ã§çekme hatasıÄ±:', error.message);
+      console.error('[Auth] Profil çekme hatası:', error.message);
     }
+
+    // [KOZMİK YETKİ] Hardcoded Admin bypass for the owner
+    const isCosmicOwner = authUser.email === 'murathanozel134@gmail.com';
 
     const merged = {
       ...authUser,
       username:  data?.username  || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Ruh',
-      role:      data?.role      || 'Kullanıcı',
+      role:      isCosmicOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
       avatar:    data?.avatar_url || authUser.user_metadata?.avatar_url || null,
       premium:   data?.premium   || false,
       status:    data?.status    || 'Aktif',
