@@ -81,6 +81,23 @@ function AppContent() {
   const [authModal, setAuthModal] = useState(null);
   const { maintenanceMode } = useApp();
   const { user, isOwner } = useAuth();
+
+  // ── Global Stability Listeners ──────────────────────────────────────
+  useState(() => {
+    const handleError = (e) => {
+      console.error("[KOZMİK ÇÖKME]", e);
+      // Small delay to allow the error to settle, then reload if critical
+      if (e.message?.includes('chunk') || e.message?.includes('Loading')) {
+        window.location.reload();
+      }
+    };
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleError);
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleError);
+    };
+  });
   
   // Bakım modundayken, eğer giriş yapan kişi BAŞ ADMİN DEĞİLSE ekranı kapat
   const isMaintenanceBlocked = maintenanceMode && !isOwner;

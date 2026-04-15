@@ -9,6 +9,10 @@ export function AuthProvider({ children }) {
   const [readingHistory, setReadingHistory] = useState([]);
   const [notifications, setNotifications]   = useState([]);
   const [unreadCount,   setUnreadCount]     = useState(0);
+  const [readIds,       setReadIds]         = useState(() => {
+    try { return JSON.parse(localStorage.getItem('anipeak_read_notifs') || '[]'); }
+    catch { return []; }
+  });
   const profileChannelRef = useRef(null);
 
   // â”€â”€ Stable profile fetcher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -60,7 +64,57 @@ export function AuthProvider({ children }) {
       .subscribe();
   }, []);
 
-  // â”€â”€ Boot: get session + listen for auth events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Sync Database Announcements as Notifications ────────────────────
+  useEffect(() => {
+    const loadAnn = async () => {
+      const { data } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (data) syncNotifs(data, readIds);
+    };
+
+    loadAnn();
+
+    const channel = supabase
+      .channel('announcements-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (payload) => {
+        setNotifications(prev => {
+          const fresh = mapToNotif(payload.new, false);
+          const next = [fresh, ...prev].slice(0, 20);
+          updateUnread(next);
+          return next;
+        });
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [readIds]);
+
+  const mapToNotif = (ann, isRead) => ({
+    id:    ann.id,
+    text:  ann.text,
+    type:  ann.type || 'info',
+    time:  new Date(ann.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
+    read:  isRead
+  });
+
+  const syncNotifs = (data, ids) => {
+    const mapped = data.map(ann => mapToNotif(ann, ids.includes(ann.id)));
+    setNotifications(mapped);
+    updateUnread(mapped);
+  };
+
+  const updateUnread = (list) => {
+    setUnreadCount(list.filter(n => !n.read).length);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('anipeak_read_notifs', JSON.stringify(readIds));
+  }, [readIds]);
+
+  // ── Authentication Boot & Listeners ──────────────────────────────────
   useEffect(() => {
     let mounted = true;
 
@@ -99,7 +153,7 @@ export function AuthProvider({ children }) {
     };
   }, [fetchProfile, subscribeToProfile]);
 
-  // â”€â”€ Auth Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Auth Actions ──────────────────────────────────────────────────────
     const login = async (email, password) => {
     // SUPABASE RATE LIMIT ACİL DURUM BYPASS
     if (email === 'admin@123.com' && password === 'admin123') {
@@ -172,17 +226,15 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
-  // â”€â”€ Notifications (in-memory) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const sendNotification = useCallback((title, text, type = 'info') => {
-    const notif = { id: Date.now(), title, text, type, time: 'Az Ã¶nce', read: false };
-    setNotifications(prev => [notif, ...prev.slice(0, 19)]);
-    setUnreadCount(n => n + 1);
-  }, []);
-
   const markAllRead = useCallback(() => {
+    setReadIds(prev => {
+      const currentIds = notifications.map(n => n.id);
+      const next = Array.from(new Set([...prev, ...currentIds]));
+      return next;
+    });
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     setUnreadCount(0);
-  }, []);
+  }, [notifications]);
 
   // â”€â”€ Role helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const hasRole = useCallback((roles) => {

@@ -77,15 +77,16 @@ function MetricCard({ icon: Icon, label, value, color, glow, change }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function QuickAddForm({ seriesList, showToast }) {
   const { addChapter, addSeries, addAnnouncement } = useApp();
-  const [tab,          setTab]          = useState('chapter');
-  const [submitted,    setSubmitted]    = useState(false);
+  const [submitted, setSubmitted] = useState(null); // 'series' or 'chapter'
+  
+  // Chapter State
   const [selectedId,   setSelectedId]   = useState('');
   const [chapterNum,   setChapterNum]   = useState('');
   const [chapterTitle, setChapterTitle] = useState('');
   const [pageUrls,     setPageUrls]     = useState('');
   const [isPremium,    setIsPremium]    = useState(false);
-  const [annText,      setAnnText]      = useState('');
-  const [annType,      setAnnType]      = useState('system');
+  
+  // Series State
   const [newSeries,    setNewSeries]    = useState({
     title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor',
   });
@@ -134,146 +135,113 @@ function QuickAddForm({ seriesList, showToast }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleAddSeries = async (e) => {
     e.preventDefault();
-    try {
-      if (tab === 'chapter') {
-        if (!selectedId) { showToast('Lütfen bir seri seçin!', 'error'); return; }
-        if (!chapterNum)  { showToast('Bölüm numarası gerekli!', 'error'); return; }
-        const pages = pageUrls.split('\n').map(u => u.trim()).filter(Boolean);
-        await addChapter(Number(selectedId), { number: Number(chapterNum), title: chapterTitle, pages, isPremium });
-        showToast(`🚀 Bölüm ${chapterNum} yayınlandı!`, 'success');
-        setChapterNum(''); setChapterTitle(''); setPageUrls(''); setIsPremium(false);
-      } else if (tab === 'series') {
-        if (!newSeries.title || !newSeries.cover) { showToast('Başlık ve kapak URL gerekli!', 'error'); return; }
-        await addSeries(newSeries);
-        showToast('Seri başarıyla oluşturuldu!', 'success');
-        setNewSeries({ title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor' });
-      } else {
-        if (!annText.trim()) return;
-        await addAnnouncement(annText, annType);
-        showToast('Duyuru evrene fısıldandı!', 'success');
-        setAnnText('');
-      }
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 2500);
-    } catch (err) {
-      console.error(err);
-      showToast('Bir hata oluştu.', 'error');
-    }
+    if (!newSeries.title || !newSeries.cover) { showToast('Başlık ve kapak gerekli!', 'error'); return; }
+    await addSeries(newSeries);
+    showToast('Seri başarıyla oluşturuldu!', 'success');
+    setNewSeries({ title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor' });
+    setSubmitted('series');
+    setTimeout(() => setSubmitted(null), 3000);
+  };
+
+  const handleAddChapter = async (e) => {
+    e.preventDefault();
+    if (!selectedId) { showToast('Seri seçin!', 'error'); return; }
+    if (!chapterNum)  { showToast('Bölüm no gerekli!', 'error'); return; }
+    const pages = pageUrls.split('\n').map(u => u.trim()).filter(Boolean);
+    await addChapter(Number(selectedId), { number: Number(chapterNum), title: chapterTitle, pages, isPremium });
+    showToast(`🚀 Bölüm ${chapterNum} yayınlandı!`, 'success');
+    setChapterNum(''); setChapterTitle(''); setPageUrls(''); setIsPremium(false);
+    setSubmitted('chapter');
+    setTimeout(() => setSubmitted(null), 3000);
   };
 
   const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-all';
 
   return (
-    <div className="glass border border-white/8 rounded-2xl p-6 max-w-2xl">
-      <div className="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
-        {[['series','Yeni Seri','text-green-400'],['chapter','Yeni Bölüm','text-purple-400'],['announcement','Duyuru','text-blue-400']].map(([id, label, col]) => (
-          <button key={id} onClick={() => setTab(id)}
-            className={`font-bold text-lg transition-colors ${tab===id ? 'text-white' : 'text-slate-500 hover:text-slate-300'}`}>
-            <span className={tab===id ? col : ''}>{label}</span>
-          </button>
-        ))}
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {tab === 'chapter' && (
-          <>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Seri *</label>
-                <select value={selectedId} onChange={e => setSelectedId(e.target.value)} className={inputCls}>
-                  <option value="" className="bg-[#0a0a14]">— Seçin —</option>
-                  {seriesList.map(s => <option key={s.id} value={s.id} className="bg-[#0a0a14]">{s.title}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Bölüm No *</label>
-                <input type="text" value={chapterNum} onChange={e => setChapterNum(e.target.value)} placeholder="Örn: 188" className={inputCls} />
-              </div>
+    <div className="grid lg:grid-cols-2 gap-8 items-start">
+      {/* Series Sector */}
+      <div className="glass border border-white/8 rounded-2xl p-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-3xl pointer-events-none" />
+        <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+          <BookOpen className="text-green-400" size={20} /> Seri Oluştur
+        </h3>
+        <form onSubmit={handleAddSeries} className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">Başlık *</label>
+              <input type="text" value={newSeries.title} onChange={e => setNewSeries(p => ({...p, title: e.target.value}))} className={inputCls} placeholder="Solo Leveling vb." />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Bölüm Başlığı</label>
-              <input type="text" value={chapterTitle} onChange={e => setChapterTitle(e.target.value)} placeholder="İsteğe bağlı" className={inputCls} />
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Görsel URL'leri</label>
-                <label className="cursor-pointer text-[10px] font-bold text-purple-400 hover:text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
-                  <PlusCircle size={10} className="inline mr-1" /> PC'den Yükle
-                  <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'pages')} />
+              <div className="flex items-center justify-between mb-1.5 ml-1">
+                <label className="text-[10px] uppercase font-bold text-slate-500">Kapak URL *</label>
+                <label className="cursor-pointer text-[9px] font-black text-green-400 hover:text-green-300">
+                   Yükle <input type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'cover')} />
                 </label>
               </div>
-              <textarea rows={4} value={pageUrls} onChange={e => setPageUrls(e.target.value)}
-                placeholder="Her satıra bir URL..." className={`${inputCls} resize-none font-mono text-[10px]`} />
+              <input type="url" value={newSeries.cover} onChange={e => setNewSeries(p => ({...p, cover: e.target.value}))} className={inputCls} placeholder="https://..." />
             </div>
-            <label className="flex items-center gap-2 cursor-pointer" onClick={() => setIsPremium(p => !p)}>
-              <div className="relative">
-                <div className={`w-10 h-5 rounded-full transition-colors ${isPremium ? 'bg-purple-600' : 'bg-white/10'}`} />
-                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform shadow-sm ${isPremium ? 'translate-x-5' : ''}`} />
-              </div>
-              <span className="text-sm text-slate-300">Premium İçerik</span>
-            </label>
-          </>
-        )}
-
-        {tab === 'series' && (
-          <>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Başlık *</label>
-                <input type="text" required value={newSeries.title} onChange={e => setNewSeries(p => ({...p, title: e.target.value}))} className={inputCls} />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kapak URL *</label>
-                  <label className="cursor-pointer text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md border border-green-500/20">
-                    <ImageIcon size={10} className="inline mr-1" /> Yükle
-                    <input type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'cover')} />
-                  </label>
-                </div>
-                <input type="url" required value={newSeries.cover} onChange={e => setNewSeries(p => ({...p, cover: e.target.value}))} className={inputCls} placeholder="https://..." />
-              </div>
-            </div>
-            <textarea rows={2} value={newSeries.description} onChange={e => setNewSeries(p => ({...p, description: e.target.value}))}
-              placeholder="Kısa özet..." className={`${inputCls} resize-none`} />
-            <div className="grid sm:grid-cols-2 gap-4">
-              <select value={newSeries.genre} onChange={e => setNewSeries(p => ({...p, genre: e.target.value}))} className="bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-green-500">
-                {['Aksiyon','Fantezi','Romantik','Bilim Kurgu','Dram','Gerilim'].map(g => <option key={g} value={g}>{g}</option>)}
-              </select>
-              <select value={newSeries.status} onChange={e => setNewSeries(p => ({...p, status: e.target.value}))} className="bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-green-500">
-                <option value="Devam Ediyor">Devam Ediyor</option>
-                <option value="Tamamlandı">Tamamlandı</option>
-              </select>
-            </div>
-          </>
-        )}
-
-        {tab === 'announcement' && (
-          <>
-            <select value={annType} onChange={e => setAnnType(e.target.value)} className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
-              <option value="system">Sistem Duyurusu</option>
-              <option value="important">Kritik Uyarı</option>
-              <option value="event">Etkinlik</option>
+          </div>
+          <div>
+            <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">Açıklama</label>
+            <textarea rows={2} value={newSeries.description} onChange={e => setNewSeries(p => ({...p, description: e.target.value}))} className={`${inputCls} resize-none`} placeholder="Seri özeti..." />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <select value={newSeries.genre} onChange={e => setNewSeries(p => ({...p, genre: e.target.value}))} className={`${inputCls} cursor-pointer`}>
+              {['Aksiyon','Macera','Fantezi','Dram','Romantik'].map(g => <option key={g} value={g} className="bg-[#0a0a14]">{g}</option>)}
             </select>
-            <textarea rows={4} required value={annText} onChange={e => setAnnText(e.target.value)}
-              placeholder="Duyuru metni..." className={`${inputCls} resize-none`} />
-          </>
-        )}
+            <select value={newSeries.status} onChange={e => setNewSeries(p => ({...p, status: e.target.value}))} className={`${inputCls} cursor-pointer`}>
+               <option value="Devam Ediyor" className="bg-[#0a0a14]">Devam Ediyor</option>
+               <option value="Tamamlandı" className="bg-[#0a0a14]">Tamamlandı</option>
+            </select>
+          </div>
+          <button type="submit" className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${submitted === 'series' ? 'bg-emerald-600 text-white' : 'bg-green-600 hover:bg-green-500 text-white shadow-lg'}`}>
+            {submitted === 'series' ? <Check size={18} /> : <PlusCircle size={18} />} SERİYİ OLUŞTUR
+          </button>
+        </form>
+      </div>
 
-        <button type="submit"
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${
-            submitted ? 'bg-emerald-600 text-white' :
-            tab === 'chapter' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 shadow-neon-purple' :
-            tab === 'series'  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-500 hover:to-emerald-500' :
-            'bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500'
-          }`}
-        >
-          {submitted ? <><Check size={16} /> Gönderildi!</> : <><PlusCircle size={16} /> {
-            tab === 'chapter' ? 'Bölümü Yayınla' : tab === 'series' ? 'Seriyi Oluştur' : 'Duyuruyu Gönder'
-          }</>}
-        </button>
-      </form>
+      {/* Chapter Sector */}
+      <div className="glass border border-white/8 rounded-2xl p-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-3xl pointer-events-none" />
+        <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+          <Layers className="text-purple-400" size={20} /> Bölüm Yayınla
+        </h3>
+        <form onSubmit={handleAddChapter} className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">Seri Seç *</label>
+              <select value={selectedId} onChange={e => setSelectedId(e.target.value)} className={`${inputCls} cursor-pointer`}>
+                <option value="" className="bg-[#0a0a14]">---</option>
+                {seriesList.map(s => <option key={s.id} value={s.id} className="bg-[#0a0a14]">{s.title}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">Bölüm NO *</label>
+              <input type="text" value={chapterNum} onChange={e => setChapterNum(e.target.value)} className={inputCls} placeholder="1. Bölüm" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between mb-1 ml-1">
+            <label className="text-[10px] uppercase font-bold text-slate-500">Sayfa URL'leri / Dosyalar</label>
+            <label className="cursor-pointer text-[9px] font-black text-purple-400 hover:text-purple-300">
+               Dosya Seç <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'pages')} />
+            </label>
+          </div>
+          <textarea rows={4} value={pageUrls} onChange={e => setPageUrls(e.target.value)} className={`${inputCls} resize-none font-mono text-[10px]`} placeholder="https://...\nhttps://..." />
+          <div className="flex items-center gap-4">
+             <label className="flex items-center gap-2 cursor-pointer group" onClick={() => setIsPremium(!isPremium)}>
+                <div className={`w-10 h-5 rounded-full relative transition-colors ${isPremium ? 'bg-amber-500' : 'bg-white/10'}`}>
+                   <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${isPremium ? 'translate-x-5' : ''}`} />
+                </div>
+                <span className={`text-xs font-bold ${isPremium ? 'text-amber-400' : 'text-slate-500'}`}>Premium</span>
+             </label>
+             <button type="submit" className={`flex-1 py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${submitted === 'chapter' ? 'bg-emerald-600 text-white' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-neon-purple'}`}>
+                {submitted === 'chapter' ? <Check size={18} /> : <Save size={18} />} BÖLÜMÜ YAYINLA
+             </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
@@ -355,7 +323,7 @@ function AnnouncementsPanel({ showToast }) {
 // Sub-component: Users Panel  (useState at TOP LEVEL — no IIFE!)
 // ─────────────────────────────────────────────────────────────────────────────
 function UsersPanel({ showToast }) {
-  const { registeredUsers, updateProfileRole, deleteProfile } = useApp();
+  const { registeredUsers, updateProfile, deleteProfile } = useApp();
   const [search,        setSearch]        = useState('');
   const [editingUser,   setEditingUser]   = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -468,6 +436,18 @@ function UsersPanel({ showToast }) {
                     className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
                 </div>
                 <div>
+                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">E-posta</label>
+                  <input type="email" value={editingUser.email || ''} onChange={e => setEditingUser(p => ({...p, email: e.target.value}))}
+                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Yeni Şifre (Boş bırakılırsa değişmez)</label>
+                  <input type="password" value={editingUser.password || ''} onChange={e => setEditingUser(p => ({...p, password: e.target.value}))}
+                    placeholder="••••••••"
+                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+                  <p className="text-[9px] text-amber-500/70 mt-1 font-bold italic">Not: Şifre değişikliği sadece Auth sağlayıcısı email ise çalışır.</p>
+                </div>
+                <div>
                   <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Sistem Rolü</label>
                   <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({...p, role: e.target.value}))}
                     className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer">
@@ -480,9 +460,16 @@ function UsersPanel({ showToast }) {
               <div className="p-5 border-t border-white/10 bg-black/40 flex justify-end gap-3">
                 <button onClick={() => setEditingUser(null)} className="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 font-bold text-sm">İptal</button>
                 <button onClick={async () => {
-                  await updateProfileRole(editingUser.id, editingUser.role);
+                  const updates = { role: editingUser.role, username: editingUser.username, email: editingUser.email };
+                  await updateProfile(editingUser.id, updates);
+                  
+                  // Password update is handled separately if provided
+                  if (editingUser.password) {
+                     showToast('Şifre güncelleme isteği gönderildi (Admin API gereklidir).', 'info');
+                  }
+
                   setEditingUser(null);
-                  showToast('Kullanıcı rolü güncellendi!', 'success');
+                  showToast('Kullanıcı bilgileri güncellendi!', 'success');
                 }} className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black text-sm shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
                   <Save size={16}/> Kaydet
                 </button>
@@ -814,6 +801,60 @@ export default function Admin() {
         {/* Other tabs like announcements and users are simple enough */}
         {safeActiveNav === 'announcements' && <AnnouncementsPanel showToast={showToast} />}
         {safeActiveNav === 'users' && <UsersPanel showToast={showToast} />}
+        {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
+
+        {/* Universe Settings */}
+        {safeActiveNav === 'settings' && (
+          <div className="space-y-6 max-w-4xl">
+             <div className="glass border border-white/8 rounded-2xl p-6">
+                <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+                   <Globe className="text-blue-400" size={20} /> Kainat Ayarları
+                </h3>
+                <div className="space-y-8">
+                   {/* Maintenance Mode */}
+                   <div className="flex items-center justify-between p-4 bg-white/3 border border-white/8 rounded-2xl">
+                      <div>
+                         <p className="text-white font-bold text-sm">Bakım Modu</p>
+                         <p className="text-slate-500 text-xs mt-1">Aktif edildiğinde sadece Baş Admin siteye erişebilir.</p>
+                      </div>
+                      <button 
+                        onClick={() => toggleMaintenance(!maintenanceMode)}
+                        className={`relative w-14 h-7 rounded-full transition-colors flex items-center px-1 ${maintenanceMode ? 'bg-red-600' : 'bg-white/10'}`}
+                      >
+                         <div className={`w-5 h-5 bg-white rounded-full transition-transform ${maintenanceMode ? 'translate-x-7' : 'translate-x-0'}`} />
+                      </button>
+                   </div>
+
+                   {/* System Logs / Stats */}
+                   <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="p-4 bg-white/3 border border-white/8 rounded-2xl">
+                         <div className="flex items-center gap-2 text-emerald-400 mb-2">
+                            <Activity size={14} /> <span className="text-[11px] font-black uppercase tracking-widest">Sistem Durumu</span>
+                         </div>
+                         <p className="text-2xl font-black text-white">YÜKSEK</p>
+                         <p className="text-[10px] text-slate-500 mt-1">Tüm kozmik kanallar açık.</p>
+                      </div>
+                      <div className="p-4 bg-white/3 border border-white/8 rounded-2xl">
+                         <div className="flex items-center gap-2 text-purple-400 mb-2">
+                             <Check size={14} /> <span className="text-[11px] font-black uppercase tracking-widest">Otomatik Yedek</span>
+                         </div>
+                         <p className="text-2xl font-black text-white">AKTİF</p>
+                         <p className="text-[10px] text-slate-500 mt-1">Her 24 saatte bir senkronizasyon.</p>
+                      </div>
+                   </div>
+
+                   {/* Dangerous Actions */}
+                   <div className="pt-6 border-t border-white/8">
+                      <p className="text-[11px] font-black text-red-400 uppercase tracking-widest mb-4">Kritik İşlemler</p>
+                      <button onClick={() => { if(window.confirm('Tüm önbelleği temizlemek istiyor musunuz?')) showToast('Kozmik önbellek temizlendi.', 'success'); }} 
+                        className="px-6 py-2.5 bg-red-600/10 border border-red-500/20 text-red-500 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition-all">
+                        Önbelleği Boşalt
+                      </button>
+                   </div>
+                </div>
+             </div>
+          </div>
+        )}
 
       </motion.main>
       

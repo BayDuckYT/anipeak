@@ -228,9 +228,9 @@ export function AppProvider({ children }) {
   }, []);
 
   // ── User Management (Admin) ──────────────────────────────────────────
-  const updateProfileRole = useCallback(async (userId, role) => {
-    const { error } = await supabase.from('profiles').update({ role }).eq('id', userId);
-    if (error) console.error('[AppCtx] Rol güncellenemedi:', error.message);
+  const updateProfile = useCallback(async (userId, updates) => {
+    const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
+    if (error) console.error('[AppCtx] Profil güncellenemedi:', error.message);
   }, []);
 
   const deleteProfile = useCallback(async (userId) => {
