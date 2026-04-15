@@ -194,7 +194,16 @@ export function AuthProvider({ children }) {
   }, [fetchProfile, subscribeToProfile]);
 
   // ── Auth Actions ──────────────────────────────────────────────────────
-    const login = async (email, password) => {
+  const withTimeout = (promise, timeoutMs = 10000) => {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Bağlantı zaman aşımına uğradı. Lütfen internetinizi veya Vercel ayarlarınızı kontrol edin.')), timeoutMs)
+      )
+    ]);
+  };
+
+  const login = async (email, password) => {
     // SUPABASE RATE LIMIT ACİL DURUM BYPASS
     if (email === 'admin@123.com' && password === 'admin123') {
       const mockAdmin = {
@@ -207,30 +216,40 @@ export function AuthProvider({ children }) {
       return { user: mockAdmin };
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
+    try {
+      const { data, error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }));
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error('[Auth] Login error:', err);
+      throw err;
+    }
   };
 
   const signup = async (email, password, username) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username } },
-    });
-    if (error) throw error;
-
-    // Ensure profile row exists immediately after signup
-    if (data.user) {
-      await supabase.from('profiles').upsert({
-        id:         data.user.id,
-        username,
-        role:       'Kullanıcı',
+    try {
+      const { data, error } = await withTimeout(supabase.auth.signUp({
         email,
-        created_at: new Date().toISOString(),
-      }, { onConflict: 'id' });
+        password,
+        options: { data: { username } },
+      }));
+      if (error) throw error;
+
+      // Ensure profile row exists immediately after signup
+      if (data.user) {
+        await supabase.from('profiles').upsert({
+          id:         data.user.id,
+          username,
+          role:       'Kullanıcı',
+          email,
+          created_at: new Date().toISOString(),
+        }, { onConflict: 'id' });
+      }
+      return data;
+    } catch (err) {
+      console.error('[Auth] Signup error:', err);
+      throw err;
     }
-    return data;
   };
 
   const loginWithGoogle = async () => {
