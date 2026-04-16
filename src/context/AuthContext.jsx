@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
         .single();
         
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profil yükleme zaman aşımı')), 8000)
+        setTimeout(() => reject(new Error('Profil yükleme zaman aşımı')), 2500)
       );
 
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
@@ -196,13 +196,13 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    // Safety Timeout: force loading=false after 5s so UI always shows
+    // Safety Timeout: force loading=false after 2.5s so UI always shows
     const safetyTimeout = setTimeout(() => {
       if (mounted) {
         console.warn("[Auth] Zaman aşımı — UI zorla açılıyor");
         setLoading(false);
       }
-    }, 5000);
+    }, 2500);
 
     const init = async () => {
       try {

@@ -27,10 +27,10 @@ class ErrorBoundary extends React.Component {
                  Bu içerik yüklenirken bir sorun oluştu. Diğer sayfalar hâlâ çalışır durumda!
                </p>
                <button 
-                  onClick={() => window.location.reload()}
+                  onClick={() => window.location.href = '/'}
                   className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                >
-                 <RotateCcw size={14} /> Tekrar Dene
+                 <RotateCcw size={14} /> Ana Sayfaya Dön
                </button>
             </div>
           </div>

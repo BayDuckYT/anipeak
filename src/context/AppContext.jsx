@@ -99,14 +99,14 @@ export function AppProvider({ children }) {
     const boot = async () => {
       try {
         setLoading(true);
-        // Series + Chapters paralel yükle (bağımsızlar, birbirini beklemesin)
+        // Tüm çekirdek verileri (Seriler, Bölümler, Duyurular, Bakım Modu)
+        // aynı anda başlatarak bekleme süresini 10 saniyeden < 2.5 saniyeye düşürüyoruz.
         await Promise.all([
           fetchWithRetry(loadSeries),
           fetchWithRetry(loadChapters),
+          fetchWithRetry(loadAnnouncements),
+          fetchWithRetry(loadMaintenance),
         ]);
-        // Duyurular ve bakım modu sırayla
-        await fetchWithRetry(loadAnnouncements);
-        await fetchWithRetry(loadMaintenance);
         // Profiller admin-only, non-blocking
         loadProfiles().catch(err => console.warn('[AppCtx] Profiller yüklenemedi:', err.message));
       } catch (err) {
