@@ -26,6 +26,12 @@ class ErrorBoundary extends React.Component {
                <p className="text-slate-400 text-xs mb-6 leading-relaxed">
                  Bu içerik yüklenirken bir sorun oluştu. Diğer sayfalar hâlâ çalışır durumda!
                </p>
+               
+               {/* HATA TEŞHİS - DIAGNOSTIC CODE ADDED */}
+               <div className="mb-6 px-4 py-2 bg-red-950/30 border border-red-500/20 rounded-lg text-left overflow-hidden">
+                  <span className="text-red-500/80 font-bold text-[10px] uppercase">GELİŞTİRİCİ HATA TEŞHİSİ:</span>
+                  <p className="text-red-400 font-mono text-[10px] break-all mt-1">{this.state.error?.message || this.state.error?.toString() || 'Bilinmeyen Hata'}</p>
+               </div>
                <button 
                   onClick={() => window.location.href = '/'}
                   className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
