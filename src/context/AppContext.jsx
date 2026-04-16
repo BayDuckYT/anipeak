@@ -10,36 +10,52 @@ const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   const [loading,         setLoading]         = useState(true);
-  const [series,          setSeries]          = useState([]);
-  const [chapters,        setChapters]        = useState({});   // { [series_id]: chapter[] }
+  const [series,          setSeries]          = useState(() => {
+    try { const cached = localStorage.getItem('anipeak_series_cache'); return cached ? JSON.parse(cached) : []; } catch { return []; }
+  });
+  const [chapters,        setChapters]        = useState(() => {
+    try { const cached = localStorage.getItem('anipeak_chapters_cache'); return cached ? JSON.parse(cached) : {}; } catch { return {}; }
+  });
   const [announcements,   setAnnouncements]   = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   const loadSeries = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('series')
-      .select('*')
-      .order('is_trending', { ascending: false })
-      .order('reads_num',   { ascending: false });
-    if (error) throw error;
-    if (data) setSeries(data);
+    try {
+      const { data, error } = await supabase
+        .from('series')
+        .select('*')
+        .order('is_trending', { ascending: false })
+        .order('reads_num',   { ascending: false });
+      if (error) throw error;
+      if (data) {
+        setSeries(data);
+        localStorage.setItem('anipeak_series_cache', JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn('[AppCtx] Seri yükleme hatası (Önbellek kullanılacak):', err.message);
+    }
   }, []);
 
   const loadChapters = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('chapters')
-      .select('*')
-      .order('number', { ascending: false });
-    if (error) throw error;
-    if (data) {
-      const grouped = data.reduce((acc, ch) => {
-        const key = String(ch.series_id);
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(ch);
-        return acc;
-      }, {});
-      setChapters(grouped);
+    try {
+      const { data, error } = await supabase
+        .from('chapters')
+        .select('*')
+        .order('number', { ascending: false });
+      if (error) throw error;
+      if (data) {
+        const grouped = data.reduce((acc, ch) => {
+          const key = String(ch.series_id);
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(ch);
+          return acc;
+        }, {});
+        setChapters(grouped);
+        localStorage.setItem('anipeak_chapters_cache', JSON.stringify(grouped));
+      }
+    } catch (err) {
+      console.warn('[AppCtx] Bölüm yükleme hatası (Önbellek kullanılacak):', err.message);
     }
   }, []);
 
