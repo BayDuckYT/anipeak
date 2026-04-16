@@ -2,7 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { useApp }  from '../context/AppContext.jsx';
+import { useApp } from '../context/AppContext.jsx';
+import { supabase } from '../lib/supabaseClient.js';
 import {
   LayoutDashboard, BookOpen, PlusCircle, Users, Settings,
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
@@ -16,34 +17,35 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard','content','chapterEditor','add','announcements','users','settings','trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'settings', 'trash'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard','content','chapterEditor','add','announcements','users','trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'trash'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
     badge: 'bg-gradient-to-br from-blue-600 to-cyan-800',
-    access: ['dashboard','content','chapterEditor','add','trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'trash'],
   },
   'Editör': {
     color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
     badge: 'bg-gradient-to-br from-emerald-600 to-teal-800',
-    access: ['dashboard','content','chapterEditor'],
+    access: ['dashboard', 'content', 'chapterEditor'],
   },
 };
 
 const ALL_NAV = [
-  { id: 'dashboard',     label: 'Dashboard',           icon: LayoutDashboard },
-  { id: 'content',       label: 'Seri Envanteri',       icon: BookOpen        },
-  { id: 'chapterEditor', label: 'Bölüm Editörü',        icon: Layers          },
-  { id: 'add',           label: 'Hızlı Ekle',           icon: PlusCircle      },
-  { id: 'announcements', label: 'Duyuru Yönetimi',      icon: Bell            },
-  { id: 'users',         label: 'Kullanıcı Yönetimi',   icon: UserCheck       },
-  { id: 'settings',      label: 'Kainat Ayarları',      icon: Settings        },
-  { id: 'trash',         label: 'Geri Dönüşüm',         icon: Trash2          },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'content', label: 'Seri Envanteri', icon: BookOpen },
+  { id: 'chapterEditor', label: 'Bölüm Editörü', icon: Layers },
+  { id: 'add', label: 'Hızlı Ekle', icon: PlusCircle },
+  { id: 'announcements', label: 'Duyuru Yönetimi', icon: Bell },
+  { id: 'users', label: 'Kullanıcı Yönetimi', icon: UserCheck },
+  { id: 'tickets', label: 'Bilet Hattı (Hata)', icon: ShieldAlert },
+  { id: 'settings', label: 'Kainat Ayarları', icon: Settings },
+  { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
 ];
 
 const IMGBB_KEY = '23884105154ff50ed54b8de837952b35';
@@ -78,16 +80,16 @@ function MetricCard({ icon: Icon, label, value, color, glow, change }) {
 function QuickAddForm({ seriesList, showToast }) {
   const { addChapter, addSeries, addAnnouncement } = useApp();
   const [submitted, setSubmitted] = useState(null); // 'series' or 'chapter'
-  
+
   // Chapter State
-  const [selectedId,   setSelectedId]   = useState('');
-  const [chapterNum,   setChapterNum]   = useState('');
+  const [selectedId, setSelectedId] = useState('');
+  const [chapterNum, setChapterNum] = useState('');
   const [chapterTitle, setChapterTitle] = useState('');
-  const [pageUrls,     setPageUrls]     = useState('');
-  const [isPremium,    setIsPremium]    = useState(false);
-  
+  const [pageUrls, setPageUrls] = useState('');
+  const [isPremium, setIsPremium] = useState(false);
+
   // Series State
-  const [newSeries,    setNewSeries]    = useState({
+  const [newSeries, setNewSeries] = useState({
     title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor',
   });
 
@@ -112,7 +114,7 @@ function QuickAddForm({ seriesList, showToast }) {
   const uploadToImgBB = async (base64) => {
     const form = new FormData();
     form.append('image', base64.split(',')[1]);
-    const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: form });
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: form });
     const json = await res.json();
     if (json.success) return json.data.url;
     throw new Error(json.error?.message || 'İmgBB yükleme hatası');
@@ -138,7 +140,7 @@ function QuickAddForm({ seriesList, showToast }) {
   const handleAddSeries = async (e) => {
     e.preventDefault();
     if (!newSeries.title || !newSeries.cover) { showToast('Başlık ve kapak gerekli!', 'error'); return; }
-    
+
     try {
       await addSeries(newSeries);
       showToast('Seri başarıyla oluşturuldu!', 'success');
@@ -147,9 +149,9 @@ function QuickAddForm({ seriesList, showToast }) {
       setTimeout(() => setSubmitted(null), 3000);
     } catch (err) {
       if (err.message && err.message.includes('stole it')) {
-         showToast('Sistem arka planda senkronize oluyor, lütfen butona tekrar basın.', 'info');
+        showToast('Sistem arka planda senkronize oluyor, lütfen butona tekrar basın.', 'info');
       } else {
-         showToast('Seri eklenirken hata oluştu: ' + (err.message || 'Bilinmeyen hata'), 'error');
+        showToast('Seri eklenirken hata oluştu: ' + (err.message || 'Bilinmeyen hata'), 'error');
       }
     }
   };
@@ -157,13 +159,13 @@ function QuickAddForm({ seriesList, showToast }) {
   const handleAddChapter = async (e) => {
     e.preventDefault();
     if (!selectedId) { showToast('Seri seçin!', 'error'); return; }
-    if (!chapterNum)  { showToast('Bölüm no gerekli!', 'error'); return; }
-    
-    const parsedNum = parseFloat(chapterNum.toString().replace(',','.'));
+    if (!chapterNum) { showToast('Bölüm no gerekli!', 'error'); return; }
+
+    const parsedNum = parseFloat(chapterNum.toString().replace(',', '.'));
     if (isNaN(parsedNum)) { showToast('Bölüm no sadece sayı olmalıdır!', 'error'); return; }
 
     const pages = pageUrls.split('\n').map(u => u.trim()).filter(Boolean);
-    
+
     try {
       await addChapter(Number(selectedId), { number: parsedNum, title: chapterTitle, pages, isPremium });
       showToast(`🚀 Bölüm ${parsedNum} yayınlandı!`, 'success');
@@ -189,29 +191,29 @@ function QuickAddForm({ seriesList, showToast }) {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">Başlık *</label>
-              <input type="text" value={newSeries.title} onChange={e => setNewSeries(p => ({...p, title: e.target.value}))} className={inputCls} placeholder="Solo Leveling vb." />
+              <input type="text" value={newSeries.title} onChange={e => setNewSeries(p => ({ ...p, title: e.target.value }))} className={inputCls} placeholder="Solo Leveling vb." />
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5 ml-1">
                 <label className="text-[10px] uppercase font-bold text-slate-500">Kapak URL *</label>
                 <label className="cursor-pointer text-[9px] font-black text-green-400 hover:text-green-300">
-                   Yükle <input type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'cover')} />
+                  Yükle <input type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'cover')} />
                 </label>
               </div>
-              <input type="url" value={newSeries.cover} onChange={e => setNewSeries(p => ({...p, cover: e.target.value}))} className={inputCls} placeholder="https://..." />
+              <input type="url" value={newSeries.cover} onChange={e => setNewSeries(p => ({ ...p, cover: e.target.value }))} className={inputCls} placeholder="https://..." />
             </div>
           </div>
           <div>
             <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">Açıklama</label>
-            <textarea rows={2} value={newSeries.description} onChange={e => setNewSeries(p => ({...p, description: e.target.value}))} className={`${inputCls} resize-none`} placeholder="Seri özeti..." />
+            <textarea rows={2} value={newSeries.description} onChange={e => setNewSeries(p => ({ ...p, description: e.target.value }))} className={`${inputCls} resize-none`} placeholder="Seri özeti..." />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <select value={newSeries.genre} onChange={e => setNewSeries(p => ({...p, genre: e.target.value}))} className={`${inputCls} cursor-pointer`}>
-              {['Aksiyon','Macera','Fantezi','Dram','Romantik'].map(g => <option key={g} value={g} className="bg-[#0a0a14]">{g}</option>)}
+            <select value={newSeries.genre} onChange={e => setNewSeries(p => ({ ...p, genre: e.target.value }))} className={`${inputCls} cursor-pointer`}>
+              {['Aksiyon', 'Macera', 'Fantezi', 'Dram', 'Romantik'].map(g => <option key={g} value={g} className="bg-[#0a0a14]">{g}</option>)}
             </select>
-            <select value={newSeries.status} onChange={e => setNewSeries(p => ({...p, status: e.target.value}))} className={`${inputCls} cursor-pointer`}>
-               <option value="Devam Ediyor" className="bg-[#0a0a14]">Devam Ediyor</option>
-               <option value="Tamamlandı" className="bg-[#0a0a14]">Tamamlandı</option>
+            <select value={newSeries.status} onChange={e => setNewSeries(p => ({ ...p, status: e.target.value }))} className={`${inputCls} cursor-pointer`}>
+              <option value="Devam Ediyor" className="bg-[#0a0a14]">Devam Ediyor</option>
+              <option value="Tamamlandı" className="bg-[#0a0a14]">Tamamlandı</option>
             </select>
           </div>
           <button type="submit" className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${submitted === 'series' ? 'bg-emerald-600 text-white' : 'bg-green-600 hover:bg-green-500 text-white shadow-lg'}`}>
@@ -243,13 +245,13 @@ function QuickAddForm({ seriesList, showToast }) {
           <div className="flex items-center justify-between mb-1 ml-1">
             <label className="text-[10px] uppercase font-bold text-slate-500">Sayfa URL'leri / Dosyalar</label>
             <label className="cursor-pointer text-[9px] font-black text-purple-400 hover:text-purple-300">
-               Dosya Seç <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'pages')} />
+              Dosya Seç <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'pages')} />
             </label>
           </div>
           <textarea rows={4} value={pageUrls} onChange={e => setPageUrls(e.target.value)} className={`${inputCls} resize-none font-mono text-[10px]`} placeholder="https://...\nhttps://..." />
           <button type="submit" className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${submitted === 'chapter' ? 'bg-emerald-600 text-white' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-neon-purple'}`}>
-             {submitted === 'chapter' ? <Check size={18} /> : <Save size={18} />} BÖLÜMÜ YAYINLA
-             </button>
+            {submitted === 'chapter' ? <Check size={18} /> : <Save size={18} />} BÖLÜMÜ YAYINLA
+          </button>
         </form>
       </div>
     </div>
@@ -261,7 +263,7 @@ function QuickAddForm({ seriesList, showToast }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function AnnouncementsPanel({ showToast }) {
   const { announcements, addAnnouncement, deleteAnnouncement } = useApp();
-  const [newAnn,  setNewAnn]  = useState('');
+  const [newAnn, setNewAnn] = useState('');
   const [annType, setAnnType] = useState('system');
 
   return (
@@ -294,7 +296,7 @@ function AnnouncementsPanel({ showToast }) {
         </div>
         <table className="w-full text-sm">
           <thead><tr className="border-b border-white/5 bg-black/40">
-            {['Duyuru','Tip','Tarih','İşlem'].map(h => (
+            {['Duyuru', 'Tip', 'Tarih', 'İşlem'].map(h => (
               <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-5 py-4">{h}</th>
             ))}
           </tr></thead>
@@ -303,10 +305,9 @@ function AnnouncementsPanel({ showToast }) {
               <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td className="px-5 py-4 text-slate-200 max-w-xs truncate">{a.text}</td>
                 <td className="px-5 py-4">
-                  <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
-                    a.type === 'chapter' ? 'bg-emerald-500/10 text-emerald-400' :
-                    a.type === 'series'  ? 'bg-blue-500/10 text-blue-400' :
-                    'bg-purple-500/10 text-purple-400'}`}>{a.type}</span>
+                  <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${a.type === 'chapter' ? 'bg-emerald-500/10 text-emerald-400' :
+                      a.type === 'series' ? 'bg-blue-500/10 text-blue-400' :
+                        'bg-purple-500/10 text-purple-400'}`}>{a.type}</span>
                 </td>
                 <td className="px-5 py-4 text-slate-500 text-xs">
                   {new Date(a.created_at || a.ts).toLocaleString('tr-TR')}
@@ -330,166 +331,279 @@ function AnnouncementsPanel({ showToast }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Sub-component: Users Panel  (useState at TOP LEVEL — no IIFE!)
+// Sub-component: Tickets Panel (Error Reports)
 // ─────────────────────────────────────────────────────────────────────────────
-function UsersPanel({ showToast }) {
-  const { registeredUsers, updateProfile, deleteProfile } = useApp();
-  const [search,        setSearch]        = useState('');
-  const [editingUser,   setEditingUser]   = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null);
+function TicketsPanel({ showToast }) {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = registeredUsers.filter(u =>
-    (u.username || '').toLowerCase().includes(search.toLowerCase()) ||
-    (u.email    || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const fetchTickets = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('error_reports')
+      .select('*')
+      .order('created_at', { ascending: false });
+    setTickets(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchTickets();
+
+    // Real-time listener for new tickets
+    const channel = supabase
+      .channel('admin-tickets')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'error_reports' }, (payload) => {
+        setTickets(prev => [payload.new, ...prev]);
+        showToast('Yeni bir hata bildirimi düştü!', 'info');
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  }, []);
+
+  const handleStatusUpdate = async (id, status) => {
+    const { error } = await supabase
+      .from('error_reports')
+      .update({ status })
+      .eq('id', id);
+
+    if (!error) {
+      setTickets(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+      showToast(`Bilet durumu ${status} olarak güncellendi.`, 'success');
+    }
+  };
+
+  const handleDeleteTicket = async (id) => {
+    const { error } = await supabase.from('error_reports').delete().eq('id', id);
+    if (!error) {
+      setTickets(prev => prev.filter(t => t.id !== id));
+      showToast('Bilet kalıcı olarak silindi.', 'error');
+    }
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="glass border border-white/8 rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-white/8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-black/20">
-          <div>
-            <h3 className="text-white font-black text-lg">Kullanıcı Yönetimi</h3>
-            <p className="text-slate-500 text-xs mt-0.5">{registeredUsers.length} kayıtlı kullanıcı</p>
-          </div>
-          <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input type="text" placeholder="İsim veya e-posta ara..." value={search} onChange={e => setSearch(e.target.value)}
-              className="bg-[#0a0a14] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all w-full sm:w-64" />
-          </div>
+        <div className="p-5 border-b border-white/8 bg-black/20 flex items-center justify-between">
+          <h3 className="text-white font-black text-lg flex items-center gap-2">
+            <ShieldAlert className="text-red-400" size={20} /> Gelen Bildirimler
+          </h3>
+          <button onClick={fetchTickets} className="p-2 text-slate-400 hover:text-white transition-all">
+            <Activity size={16} className={loading ? 'animate-spin' : ''} />
+          </button>
         </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-white/5 bg-black/40">
-              {['Kullanıcı','E-posta','Sağlayıcı','Rol','Katılım','İşlem'].map(h => (
+              {['Kullanıcı', 'Seri/Bölüm', 'Tür', 'Açıklama', 'Durum', 'İşlem'].map(h => (
                 <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-4 py-3.5">{h}</th>
               ))}
             </tr></thead>
             <tbody>
-              <AnimatePresence>
-                {filtered.map(u => (
-                  <motion.tr key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-xs flex-shrink-0 ${ADMIN_ROLES[u.role] ? ADMIN_ROLES[u.role].badge : 'bg-gradient-to-br from-slate-700 to-slate-900'}`}>
-                          {(u.username || 'U').charAt(0).toUpperCase()}
-                        </div>
-                        <span className="text-white font-bold text-sm">{u.username || '—'}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-slate-400 text-xs">{u.email}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-[10px] text-slate-500 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                        {u.provider || 'E-posta'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {ADMIN_ROLES[u.role] ? (
-                        <span className={`inline-flex px-2 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${ADMIN_ROLES[u.role].color}`}>{u.role}</span>
-                      ) : (
-                        <span className="text-slate-400 border border-slate-600/50 bg-slate-800/30 px-2 py-1 rounded-lg text-[9px] font-black uppercase">Kullanıcı</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">
-                      {u.created_at ? new Date(u.created_at).toLocaleDateString('tr-TR') : '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-1.5">
-                        {confirmDelete === u.id ? (
-                          <>
-                            <button onClick={() => setConfirmDelete(null)} className="p-1.5 text-slate-400 hover:bg-white/10 rounded-lg"><X size={14}/></button>
-                            <button onClick={async () => { await deleteProfile(u.id); setConfirmDelete(null); showToast('Kullanıcı silindi', 'error'); }}
-                              className="px-2 py-1 text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg text-[10px] font-black flex items-center gap-1">
-                              SİL <Check size={12}/>
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button onClick={() => setEditingUser({ ...u })} className="p-1.5 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all" title="Düzenle">
-                              <Edit3 size={14}/>
-                            </button>
-                            <button onClick={() => setConfirmDelete(u.id)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-all" title="Sil">
-                              <Trash2 size={14}/>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-              {filtered.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-10 text-center text-slate-500">Kullanıcı bulunamadı.</td></tr>
+              {tickets.map(t => (
+                <tr key={t.id} className={`border-b border-white/5 hover:bg-white/5 transition-colors ${t.status === 'Beklemede' ? 'bg-red-500/5' : ''}`}>
+                  <td className="px-4 py-3 text-white font-bold text-xs">{t.user_id ? 'Kayıtlı' : 'Anonim'}</td>
+                  <td className="px-4 py-3 text-slate-300 text-xs">ID: {t.series_id} / B: {t.chapter_num}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-slate-400 uppercase">{t.type}</span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-400 text-xs max-w-xs truncate">{t.description}</td>
+                  <td className="px-4 py-3">
+                    <select
+                      value={t.status}
+                      onChange={(e) => handleStatusUpdate(t.id, e.target.value)}
+                      className={`text-[10px] font-black uppercase tracking-widest bg-black border border-white/10 rounded-lg px-2 py-1 outline-none ${t.status === 'Çözüldü' ? 'text-emerald-400' : t.status === 'İnceleniyor' ? 'text-amber-400' : 'text-red-400'}`}
+                    >
+                      <option value="Beklemede">Beklemede</option>
+                      <option value="İnceleniyor">İnceleniyor</option>
+                      <option value="Çözüldü">Çözüldü</option>
+                    </select>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => handleDeleteTicket(t.id)} className="p-2 text-slate-600 hover:text-red-500 transition-all">
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {tickets.length === 0 && !loading && (
+                <tr><td colSpan={6} className="px-5 py-20 text-center text-slate-500">Gelen bildirim yok. Sistem temiz!</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
-
-      {/* Edit User Modal */}
-      <AnimatePresence>
-        {editingUser && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-md glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.25)]">
-              <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-5 px-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <UserCheck size={20} className="text-purple-400" />
-                  <h3 className="text-xl font-black text-white">Kullanıcı Editörü</h3>
-                </div>
-                <button onClick={() => setEditingUser(null)} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl"><X size={20}/></button>
-              </div>
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Kullanıcı Adı</label>
-                  <input type="text" value={editingUser.username || ''} onChange={e => setEditingUser(p => ({...p, username: e.target.value}))}
-                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">E-posta</label>
-                  <input type="email" value={editingUser.email || ''} onChange={e => setEditingUser(p => ({...p, email: e.target.value}))}
-                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Yeni Şifre (Boş bırakılırsa değişmez)</label>
-                  <input type="password" value={editingUser.password || ''} onChange={e => setEditingUser(p => ({...p, password: e.target.value}))}
-                    placeholder="••••••••"
-                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
-                  <p className="text-[9px] text-amber-500/70 mt-1 font-bold italic">Not: Şifre değişikliği sadece Auth sağlayıcısı email ise çalışır.</p>
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Sistem Rolü</label>
-                  <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({...p, role: e.target.value}))}
-                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer">
-                    {['Kullanıcı','Editör','Admin Yardımcısı','Yönetici','Baş Admin'].map(r => (
-                      <option key={r} value={r} className="bg-[#0a0a14]">{r}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="p-5 border-t border-white/10 bg-black/40 flex justify-end gap-3">
-                <button onClick={() => setEditingUser(null)} className="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 font-bold text-sm">İptal</button>
-                <button onClick={async () => {
-                  const updates = { role: editingUser.role, username: editingUser.username, email: editingUser.email };
-                  await updateProfile(editingUser.id, updates);
-                  
-                  // Password update is handled separately if provided
-                  if (editingUser.password) {
-                     showToast('Şifre güncelleme isteği gönderildi (Admin API gereklidir).', 'info');
-                  }
-
-                  setEditingUser(null);
-                  showToast('Kullanıcı bilgileri güncellendi!', 'success');
-                }} className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black text-sm shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
-                  <Save size={16}/> Kaydet
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Users Panel
+// ─────────────────────────────────────────────────────────────────────────────
+function UsersPanel({ showToast }) {
+const { calculateTitle } = useAuth();
+const { registeredUsers, updateProfile, deleteProfile } = useApp();
+const [search, setSearch] = useState('');
+const [editingUser, setEditingUser] = useState(null);
+const [confirmDelete, setConfirmDelete] = useState(null);
+
+const filtered = registeredUsers.filter(u =>
+  (u.username || '').toLowerCase().includes(search.toLowerCase()) ||
+  (u.email || '').toLowerCase().includes(search.toLowerCase())
+);
+
+return (
+  <div className="space-y-4">
+    <div className="glass border border-white/8 rounded-2xl overflow-hidden">
+      <div className="p-5 border-b border-white/8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-black/20">
+        <div>
+          <h3 className="text-white font-black text-lg">Kullanıcı Yönetimi</h3>
+          <p className="text-slate-500 text-xs mt-0.5">{registeredUsers.length} kayıtlı kullanıcı</p>
+        </div>
+        <div className="relative">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input type="text" placeholder="İsim veya e-posta ara..." value={search} onChange={e => setSearch(e.target.value)}
+            className="bg-[#0a0a14] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all w-full sm:w-64" />
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead><tr className="border-b border-white/5 bg-black/40">
+            {['Kullanıcı', 'E-posta', 'Level / Rütbe', 'Rol', 'Katılım', 'İşlem'].map(h => (
+              <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-4 py-3.5">{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            <AnimatePresence>
+              {filtered.map(u => (
+                <motion.tr key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-xs flex-shrink-0 ${ADMIN_ROLES[u.role] ? ADMIN_ROLES[u.role].badge : 'bg-gradient-to-br from-slate-700 to-slate-900'}`}>
+                        {(u.username || 'U').charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-white font-bold text-sm">{u.username || '—'}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-400 text-xs">{u.email}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-purple-400 font-black text-[10px] uppercase tracking-tighter">XP: {u.xp || 0}</span>
+                      <span className="text-white font-bold text-[10px] whitespace-nowrap bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                        {calculateTitle(u.xp || 0)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    {ADMIN_ROLES[u.role] ? (
+                      <span className={`inline-flex px-2 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${ADMIN_ROLES[u.role].color}`}>{u.role}</span>
+                    ) : (
+                      <span className="text-slate-400 border border-slate-600/50 bg-slate-800/30 px-2 py-1 rounded-lg text-[9px] font-black uppercase">Kullanıcı</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-slate-500 text-xs">
+                    {u.created_at ? new Date(u.created_at).toLocaleDateString('tr-TR') : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1.5">
+                      {confirmDelete === u.id ? (
+                        <>
+                          <button onClick={() => setConfirmDelete(null)} className="p-1.5 text-slate-400 hover:bg-white/10 rounded-lg"><X size={14} /></button>
+                          <button onClick={async () => { await deleteProfile(u.id); setConfirmDelete(null); showToast('Kullanıcı silindi', 'error'); }}
+                            className="px-2 py-1 text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg text-[10px] font-black flex items-center gap-1">
+                            SİL <Check size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => setEditingUser({ ...u })} className="p-1.5 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all" title="Düzenle">
+                            <Edit3 size={14} />
+                          </button>
+                          <button onClick={() => setConfirmDelete(u.id)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-all" title="Sil">
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
+            {filtered.length === 0 && (
+              <tr><td colSpan={6} className="px-5 py-10 text-center text-slate-500">Kullanıcı bulunamadı.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {/* Edit User Modal */}
+    <AnimatePresence>
+      {editingUser && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+            className="w-full max-w-md glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.25)]">
+            <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-5 px-6 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <UserCheck size={20} className="text-purple-400" />
+                <h3 className="text-xl font-black text-white">Kullanıcı Editörü</h3>
+              </div>
+              <button onClick={() => setEditingUser(null)} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl"><X size={20} /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Kullanıcı Adı</label>
+                <input type="text" value={editingUser.username || ''} onChange={e => setEditingUser(p => ({ ...p, username: e.target.value }))}
+                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+              </div>
+              <div>
+                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">E-posta</label>
+                <input type="email" value={editingUser.email || ''} onChange={e => setEditingUser(p => ({ ...p, email: e.target.value }))}
+                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+              </div>
+              <div>
+                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Yeni Şifre (Boş bırakılırsa değişmez)</label>
+                <input type="password" value={editingUser.password || ''} onChange={e => setEditingUser(p => ({ ...p, password: e.target.value }))}
+                  placeholder="••••••••"
+                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+                <p className="text-[9px] text-amber-500/70 mt-1 font-bold italic">Not: Şifre değişikliği sadece Auth sağlayıcısı email ise çalışır.</p>
+              </div>
+              <div>
+                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Sistem Rolü</label>
+                <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))}
+                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer">
+                  {['Kullanıcı', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
+                    <option key={r} value={r} className="bg-[#0a0a14]">{r}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="p-5 border-t border-white/10 bg-black/40 flex justify-end gap-3">
+              <button onClick={() => setEditingUser(null)} className="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 font-bold text-sm">İptal</button>
+              <button onClick={async () => {
+                const updates = { role: editingUser.role, username: editingUser.username, email: editingUser.email };
+                await updateProfile(editingUser.id, updates);
+
+                // Password update is handled separately if provided
+                if (editingUser.password) {
+                  showToast('Şifre güncelleme isteği gönderildi (Admin API gereklidir).', 'info');
+                }
+
+                setEditingUser(null);
+                showToast('Kullanıcı bilgileri güncellendi!', 'success');
+              }} className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black text-sm shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
+                <Save size={16} /> Kaydet
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -504,14 +618,14 @@ export default function Admin() {
   } = useApp();
 
   // ── ALL useState at top level — Rule of Hooks compliant ──────────────
-  const [activeNav,        setActiveNav]        = useState('dashboard');
-  const [sidebarOpen,      setSidebarOpen]      = useState(true);
-  const [toast,            setToast]            = useState(null);
-  const [searchSeries,     setSearchSeries]     = useState('');
-  const [editingSeries,    setEditingSeries]     = useState(null);
+  const [activeNav, setActiveNav] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [toast, setToast] = useState(null);
+  const [searchSeries, setSearchSeries] = useState('');
+  const [editingSeries, setEditingSeries] = useState(null);
   const [editingSeriesTab, setEditingSeriesTab] = useState('details');
   const [confirmDelSeries, setConfirmDelSeries] = useState(null);
-  const [settingPrefs,     setSettingPrefs]     = useState({ tempMaintenance: false });
+  const [settingPrefs, setSettingPrefs] = useState({ tempMaintenance: false });
 
   // Sync maintenance toggle when context updates
   useEffect(() => {
@@ -534,7 +648,7 @@ export default function Admin() {
   );
 
   // ── Auth Check ───────────────────────────────────────────────────────
-  const userRole   = user?.role || '';
+  const userRole = user?.role || '';
   const roleConfig = ADMIN_ROLES[userRole];
 
   if (!user || !roleConfig) return (
@@ -558,15 +672,15 @@ export default function Admin() {
   // ── Metrics ──────────────────────────────────────────────────────────
   const totalChapters = Object.values(chapters).reduce((a, c) => a + c.length, 0);
   const metrics = [
-    { label: 'Toplam Seri',    value: series.length,            icon: BookOpen,  color: 'from-purple-600 to-purple-800', glow: 'rgba(168,85,247,0.3)', change: 'Canlı' },
-    { label: 'Toplam Okuma',   value: series.reduce((a,s) => a + (s.reads_num||0), 0), icon: Eye, color: 'from-blue-600 to-blue-800', glow: 'rgba(59,130,246,0.3)', change: 'Tüm Zamanlar' },
-    { label: 'Kullanıcılar',   value: registeredUsers.length,   icon: Users,     color: 'from-cyan-600 to-cyan-800',    glow: 'rgba(6,182,212,0.3)',   change: 'Kayıtlı' },
-    { label: 'Toplam Bölüm',   value: totalChapters,            icon: BookOpen,  color: 'from-orange-600 to-orange-800',glow: 'rgba(249,115,22,0.3)',  change: 'Yayında' },
-    { label: 'Duyurular',      value: announcements.length,     icon: Globe,     color: 'from-pink-600 to-pink-800',    glow: 'rgba(236,72,153,0.3)',  change: 'Sistem' },
+    { label: 'Toplam Seri', value: series.length, icon: BookOpen, color: 'from-purple-600 to-purple-800', glow: 'rgba(168,85,247,0.3)', change: 'Canlı' },
+    { label: 'Toplam Okuma', value: series.reduce((a, s) => a + (s.reads_num || 0), 0), icon: Eye, color: 'from-blue-600 to-blue-800', glow: 'rgba(59,130,246,0.3)', change: 'Tüm Zamanlar' },
+    { label: 'Kullanıcılar', value: registeredUsers.length, icon: Users, color: 'from-cyan-600 to-cyan-800', glow: 'rgba(6,182,212,0.3)', change: 'Kayıtlı' },
+    { label: 'Toplam Bölüm', value: totalChapters, icon: BookOpen, color: 'from-orange-600 to-orange-800', glow: 'rgba(249,115,22,0.3)', change: 'Yayında' },
+    { label: 'Duyurular', value: announcements.length, icon: Globe, color: 'from-pink-600 to-pink-800', glow: 'rgba(236,72,153,0.3)', change: 'Sistem' },
   ];
 
-  const filteredSeries  = series.filter(s => !s.is_deleted && (s.title||'').toLowerCase().includes(searchSeries.toLowerCase()));
-  const deletedSeries   = series.filter(s =>  s.is_deleted && (s.title||'').toLowerCase().includes(searchSeries.toLowerCase()));
+  const filteredSeries = series.filter(s => !s.is_deleted && (s.title || '').toLowerCase().includes(searchSeries.toLowerCase()));
+  const deletedSeries = series.filter(s => s.is_deleted && (s.title || '').toLowerCase().includes(searchSeries.toLowerCase()));
 
   const handleSaveSeries = async (e) => {
     e.preventDefault();
@@ -586,7 +700,7 @@ export default function Admin() {
         <div className="flex items-center justify-between p-4 border-b border-white/8 flex-shrink-0">
           <AnimatePresence>
             {sidebarOpen && (
-              <motion.div initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} className="flex items-center gap-2">
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex items-center gap-2">
                 <Shield size={16} className="text-amber-400" />
                 <span className="text-sm font-bold text-white tracking-widest whitespace-nowrap">KOZMİK ODA</span>
               </motion.div>
@@ -600,14 +714,13 @@ export default function Admin() {
         <nav className="flex-1 p-3 space-y-1">
           {allowedNavs.map(item => (
             <button key={item.id} onClick={() => setActiveNav(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                safeActiveNav === item.id ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${safeActiveNav === item.id ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
             >
               <item.icon size={17} className="flex-shrink-0" />
               <AnimatePresence>
                 {sidebarOpen && (
-                  <motion.span initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} className="whitespace-nowrap">
+                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="whitespace-nowrap">
                     {item.label}
                   </motion.span>
                 )}
@@ -624,7 +737,7 @@ export default function Admin() {
               </div>
               <AnimatePresence>
                 {sidebarOpen && (
-                  <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} className="flex-1 min-w-0">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 min-w-0">
                     <p className="text-white text-xs font-bold truncate">{user.username}</p>
                     <p className="text-[10px] font-black uppercase mt-0.5 opacity-90 truncate">{userRole}</p>
                   </motion.div>
@@ -663,11 +776,11 @@ export default function Admin() {
                 {announcements.slice(0, 6).map(a => (
                   <div key={a.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 px-2 rounded-lg hover:bg-white/5 gap-2">
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${a.type==='chapter'?'bg-emerald-400':a.type==='series'?'bg-blue-400':'bg-purple-400'}`} />
+                      <div className={`w-2 h-2 rounded-full ${a.type === 'chapter' ? 'bg-emerald-400' : a.type === 'series' ? 'bg-blue-400' : 'bg-purple-400'}`} />
                       <span className="text-slate-300 text-sm line-clamp-1">{a.text}</span>
                     </div>
                     <span className="text-slate-500 text-xs bg-black/30 px-2 py-1 rounded-md whitespace-nowrap flex-shrink-0">
-                      {new Date(a.created_at || a.ts).toLocaleString('tr-TR', { hour:'2-digit', minute:'2-digit' })}
+                      {new Date(a.created_at || a.ts).toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                 ))}
@@ -691,21 +804,21 @@ export default function Admin() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-white/5 bg-black/40">
-                  {['Seri','İstatistik','Durum','Aksiyon'].map(h => (
+                  {['Seri', 'İstatistik', 'Durum', 'Aksiyon'].map(h => (
                     <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-5 py-4">{h}</th>
                   ))}
                 </tr></thead>
                 <tbody>
                   <AnimatePresence>
                     {filteredSeries.map(s => (
-                      <motion.tr key={s.id} initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+                      <motion.tr key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className={`border-b border-white/5 transition-colors ${s.is_trending ? 'bg-orange-500/3 hover:bg-orange-500/5' : 'hover:bg-white/5'}`}>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-4">
                             <div className="relative">
                               <img src={s.cover} className="w-12 h-16 rounded-lg object-cover shadow-lg border border-white/10" alt="" />
                               <div className="absolute -bottom-2 -right-2 bg-black/80 rounded border border-white/10 px-1 py-0.5 text-[9px] font-bold text-white">
-                                {(chapters[String(s.id)]||[]).length}B
+                                {(chapters[String(s.id)] || []).length}B
                               </div>
                             </div>
                             <div>
@@ -723,7 +836,7 @@ export default function Admin() {
                         <td className="px-5 py-4">
                           <div className="flex flex-col gap-1.5">
                             <button onClick={() => toggleStatus(s.id)}
-                              className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-widest font-black border transition-all hover:scale-[1.03] w-fit ${s.status==='Devam Ediyor'?'text-emerald-400 border-emerald-500/30 bg-emerald-500/10':'text-blue-400 border-blue-500/30 bg-blue-500/10'}`}>
+                              className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-widest font-black border transition-all hover:scale-[1.03] w-fit ${s.status === 'Devam Ediyor' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-blue-400 border-blue-500/30 bg-blue-500/10'}`}>
                               {s.status}
                             </button>
                             {s.is_trending && (
@@ -737,23 +850,23 @@ export default function Admin() {
                           <div className="flex justify-end gap-1.5">
                             {confirmDelSeries === s.id ? (
                               <>
-                                <button onClick={() => setConfirmDelSeries(null)} className="p-2 text-slate-400 hover:bg-white/10 rounded-lg"><X size={16}/></button>
+                                <button onClick={() => setConfirmDelSeries(null)} className="p-2 text-slate-400 hover:bg-white/10 rounded-lg"><X size={16} /></button>
                                 <button onClick={async () => { await updateSeries(s.id, { is_deleted: true }); setConfirmDelSeries(null); showToast('Çöp kutusuna taşındı', 'error'); }}
                                   className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg bg-red-500/10 border border-red-500/30 font-bold text-xs flex items-center gap-1">
-                                  ONAYLA <Check size={14}/>
+                                  ONAYLA <Check size={14} />
                                 </button>
                               </>
                             ) : (
                               <>
                                 <button onClick={() => toggleTrend(s.id)}
-                                  className={`p-2 rounded-lg transition-all border ${s.is_trending?'text-orange-400 bg-orange-500/20 border-orange-500/30':'text-slate-500 border-transparent hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/10'}`}>
+                                  className={`p-2 rounded-lg transition-all border ${s.is_trending ? 'text-orange-400 bg-orange-500/20 border-orange-500/30' : 'text-slate-500 border-transparent hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/10'}`}>
                                   <Flame size={15} className={s.is_trending ? 'fill-orange-400' : ''} />
                                 </button>
                                 <button onClick={() => { setEditingSeries(s); setEditingSeriesTab('details'); }} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all">
-                                  <Edit3 size={16}/>
+                                  <Edit3 size={16} />
                                 </button>
                                 <button onClick={() => setConfirmDelSeries(s.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all">
-                                  <Trash2 size={16}/>
+                                  <Trash2 size={16} />
                                 </button>
                               </>
                             )}
@@ -772,7 +885,7 @@ export default function Admin() {
         {safeActiveNav === 'trash' && (
           <div className="glass border border-white/8 rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-white/8 bg-red-900/10 flex items-center gap-4 justify-between">
-              <h3 className="text-red-400 font-bold text-lg flex items-center gap-2"><Trash2 size={20}/> Çöp Kutusu</h3>
+              <h3 className="text-red-400 font-bold text-lg flex items-center gap-2"><Trash2 size={20} /> Çöp Kutusu</h3>
             </div>
             {deletedSeries.length > 0 ? (
               <table className="w-full text-sm">
@@ -810,78 +923,77 @@ export default function Admin() {
         {/* Other tabs like announcements and users are simple enough */}
         {safeActiveNav === 'announcements' && <AnnouncementsPanel showToast={showToast} />}
         {safeActiveNav === 'users' && <UsersPanel showToast={showToast} />}
+        {safeActiveNav === 'tickets' && <TicketsPanel showToast={showToast} />}
         {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
         {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
 
         {/* Universe Settings */}
         {safeActiveNav === 'settings' && (
           <div className="space-y-6 max-w-4xl">
-             <div className="glass border border-white/8 rounded-2xl p-6">
-                <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
-                   <Globe className="text-blue-400" size={20} /> Kainat Ayarları
-                </h3>
-                <div className="space-y-8">
-                   {/* Maintenance Mode */}
-                   <div className="flex items-center justify-between p-4 bg-white/3 border border-white/8 rounded-2xl">
-                      <div>
-                         <p className="text-white font-bold text-sm">Bakım Modu</p>
-                         <p className="text-slate-500 text-xs mt-1">Aktif edildiğinde sadece Baş Admin siteye erişebilir.</p>
-                      </div>
-                      <button 
-                        onClick={() => toggleMaintenance(!maintenanceMode)}
-                        className={`relative w-14 h-7 rounded-full transition-colors flex items-center px-1 ${maintenanceMode ? 'bg-red-600' : 'bg-white/10'}`}
-                      >
-                         <div className={`w-5 h-5 bg-white rounded-full transition-transform ${maintenanceMode ? 'translate-x-7' : 'translate-x-0'}`} />
-                      </button>
-                   </div>
-
-                   {/* System Logs / Stats */}
-                   <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="p-4 bg-white/3 border border-white/8 rounded-2xl">
-                         <div className="flex items-center gap-2 text-emerald-400 mb-2">
-                            <Activity size={14} /> <span className="text-[11px] font-black uppercase tracking-widest">Sistem Durumu</span>
-                         </div>
-                         <p className="text-2xl font-black text-white">YÜKSEK</p>
-                         <p className="text-[10px] text-slate-500 mt-1">Tüm kozmik kanallar açık.</p>
-                      </div>
-                      <div className="p-4 bg-white/3 border border-white/8 rounded-2xl">
-                         <div className="flex items-center gap-2 text-purple-400 mb-2">
-                             <Check size={14} /> <span className="text-[11px] font-black uppercase tracking-widest">Otomatik Yedek</span>
-                         </div>
-                         <p className="text-2xl font-black text-white">AKTİF</p>
-                         <p className="text-[10px] text-slate-500 mt-1">Her 24 saatte bir senkronizasyon.</p>
-                      </div>
-                   </div>
-
-                   {/* Dangerous Actions */}
-                   <div className="pt-6 border-t border-white/8">
-                      <p className="text-[11px] font-black text-red-400 uppercase tracking-widest mb-4">Kritik İşlemler</p>
-                      <button onClick={() => { if(window.confirm('Tüm önbelleği temizlemek istiyor musunuz?')) showToast('Kozmik önbellek temizlendi.', 'success'); }} 
-                        className="px-6 py-2.5 bg-red-600/10 border border-red-500/20 text-red-500 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition-all">
-                        Önbelleği Boşalt
-                      </button>
-                   </div>
+            <div className="glass border border-white/8 rounded-2xl p-6">
+              <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+                <Globe className="text-blue-400" size={20} /> Kainat Ayarları
+              </h3>
+              <div className="space-y-8">
+                {/* Maintenance Mode */}
+                <div className="flex items-center justify-between p-4 bg-white/3 border border-white/8 rounded-2xl">
+                  <div>
+                    <p className="text-white font-bold text-sm">Bakım Modu</p>
+                    <p className="text-slate-500 text-xs mt-1">Aktif edildiğinde sadece Baş Admin siteye erişebilir.</p>
+                  </div>
+                  <button
+                    onClick={() => toggleMaintenance(!maintenanceMode)}
+                    className={`relative w-14 h-7 rounded-full transition-colors flex items-center px-1 ${maintenanceMode ? 'bg-red-600' : 'bg-white/10'}`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${maintenanceMode ? 'translate-x-7' : 'translate-x-0'}`} />
+                  </button>
                 </div>
-             </div>
+
+                {/* System Logs / Stats */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white/3 border border-white/8 rounded-2xl">
+                    <div className="flex items-center gap-2 text-emerald-400 mb-2">
+                      <Activity size={14} /> <span className="text-[11px] font-black uppercase tracking-widest">Sistem Durumu</span>
+                    </div>
+                    <p className="text-2xl font-black text-white">YÜKSEK</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Tüm kozmik kanallar açık.</p>
+                  </div>
+                  <div className="p-4 bg-white/3 border border-white/8 rounded-2xl">
+                    <div className="flex items-center gap-2 text-purple-400 mb-2">
+                      <Check size={14} /> <span className="text-[11px] font-black uppercase tracking-widest">Otomatik Yedek</span>
+                    </div>
+                    <p className="text-2xl font-black text-white">AKTİF</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Her 24 saatte bir senkronizasyon.</p>
+                  </div>
+                </div>
+
+                {/* Dangerous Actions */}
+                <div className="pt-6 border-t border-white/8">
+                  <p className="text-[11px] font-black text-red-400 uppercase tracking-widest mb-4">Kritik İşlemler</p>
+                  <button onClick={() => { if (window.confirm('Tüm önbelleği temizlemek istiyor musunuz?')) showToast('Kozmik önbellek temizlendi.', 'success'); }}
+                    className="px-6 py-2.5 bg-red-600/10 border border-red-500/20 text-red-500 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition-all">
+                    Önbelleği Boşalt
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
       </motion.main>
-      
+
       {/* Toast */}
       <AnimatePresence>
         {toast && (
-          <motion.div initial={{ opacity:0, y:50 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:50 }}
-            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 glass-strong border ${
-              toast.type === 'error' ? 'border-red-500/50 text-red-200' :
-              toast.type === 'info'  ? 'border-blue-500/50 text-blue-200' :
-              'border-emerald-500/50 text-emerald-200'
-            }`}>
-            <div className={`w-2 h-2 rounded-full animate-pulse ${
-              toast.type === 'error' ? 'bg-red-500' :
-              toast.type === 'info'  ? 'bg-blue-500' :
-              'bg-emerald-500'
-            }`} />
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 glass-strong border ${toast.type === 'error' ? 'border-red-500/50 text-red-200' :
+                toast.type === 'info' ? 'border-blue-500/50 text-blue-200' :
+                  'border-emerald-500/50 text-emerald-200'
+              }`}>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${toast.type === 'error' ? 'bg-red-500' :
+                toast.type === 'info' ? 'bg-blue-500' :
+                  'bg-emerald-500'
+              }`} />
             <span className="text-sm font-bold">{toast.msg}</span>
           </motion.div>
         )}
@@ -892,9 +1004,9 @@ export default function Admin() {
         {safeActiveNav === 'chapterEditor' && (
           <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl pt-16">
             <div className="absolute top-4 right-8 z-[110] flex gap-4">
-               <button onClick={() => setActiveNav('dashboard')} className="p-3 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all flex items-center gap-2 font-bold">
-                 <X size={20} /> Editörü Kapat
-               </button>
+              <button onClick={() => setActiveNav('dashboard')} className="p-3 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all flex items-center gap-2 font-bold">
+                <X size={20} /> Editörü Kapat
+              </button>
             </div>
             <div className="h-full w-full overflow-y-auto custom-scrollbar">
               <ChapterEditor seriesList={series.filter(s => !s.is_deleted)} showToast={showToast} />
@@ -907,66 +1019,66 @@ export default function Admin() {
       <AnimatePresence>
         {editingSeries && (
           <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-               className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
-               <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                  <h3 className="text-2xl font-black text-white">Seri Düzenle: {editingSeries.title}</h3>
-                  <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl"><X size={24}/></button>
-               </div>
-               
-               <form onSubmit={handleSaveSeries} className="p-6 space-y-6">
-                 <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                       <div>
-                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Başlık</label>
-                         <input type="text" value={editingSeries.title} onChange={e => setEditingSeries({...editingSeries, title: e.target.value})}
-                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
-                       </div>
-                       <div>
-                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Yazar</label>
-                         <input type="text" value={editingSeries.author || ''} onChange={e => setEditingSeries({...editingSeries, author: e.target.value})}
-                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
-                       </div>
-                       <div>
-                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Açıklama</label>
-                         <textarea rows={4} value={editingSeries.description || ''} onChange={e => setEditingSeries({...editingSeries, description: e.target.value})}
-                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none resize-none" />
-                       </div>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                <h3 className="text-2xl font-black text-white">Seri Düzenle: {editingSeries.title}</h3>
+                <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl"><X size={24} /></button>
+              </div>
+
+              <form onSubmit={handleSaveSeries} className="p-6 space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Başlık</label>
+                      <input type="text" value={editingSeries.title} onChange={e => setEditingSeries({ ...editingSeries, title: e.target.value })}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
                     </div>
-                    <div className="space-y-4">
-                       <div>
-                         <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Kapak Görseli</label>
-                         <div className="flex gap-4 items-start">
-                            <img src={editingSeries.cover} className="w-24 h-32 rounded-xl object-cover border border-white/10 shadow-lg" alt="" />
-                            <input type="url" value={editingSeries.cover} onChange={e => setEditingSeries({...editingSeries, cover: e.target.value})}
-                              className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" />
-                         </div>
-                       </div>
-                       <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Puan</label>
-                            <input type="number" step="0.1" value={editingSeries.rating} onChange={e => setEditingSeries({...editingSeries, rating: Number(e.target.value)})}
-                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Durum</label>
-                            <select value={editingSeries.status} onChange={e => setEditingSeries({...editingSeries, status: e.target.value})}
-                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none cursor-pointer">
-                              <option value="Devam Ediyor">Devam Ediyor</option>
-                              <option value="Tamamlandı">Tamamlandı</option>
-                            </select>
-                          </div>
-                       </div>
+                    <div>
+                      <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Yazar</label>
+                      <input type="text" value={editingSeries.author || ''} onChange={e => setEditingSeries({ ...editingSeries, author: e.target.value })}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
                     </div>
-                 </div>
-                 <div className="pt-6 border-t border-white/10 flex justify-end gap-3">
-                    <button type="button" onClick={() => setEditingSeries(null)} className="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold">Vazgeç</button>
-                    <button type="submit" className="px-10 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
-                       <Save size={18} /> Değişiklikleri Kaydet
-                    </button>
-                 </div>
-               </form>
-             </motion.div>
+                    <div>
+                      <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Açıklama</label>
+                      <textarea rows={4} value={editingSeries.description || ''} onChange={e => setEditingSeries({ ...editingSeries, description: e.target.value })}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none resize-none" />
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Kapak Görseli</label>
+                      <div className="flex gap-4 items-start">
+                        <img src={editingSeries.cover} className="w-24 h-32 rounded-xl object-cover border border-white/10 shadow-lg" alt="" />
+                        <input type="url" value={editingSeries.cover} onChange={e => setEditingSeries({ ...editingSeries, cover: e.target.value })}
+                          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Puan</label>
+                        <input type="number" step="0.1" value={editingSeries.rating} onChange={e => setEditingSeries({ ...editingSeries, rating: Number(e.target.value) })}
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Durum</label>
+                        <select value={editingSeries.status} onChange={e => setEditingSeries({ ...editingSeries, status: e.target.value })}
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none cursor-pointer">
+                          <option value="Devam Ediyor">Devam Ediyor</option>
+                          <option value="Tamamlandı">Tamamlandı</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-6 border-t border-white/10 flex justify-end gap-3">
+                  <button type="button" onClick={() => setEditingSeries(null)} className="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold">Vazgeç</button>
+                  <button type="submit" className="px-10 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
+                    <Save size={18} /> Değişiklikleri Kaydet
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>

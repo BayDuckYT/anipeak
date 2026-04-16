@@ -4,10 +4,6 @@ import { supabase } from '../lib/supabaseClient';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [readIds,       setReadIds]         = useState(() => {
-    try { return JSON.parse(localStorage.getItem('anipeak_read_notifs') || '[]'); }
-    catch { return []; }
-  });
   const [user, setUser] = useState(() => {
     // [KOZMİK ÖNBELLEK] Optimistik başlangıç: Supabase'den önce hafızadaki kullanıcıyı yükle
     try {
@@ -115,12 +111,16 @@ export function AuthProvider({ children }) {
 
   // ── Sync Database Announcements as Notifications ────────────────────
   useEffect(() => {
+    if (!user?.id) return;
+    
     const loadAnn = async () => {
       const { data } = await supabase
         .from('announcements')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(20);
+      
+      const readIds = user.read_notifications || [];
       if (data) syncNotifs(data, readIds);
     };
 
@@ -130,7 +130,7 @@ export function AuthProvider({ children }) {
       .channel('announcements-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (payload) => {
         setNotifications(prev => {
-          const fresh = mapToNotif(payload.new, false);
+          const fresh = mapToNotif(payload.new, (user.read_notifications || []).includes(payload.new.id));
           const next = [fresh, ...prev].slice(0, 20);
           updateUnread(next);
           return next;
@@ -139,7 +139,7 @@ export function AuthProvider({ children }) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [readIds]);
+  }, [user?.id, user?.read_notifications]);
 
   const mapToNotif = (ann, isRead) => ({
     id:    ann.id,
@@ -149,19 +149,48 @@ export function AuthProvider({ children }) {
     read:  isRead
   });
 
-  const syncNotifs = (data, ids) => {
-    const mapped = data.map(ann => mapToNotif(ann, ids.includes(ann.id)));
+  const updateUnread = (notifList) => {
+    setUnreadCount(notifList.filter(n => !n.read).length);
+  };
+
+  const syncNotifs = (announcements, readIds) => {
+    const mapped = announcements.map(a => mapToNotif(a, readIds.includes(a.id)));
     setNotifications(mapped);
     updateUnread(mapped);
   };
 
-  const updateUnread = (list) => {
-    setUnreadCount(list.filter(n => !n.read).length);
+  // ── Gamification Logic ──────────────────────────────────────────────
+  const calculateTitle = (xp = 0) => {
+    if (xp >= 1500) return 'Kozmik Varlık';
+    if (xp >= 500)  return 'Manga Fedaisi';
+    if (xp >= 100)  return 'Kıdemli Okur';
+    return 'Çömez Okur';
   };
 
-  useEffect(() => {
-    localStorage.setItem('anipeak_read_notifs', JSON.stringify(readIds));
-  }, [readIds]);
+  const updateXP = useCallback(async (amount) => {
+    if (!user?.id) return;
+    
+    const newXP = (Number(user.xp) || 0) + amount;
+    const { error } = await supabase
+      .from('profiles')
+      .update({ xp: newXP })
+      .eq('id', user.id);
+    
+    if (error) console.error('[XP] Güncelleme hatası:', error);
+  }, [user]);
+
+  const markAllRead = useCallback(async () => {
+    if (!user?.id) return;
+    const currentIds = notifications.map(n => n.id);
+    const uniqueIds = Array.from(new Set([...(user.read_notifications || []), ...currentIds]));
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ read_notifications: uniqueIds })
+      .eq('id', user.id);
+
+    if (error) console.error('[Notif] Okundu hatası:', error);
+  }, [user, notifications]);
 
   // ── Authentication Boot & Listeners ──────────────────────────────────
   useEffect(() => {
@@ -350,15 +379,7 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
-  const markAllRead = useCallback(() => {
-    setReadIds(prev => {
-      const currentIds = notifications.map(n => n.id);
-      const next = Array.from(new Set([...prev, ...currentIds]));
-      return next;
-    });
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    setUnreadCount(0);
-  }, [notifications]);
+
 
   // â”€â”€ Role helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const hasRole = useCallback((roles) => {
@@ -389,6 +410,8 @@ export function AuthProvider({ children }) {
     unreadCount,
     sendNotification,
     markAllRead,
+    updateXP,
+    calculateTitle
   };
 
   return (

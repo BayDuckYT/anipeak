@@ -6,11 +6,13 @@ import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabaseClient';
 
 export default function CommentSystem({ seriesId, chapterNum }) {
-  const { user } = useAuth();
+  const { user, updateXP } = useAuth();
   const { addComment } = useApp();
   const [comments, setComments] = useState([]);
   const [text, setText] = useState('');
+  const [isSpoiler, setIsSpoiler] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [revealedSpoilers, setRevealedSpoilers] = useState(new Set());
 
   // ── Fetch & Subscribe
   useEffect(() => {
@@ -56,9 +58,12 @@ export default function CommentSystem({ seriesId, chapterNum }) {
         username: user.username,
         avatar_url: user.avatar_url,
         text: text.trim(),
-        chapterNum
+        chapterNum,
+        isSpoiler
       });
       setText('');
+      setIsSpoiler(false);
+      updateXP(10); // +10 XP for commenting
     } catch (err) {
       console.error('Yorum hatası:', err);
     } finally {
@@ -91,7 +96,22 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                 placeholder="Düşüncelerini evrenle paylaş..."
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all resize-none min-h-[100px]"
               />
-              <div className="flex justify-end">
+              <div className="flex items-center justify-between mt-2">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${isSpoiler ? 'bg-red-500 border-red-500' : 'bg-white/5 border-white/20 group-hover:border-white/40'}`}>
+                    <input 
+                      type="checkbox" 
+                      className="hidden" 
+                      checked={isSpoiler} 
+                      onChange={(e) => setIsSpoiler(e.target.checked)} 
+                    />
+                    {isSpoiler && <div className="w-2 h-2 bg-white rounded-full shadow-[0_0_5px_#fff]" />}
+                  </div>
+                  <span className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${isSpoiler ? 'text-red-400' : 'text-slate-500 group-hover:text-slate-400'}`}>
+                    {isSpoiler ? 'Spoiler İçeriyor!' : 'Spoiler mı?'}
+                  </span>
+                </label>
+                
                 <button
                   type="submit"
                   disabled={loading || !text.trim()}
@@ -160,7 +180,27 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                        )}
                     </div>
                   </div>
-                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{comment.text}</p>
+                  
+                  <div className="relative overflow-hidden rounded-lg mt-2">
+                    <p className={`text-slate-300 text-sm leading-relaxed whitespace-pre-wrap transition-all duration-500 ${comment.is_spoiler && !revealedSpoilers.has(comment.id) ? 'blur-md opacity-50 select-none' : ''}`}>
+                      {comment.text}
+                    </p>
+                    
+                    {comment.is_spoiler && !revealedSpoilers.has(comment.id) && (
+                      <div 
+                        onClick={() => {
+                          const next = new Set(revealedSpoilers);
+                          next.add(comment.id);
+                          setRevealedSpoilers(next);
+                        }}
+                        className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm cursor-pointer hover:bg-black/20 transition-all border border-red-500/20 rounded-lg"
+                      >
+                         <span className="px-4 py-1.5 rounded-full bg-red-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-500/20">
+                           Spoiler - Görmek İçin Tıkla
+                         </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -176,3 +216,4 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     </div>
   );
 }
+

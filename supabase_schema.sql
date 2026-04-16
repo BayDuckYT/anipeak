@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   premium     BOOLEAN              DEFAULT false,
   provider    TEXT                 DEFAULT 'email',
   total_read  BIGINT               DEFAULT 0,
+  xp          BIGINT               DEFAULT 0,
+  read_notifications BIGINT[]      DEFAULT '{}',
   created_at  TIMESTAMPTZ          DEFAULT NOW(),
 
   CONSTRAINT profiles_role_check CHECK (
@@ -79,11 +81,12 @@ CREATE TABLE IF NOT EXISTS comments (
   username    TEXT        NOT NULL DEFAULT 'Kullanıcı',
   avatar_url  TEXT,
   text        TEXT        NOT NULL,
+  is_spoiler  BOOLEAN              DEFAULT false,
   created_at  TIMESTAMPTZ          DEFAULT NOW()
 );
 
 -- ─────────────────────────────────────────────────────────────
--- 6. RATINGS
+-- 6. RATINGS (Overall Series)
 -- ─────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS ratings (
   id          BIGINT      PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -95,7 +98,34 @@ CREATE TABLE IF NOT EXISTS ratings (
 );
 
 -- ─────────────────────────────────────────────────────────────
--- 7. SITE CONFIG  (maintenance mode, feature flags)
+-- 7. CHAPTER RATINGS (Per Chapter)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS chapter_ratings (
+  id          BIGINT      PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  series_id   BIGINT      REFERENCES series(id) ON DELETE CASCADE,
+  chapter_num DECIMAL     NOT NULL,
+  user_id     UUID        REFERENCES auth.users ON DELETE CASCADE,
+  value       INTEGER     NOT NULL CHECK (value >= 1 AND value <= 5),
+  created_at  TIMESTAMPTZ          DEFAULT NOW(),
+  UNIQUE (series_id, chapter_num, user_id)
+);
+
+-- ─────────────────────────────────────────────────────────────
+-- 8. ERROR REPORTS (Tickets)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS error_reports (
+  id          BIGINT      PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id     UUID        REFERENCES auth.users ON DELETE SET NULL,
+  series_id   BIGINT      REFERENCES series(id) ON DELETE CASCADE,
+  chapter_num DECIMAL,
+  type        TEXT        NOT NULL,
+  description TEXT        NOT NULL,
+  status      TEXT        NOT NULL DEFAULT 'Beklemede', -- Beklemede, İnceleniyor, Çözüldü
+  created_at  TIMESTAMPTZ          DEFAULT NOW()
+);
+
+-- ─────────────────────────────────────────────────────────────
+-- 9. SITE CONFIG
 -- ─────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS site_config (
   key        TEXT        PRIMARY KEY,
@@ -138,57 +168,98 @@ CREATE TRIGGER on_auth_user_created
 -- ─────────────────────────────────────────────────────────────
 
 -- Enable RLS on all tables
-ALTER TABLE series        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE series         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chapters       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE announcements  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings        ENABLE ROW LEVEL SECURITY;
-ALTER TABLE site_config    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chapter_ratings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE error_reports   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_config     ENABLE ROW LEVEL SECURITY;
 
--- ── Series: everyone reads, only admins write ─────────────────
+-- ── Series ─────────────────
+DROP POLICY IF EXISTS "series_read_all" ON series;
 CREATE POLICY "series_read_all"    ON series FOR SELECT USING (true);
+DROP POLICY IF EXISTS "series_admin_write" ON series;
 CREATE POLICY "series_admin_write" ON series FOR ALL USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici','Admin Yardımcısı','Editör'))
 );
 
--- ── Chapters: everyone reads, editors+ write ──────────────────
+-- ── Chapters ──────────────────
+DROP POLICY IF EXISTS "chapters_read_all" ON chapters;
 CREATE POLICY "chapters_read_all"    ON chapters FOR SELECT USING (true);
+DROP POLICY IF EXISTS "chapters_editor_write" ON chapters;
 CREATE POLICY "chapters_editor_write" ON chapters FOR ALL USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici','Admin Yardımcısı','Editör'))
 );
 
--- ── Profiles: users read all, update only themselves; admins update anyone ──
+-- ── Profiles ──
+DROP POLICY IF EXISTS "profiles_read_all" ON profiles;
 CREATE POLICY "profiles_read_all"  ON profiles FOR SELECT USING (true);
+DROP POLICY IF EXISTS "profiles_self_update" ON profiles;
 CREATE POLICY "profiles_self_update" ON profiles FOR UPDATE USING (auth.uid() = id);
+DROP POLICY IF EXISTS "profiles_admin_update" ON profiles;
 CREATE POLICY "profiles_admin_update" ON profiles FOR UPDATE USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici'))
 );
+DROP POLICY IF EXISTS "profiles_admin_delete" ON profiles;
 CREATE POLICY "profiles_admin_delete" ON profiles FOR DELETE USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role = 'Baş Admin')
 );
 
--- ── Announcements: everyone reads; admins write ───────────────
+-- ── Announcements ───────────────
+DROP POLICY IF EXISTS "ann_read_all" ON announcements;
 CREATE POLICY "ann_read_all"    ON announcements FOR SELECT USING (true);
+DROP POLICY IF EXISTS "ann_admin_write" ON announcements;
 CREATE POLICY "ann_admin_write" ON announcements FOR ALL USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici','Admin Yardımcısı'))
 );
 
--- ── Comments: everyone reads; logged-in users insert ─────────
+-- ── Comments ─────────
+DROP POLICY IF EXISTS "comments_read_all" ON comments;
 CREATE POLICY "comments_read_all"  ON comments FOR SELECT USING (true);
+DROP POLICY IF EXISTS "comments_user_insert" ON comments;
 CREATE POLICY "comments_user_insert" ON comments FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+DROP POLICY IF EXISTS "comments_self_delete" ON comments;
 CREATE POLICY "comments_self_delete" ON comments FOR DELETE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "comments_admin_delete" ON comments;
 CREATE POLICY "comments_admin_delete" ON comments FOR DELETE USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici','Admin Yardımcısı'))
 );
 
--- ── Ratings: everyone reads; logged-in users write own ────────
+-- ── Ratings ────────
+DROP POLICY IF EXISTS "ratings_read_all" ON ratings;
 CREATE POLICY "ratings_read_all"   ON ratings FOR SELECT USING (true);
-CREATE POLICY "ratings_user_write" ON ratings FOR ALL  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "ratings_user_write" ON ratings;
+CREATE POLICY "ratings_user_write" ON ratings FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
--- ── Site Config: everyone reads; only Baş Admin writes ────────
+-- ── Chapter Ratings ────────
+DROP POLICY IF EXISTS "chap_ratings_read_all" ON chapter_ratings;
+CREATE POLICY "chap_ratings_read_all" ON chapter_ratings FOR SELECT USING (true);
+DROP POLICY IF EXISTS "chap_ratings_user_write" ON chapter_ratings;
+CREATE POLICY "chap_ratings_user_write" ON chapter_ratings FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- ── Error Reports (Tickets) ────────
+-- Herkes bildirim gönderebilir (kullanıcı veya anonim ziyaretçi)
+DROP POLICY IF EXISTS "error_user_insert" ON error_reports;
+CREATE POLICY "error_user_insert" ON error_reports FOR INSERT WITH CHECK (
+  auth.uid() = user_id OR user_id IS NULL
+);
+-- Kullanıcılar sadece kendi bildirip görür
+DROP POLICY IF EXISTS "error_user_view_own" ON error_reports;
+CREATE POLICY "error_user_view_own" ON error_reports FOR SELECT USING (
+  auth.uid() = user_id OR user_id IS NULL
+);
+DROP POLICY IF EXISTS "error_admin_all" ON error_reports;
+CREATE POLICY "error_admin_all" ON error_reports FOR ALL USING (
+  auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici'))
+);
+
+-- ── Site Config ────────
+DROP POLICY IF EXISTS "config_read_all" ON site_config;
 CREATE POLICY "config_read_all"    ON site_config FOR SELECT USING (true);
+DROP POLICY IF EXISTS "config_bas_admin" ON site_config;
 CREATE POLICY "config_bas_admin"   ON site_config FOR ALL USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role = 'Baş Admin')
 );
@@ -197,11 +268,15 @@ CREATE POLICY "config_bas_admin"   ON site_config FOR ALL USING (
 -- REALTIME: Enable replication on all tables
 -- ─────────────────────────────────────────────────────────────
 BEGIN;
+  DROP PUBLICATION IF EXISTS supabase_realtime;
+  CREATE PUBLICATION supabase_realtime;
   ALTER PUBLICATION supabase_realtime ADD TABLE series;
   ALTER PUBLICATION supabase_realtime ADD TABLE chapters;
   ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
   ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
   ALTER PUBLICATION supabase_realtime ADD TABLE comments;
   ALTER PUBLICATION supabase_realtime ADD TABLE ratings;
+  ALTER PUBLICATION supabase_realtime ADD TABLE chapter_ratings;
+  ALTER PUBLICATION supabase_realtime ADD TABLE error_reports;
   ALTER PUBLICATION supabase_realtime ADD TABLE site_config;
 COMMIT;

@@ -1,13 +1,16 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Settings2, Sun, Moon,
-  Maximize2, Minimize2, Home, Heart, MessageSquare, Send, BookOpen
+  Maximize2, Minimize2, Home, Heart, MessageSquare, Send, BookOpen, Bug,
+  ChevronDown, Star
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import CommentSystem from '../components/CommentSystem.jsx';
+import ChapterRating from '../components/ChapterRating.jsx';
+import ReportIssueModal from '../components/ReportIssueModal.jsx';
 
 function ReaderImage({ src, alt, idx, chapter }) {
   const [error, setError] = useState(false);
@@ -35,7 +38,9 @@ function ReaderImage({ src, alt, idx, chapter }) {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.5 }}
-      className="w-full block select-none"
+      className="w-full block select-none pointer-events-none"
+      onContextMenu={(e) => e.preventDefault()}
+      onDragStart={(e) => e.preventDefault()}
       style={{ display: 'block', lineHeight: 0 }}
     />
   );
@@ -44,8 +49,9 @@ function ReaderImage({ src, alt, idx, chapter }) {
 export default function Reader() {
   const { id, chapter: chapterParam } = useParams();
   const navigate = useNavigate();
-  const { user, addToHistory } = useAuth();
+  const { user, addToHistory, updateXP } = useAuth();
   const { series, getChapters } = useApp();
+  const imageRefs = useRef([]);
   
   const handleFullscreen = () => {
     try {
@@ -67,6 +73,9 @@ export default function Reader() {
   const [showPanel, setShowPanel] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [liked, setLiked] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [xpUpdated, setXpUpdated] = useState(false);
+  const endRef = useRef(null);
 
   const panelRef = useRef(null);
   const lastScrollY = useRef(0);
@@ -84,7 +93,76 @@ export default function Reader() {
   // Sync state if URL changes externally
   useEffect(() => {
     setChapter(Number(chapterParam));
+    setXpUpdated(false); // Reset XP trigger for new chapter
   }, [chapterParam]);
+
+  // ── Anti-Steal Security (F12, Right-Click, etc) ──────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Allow admins to use F12/Tools
+      if (user?.role === 'Baş Admin' || user?.role === 'Yönetici') return;
+
+      if (
+        e.keyCode === 123 || // F12
+        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
+        (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) // Ctrl+U/S
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    const handleContextMenu = (e) => {
+      if (user?.role === 'Baş Admin' || user?.role === 'Yönetici') return;
+      e.preventDefault();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('contextmenu', handleContextMenu);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, [user]);
+
+  // ── Intersection Observer for XP (+20 XP on finish) ───────────────────
+  useEffect(() => {
+    if (xpUpdated || !user) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setXpUpdated(true);
+        updateXP(20);
+      }
+    }, { threshold: 0.1 });
+
+    if (endRef.current) observer.observe(endRef.current);
+    return () => observer.disconnect();
+  }, [xpUpdated, user, updateXP]);
+
+  // ── Hibrit Okuma: Click → Bir sonraki görselin başına yumuşakça kay ───
+  const handleReaderClick = useCallback((e) => {
+    // Butonlar ve bağlantılara tıklanınca kaymayı engelle
+    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('select')) return;
+
+    const scrollY = window.scrollY;
+    const windowH = window.innerHeight;
+    const refs = imageRefs.current;
+
+    // Ekranda görünen noktanın %20 üstünden aşağısında başlayan ilk görseli bul
+    for (let i = 0; i < refs.length; i++) {
+      if (!refs[i]) continue;
+      const rect = refs[i].getBoundingClientRect();
+      // Bu görselin üstü ekranın %20'sinden aşağıdaysa oraya kay
+      if (rect.top > windowH * 0.2) {
+        const targetTop = rect.top + scrollY - 8;
+        window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        return;
+      }
+    }
+    // Sonraki görsel bulunamazsa biraz aşağı kay
+    window.scrollBy({ top: windowH * 0.85, behavior: 'smooth' });
+  }, []);
 
   // Auto-hide top bar on scroll down
   useEffect(() => {
@@ -184,6 +262,13 @@ export default function Reader() {
 
             {/* Right tools */}
             <div className="flex items-center gap-1" ref={panelRef}>
+               <button
+                onClick={() => setIsReportOpen(true)}
+                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all pointer-events-auto"
+                title="Hata Bildir"
+              >
+                <Bug size={16} />
+              </button>
               <button
                 onClick={() => { setZenMode(true); handleFullscreen(); }}
                 className="p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all pointer-events-auto"
@@ -285,16 +370,28 @@ export default function Reader() {
           </div>
         )}
 
-        {/* Pages — webtoon vertical scroll */}
-        <div className="w-full max-w-2xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+        {/* Pages — webtoon vertical scroll + hibrit click navigation */}
+        <div 
+          onClick={handleReaderClick}
+          className="w-full max-w-2xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)] cursor-s-resize relative"
+        >
+          {/* Şeffaf Görsel Koruma Kalkanı — sağ tık / sürüklemeyi engeller */}
+          <div 
+            className="absolute inset-0 z-10 pointer-events-auto select-none" 
+            onContextMenu={e => e.preventDefault()}
+            onDragStart={e => e.preventDefault()}
+            onMouseDown={e => { if (e.button === 2) e.preventDefault(); }}
+          />
+          
           {pages.length > 0 ? pages.map((src, idx) => (
-            <ReaderImage 
-              key={`${chapter}-${idx}`} 
-              src={src} 
-              alt={`Sayfa ${idx + 1}`} 
-              idx={idx} 
-              chapter={chapter} 
-            />
+            <div key={`${chapter}-${idx}`} ref={el => { imageRefs.current[idx] = el; }}>
+              <ReaderImage 
+                src={src} 
+                alt={`Sayfa ${idx + 1}`} 
+                idx={idx} 
+                chapter={chapter} 
+              />
+            </div>
           )) : (
             <div className="py-40 text-center glass border border-white/5 rounded-3xl mx-4">
                 <BookOpen size={48} className="text-slate-700 mx-auto mb-4" />
@@ -303,6 +400,12 @@ export default function Reader() {
             </div>
           )}
         </div>
+
+        {/* Visibility Pivot for XP reward */}
+        <div ref={endRef} className="h-10 w-full" />
+
+        {/* ── CHAPTER RATING SECTION ── */}
+        <ChapterRating seriesId={manhwa.id} chapterNum={chapter} />
 
         {/* ── CHAPTER NAV BOTTOM ── */}
         <div className="w-full max-w-2xl mx-auto pt-10 pb-6 px-4">
@@ -353,16 +456,18 @@ export default function Reader() {
         {/* ── REAL-TIME COMMENTS SECTION ── */}
         {!zenMode && (
           <div className="w-full max-w-2xl mx-auto pb-20 px-4">
-             <CommentSystem seriesId={manhwa.id} chapterId={chapter} />
+             <CommentSystem seriesId={manhwa.id} chapterNum={chapter} />
           </div>
         )}
       </motion.div>
+
+      {/* Reports Modal */}
+      <ReportIssueModal 
+        isOpen={isReportOpen} 
+        onClose={() => setIsReportOpen(false)} 
+        seriesId={manhwa.id} 
+        chapterNum={chapter} 
+      />
     </div>
   );
-}
-
-function ChevronDown({ size, className }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>
-    );
 }

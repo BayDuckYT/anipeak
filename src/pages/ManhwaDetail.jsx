@@ -44,6 +44,9 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const continueChapter = history?.lastChapter;
 
   // Filter + sort
+  const [ratingsMap, setRatingsMap]  = useState({});
+
+  // Filter + sort
   const filteredChapters = useMemo(() => {
     let list = [...allChapters];
     if (search.trim()) {
@@ -59,6 +62,34 @@ export default function ManhwaDetail({ onAuthOpen }) {
     );
     return list;
   }, [allChapters, search, sortDesc]);
+
+  // Fetch all chapter ratings for this series
+  useEffect(() => {
+    const fetchChapterRatings = async () => {
+      if (!manhwa?.id) return;
+      const { data } = await supabase
+        .from('chapter_ratings')
+        .select('chapter_num, value')
+        .eq('series_id', manhwa.id);
+      
+      if (data) {
+        const map = {};
+        const sums = {};
+        const counts = {};
+
+        data.forEach(r => {
+          sums[r.chapter_num] = (sums[r.chapter_num] || 0) + r.value;
+          counts[r.chapter_num] = (counts[r.chapter_num] || 0) + 1;
+        });
+
+        Object.keys(sums).forEach(num => {
+          map[num] = (sums[num] / counts[num]) * 2; // Scale to 10
+        });
+        setRatingsMap(map);
+      }
+    };
+    fetchChapterRatings();
+  }, [manhwa?.id]);
 
   const handleReadChapter = (chNum) => {
     navigate(`/read/${manhwa.id}/${chNum}`);
@@ -227,8 +258,14 @@ export default function ManhwaDetail({ onAuthOpen }) {
                     {ch.number}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="text-white font-bold group-hover:text-purple-300 transition-colors">Bölüm {ch.number}</span>
+                      {ratingsMap[ch.number] && (
+                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30">
+                           <Star size={10} className="fill-emerald-400 text-emerald-400" />
+                           <span className="text-emerald-400 text-[10px] font-black">{ratingsMap[ch.number].toFixed(1)}</span>
+                        </div>
+                      )}
                     </div>
                     {ch.title && <p className="text-slate-500 text-xs truncate uppercase tracking-widest font-black">{ch.title}</p>}
                   </div>

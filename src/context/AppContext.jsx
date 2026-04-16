@@ -88,12 +88,15 @@ export function AppProvider({ children }) {
     const boot = async () => {
       try {
         setLoading(true);
-        // Sequential to avoid hitting Supabase free tier connection pool limit
-        await fetchWithRetry(loadSeries);
-        await fetchWithRetry(loadChapters);
+        // Series + Chapters paralel yükle (bağımsızlar, birbirini beklemesin)
+        await Promise.all([
+          fetchWithRetry(loadSeries),
+          fetchWithRetry(loadChapters),
+        ]);
+        // Duyurular ve bakım modu sırayla
         await fetchWithRetry(loadAnnouncements);
         await fetchWithRetry(loadMaintenance);
-        // Profiles are admin-only, load last and non-blocking
+        // Profiller admin-only, non-blocking
         loadProfiles().catch(err => console.warn('[AppCtx] Profiller yüklenemedi:', err.message));
       } catch (err) {
         console.error("[AppContext] Bootstrap Hatası:", err);
@@ -248,13 +251,15 @@ export function AppProvider({ children }) {
   }, []);
 
   // ── Comments ─────────────────────────────────────────────────────────
-  const addComment = useCallback(async (seriesId, { userId, username, text, chapterNum }) => {
+  const addComment = useCallback(async (seriesId, { userId, username, avatar_url, text, chapterNum, isSpoiler }) => {
     await supabase.from('comments').insert([{
       series_id:   seriesId,
       user_id:     userId,
       username,
+      avatar_url,
       text,
       chapter_num: chapterNum || null,
+      is_spoiler:  isSpoiler || false
     }]);
   }, []);
 

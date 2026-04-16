@@ -18,7 +18,7 @@ export default function Header({ onAuthOpen }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const { user, logout, notifications, markAllRead, unreadCount } = useAuth();
+  const { user, logout, notifications, markAllRead, unreadCount, calculateTitle } = useAuth();
   const { series } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
@@ -252,12 +252,29 @@ export default function Header({ onAuthOpen }) {
                       {/* User info header */}
                       <div className="px-4 py-3 border-b border-white/8 bg-gradient-to-r from-purple-500/10 to-blue-500/10">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-purple-500/20">
                             {avatarLetter}
                           </div>
-                          <div>
-                            <p className="text-white text-sm font-bold">{user.username}</p>
-                            <p className="text-slate-400 text-[10px] truncate">{user.email}</p>
+                          <div className="min-w-0">
+                            <p className="text-white text-sm font-bold truncate">{user.username}</p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                               <span className="text-[10px] font-black uppercase text-purple-400 tracking-wider">
+                                 {calculateTitle(user.xp || 0)}
+                               </span>
+                               <span className="w-1 h-1 rounded-full bg-slate-700" />
+                               <span className="text-[10px] font-bold text-slate-500">XP: {user.xp || 0}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* XP Progress Mini Bar */}
+                        <div className="mt-3">
+                          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                             <motion.div 
+                               initial={{ width: 0 }}
+                               animate={{ width: `${Math.min((user.xp || 0) / 15, 100)}%` }}
+                               className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                             />
                           </div>
                         </div>
                       </div>
