@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Eye, BookOpen, ArrowLeft, Heart, Bookmark,
   Clock, CheckCircle, Play, ChevronRight, Calendar, User,
-  Flame, Lock, Sparkles, Search, SortAsc
+  Flame, Lock, Sparkles, Search, SortAsc, Star
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';

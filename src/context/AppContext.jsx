@@ -21,41 +21,33 @@ export function AppProvider({ children }) {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   const loadSeries = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('series')
-        .select('*')
-        .order('is_trending', { ascending: false })
-        .order('reads_num',   { ascending: false });
-      if (error) throw error;
-      if (data) {
-        setSeries(data);
-        localStorage.setItem('anipeak_series_cache', JSON.stringify(data));
-      }
-    } catch (err) {
-      console.warn('[AppCtx] Seri yükleme hatası (Önbellek kullanılacak):', err.message);
+    const { data, error } = await supabase
+      .from('series')
+      .select('*')
+      .order('is_trending', { ascending: false })
+      .order('reads_num',   { ascending: false });
+    if (error) throw error;
+    if (data) {
+      setSeries(data);
+      localStorage.setItem('anipeak_series_cache', JSON.stringify(data));
     }
   }, []);
 
   const loadChapters = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('chapters')
-        .select('*')
-        .order('number', { ascending: false });
-      if (error) throw error;
-      if (data) {
-        const grouped = data.reduce((acc, ch) => {
-          const key = String(ch.series_id);
-          if (!acc[key]) acc[key] = [];
-          acc[key].push(ch);
-          return acc;
-        }, {});
-        setChapters(grouped);
-        localStorage.setItem('anipeak_chapters_cache', JSON.stringify(grouped));
-      }
-    } catch (err) {
-      console.warn('[AppCtx] Bölüm yükleme hatası (Önbellek kullanılacak):', err.message);
+    const { data, error } = await supabase
+      .from('chapters')
+      .select('*')
+      .order('number', { ascending: false });
+    if (error) throw error;
+    if (data) {
+      const grouped = data.reduce((acc, ch) => {
+        const key = String(ch.series_id);
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(ch);
+        return acc;
+      }, {});
+      setChapters(grouped);
+      localStorage.setItem('anipeak_chapters_cache', JSON.stringify(grouped));
     }
   }, []);
 
@@ -96,6 +88,9 @@ export function AppProvider({ children }) {
         } catch (err) {
           if (i < retries) {
             await new Promise(r => setTimeout(r, delayMs * (i + 1)));
+          } else {
+             console.warn("[AppCtx] Fetch limit aşıldı, önbellek devrede:", err.message);
+             // Return peacefully so boot continues and cache is used
           }
         }
       }
