@@ -19,24 +19,42 @@ import { useApp } from '../context/AppContext.jsx';
 let _uid = 0;
 const uid = () => `pg-${++_uid}-${Math.random().toString(36).slice(2, 7)}`;
 
-const IMGBB_API_KEY = "23884105154ff50ed54b8de837952b35";
+// ImgBB Key Pool (Dinamik amk!)
+const IMGBB_KEYS = (import.meta.env.VITE_IMGBB_API_KEY || "").split(',').map(k => k.trim()).filter(k => k);
+let currentKeyIndex = 0;
 
 const uploadToImgBB = async (base64Image) => {
-  const formData = new FormData();
-  const base64Content = base64Image.split(',')[1];
-  formData.append('image', base64Content);
+  let attempts = 0;
+  console.log(`[ImgBB-Editor] Başlatıldı, Havuz: ${IMGBB_KEYS.length}`);
   
-  const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-    method: 'POST',
-    body: formData
-  });
-  
-  const result = await response.json();
-  if (result.success) {
-    return result.data.url;
-  } else {
-    throw new Error(result.error?.message || 'Yükleme başarısız');
+  while (attempts < IMGBB_KEYS.length) {
+    const key = IMGBB_KEYS[currentKeyIndex];
+    try {
+      const formData = new FormData();
+      const base64Content = base64Image.split(',')[1];
+      formData.append('image', base64Content);
+      
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        console.log(`[ImgBB-Editor-OK] Anahtar ${currentKeyIndex + 1} başarılı.`);
+        return result.data.url;
+      }
+      
+      console.warn(`[ImgBB-Editor-HATA] Anahtar ${currentKeyIndex + 1} reddetti:`, result.error?.message);
+      currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
+      attempts++;
+    } catch (err) {
+      console.error(`[ImgBB-Editor-KRİTİK] Anahtar ${currentKeyIndex + 1} ağ hatası:`, err.message);
+      currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
+      attempts++;
+    }
   }
+  throw new Error('Tüm API anahtarları tükendi amk! Detaylar için F12 (Konsol) açın.');
 };
 
 const compressImage = (file, maxWidth = 1200, quality = 0.7) => {

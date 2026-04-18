@@ -48,7 +48,10 @@ const ALL_NAV = [
   { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
 ];
 
-const IMGBB_KEY = '23884105154ff50ed54b8de837952b35';
+// ImgBB Key Pool (Dinamik amk!)
+const IMGBB_KEYS = (import.meta.env.VITE_IMGBB_API_KEY || '').split(',').map(k => k.trim()).filter(k => k);
+console.log("[SYSTEM] ImgBB Anahtarları Namluda:", IMGBB_KEYS.map(k => k.slice(0, 5) + "..."));
+let currentKeyIndex = 0;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-component: MetricCard
@@ -93,39 +96,80 @@ function QuickAddForm({ seriesList, showToast }) {
     title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor',
   });
 
-  const compressToBase64 = (file) => new Promise((resolve) => {
+  const compressToBase64 = (file) => new Promise((resolve, reject) => {
+    console.log(`[PROCESS] Sıkıştırma başladı: ${file.name} (${(file.size/1024).toFixed(1)} KB)`);
     const reader = new FileReader();
     reader.readAsDataURL(file);
+    reader.onerror = (e) => reject(new Error("Dosya okuma hatası amk!"));
     reader.onload = (e) => {
       const img = new Image();
       img.src = e.target.result;
+      img.onerror = () => reject(new Error("Görsel formatı bozuk veya yüklenemedi!"));
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const maxW = 1200;
-        let { width: w, height: h } = img;
-        if (w > maxW) { h = (maxW / w) * h; w = maxW; }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
+        try {
+          const canvas = document.createElement('canvas');
+          const maxW = 1200;
+          let { width: w, height: h } = img;
+          if (w > maxW) { h = (maxW / w) * h; w = maxW; }
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const b64 = canvas.toDataURL('image/jpeg', 0.8);
+          console.log(`[PROCESS] Sıkıştırma tamam: ${file.name} -> ${(b64.length/1024).toFixed(1)} KB`);
+          resolve(b64);
+        } catch (err) {
+          reject(new Error("Canvas işleme hatası: " + err.message));
+        }
       };
     };
   });
 
-  const uploadToImgBB = async (base64) => {
-    const form = new FormData();
-    form.append('image', base64.split(',')[1]);
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: form });
-    const json = await res.json();
-    if (json.success) return json.data.url;
-    throw new Error(json.error?.message || 'İmgBB yükleme hatası');
+  const uploadToImgBB = async (base64, fileName) => {
+    let attempts = 0;
+    while (attempts < IMGBB_KEYS.length) {
+      const key = IMGBB_KEYS[currentKeyIndex];
+      try {
+        console.log(`[UPLOAD] ${fileName} gönderiliyor (Key: ${currentKeyIndex + 1})`);
+        const form = new FormData();
+        form.append('image', base64.split(',')[1]);
+        
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, { 
+          method: 'POST', 
+          body: form 
+        });
+        const json = await res.json();
+        
+        if (json.success) {
+          console.log(`[UPLOAD-OK] ${fileName} yüklendi: ${json.data.url}`);
+          return json.data.url;
+        }
+        
+        console.warn(`[UPLOAD-HATA] Key ${currentKeyIndex + 1} reddetti:`, json.error?.message);
+        currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
+        attempts++;
+      } catch (err) {
+        console.error(`[UPLOAD-KRİTİK] Key ${currentKeyIndex + 1} ağ hatası:`, err.message);
+        currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
+        attempts++;
+      }
+    }
+    throw new Error('Tüm ImgBB anahtarları patlak amk! F12 konsoluna bak.');
   };
 
   const handleFileSelect = async (e, target) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
+    
     try {
-      showToast(`${files.length} görsel yükleniyor...`, 'info');
-      const urls = await Promise.all(files.map(async f => uploadToImgBB(await compressToBase64(f))));
+      showToast(`${files.length} görsel işleniyor...`, 'info');
+      const urls = [];
+      
+      for (const file of files) {
+        const b64 = await compressToBase64(file);
+        const url = await uploadToImgBB(b64, file.name);
+        urls.push(url);
+      }
+
       if (target === 'pages') {
         setPageUrls(prev => [...(prev.trim() ? prev.split('\n') : []), ...urls].join('\n'));
       } else {
@@ -133,7 +177,8 @@ function QuickAddForm({ seriesList, showToast }) {
       }
       showToast(`✅ ${files.length} görsel başarıyla yüklendi!`, 'success');
     } catch (err) {
-      showToast('Görsel yüklenemedi.', 'error');
+      console.error("[FATAL] Harekât Başarısız:", err.message);
+      showToast(err.message, 'error');
     }
   };
 
