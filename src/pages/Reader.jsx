@@ -98,103 +98,44 @@ export default function Reader() {
 
   // ── Anti-Steal Security (F12, Right-Click, etc) ──────────────────────
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Allow admins to use F12/Tools
-      if (user?.role === 'Baş Admin' || user?.role === 'Yönetici') return;
-
-      if (
-        e.keyCode === 123 || // F12
-        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
-        (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) // Ctrl+U/S
-      ) {
-        e.preventDefault();
-        return false;
-      }
+    const handleContext = (e) => e.preventDefault();
+    const handleKey = (e) => {
+      if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i' || e.key === 'j')) e.preventDefault();
+      if (e.key === 'F12') e.preventDefault();
     };
-
-    const handleContextMenu = (e) => {
-      if (user?.role === 'Baş Admin' || user?.role === 'Yönetici') return;
-      e.preventDefault();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('contextmenu', handleContext);
+    document.addEventListener('keydown', handleKey);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('contextmenu', handleContext);
+      document.removeEventListener('keydown', handleKey);
     };
-  }, [user]);
-
-  // ── Intersection Observer for XP (+20 XP on finish) ───────────────────
-  useEffect(() => {
-    if (xpUpdated || !user) return;
-    
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setXpUpdated(true);
-        updateXP(20);
-      }
-    }, { threshold: 0.1 });
-
-    if (endRef.current) observer.observe(endRef.current);
-    return () => observer.disconnect();
-  }, [xpUpdated, user, updateXP]);
-
-  // ── Hibrit Okuma: Click → Bir sonraki görselin başına yumuşakça kay ───
-  const handleReaderClick = useCallback((e) => {
-    // Butonlar ve bağlantılara tıklanınca kaymayı engelle
-    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('select')) return;
-
-    const scrollY = window.scrollY;
-    const windowH = window.innerHeight;
-    const refs = imageRefs.current;
-
-    // Ekranda görünen noktanın %20 üstünden aşağısında başlayan ilk görseli bul
-    for (let i = 0; i < refs.length; i++) {
-      if (!refs[i]) continue;
-      const rect = refs[i].getBoundingClientRect();
-      // Bu görselin üstü ekranın %20'sinden aşağıdaysa oraya kay
-      if (rect.top > windowH * 0.2) {
-        const targetTop = rect.top + scrollY - 8;
-        window.scrollTo({ top: targetTop, behavior: 'smooth' });
-        return;
-      }
-    }
-    // Sonraki görsel bulunamazsa biraz aşağı kay
-    window.scrollBy({ top: windowH * 0.85, behavior: 'smooth' });
   }, []);
 
-  // Auto-hide top bar on scroll down
+  // ── Scroll Spy for Header ───────────────────────────────────────────
   useEffect(() => {
     const handleScroll = () => {
-      const currentY = window.scrollY;
-      if (currentY > lastScrollY.current + 10 && currentY > 100) {
-        setShowHeader(false);
-      } else if (currentY < lastScrollY.current - 10) {
+      const current = window.scrollY;
+      if (current > 100) {
+        setShowHeader(current < lastScrollY.current);
+      } else {
         setShowHeader(true);
       }
-      lastScrollY.current = currentY;
+      lastScrollY.current = current;
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close panel when clicking outside
+  // ── Close Chapter Panel on Outside Click ─────────────────────────────
   useEffect(() => {
-    const handleClick = (e) => {
+    const handler = (e) => {
       if (panelRef.current && !panelRef.current.contains(e.target)) {
         setShowPanel(false);
       }
     };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
-
-  if (!manhwa) return null;
-
-  const totalChapters = contextChapters.length || 0;
-  const activeChapterData = contextChapters.find(c => Number(c.number) === Number(chapter));
-  const pages = activeChapterData?.pages || [];
 
   const handleChapterTab = (newCh) => {
     setChapter(newCh);
@@ -203,11 +144,25 @@ export default function Reader() {
     setShowPanel(false);
   };
 
+  if (!manhwa) return null;
+
   return (
-    <div
-      className="min-h-screen bg-black transition-colors duration-300"
+    <div 
+      className="min-h-screen bg-[#050507] pt-24 pb-12 overflow-x-hidden relative"
       style={{ filter: `brightness(${brightness}%)` }}
     >
+      {/* ── REPORTS MODAL (MOVED TO TOP FOR ABSOLUTE VISIBILITY) ── */}
+      <AnimatePresence>
+        {isReportOpen && (
+          <ReportIssueModal 
+            isOpen={isReportOpen} 
+            onClose={() => setIsReportOpen(false)} 
+            seriesId={manhwa.id} 
+            chapterNum={chapter} 
+          />
+        )}
+      </AnimatePresence>
+
       {/* ── TOP BAR ── */}
       <AnimatePresence>
         {!zenMode && (
@@ -216,7 +171,7 @@ export default function Reader() {
             initial={{ y: 0 }}
             animate={{ y: showHeader ? 0 : -100 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-16 left-0 right-0 z-[100] glass border-b border-white/10 px-4 py-3 flex items-center justify-between shadow-lg shadow-black/50"
+            className="fixed top-16 left-0 right-0 z-[500] glass border-b border-white/10 px-4 py-3 flex items-center justify-between shadow-lg shadow-black/50"
           >
             {/* Left */}
             <div className="flex items-center gap-3">
@@ -265,13 +220,13 @@ export default function Reader() {
                <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log("[READER] Hata Bildir tıklandı amk!");
+                  console.log("[DEBUG] Hata Bildir tıklandı!");
                   setIsReportOpen(true);
                 }}
-                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer relative z-[200]"
+                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer relative z-[600]"
                 title="Hata Bildir"
               >
-                <Bug size={16} />
+                <Bug size={18} />
               </button>
               <button
                 onClick={() => { setZenMode(true); handleFullscreen(); }}
@@ -282,125 +237,76 @@ export default function Reader() {
               </button>
               <button
                 onClick={() => setShowPanel(!showPanel)}
-                className="p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all pointer-events-auto"
-                title="Seçenekler"
+                className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all relative"
+                title="Ayarlar & Bölümler"
               >
                 <Settings2 size={16} />
               </button>
+            </div>
 
-              {/* Settings dropdown */}
-              <AnimatePresence>
-                {showPanel && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-14 right-4 glass-strong border border-white/10 rounded-2xl p-4 w-64 z-50 shadow-2xl"
-                  >
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Okuma Ayarları</p>
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-slate-300 flex items-center gap-1.5">
-                          <Sun size={14} /> Parlaklık
-                        </span>
-                        <span className="text-xs text-purple-400 font-bold">{brightness}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        min={40}
-                        max={100}
-                        value={brightness}
-                        onChange={(e) => setBrightness(Number(e.target.value))}
-                        className="w-full accent-purple-500 h-1.5 rounded-full cursor-pointer"
+            {/* Floating Panel */}
+            <AnimatePresence>
+              {showPanel && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute right-4 top-full mt-3 w-80 glass-strong border border-white/10 rounded-3xl p-6 shadow-2xl z-[1000]"
+                >
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Parlaklık</p>
+                      <input 
+                        type="range" min="30" max="100" value={brightness} 
+                        onChange={(e) => setBrightness(e.target.value)}
+                        className="w-full accent-purple-500 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
                       />
                     </div>
-                    <div className="mb-3">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center justify-between">
-                        Tüm Bölümler <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px]">{contextChapters.length}B</span>
-                      </p>
-                      <div className="max-h-56 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar">
-                        {contextChapters.map((ch) => (
-                           <button
-                             key={ch.id}
-                             onClick={() => handleChapterTab(ch.number)}
-                             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between group ${Number(ch.number) === Number(chapter) ? 'bg-purple-600 border border-purple-500 shadow-neon-purple text-white font-bold' : 'bg-white/5 border border-transparent text-slate-300 hover:bg-white/10'}`}
-                           >
-                             <span className="flex-1 truncate">
-                                Bölüm {ch.number}
-                                {ch.title && <span className="ml-2 text-xs text-slate-400 font-normal truncate group-hover:text-slate-300 transition-colors">— {ch.title}</span>}
-                             </span>
-                           </button>
+                    
+                    <div className="border-t border-white/5 pt-4">
+                      <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Hızlı Bölüm Seç</p>
+                      <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
+                        {[...contextChapters].sort((a,b) => b.number-a.number).map((ch) => (
+                          <button
+                            key={ch.id}
+                            onClick={() => handleChapterTab(ch.number)}
+                            className={`py-2 rounded-xl text-[10px] font-bold border transition-all ${chapter === ch.number ? 'bg-purple-600 border-purple-500 text-white' : 'glass border-white/10 text-slate-400 hover:border-white/20'}`}
+                          >
+                            {ch.number}
+                          </button>
                         ))}
                       </div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── ZEN MODE TOGGLE ── */}
-      <AnimatePresence>
-        {zenMode && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => { setZenMode(false); handleFullscreen(); }}
-            className="fixed top-4 right-4 z-50 p-2.5 rounded-xl glass border border-white/10 text-white hover:border-purple-500/40 transition-all"
-          >
-            <Minimize2 size={18} />
-          </motion.button>
         )}
       </AnimatePresence>
 
       {/* ── READER CONTENT ── */}
       <motion.div
-        key={chapter}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-        className={`flex flex-col items-center ${!zenMode ? 'pt-[120px]' : ''}`}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-3xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)]"
       >
-        {/* Chapter title banner */}
-        {!zenMode && (
-          <div className="w-full max-w-2xl text-center py-6 px-4">
-            <h1 className="text-lg font-bold text-white mb-1">{manhwa.title}</h1>
-            <p className="text-slate-500 text-sm font-black tracking-widest uppercase">Bölüm {chapter}</p>
-            <div className="mt-3 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
-          </div>
-        )}
+        <div className="flex flex-col">
+          {manhwa.chapters?.find(c => Number(c.number) === Number(chapter))?.pages?.map((p, idx) => (
+            <ReaderImage key={idx} src={p} alt={`Page ${idx + 1}`} idx={idx} chapter={chapter} />
+          ))}
 
-        {/* Pages — webtoon vertical scroll + hibrit click navigation */}
-        <div 
-          onClick={handleReaderClick}
-          className="w-full max-w-2xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)] cursor-s-resize relative"
-        >
-          {/* Şeffaf Görsel Koruma Kalkanı — sağ tık / sürüklemeyi engeller */}
-          <div 
-            className="absolute inset-0 z-10 pointer-events-auto select-none" 
-            onContextMenu={e => e.preventDefault()}
-            onDragStart={e => e.preventDefault()}
-            onMouseDown={e => { if (e.button === 2) e.preventDefault(); }}
-          />
-          
-          {pages.length > 0 ? pages.map((src, idx) => (
-            <div key={`${chapter}-${idx}`} ref={el => { imageRefs.current[idx] = el; }}>
-              <ReaderImage 
-                src={src} 
-                alt={`Sayfa ${idx + 1}`} 
-                idx={idx} 
-                chapter={chapter} 
-              />
-            </div>
-          )) : (
-            <div className="py-40 text-center glass border border-white/5 rounded-3xl mx-4">
-                <BookOpen size={48} className="text-slate-700 mx-auto mb-4" />
-                <p className="text-slate-500 font-bold">Bu bölüm için sayfa yüklenemedi.</p>
-                <p className="text-slate-600 text-xs mt-2">Editör henüz sayfaları girmemiş olabilir.</p>
+          {/* If no pages */}
+          {(!manhwa.chapters?.find(c => Number(c.number) === Number(chapter))?.pages || manhwa.chapters?.find(c => Number(c.number) === Number(chapter))?.pages?.length === 0) && (
+            <div className="py-40 text-center px-6">
+               <Sun size={64} className="text-slate-800 mx-auto mb-6" />
+               <h2 className="text-2xl font-black text-white mb-2">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
+               <p className="text-slate-500 max-w-sm mx-auto">Henüz sayfalar yüklenmemiş veya kozmik bir hata oluşmuş amk.</p>
+               <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-8 text-purple-400 font-bold hover:text-purple-300">
+                  <ArrowLeft size={16} /> Seri Detayına Dön
+               </Link>
             </div>
           )}
         </div>
@@ -464,18 +370,6 @@ export default function Reader() {
           </div>
         )}
       </motion.div>
-
-      {/* Reports Modal */}
-      <AnimatePresence>
-        {isReportOpen && (
-          <ReportIssueModal 
-            isOpen={isReportOpen} 
-            onClose={() => setIsReportOpen(false)} 
-            seriesId={manhwa.id} 
-            chapterNum={chapter} 
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
