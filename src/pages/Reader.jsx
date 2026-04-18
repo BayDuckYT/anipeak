@@ -83,10 +83,15 @@ export default function Reader() {
   // All chapters for this manhwa
   const contextChapters = useMemo(() => getChapters(manhwa?.id), [getChapters, manhwa?.id]);
 
-  // Update history when chapter changes
+  // Update history & stats when chapter changes
   useEffect(() => {
-    if (user && manhwa?.id) {
-      addToHistory(manhwa.id, chapter);
+    if (manhwa?.id) {
+      if (user) addToHistory(manhwa.id, chapter);
+      // Increment reads_num (Global view count)
+      supabase.rpc('increment_reads', { row_id: manhwa.id }).catch(() => {
+        // Fallback if RPC not defined
+        supabase.from('series').update({ reads_num: (manhwa.reads_num || 0) + 1 }).eq('id', manhwa.id);
+      });
     }
   }, [chapter, manhwa?.id, user, addToHistory]);
 

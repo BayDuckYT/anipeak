@@ -6,6 +6,7 @@ import { ShieldAlert, Zap } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { AppProvider, useApp } from './context/AppContext.jsx';
 import Header from './components/Header.jsx';
+import Footer from './components/Footer.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import Home from './pages/Home.jsx';
 import ManhwaDetail from './pages/ManhwaDetail.jsx';
@@ -13,6 +14,8 @@ import Reader from './pages/Reader.jsx';
 import Admin from './pages/Admin.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import AllSeries from './pages/AllSeries.jsx';
+import StaticPage from './pages/StaticPage.jsx';
+import Contact from './pages/Contact.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
 // Role-based Route Protection
@@ -39,6 +42,8 @@ function AnimatedRoutes({ onAuthOpen }) {
         <Route path="/read/:id/:chapter" element={<Reader />} />
         <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+        <Route path="/iletisim" element={<Contact />} />
+        <Route path="/:slug" element={<StaticPage />} />
       </Routes>
     </AnimatePresence>
   );
@@ -198,6 +203,7 @@ function AppContent() {
                  <Header onAuthOpen={(mode) => setAuthModal(mode)} />
                  <ErrorBoundary mini>
                    <AnimatedRoutes onAuthOpen={(mode) => setAuthModal(mode)} />
+                   <Footer />
                  </ErrorBoundary>
               </div>
             </>

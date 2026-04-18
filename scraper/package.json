@@ -1,0 +1,30 @@
+{
+  "name": "anipeak-scraper",
+  "version": "1.0.0",
+  "description": "AniPeak paradoxscans scraping service",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.103.3",
+    "@xenova/transformers": "^2.17.2",
+    "axios": "^1.15.0",
+    "canvas": "^3.2.3",
+    "cheerio": "^1.2.0",
+    "dotenv": "^16.6.1",
+    "form-data": "^4.0.5",
+    "p-limit": "^7.3.0",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0",
+    "puppeteer": "^22.4.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "sharp": "^0.33.5",
+    "tesseract.js": "^7.0.0",
+    "winston": "^3.19.0"
+  }
+}

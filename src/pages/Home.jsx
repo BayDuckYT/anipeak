@@ -452,18 +452,7 @@ export default function Home({ onAuthOpen }) {
         </motion.div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/5 py-10 px-4 text-center text-slate-600 text-sm">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="gradient-text font-black text-lg">AniPeak</span>
-          <span>© 2026 AniPeak. Tüm hakları saklıdır.</span>
-          <div className="flex gap-5">
-            <a href="#" className="hover:text-slate-400 transition-colors">Gizlilik</a>
-            <a href="#" className="hover:text-slate-400 transition-colors">Şartlar</a>
-            <a href="#" className="hover:text-slate-400 transition-colors">İletişim</a>
-          </div>
-        </div>
-      </footer>
+      </section>
     </main>
   );
 }

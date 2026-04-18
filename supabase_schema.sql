@@ -38,6 +38,24 @@ CREATE TABLE IF NOT EXISTS chapters (
 -- ─────────────────────────────────────────────────────────────
 -- 3. PROFILES  (extends Supabase Auth users)
 -- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS pages (
+  id          BIGINT      PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  slug        TEXT        UNIQUE NOT NULL,
+  title       TEXT        NOT NULL,
+  content     TEXT        NOT NULL,
+  updated_at  TIMESTAMPTZ          DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id          BIGINT      PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name        TEXT        NOT NULL,
+  email       TEXT        NOT NULL,
+  subject     TEXT,
+  message     TEXT        NOT NULL,
+  status      TEXT                 DEFAULT 'Okunmadı',
+  created_at  TIMESTAMPTZ          DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS profiles (
   id          UUID        PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
   username    TEXT,
@@ -256,15 +274,34 @@ CREATE POLICY "error_admin_all" ON error_reports FOR ALL USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici'))
 );
 
--- ── Site Config ────────
-DROP POLICY IF EXISTS "config_read_all" ON site_config;
-CREATE POLICY "config_read_all"    ON site_config FOR SELECT USING (true);
-DROP POLICY IF EXISTS "config_bas_admin" ON site_config;
-CREATE POLICY "config_bas_admin"   ON site_config FOR ALL USING (
-  auth.uid() IN (SELECT id FROM profiles WHERE role = 'Baş Admin')
+-- ── Pages ────────
+DROP POLICY IF EXISTS "pages_read_all" ON pages;
+CREATE POLICY "pages_read_all"    ON pages FOR SELECT USING (true);
+DROP POLICY IF EXISTS "pages_admin_all" ON pages;
+CREATE POLICY "pages_admin_all"   ON pages FOR ALL USING (
+  auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici'))
 );
 
--- ─────────────────────────────────────────────────────────────
+-- ── Contact Messages ────────
+DROP POLICY IF EXISTS "contact_insert_all" ON contact_messages;
+CREATE POLICY "contact_insert_all" ON contact_messages FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "contact_admin_all" ON contact_messages;
+CREATE POLICY "contact_admin_all"  ON contact_messages FOR ALL USING (
+  auth.uid() IN (SELECT id FROM profiles WHERE role IN ('Baş Admin','Yönetici'))
+);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- RPC: Increment Reads
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION increment_reads(row_id BIGINT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE series
+  SET reads_num = reads_num + 1
+  WHERE id = row_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- REALTIME: Enable replication on all tables
 -- ─────────────────────────────────────────────────────────────
 BEGIN;

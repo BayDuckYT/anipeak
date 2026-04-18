@@ -9,7 +9,7 @@ import {
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
   Crown, Check, X, Search, Image as ImageIcon, Activity,
   UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell,
-  CheckCircle2, AlertCircle, Clock
+  CheckCircle2, AlertCircle, Clock, FileText, Mail
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
 
@@ -18,12 +18,12 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'trash'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'trash'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
@@ -45,6 +45,8 @@ const ALL_NAV = [
   { id: 'announcements', label: 'Duyuru Yönetimi', icon: Bell },
   { id: 'users', label: 'Kullanıcı Yönetimi', icon: UserCheck },
   { id: 'tickets', label: 'Bilet Hattı (Hata)', icon: ShieldAlert },
+  { id: 'pages', label: 'Sayfa Yönetimi', icon: FileText },
+  { id: 'messages', label: 'Gelen Mesajlar', icon: Mail },
   { id: 'settings', label: 'Kainat Ayarları', icon: Settings },
   { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
 ];
@@ -732,6 +734,139 @@ return (
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Page Management (CMS)
+// ─────────────────────────────────────────────────────────────────────────────
+function PageManagement({ showToast }) {
+  const [pages, setPages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingPage, setEditingPage] = useState(null);
+
+  const fetchPages = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase.from('pages').select('*').order('slug');
+    if (data) setPages(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchPages(); }, [fetchPages]);
+
+  const handleSavePage = async (e) => {
+    e.preventDefault();
+    const { error } = await supabase.from('pages').upsert(editingPage, { onConflict: 'slug' });
+    if (!error) {
+      showToast('Sayfa siber olarak güncellendi!', 'success');
+      setEditingPage(null);
+      fetchPages();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-black text-white flex items-center gap-2">
+          <FileText size={24} className="text-blue-400" /> Sayfa Yönetimi (CMS)
+        </h2>
+        <button 
+          onClick={() => setEditingPage({ slug: '', title: '', content: '' })}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+        >
+          <PlusCircle size={14} /> Yeni Sayfa
+        </button>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        {pages.map(p => (
+          <div key={p.id} className="glass border border-white/10 rounded-2xl p-5 hover:border-blue-500/50 transition-all group">
+            <h4 className="text-lg font-black text-white mb-1">{p.title}</h4>
+            <p className="text-xs text-slate-500 font-mono mb-4">/{p.slug}</p>
+            <div className="flex gap-2">
+              <button onClick={() => setEditingPage(p)} className="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-black uppercase text-slate-300 transition-all">Düzenle</button>
+              <button 
+                onClick={async () => { if (window.confirm('Silinsin mi?')) { await supabase.from('pages').delete().eq('id', p.id); fetchPages(); } }}
+                className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {editingPage && (
+        <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl glass-strong border border-white/10 rounded-3xl p-8 space-y-6">
+            <h3 className="text-2xl font-black text-white">Sayfa Düzenle: {editingPage.slug}</h3>
+            <div className="space-y-4">
+              <input type="text" placeholder="Slug (örn: gizlilik)" value={editingPage.slug} onChange={e => setEditingPage({...editingPage, slug: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
+              <input type="text" placeholder="Başlık" value={editingPage.title} onChange={e => setEditingPage({...editingPage, title: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
+              <textarea rows={10} placeholder="İçerik (HTML destekler)" value={editingPage.content} onChange={e => setEditingPage({...editingPage, content: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none resize-none" />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setEditingPage(null)} className="px-6 py-2 text-slate-400 font-bold">Vazgeç</button>
+              <button onClick={handleSavePage} className="px-8 py-2 bg-blue-600 text-white font-black rounded-xl">Kaydet</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Inbox Panel (Contact Messages)
+// ─────────────────────────────────────────────────────────────────────────────
+function InboxPanel({ showToast }) {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMessages = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+    if (data) setMessages(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchMessages(); }, [fetchMessages]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Mesaj silinsin mi amk?')) return;
+    await supabase.from('contact_messages').delete().eq('id', id);
+    setMessages(prev => prev.filter(m => m.id !== id));
+    showToast('Mesaj siber boşluğa gönderildi.', 'error');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-black text-white flex items-center gap-2">
+          <Mail size={24} className="text-emerald-400" /> Gelen Mesajlar
+        </h2>
+        <button onClick={fetchMessages} className="p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white"><Activity size={18} className={loading ? 'animate-spin' : ''} /></button>
+      </div>
+
+      <div className="space-y-4">
+        {messages.map(m => (
+          <div key={m.id} className="glass border border-white/8 rounded-2xl p-6 hover:border-emerald-500/30 transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded-md mb-2 inline-block">{m.subject || 'Genel İletişim'}</span>
+                <h4 className="text-lg font-black text-white">{m.name}</h4>
+                <p className="text-xs text-slate-500">{m.email} • {new Date(m.created_at).toLocaleString('tr-TR')}</p>
+              </div>
+              <button onClick={() => handleDelete(m.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg"><Trash2 size={18} /></button>
+            </div>
+            <div className="p-4 bg-black/40 border border-white/5 rounded-xl italic text-sm text-slate-400 leading-relaxed">
+              "{m.message}"
+            </div>
+          </div>
+        ))}
+        {messages.length === 0 && !loading && <div className="py-20 text-center text-slate-500">Henüz gelen bir mesaj yok Teğmenim.</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAIN Admin Component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Admin() {
@@ -1049,6 +1184,8 @@ export default function Admin() {
         {safeActiveNav === 'announcements' && <AnnouncementsPanel showToast={showToast} />}
         {safeActiveNav === 'users' && <UsersPanel showToast={showToast} />}
         {safeActiveNav === 'tickets' && <TicketsPanel showToast={showToast} />}
+        {safeActiveNav === 'pages' && <PageManagement showToast={showToast} />}
+        {safeActiveNav === 'messages' && <InboxPanel showToast={showToast} />}
         {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
         {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
 
