@@ -19,8 +19,12 @@ import { useApp } from '../context/AppContext.jsx';
 let _uid = 0;
 const uid = () => `pg-${++_uid}-${Math.random().toString(36).slice(2, 7)}`;
 
-// ImgBB Key Pool (Dinamik amk!)
-const IMGBB_KEYS = (import.meta.env.VITE_IMGBB_API_KEY || "").split(',').map(k => k.trim()).filter(k => k);
+// ImgBB Key Pool (Mühürlendi amk!)
+const IMGBB_KEYS = [
+  "f86ef28239e9e9c876182dcbab114489",
+  "61aac4bb998738d36994eb94bec61b3d",
+  "c8aa007b2512bd5b4a97925acf9212a8"
+];
 let currentKeyIndex = 0;
 
 const uploadToImgBB = async (base64Image) => {

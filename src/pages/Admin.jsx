@@ -48,9 +48,13 @@ const ALL_NAV = [
   { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
 ];
 
-// ImgBB Key Pool (Dinamik amk!)
-const IMGBB_KEYS = (import.meta.env.VITE_IMGBB_API_KEY || '').split(',').map(k => k.trim()).filter(k => k);
-console.log("[SYSTEM] ImgBB Anahtarları Namluda:", IMGBB_KEYS.map(k => k.slice(0, 5) + "..."));
+// ImgBB Key Pool (Mühürlendi amk!)
+const IMGBB_KEYS = [
+  'f86ef28239e9e9c876182dcbab114489',
+  '61aac4bb998738d36994eb94bec61b3d',
+  'c8aa007b2512bd5b4a97925acf9212a8'
+];
+console.log("[SYSTEM] ImgBB Anahtarları Namluda (Hardcoded):", IMGBB_KEYS.length);
 let currentKeyIndex = 0;
 
 // ─────────────────────────────────────────────────────────────────────────────
