@@ -26,7 +26,7 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest">Topluluk</h4>
             <a href="https://discord.gg/anipeak" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-blue-400 transition-colors">Discord</a>
-            <a href="https://instagram.com/anipeak" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-pink-400 transition-colors">Instagram</a>
+            <a href="https://www.instagram.com/anipeakoffical/" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-pink-400 transition-colors">Instagram</a>
           </div>
         </div>
       </div>
