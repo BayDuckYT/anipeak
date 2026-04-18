@@ -8,7 +8,8 @@ import {
   LayoutDashboard, BookOpen, PlusCircle, Users, Settings,
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
   Crown, Check, X, Search, Image as ImageIcon, Activity,
-  UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell
+  UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell,
+  CheckCircle2, AlertCircle, Clock
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
 
