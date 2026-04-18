@@ -8,9 +8,10 @@ import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import pLimit from 'p-limit';
 import logger from '../utils/logger.js';
 import { supabase, getOrCreateSeries, createChapterIfNotExists } from '../src/db.js';
-import { UPLOAD_DELAY_MS } from '../utils/constants.js';
+import { UPLOAD_DELAY_MS, PAGE_UPLOAD_CONCURRENCY } from '../utils/constants.js';
 import { delay } from './01_navigator.js';
 
 // .env yükleme (Daha sağlam yol amk!)
@@ -40,7 +41,7 @@ export async function uploadToImgBB(imageBuffer) {
         headers: form.getHeaders(),
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
-        timeout: 60000
+        timeout: 90000
       });
 
       if (res.data && res.data.success) {
@@ -88,27 +89,38 @@ export async function uploadCover(coverBuffer) {
  * @returns {string[]} ImgBB URL dizisi
  */
 export async function uploadChapterPages(processedPaths) {
-  const urls = [];
+  const urls = new Array(processedPaths.length); // Sırayı korumak için amk
+  const limit = pLimit(PAGE_UPLOAD_CONCURRENCY);
+  
+  console.log(`\x1b[36m[UPLOAD]\x1b[0m >> ${processedPaths.length} sayfa paralel yükleniyor (Hız: ${PAGE_UPLOAD_CONCURRENCY})...`);
 
-  for (let i = 0; i < processedPaths.length; i++) {
-    const filePath = processedPaths[i];
-    const buffer = fs.readFileSync(filePath);
+  let success = true;
+  const tasks = processedPaths.map((filePath, i) => limit(async () => {
+    if (!success) return;
 
-    const url = await uploadToImgBB(buffer);
-    if (url) {
-      urls.push(url);
-      console.log(`\x1b[90m  [${i + 1}/${processedPaths.length}]\x1b[0m ${url}`);
-    } else {
-      logger.error(`[Distributor] Sayfa ${i + 1} yüklenemedi: ${filePath}`);
-      return null; // Sıfır Veri Kaybı — tek bir sayfa bile başarısızsa dur
+    try {
+      const buffer = fs.readFileSync(filePath);
+      const url = await uploadToImgBB(buffer);
+      
+      if (url) {
+        urls[i] = url;
+        console.log(`\x1b[90m  [${i + 1}/${processedPaths.length}]\x1b[0m ${url}`);
+      } else {
+        success = false;
+        logger.error(`[Distributor] Sayfa ${i + 1} yüklenemedi: ${filePath}`);
+      }
+
+      // Rate limit koruması (Paralelde mola biraz riskli ama olsun amk)
+      if (UPLOAD_DELAY_MS > 0) await new Promise(r => setTimeout(r, UPLOAD_DELAY_MS));
+    } catch (err) {
+      success = false;
+      logger.error(`[Distributor] Yükleme hatası (${i + 1}): ${err.message}`);
     }
+  }));
 
-    // Rate limit koruması
-    if (i < processedPaths.length - 1) {
-      await new Promise(r => setTimeout(r, UPLOAD_DELAY_MS));
-    }
-  }
+  await Promise.all(tasks);
 
+  if (!success || urls.some(u => !u)) return null;
   return urls;
 }
 

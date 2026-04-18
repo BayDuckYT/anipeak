@@ -9,13 +9,16 @@ export default function Footer() {
           <p className="text-slate-500 text-xs max-w-xs text-center md:text-left leading-relaxed">
             Türkiye'nin en gelişmiş siber manga platformu. Kaliteli çeviri, hızlı okuma ve siber topluluk deneyimi.
           </p>
+          <p className="text-slate-400/60 text-[10px] max-w-xs text-center md:text-left leading-relaxed mt-2 italic">
+            Bu sitede fan yapımı çeviriler yer almaktadır. Orijinal sürüm için, lütfen ülkenizde mevcutsa çizgi romanı satın alın.
+          </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-10 text-sm">
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest">Platform</h4>
             <Link to="/all-series" className="text-slate-500 hover:text-purple-400 transition-colors">Tüm Seriler</Link>
-            <Link to="/trendler" className="text-slate-500 hover:text-purple-400 transition-colors">Trendler</Link>
+            <Link to="/#trendler" className="text-slate-500 hover:text-purple-400 transition-colors">Trendler</Link>
           </div>
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest">Kurumsal</h4>

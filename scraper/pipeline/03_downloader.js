@@ -2,14 +2,15 @@ import axios from 'axios';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
+import pLimit from 'p-limit';
 import logger from '../utils/logger.js';
-import { ARCHIVE_BASE, CHAPTER_IMAGES_SELECTOR } from '../utils/constants.js';
+import { ARCHIVE_BASE, CHAPTER_IMAGES_SELECTOR, PAGE_DOWNLOAD_CONCURRENCY } from '../utils/constants.js';
 import { autoScroll, delay, navigateTo, startImageInterception, stopImageInterception } from './01_navigator.js';
 
 export async function downloadChapterPages(page, chapterUrl, seriesTitle, chapterNumber) {
   const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
-  const engDir = path.join(ARCHIVE_BASE, safeTitle, 'ENG', `Bölüm_${chapterNumber}`);
-  if (!fs.existsSync(engDir)) fs.mkdirSync(engDir, { recursive: true });
+  const chapterDir = path.join(ARCHIVE_BASE, safeTitle, `Bölüm_${chapterNumber}`);
+  if (!fs.existsSync(chapterDir)) fs.mkdirSync(chapterDir, { recursive: true });
 
   // 1. Sayfaya Git (Agresif)
   const isMadara = chapterUrl.includes('golgebahcesi') || chapterUrl.includes('mangaokutr') || chapterUrl.includes('weebcentral');
@@ -86,23 +87,23 @@ export async function downloadChapterPages(page, chapterUrl, seriesTitle, chapte
 
     if (isMadara) await stopImageInterception(page);
 
-    if (finalUrls.length > 0) return await downloadList(finalUrls, engDir, isMadara, chapterUrl);
+    if (finalUrls.length > 0) return await downloadList(finalUrls, chapterDir, isMadara, chapterUrl);
     return null;
   }
 
   if (isMadara) await stopImageInterception(page);
 
-  return await downloadList(imageUrls, engDir, isMadara, chapterUrl);
+  return await downloadList(imageUrls, chapterDir, isMadara, chapterUrl);
 }
 
 async function downloadList(urls, dir, isMadara, chapterUrl) {
   const paths = [];
   const referer = isMadara ? (chapterUrl.includes('golge') ? 'https://golgebahcesi.com/' : 'https://mangaokutr.co/') : 'https://mangakatana.com/';
   
-  console.log(`\x1b[32m[DOWNLOAD]\x1b[0m >> ${urls.length} sayfa indiriliyor...`);
+  console.log(`\x1b[32m[DOWNLOAD]\x1b[0m >> ${urls.length} sayfa paralel indiriliyor (Hız: ${PAGE_DOWNLOAD_CONCURRENCY})...`);
 
-  for (let i = 0; i < urls.length; i++) {
-    const url = urls[i];
+  const limit = pLimit(PAGE_DOWNLOAD_CONCURRENCY);
+  const tasks = urls.map((url, i) => limit(async () => {
     const outputPath = path.join(dir, `${(i + 1).toString().padStart(2, '0')}.png`);
     try {
       const res = await axios.get(url, {
@@ -111,14 +112,13 @@ async function downloadList(urls, dir, isMadara, chapterUrl) {
         timeout: 30000
       });
       
-      // V23 Anti-Spam: Boyut ve Çözünürlük Kontrolü
       const metadata = await sharp(res.data).metadata();
       const isTooSmall = (metadata.width < 500 && metadata.height < 500) || res.data.byteLength < 30000;
-      const isHorizontal = metadata.width > metadata.height && metadata.width > 800; // Bannerlar genelde yataydır
+      const isHorizontal = metadata.width > metadata.height && metadata.width > 800;
 
       if (isTooSmall || isHorizontal) {
         logger.warn(`[GHOST-REAPER] Spam elendi (${metadata.width}x${metadata.height}): ${url}`);
-        continue;
+        return;
       }
 
       const buffer = await sharp(res.data).png().toBuffer();
@@ -127,8 +127,10 @@ async function downloadList(urls, dir, isMadara, chapterUrl) {
     } catch (e) {
       // Sessiz hata
     }
-  }
-  return paths.length > 0 ? paths : null;
+  }));
+
+  await Promise.all(tasks);
+  return paths.length > 0 ? paths.sort() : null; // Sıralı dönmesi önemli amk
 }
 
 export async function downloadCover(imageUrl, seriesTitle) {

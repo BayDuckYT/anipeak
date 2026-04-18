@@ -16,6 +16,13 @@ export const BASE_URL = 'https://mangakatana.com';
 export const ARCHIVE_BASE = 'C:\\Users\\Murathan\\Desktop\\anipeak manga';
 export const PYTHON_PATH = 'python';
 
+// ---- Hız ve Paralelizm (PREDATOR DOWNLOAD / POWER UPLOAD) ----
+export const SERIES_CONCURRENCY = 5;
+export const CHAPTER_CONCURRENCY = 2; 
+export const PAGE_DOWNLOAD_CONCURRENCY = 40;
+export const PAGE_UPLOAD_CONCURRENCY = 4;
+export const GPU_CONCURRENCY = 4;
+
 // ---- PDL (Placeholder Defeat Logic) ----
 export const MIN_IMAGE_WIDTH = 300;
 export const MIN_IMAGE_HEIGHT = 400;
@@ -27,7 +34,7 @@ export const SCROLL_STEP_PX = 600;
 export const SCROLL_INTERVAL_MS = 80;
 export const PAGE_LOAD_WAIT_MS = 3000;
 export const READER_LOAD_WAIT_MS = 4000;
-export const UPLOAD_DELAY_MS = 2000;
+export const UPLOAD_DELAY_MS = 500; // Hızlı ama güvenli mola
 export const RETRY_DELAY_MS = 2000;
 export const MAX_RETRIES = 3;
 export const NAVIGATION_TIMEOUT_MS = 60000;

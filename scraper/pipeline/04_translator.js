@@ -25,11 +25,7 @@ if (fs.existsSync(path.resolve('scraper', '.env'))) {
  */
 export async function translateChapter(engPaths, seriesTitle, chapterNumber, isAiEdit = false) {
   const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
-  let trDir = path.join(ARCHIVE_BASE, safeTitle, 'TR', `Bölüm_${chapterNumber}`);
-  
-  if (isAiEdit) {
-    trDir = path.join(trDir, 'EDIT');
-  }
+  let trDir = path.join(ARCHIVE_BASE, safeTitle, `Bölüm_${chapterNumber}`);
 
   const mode = isAiEdit ? 'translate' : 'edit';
 

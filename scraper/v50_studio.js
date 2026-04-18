@@ -9,7 +9,7 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import logger from './utils/logger.js';
 import { supabase } from './src/db.js';
-import { BASE_URL, PYTHON_PATH } from './utils/constants.js';
+import { BASE_URL, PYTHON_PATH, SERIES_CONCURRENCY, GPU_CONCURRENCY, CHAPTER_CONCURRENCY, USER_AGENTS, VIEWPORT } from './utils/constants.js';
 import pLimit from 'p-limit';
 
 import { launchBrowser, delay } from './pipeline/01_navigator.js';
@@ -22,8 +22,6 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 
 // V50 HAREKÂT AYARLARI
-let SERIES_CONCURRENCY = 4; // 4 Koldan Sömür
-let GPU_CONCURRENCY = 4;    // 4 Koldan İşle (GPU THERMAL SHIELD Aktif)
 let seriesLimit = pLimit(SERIES_CONCURRENCY);
 let gpuLimit = pLimit(GPU_CONCURRENCY);
 
@@ -48,7 +46,6 @@ async function checkPython() {
 async function processSeries(target, isAiEdit, modeLabel) {
   console.log(`\x1b[35m[V50-STORM]\x1b[0m >> Harekât Başladı: ${target}`);
   let browser = null;
-  let page = null;
 
   try {
     let seriesUrl = target;
@@ -72,52 +69,65 @@ async function processSeries(target, isAiEdit, modeLabel) {
 
     const launched = await launchBrowser();
     browser = launched.browser;
-    page = launched.page;
+    // İlk açılan sayfayı kapat, her bölüme özel açacağız amk
+    if (launched.page) await launched.page.close();
 
-    console.log(`\n\x1b[35m[V50-QUAD-STORM]\x1b[0m >> ${seriesData.title} Namluda!\n`);
+    console.log(`\n\x1b[35m[V50-ULTRA-INSTINCT]\x1b[0m >> ${seriesData.title}: ${seriesData.chapters.length} Bölüm Paralel İşleniyor...\n`);
 
-    for (const chapter of seriesData.chapters) {
+    const chapterLimit = pLimit(CHAPTER_CONCURRENCY);
+    const chapterTasks = seriesData.chapters.map(chapter => chapterLimit(async () => {
+      let chPage = null;
       try {
         const { data: existing } = await supabase
           .from('chapters').select('id')
           .eq('series_id', seriesId).eq('number', chapter.number).maybeSingle();
 
-        if (existing) continue;
+        if (existing) return;
 
-        // Step 1: Scrape (Ghost-Reaper Elite Filtresi)
-        const engPaths = await downloadChapterPages(page, chapter.href, seriesData.title, chapter.number);
-        if (!engPaths) continue;
+        chPage = await browser.newPage();
+        await chPage.setUserAgent(USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]);
+        await chPage.setViewport(VIEWPORT);
 
-        // Step 2: V49 GPU Radar (GPU Kuyruğu + Thermal Shield)
-        const finalPaths = await gpuLimit(async () => {
-          try {
-            const result = await translateChapter(engPaths, seriesData.title, chapter.number, isAiEdit);
-            // Thermal Shield: İşlem sonrası VRAM'in soğuması için milisaniyelik mola
-            await delay(200); 
-            return result;
-          } catch (pyErr) {
-            if (pyErr.message.includes('Memory') || pyErr.message.includes('CUDA')) {
-              console.log('\x1b[31m%s\x1b[0m', `[V50-UYARI] GPU Isınma/OOM Saptandı! Vites Küçültülüyor...`);
-              GPU_CONCURRENCY = 2;
-              gpuLimit = pLimit(GPU_CONCURRENCY);
+        // Step 1: Scrape
+        const engPaths = await downloadChapterPages(chPage, chapter.href, seriesData.title, chapter.number);
+        if (!engPaths) return;
+
+        // Step 2: V49 GPU Radar / AI Edit
+        let finalPaths = engPaths;
+        if (isAiEdit) {
+          finalPaths = await gpuLimit(async () => {
+            try {
+              const result = await translateChapter(engPaths, seriesData.title, chapter.number, isAiEdit);
+              await delay(200); 
+              return result;
+            } catch (pyErr) {
+              if (pyErr.message.includes('Memory') || pyErr.message.includes('CUDA')) {
+                console.log('\x1b[31m%s\x1b[0m', `[V50-UYARI] GPU Isınma/OOM!`);
+                gpuLimit = pLimit(2);
+              }
+              throw pyErr;
             }
-            throw pyErr;
-          }
-        });
+          });
+        }
 
         // Step 3: Distribution
         const pageUrls = await uploadChapterPages(finalPaths);
-        if (!pageUrls || pageUrls.length === 0) continue;
+        if (!pageUrls || pageUrls.length === 0) return;
 
         const chapterTitle = `${seriesData.title} - Bölüm ${chapter.number}`;
         await syncChapter(seriesId, chapter.number, chapterTitle, pageUrls);
         await notifyNewChapter(seriesId, seriesData.title, chapter.number);
 
-        console.log(`\x1b[32m[V50-STORM] ${seriesData.title} Bölüm ${chapter.number} Jilet Gibi Hazır!\x1b[0m`);
+        console.log(`\x1b[32m[OK] Ch.${chapter.number}\x1b[0m`);
       } catch (chErr) {
-        console.log(`\x1b[31m[!] Bölüm Aksadı (${seriesData.title} Ch.${chapter.number}):\x1b[0m ${chErr.message}`);
+        console.log(`\x1b[31m[!] Ch.${chapter.number} Hatası:\x1b[0m ${chErr.message}`);
+      } finally {
+        if (chPage) await chPage.close().catch(() => {});
       }
-    }
+    }));
+
+    await Promise.all(chapterTasks);
+
   } catch (err) {
     logger.error(`[V50-STORM] Kritik Hata (${target}): ${err.message}`);
   } finally {
