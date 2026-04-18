@@ -451,8 +451,6 @@ export default function Home({ onAuthOpen }) {
           </div>
         </motion.div>
       </section>
-
-      </section>
     </main>
   );
 }
