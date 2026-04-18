@@ -266,7 +266,7 @@ export function AppProvider({ children }) {
     const sId = parseInt(seriesId);
     const cNum = (chapterNum !== undefined && chapterNum !== null) ? parseFloat(chapterNum) : null;
     
-    await supabase.from('comments').insert([{
+    const { error } = await supabase.from('comments').insert([{
       series_id:   sId,
       user_id:     userId,
       username,
@@ -275,6 +275,7 @@ export function AppProvider({ children }) {
       chapter_num: cNum,
       is_spoiler:  isSpoiler || false
     }]);
+    return { error };
   }, []);
 
   const deleteComment = useCallback(async (id) => {

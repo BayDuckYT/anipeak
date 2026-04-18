@@ -57,7 +57,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
 
     setLoading(true);
     try {
-      await addComment(seriesId, {
+      const { error } = await addComment(seriesId, {
         userId: user.id,
         username: user.username,
         avatar_url: user.avatar_url,
@@ -65,11 +65,19 @@ export default function CommentSystem({ seriesId, chapterNum }) {
         chapterNum: chapterNum || null,
         isSpoiler
       });
-      setText('');
-      setIsSpoiler(false);
-      updateXP(10);
+
+      if (error) {
+        console.error('[COMMENTS] Kayıt Hatası:', error);
+        alert('Yorum gönderilemedi amk: ' + error.message);
+      } else {
+        setText('');
+        setIsSpoiler(false);
+        updateXP(10);
+        // Real-time bazen geç gelebilir, manuel tetikleyelim
+        fetchComments();
+      }
     } catch (err) {
-      console.error('Yorum hatası:', err);
+      console.error('Yorum beklenmedik hata:', err);
     } finally {
       setLoading(false);
     }
