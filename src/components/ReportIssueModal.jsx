@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, X, Send, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, X, Send, CheckCircle2, User, Book, Layers } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,13 +16,14 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
     if (!desc.trim()) return;
 
     setLoading(true);
-    const { error } = await supabase.from('error_reports').insert([{
+    const { error } = await supabase.from('error_reports').insert({
       user_id: user?.id || null,
       series_id: seriesId,
       chapter_num: chapterNum,
       type,
-      description: desc.trim()
-    }]);
+      description: desc,
+      status: 'Beklemede'
+    });
 
     if (!error) {
       setSuccess(true);
@@ -36,86 +37,132 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+          />
 
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="relative w-full max-w-lg glass border border-white/10 rounded-3xl overflow-hidden shadow-2xl z-[10000]"
-      >
-        <div className="p-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-red-500/10 to-transparent">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="text-red-400" size={24} />
-            <h3 className="text-xl font-black text-white">Hata Bildir / Kozmik İhbar</h3>
-          </div>
-          <button onClick={onClose} className="p-2 text-slate-500 hover:text-white transition-colors">
-            <X size={20} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest pl-1">Sorun Türü</label>
-            <div className="grid grid-cols-2 gap-2">
-              {['Eksik Sayfa', 'Hatalı Çeviri', 'Bozuk Görsel', 'Yüklenme Hatası'].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                    type === t 
-                      ? 'bg-red-500 border-red-400 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
-                      : 'bg-white/5 border-white/10 text-slate-400 hover:border-white/20'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
+          {/* Modal Content */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="relative w-full max-w-lg glass border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-purple-500/20"
+          >
+            {/* Header */}
+            <div className="p-8 border-b border-white/5 bg-gradient-to-r from-red-500/10 to-transparent flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400">
+                  <AlertCircle size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">Hata Bildir</h3>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Kozmik İhbar Sistemi</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="p-2 text-slate-500 hover:text-white transition-all hover:rotate-90">
+                <X size={24} />
+              </button>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest pl-1">Açıklama</label>
-            <textarea
-              required
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              placeholder="Sorunu kısaca anlatır mısın? (Örn: 5. sayfa yarıda kesilmiş)"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-red-500/50 transition-all min-h-[120px] resize-none"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              type="submit"
-              disabled={loading || success}
-              className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white h-12 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
-            >
+            {/* Body */}
+            <div className="p-8">
               {success ? (
-                <>
-                  <CheckCircle2 size={18} /> Rapor Gönderildi
-                </>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center justify-center py-10 text-center"
+                >
+                  <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
+                    <CheckCircle2 size={40} />
+                  </div>
+                  <h4 className="text-2xl font-black text-white mb-2">İhbar Alındı!</h4>
+                  <p className="text-slate-400 text-sm font-medium">Siber ekiplerimiz hatayı incelemeye başladı amk.</p>
+                </motion.div>
               ) : (
-                <>
-                  <Send size={18} /> İhbarı Gönder
-                </>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Context Info */}
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
+                      <Book size={14} className="text-purple-400" />
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-black uppercase">Seri ID</p>
+                        <p className="text-xs text-white font-bold">#{seriesId}</p>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
+                      <Layers size={14} className="text-blue-400" />
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-black uppercase">Bölüm</p>
+                        <p className="text-xs text-white font-bold">{chapterNum}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase mb-2 tracking-widest">Hata Türü</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['Eksik Sayfa', 'Yanlış Çeviri', 'Görsel Hatası', 'Diğer'].map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setType(t)}
+                          className={`px-4 py-3 rounded-xl text-xs font-bold transition-all border ${
+                            type === t
+                              ? 'bg-red-500/20 border-red-500/50 text-white shadow-[0_0_20px_rgba(239,68,68,0.2)]'
+                              : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10 hover:text-slate-300'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase mb-2 tracking-widest">Detaylı Açıklama</label>
+                    <textarea
+                      required
+                      value={desc}
+                      onChange={(e) => setDesc(e.target.value)}
+                      placeholder="Hata hakkında biraz bilgi ver amk..."
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:border-red-500 outline-none transition-all min-h-[120px] resize-none"
+                    />
+                  </div>
+
+                  <button
+                    disabled={loading || !desc.trim()}
+                    type="submit"
+                    className="w-full py-4 bg-gradient-to-r from-red-600 to-rose-700 text-white font-black text-base rounded-2xl shadow-[0_10px_30px_rgba(239,68,68,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Send size={20} /> İHBARI GÖNDER
+                      </>
+                    )}
+                  </button>
+                  
+                  <div className="flex items-center justify-center gap-2 text-slate-500">
+                    <User size={12} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      {user ? `Oturum: ${user.email.split('@')[0]}` : 'Anonim İhbar'}
+                    </span>
+                  </div>
+                </form>
               )}
-            </button>
-          </div>
-          
-          <p className="text-[10px] text-zinc-600 text-center uppercase tracking-tighter">
-            * Bildirimlerin direkt admin paneline düşer ve en kısa sürede incelenir.
-          </p>
-        </form>
-      </motion.div>
-    </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

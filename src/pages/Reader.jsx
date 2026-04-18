@@ -216,7 +216,7 @@ export default function Reader() {
             initial={{ y: 0 }}
             animate={{ y: showHeader ? 0 : -100 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-16 left-0 right-0 z-40 glass border-b border-white/10 px-4 py-3 flex items-center justify-between shadow-lg shadow-black/50"
+            className="fixed top-16 left-0 right-0 z-[100] glass border-b border-white/10 px-4 py-3 flex items-center justify-between shadow-lg shadow-black/50"
           >
             {/* Left */}
             <div className="flex items-center gap-3">

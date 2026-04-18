@@ -380,17 +380,18 @@ function AnnouncementsPanel({ showToast }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Sub-component: Tickets Panel (Error Reports)
+// Sub-component: Tickets Panel (Error Reports) — REDESIGNED PROFESSIONAL RADAR
 // ─────────────────────────────────────────────────────────────────────────────
 function TicketsPanel({ showToast }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { sortedSeries } = useApp();
 
   const fetchTickets = async () => {
     setLoading(true);
     const { data } = await supabase
       .from('error_reports')
-      .select('*')
+      .select('*, series:series_id(title)')
       .order('created_at', { ascending: false });
     setTickets(data || []);
     setLoading(false);
@@ -398,25 +399,18 @@ function TicketsPanel({ showToast }) {
 
   useEffect(() => {
     fetchTickets();
-
-    // Real-time listener for new tickets
     const channel = supabase
       .channel('admin-tickets')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'error_reports' }, (payload) => {
         setTickets(prev => [payload.new, ...prev]);
-        showToast('Yeni bir hata bildirimi düştü!', 'info');
+        showToast('🚀 Yeni bir kozmik ihbar düştü!', 'info');
       })
       .subscribe();
-
     return () => supabase.removeChannel(channel);
   }, []);
 
   const handleStatusUpdate = async (id, status) => {
-    const { error } = await supabase
-      .from('error_reports')
-      .update({ status })
-      .eq('id', id);
-
+    const { error } = await supabase.from('error_reports').update({ status }).eq('id', id);
     if (!error) {
       setTickets(prev => prev.map(t => t.id === id ? { ...t, status } : t));
       showToast(`Bilet durumu ${status} olarak güncellendi.`, 'success');
@@ -424,65 +418,146 @@ function TicketsPanel({ showToast }) {
   };
 
   const handleDeleteTicket = async (id) => {
+    if (!window.confirm('Bu ihbarı kalıcı olarak silmek istiyor musunuz amk?')) return;
     const { error } = await supabase.from('error_reports').delete().eq('id', id);
     if (!error) {
       setTickets(prev => prev.filter(t => t.id !== id));
-      showToast('Bilet kalıcı olarak silindi.', 'error');
+      showToast('İhbar siber boşluğa gönderildi.', 'error');
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="glass border border-white/8 rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-white/8 bg-black/20 flex items-center justify-between">
-          <h3 className="text-white font-black text-lg flex items-center gap-2">
-            <ShieldAlert className="text-red-400" size={20} /> Gelen Bildirimler
-          </h3>
-          <button onClick={fetchTickets} className="p-2 text-slate-400 hover:text-white transition-all">
-            <Activity size={16} className={loading ? 'animate-spin' : ''} />
+    <div className="space-y-8 pb-20">
+      {/* Header Info */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-black text-white flex items-center gap-3">
+            <ShieldAlert size={32} className="text-red-500" /> Hata Bildirimleri
+          </h2>
+          <p className="text-slate-500 font-medium mt-1">Siber sahadan gelen tüm teknik ihbarlar burada toplanır.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2 glass border border-white/5 rounded-2xl">
+            <span className="text-xs font-black text-slate-500 uppercase tracking-widest mr-2">Toplam:</span>
+            <span className="text-white font-black">{tickets.length}</span>
+          </div>
+          <button onClick={fetchTickets} className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white transition-all">
+            <Activity size={20} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
+      </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { label: 'Bekleyen', count: tickets.filter(t => t.status === 'Beklemede').length, color: 'text-red-400', bg: 'bg-red-500/10' },
+          { label: 'İncelenen', count: tickets.filter(t => t.status === 'İnceleniyor').length, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+          { label: 'Çözülen', count: tickets.filter(t => t.status === 'Çözüldü').length, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+        ].map(stat => (
+          <div key={stat.label} className="glass border border-white/5 rounded-3xl p-6 flex items-center justify-between group hover:border-white/10 transition-all">
+            <div>
+              <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
+              <h4 className={`text-3xl font-black ${stat.color}`}>{stat.count}</h4>
+            </div>
+            <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center font-black ${stat.color} text-xl border border-white/5`}>
+              {stat.count}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Table / Grid */}
+      <div className="glass border border-white/8 rounded-[2rem] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-white/5 bg-black/40">
-              {['Kullanıcı', 'Seri/Bölüm', 'Tür', 'Açıklama', 'Durum', 'İşlem'].map(h => (
-                <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-4 py-3.5">{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {tickets.map(t => (
-                <tr key={t.id} className={`border-b border-white/5 hover:bg-white/5 transition-colors ${t.status === 'Beklemede' ? 'bg-red-500/5' : ''}`}>
-                  <td className="px-4 py-3 text-white font-bold text-xs">{t.user_id ? 'Kayıtlı' : 'Anonim'}</td>
-                  <td className="px-4 py-3 text-slate-300 text-xs">ID: {t.series_id} / B: {t.chapter_num}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-slate-400 uppercase">{t.type}</span>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-white/3 border-b border-white/8">
+                <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Kullanıcı & Tarih</th>
+                <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Konu & Seri</th>
+                <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Hata Detayı</th>
+                <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Durum</th>
+                <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-right">Aksiyon</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {tickets.map((t) => (
+                <tr key={t.id} className="group hover:bg-white/2 transition-colors">
+                  <td className="px-6 py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-black text-xs border border-white/10 shadow-lg">
+                        {t.user_id ? '👤' : '🕵️'}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-white">{t.user_id ? 'Kayıtlı Üye' : 'Misafir Okuyucu'}</p>
+                        <p className="text-[10px] text-slate-500 font-medium">{new Date(t.created_at).toLocaleString('tr-TR')}</p>
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-400 text-xs max-w-xs truncate">{t.description}</td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={t.status}
-                      onChange={(e) => handleStatusUpdate(t.id, e.target.value)}
-                      className={`text-[10px] font-black uppercase tracking-widest bg-black border border-white/10 rounded-lg px-2 py-1 outline-none ${t.status === 'Çözüldü' ? 'text-emerald-400' : t.status === 'İnceleniyor' ? 'text-amber-400' : 'text-red-400'}`}
-                    >
-                      <option value="Beklemede">Beklemede</option>
-                      <option value="İnceleniyor">İnceleniyor</option>
-                      <option value="Çözüldü">Çözüldü</option>
-                    </select>
+                  <td className="px-6 py-5">
+                    <div className="flex flex-col gap-1">
+                      <span className="px-2 py-0.5 rounded-lg bg-red-500/10 text-red-400 text-[10px] font-black border border-red-500/20 w-fit uppercase tracking-tighter">
+                        {t.type}
+                      </span>
+                      <p className="text-xs text-white font-black truncate max-w-[150px]">
+                        {t.series?.title || `Seri ID: #${t.series_id}`}
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-bold">Bölüm: {t.chapter_num || '—'}</p>
+                    </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <button onClick={() => handleDeleteTicket(t.id)} className="p-2 text-slate-600 hover:text-red-500 transition-all">
-                      <Trash2 size={14} />
-                    </button>
+                  <td className="px-6 py-5">
+                    <p className="text-xs text-slate-400 leading-relaxed max-w-sm line-clamp-2 italic">
+                      "{t.description}"
+                    </p>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex justify-center">
+                      <select
+                        value={t.status}
+                        onChange={(e) => handleStatusUpdate(t.id, e.target.value)}
+                        className={`text-[10px] font-black uppercase tracking-widest bg-black/40 border border-white/10 rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-white/20 transition-all ${
+                          t.status === 'Çözüldü' ? 'text-emerald-400' : 
+                          t.status === 'İnceleniyor' ? 'text-amber-400' : 'text-red-400'
+                        }`}
+                      >
+                        <option value="Beklemede">🔴 BEKLEMEDE</option>
+                        <option value="İnceleniyor">🟡 İNCELENİYOR</option>
+                        <option value="Çözüldü">🟢 ÇÖZÜLDÜ</option>
+                      </select>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => handleStatusUpdate(t.id, 'Çözüldü')}
+                        disabled={t.status === 'Çözüldü'}
+                        className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-30 disabled:pointer-events-none"
+                        title="Hızlı Çöz"
+                      >
+                        <Check size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteTicket(t.id)}
+                        className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
+                        title="İhbarı İmhâ Et"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
-              {tickets.length === 0 && !loading && (
-                <tr><td colSpan={6} className="px-5 py-20 text-center text-slate-500">Gelen bildirim yok. Sistem temiz!</td></tr>
-              )}
             </tbody>
           </table>
         </div>
+        {tickets.length === 0 && !loading && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6">
+              <CheckCircle2 size={40} />
+            </div>
+            <h5 className="text-2xl font-black text-white mb-2">Siber Saha Temiz!</h5>
+            <p className="text-slate-500 max-w-xs">Şu an için bekleyen herhangi bir hata bildirimi bulunmuyor amk.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -61,36 +61,60 @@ function ManhwaCard({ item, index, trendRank }) {
               </span>
             </div>
 
-            {/* Rating */}
-            <div className="absolute bottom-2 left-2 flex items-center gap-1">
-              <Star size={12} className="text-amber-400 fill-amber-400" />
-              <span className="text-white font-bold text-sm">{item.rating}</span>
+            {/* Rating & Stats Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black via-black/40 to-transparent">
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      size={10} 
+                      className={i < Math.floor(item.rating / 2) ? "text-amber-400 fill-amber-400" : "text-slate-600"} 
+                    />
+                  ))}
+                </div>
+                <span className="text-white font-black text-xs">{item.rating}</span>
+              </div>
+              
+              {/* Professional Stats Row */}
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-200">
+                  <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center">
+                    <BookOpen size={10} className="text-purple-400" />
+                  </div>
+                  <span className="truncate">{item.chapter_count || 0} Bölüm</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-200">
+                  <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center">
+                    <Eye size={10} className="text-blue-400" />
+                  </div>
+                  <span className="truncate">{(item.reads_num || 0).toLocaleString('tr-TR')}</span>
+                </div>
+              </div>
             </div>
 
             {/* Hover overlay */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-              <div className="w-14 h-14 rounded-full bg-purple-600/90 flex items-center justify-center shadow-neon-purple backdrop-blur-sm">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+              <div className="w-14 h-14 rounded-full bg-purple-600/90 flex items-center justify-center shadow-neon-purple scale-90 group-hover:scale-100 transition-transform duration-300">
                 <Play size={22} className="text-white ml-1" />
               </div>
             </div>
           </div>
 
           {/* Info */}
-          <div className="p-3">
-            <h3 className="font-bold text-white text-sm leading-tight mb-1 line-clamp-2 group-hover:text-purple-300 transition-colors">
+          <div className="p-3 bg-[#0a0a0c]">
+            <h3 className="font-bold text-white text-sm leading-tight mb-1 line-clamp-1 group-hover:text-purple-400 transition-colors">
               {item.title}
             </h3>
-            <p className="text-slate-500 text-xs mb-2">{item.author}</p>
-            <div className="flex flex-wrap gap-1 mb-2">
-              {(Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : item.tags || []).slice(0, 2).map((g) => (
-                <span key={g} className="px-1.5 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-[10px] font-medium border border-purple-500/20">
-                  {g}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-3 text-slate-500 text-xs">
-              <span className="flex items-center gap-1"><Eye size={11} />{item.reads_num}</span>
-              <span className="flex items-center gap-1"><BookOpen size={11} />{(item.chapter_count || 0)} Bölüm</span>
+            <div className="flex items-center justify-between">
+              <p className="text-slate-500 text-[10px] font-medium truncate max-w-[70%]">{item.author || 'Anonim'}</p>
+              <div className="flex gap-1">
+                {(Array.isArray(item.genre) ? item.genre : [item.genre]).slice(0, 1).map((g) => (
+                  <span key={g} className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[9px] font-black uppercase tracking-tighter border border-purple-500/20">
+                    {g}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
