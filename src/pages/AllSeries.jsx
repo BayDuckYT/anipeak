@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Star, Eye, BookOpen, Clock, CheckCircle, Crown, Play, Filter, Flame } from 'lucide-react';
+import { Search, Star, Eye, BookOpen, Clock, CheckCircle, Crown, Play, Filter, Flame, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 
 const statusColors = {
@@ -15,6 +15,12 @@ const statusIcons = {
 };
 
 function ManhwaCard({ item, index }) {
+  const { getChapters } = useApp();
+  const chapterCount = getChapters(item.id).length;
+
+  // 5'li yıldız sistemi hesaplama (item.rating 10 üzerindense 2'ye bölüyoruz)
+  const displayRating = item.rating > 5 ? (item.rating / 2) : item.rating;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -51,15 +57,24 @@ function ManhwaCard({ item, index }) {
             <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black via-black/40 to-transparent">
               <div className="flex items-center gap-1.5 mb-1">
                 <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      size={10} 
-                      className={i < Math.floor(item.rating / 2) ? "text-amber-400 fill-amber-400" : "text-slate-600"} 
-                    />
-                  ))}
+                  {[...Array(5)].map((_, i) => {
+                    const starVal = i + 1;
+                    const isFull = displayRating >= starVal;
+                    const isHalf = !isFull && displayRating > (starVal - 1);
+                    return (
+                      <div key={i} className="relative">
+                        <Star size={10} className="text-slate-600" />
+                        {isFull && <Star size={10} className="absolute inset-0 text-amber-400 fill-amber-400" />}
+                        {isHalf && (
+                          <div className="absolute inset-0 overflow-hidden w-[50%]">
+                            <Star size={10} className="text-amber-400 fill-amber-400" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <span className="text-white font-black text-xs">{item.rating}</span>
+                <span className="text-white font-black text-xs">{displayRating.toFixed(1)}</span>
               </div>
               
               <div className="grid grid-cols-2 gap-2 mt-1">
@@ -67,7 +82,7 @@ function ManhwaCard({ item, index }) {
                   <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center">
                     <BookOpen size={10} className="text-purple-400" />
                   </div>
-                  <span className="truncate">{item.chapter_count || 0} Bölüm</span>
+                  <span className="truncate">{chapterCount} Bölüm</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-200">
                   <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center">
@@ -117,61 +132,53 @@ export default function AllSeries() {
     return docGenres;
   }))];
 
-  const filteredData = series.filter(m => {
-    if (m.is_deleted) return false;
-    const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase()) || (m.author && m.author.toLowerCase().includes(search.toLowerCase()));
-    const docGenres = Array.isArray(m.genre) ? m.genre : m.genre ? [m.genre] : m.tags || [];
-    const matchesGenre = activeGenre === 'Tümü' || docGenres.includes(activeGenre);
-    return matchesSearch && matchesGenre;
-  });
+  const filtered = series
+    .filter(s => !s.is_deleted)
+    .filter((m) => {
+      const matchSearch = m.title.toLowerCase().includes(search.toLowerCase());
+      const mGenres = Array.isArray(m.genre) ? m.genre : m.genre ? [m.genre] : m.tags || [];
+      const matchGenre  = activeGenre === 'Tümü' || mGenres.includes(activeGenre);
+      return matchSearch && matchGenre;
+    })
+    .sort((a, b) => (b.reads_num || 0) - (a.reads_num || 0));
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Header Banner */}
-      <div className="relative rounded-3xl overflow-hidden glass border border-white/10 p-8 sm:p-12 mb-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/40 to-blue-900/40 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/30 blur-[100px] pointer-events-none" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-           <div>
-             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 mb-4">
-                <Flame size={14} className="text-purple-400" />
-                <span className="text-xs font-bold text-purple-300 tracking-wider uppercase">Evrensel Arşiv</span>
-             </motion.div>
-             <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-3">
-               Tüm <span className="gradient-text">Seriler</span>
-             </motion.h1>
-             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-slate-400 max-w-lg">
-                AniPeak'in devasa kozmik kütüphanesini keşfedin. Aksiyondan romantizme, binlerce efsanevi eser sizi bekliyor.
-             </motion.p>
-           </div>
-           
-           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="w-full md:w-80 space-y-4">
-              <div className="relative">
-                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input 
-                  type="text" 
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Seri veya yazar ara..." 
-                  className="w-full bg-[#0a0a14]/60 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all backdrop-blur-md"
-                />
-              </div>
-           </motion.div>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-purple-500 to-blue-500" />
+            <span className="text-xs font-bold text-purple-400 uppercase tracking-[0.2em]">AniPeak Kütüphanesi</span>
+          </div>
+          <h1 className="text-4xl font-black text-white">Tüm Seriler</h1>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            <input
+              type="text"
+              placeholder="Seri ara amk..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full sm:w-64 bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-slate-600 focus:border-purple-500 outline-none transition-all"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Filter Categories */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-sm font-bold shrink-0">
-           <Filter size={16} /> Kategoriler
-        </div>
-        <div className="w-px h-6 bg-white/10 mx-2 shrink-0" />
-        {allGenres.map(g => (
-          <button 
-            key={g} 
+      {/* Genres Scroll */}
+      <div className="flex gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+        {allGenres.map((g) => (
+          <button
+            key={g}
             onClick={() => setActiveGenre(g)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold shrink-0 transition-all ${activeGenre === g ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-500' : 'glass border border-white/5 text-slate-400 hover:text-white hover:bg-white/10'}`}
+            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border whitespace-nowrap ${
+              activeGenre === g
+                ? 'bg-purple-600 border-purple-500 text-white shadow-neon-purple'
+                : 'bg-white/5 border-white/10 text-slate-400 hover:border-white/20 hover:text-white'
+            }`}
           >
             {g}
           </button>
@@ -179,20 +186,19 @@ export default function AllSeries() {
       </div>
 
       {/* Grid */}
-      {filteredData?.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
-          <AnimatePresence>
-            {filteredData?.map((item, i) => (
-              <ManhwaCard key={item?.id} item={item} index={Math.min(i, 20)} />
-            ))}
-          </AnimatePresence>
-        </div>
-      ) : (
-        <div className="py-20 text-center glass border border-white/10 rounded-3xl">
-           <Search size={48} className="mx-auto text-slate-600 mb-4" />
-           <h3 className="text-xl font-bold text-white mb-2">Eser Bulunamadı</h3>
-           <p className="text-slate-500">Aradığınız kriterlere uygun bir seri kozmik kütüphanemizde bulunmuyor.</p>
-           <button onClick={() => {setSearch(''); setActiveGenre('Tümü');}} className="mt-6 px-6 py-2.5 rounded-xl bg-purple-500/10 text-purple-400 font-bold hover:bg-purple-500/20 transition-colors">Filtreleri Temizle</button>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+        <AnimatePresence mode="popLayout">
+          {filtered.map((item, i) => (
+            <ManhwaCard key={item?.id} item={item} index={Math.min(i, 20)} />
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-32">
+          <Flame size={48} className="text-slate-700 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-white mb-2">Aradığın seri siber boşlukta yok amk.</h3>
+          <p className="text-slate-500">Farklı bir şeyler aramayı dene.</p>
         </div>
       )}
     </main>

@@ -18,6 +18,12 @@ const statusIcons = {
 };
 
 function ManhwaCard({ item, index, trendRank }) {
+  const { getChapters } = useApp();
+  const chapterCount = getChapters(item.id).length;
+
+  // 5'li yıldız sistemi hesaplama (item.rating 10 üzerindense 2'ye bölüyoruz)
+  const displayRating = item.rating > 5 ? (item.rating / 2) : item.rating;
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -65,15 +71,24 @@ function ManhwaCard({ item, index, trendRank }) {
             <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black via-black/40 to-transparent">
               <div className="flex items-center gap-1.5 mb-1">
                 <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      size={10} 
-                      className={i < Math.floor(item.rating / 2) ? "text-amber-400 fill-amber-400" : "text-slate-600"} 
-                    />
-                  ))}
+                  {[...Array(5)].map((_, i) => {
+                    const starVal = i + 1;
+                    const isFull = displayRating >= starVal;
+                    const isHalf = !isFull && displayRating > (starVal - 1);
+                    return (
+                      <div key={i} className="relative">
+                        <Star size={10} className="text-slate-600" />
+                        {isFull && <Star size={10} className="absolute inset-0 text-amber-400 fill-amber-400" />}
+                        {isHalf && (
+                          <div className="absolute inset-0 overflow-hidden w-[50%]">
+                            <Star size={10} className="text-amber-400 fill-amber-400" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <span className="text-white font-black text-xs">{item.rating}</span>
+                <span className="text-white font-black text-xs">{displayRating.toFixed(1)}</span>
               </div>
               
               {/* Professional Stats Row */}
@@ -82,7 +97,7 @@ function ManhwaCard({ item, index, trendRank }) {
                   <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center">
                     <BookOpen size={10} className="text-purple-400" />
                   </div>
-                  <span className="truncate">{item.chapter_count || 0} Bölüm</span>
+                  <span className="truncate">{chapterCount} Bölüm</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-200">
                   <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center">
