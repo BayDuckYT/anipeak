@@ -35,10 +35,8 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
     setLoading(false);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -51,7 +49,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="relative w-full max-w-lg glass border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+        className="relative w-full max-w-lg glass border border-white/10 rounded-3xl overflow-hidden shadow-2xl z-[10000]"
       >
         <div className="p-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-red-500/10 to-transparent">
           <div className="flex items-center gap-3">

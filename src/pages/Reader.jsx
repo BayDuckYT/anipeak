@@ -462,12 +462,16 @@ export default function Reader() {
       </motion.div>
 
       {/* Reports Modal */}
-      <ReportIssueModal 
-        isOpen={isReportOpen} 
-        onClose={() => setIsReportOpen(false)} 
-        seriesId={manhwa.id} 
-        chapterNum={chapter} 
-      />
+      <AnimatePresence>
+        {isReportOpen && (
+          <ReportIssueModal 
+            isOpen={isReportOpen} 
+            onClose={() => setIsReportOpen(false)} 
+            seriesId={manhwa.id} 
+            chapterNum={chapter} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
