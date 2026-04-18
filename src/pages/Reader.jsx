@@ -263,8 +263,12 @@ export default function Reader() {
             {/* Right tools */}
             <div className="flex items-center gap-1" ref={panelRef}>
                <button
-                onClick={() => setIsReportOpen(true)}
-                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all pointer-events-auto"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log("[READER] Hata Bildir tıklandı amk!");
+                  setIsReportOpen(true);
+                }}
+                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer relative z-[200]"
                 title="Hata Bildir"
               >
                 <Bug size={16} />

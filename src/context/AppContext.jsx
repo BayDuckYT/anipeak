@@ -263,13 +263,16 @@ export function AppProvider({ children }) {
 
   // ── Comments ─────────────────────────────────────────────────────────
   const addComment = useCallback(async (seriesId, { userId, username, avatar_url, text, chapterNum, isSpoiler }) => {
+    const sId = parseInt(seriesId);
+    const cNum = (chapterNum !== undefined && chapterNum !== null) ? parseFloat(chapterNum) : null;
+    
     await supabase.from('comments').insert([{
-      series_id:   seriesId,
+      series_id:   sId,
       user_id:     userId,
       username,
       avatar_url,
       text,
-      chapter_num: chapterNum || null,
+      chapter_num: cNum,
       is_spoiler:  isSpoiler || false
     }]);
   }, []);
