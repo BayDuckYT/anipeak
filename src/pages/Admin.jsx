@@ -752,11 +752,25 @@ function PageManagement({ showToast }) {
 
   const handleSavePage = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.from('pages').upsert(editingPage, { onConflict: 'slug' });
-    if (!error) {
-      showToast('Sayfa siber olarak güncellendi!', 'success');
+    if (!editingPage.slug || !editingPage.title) {
+      showToast('Slug ve Başlık boş olamaz Teğmenim!', 'error');
+      return;
+    }
+
+    try {
+      // id varsa id üzerinden, yoksa slug üzerinden güncelle
+      const { error } = await supabase
+        .from('pages')
+        .upsert(editingPage, { onConflict: 'slug' });
+
+      if (error) throw error;
+
+      showToast('Sayfa siber olarak mühürlendi!', 'success');
       setEditingPage(null);
       fetchPages();
+    } catch (err) {
+      console.error("[CMS] Kayıt Hatası:", err);
+      showToast('Kayıt başarısız: ' + err.message, 'error');
     }
   };
 
