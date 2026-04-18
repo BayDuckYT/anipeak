@@ -294,12 +294,12 @@ export default function Reader() {
         className="w-full max-w-3xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)]"
       >
         <div className="flex flex-col">
-          {manhwa.chapters?.find(c => Number(c.number) === Number(chapter))?.pages?.map((p, idx) => (
+          {contextChapters?.find(c => Number(c.number) === Number(chapter))?.pages?.map((p, idx) => (
             <ReaderImage key={idx} src={p} alt={`Page ${idx + 1}`} idx={idx} chapter={chapter} />
           ))}
 
           {/* If no pages */}
-          {(!manhwa.chapters?.find(c => Number(c.number) === Number(chapter))?.pages || manhwa.chapters?.find(c => Number(c.number) === Number(chapter))?.pages?.length === 0) && (
+          {(!contextChapters?.find(c => Number(c.number) === Number(chapter))?.pages || contextChapters?.find(c => Number(c.number) === Number(chapter))?.pages?.length === 0) && (
             <div className="py-40 text-center px-6">
                <Sun size={64} className="text-slate-800 mx-auto mb-6" />
                <h2 className="text-2xl font-black text-white mb-2">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
