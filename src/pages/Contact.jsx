@@ -38,7 +38,7 @@ export default function Contact() {
           </motion.h1>
           <p className="text-slate-500 max-w-2xl mx-auto font-medium">
             AniPeak siber sahasında bir sorun mu fark ettiniz veya bir öneriniz mi var? 
-            Ekibimizle 7/24 iletişime geçebilirsiniz amk.
+            Ekibimizle 7/24 iletişime geçebilirsiniz.
           </p>
         </div>
 

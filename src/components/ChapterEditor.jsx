@@ -19,7 +19,7 @@ import { useApp } from '../context/AppContext.jsx';
 let _uid = 0;
 const uid = () => `pg-${++_uid}-${Math.random().toString(36).slice(2, 7)}`;
 
-// ImgBB Key Pool (Mühürlendi amk!)
+// ImgBB Key Pool (Mühürlendi!)
 const IMGBB_KEYS = [
   "f86ef28239e9e9c876182dcbab114489",
   "61aac4bb998738d36994eb94bec61b3d",
@@ -58,7 +58,7 @@ const uploadToImgBB = async (base64Image) => {
       attempts++;
     }
   }
-  throw new Error('Tüm API anahtarları tükendi amk! Detaylar için F12 (Konsol) açın.');
+  throw new Error('Tüm API anahtarları tükendi! Detaylar için F12 (Konsol) açın.');
 };
 
 const compressImage = (file, maxWidth = 1200, quality = 0.7) => {

@@ -51,7 +51,7 @@ const ALL_NAV = [
   { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
 ];
 
-// ImgBB Key Pool (Mühürlendi amk!)
+// ImgBB Key Pool (Mühürlendi!)
 const IMGBB_KEYS = [
   'f86ef28239e9e9c876182dcbab114489',
   '61aac4bb998738d36994eb94bec61b3d',
@@ -107,7 +107,7 @@ function QuickAddForm({ seriesList, showToast }) {
     console.log(`[PROCESS] Sıkıştırma başladı: ${file.name} (${(file.size/1024).toFixed(1)} KB)`);
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onerror = (e) => reject(new Error("Dosya okuma hatası amk!"));
+    reader.onerror = (e) => reject(new Error("Dosya okuma hatası!"));
     reader.onload = (e) => {
       const img = new Image();
       img.src = e.target.result;
@@ -160,7 +160,7 @@ function QuickAddForm({ seriesList, showToast }) {
         attempts++;
       }
     }
-    throw new Error('Tüm ImgBB anahtarları patlak amk! F12 konsoluna bak.');
+    throw new Error('Tüm ImgBB anahtarları tükendi. F12 konsoluna bakınız.');
   };
 
   const handleFileSelect = async (e, target) => {
@@ -421,7 +421,7 @@ function TicketsPanel({ showToast }) {
   };
 
   const handleDeleteTicket = async (id) => {
-    if (!window.confirm('Bu ihbarı kalıcı olarak silmek istiyor musunuz amk?')) return;
+    if (!window.confirm('Bu ihbarı kalıcı olarak silmek istiyor musunuz?')) return;
     const { error } = await supabase.from('error_reports').delete().eq('id', id);
     if (!error) {
       setTickets(prev => prev.filter(t => t.id !== id));
@@ -558,7 +558,7 @@ function TicketsPanel({ showToast }) {
               <CheckCircle2 size={40} />
             </div>
             <h5 className="text-2xl font-black text-white mb-2">Siber Saha Temiz!</h5>
-            <p className="text-slate-500 max-w-xs">Şu an için bekleyen herhangi bir hata bildirimi bulunmuyor amk.</p>
+            <p className="text-slate-500 max-w-xs">Şu an için bekleyen herhangi bir hata bildirimi bulunmuyor.</p>
           </div>
         )}
       </div>
@@ -843,7 +843,7 @@ function InboxPanel({ showToast }) {
   useEffect(() => { fetchMessages(); }, [fetchMessages]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Mesaj silinsin mi amk?')) return;
+    if (!window.confirm('Bu mesaj silinsin mi?')) return;
     await supabase.from('contact_messages').delete().eq('id', id);
     setMessages(prev => prev.filter(m => m.id !== id));
     showToast('Mesaj siber boşluğa gönderildi.', 'error');

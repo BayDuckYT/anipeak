@@ -159,7 +159,7 @@ export default function AllSeries() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input
               type="text"
-              placeholder="Seri ara amk..."
+              placeholder="Serimi arıyorsun prenses :D"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full sm:w-64 bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-slate-600 focus:border-purple-500 outline-none transition-all"
@@ -197,7 +197,7 @@ export default function AllSeries() {
       {filtered.length === 0 && (
         <div className="text-center py-32">
           <Flame size={48} className="text-slate-700 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Aradığın seri siber boşlukta yok amk.</h3>
+          <h3 className="text-xl font-bold text-white mb-2">Aradığın seri kütüphanede bulunamadı.</h3>
           <p className="text-slate-500">Farklı bir şeyler aramayı dene.</p>
         </div>
       )}

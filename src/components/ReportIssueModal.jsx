@@ -48,7 +48,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
       }
     } catch (err) {
       console.error("[MODAL] Beklenmedik Hata:", err);
-      alert("Sistem hatası oluştu amk!");
+      alert("Sistem hatası oluştu!");
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
                 <CheckCircle2 size={48} />
               </div>
               <h4 className="text-3xl font-black text-white mb-3">MESAJIN ULAŞTI!</h4>
-              <p className="text-slate-400 text-base font-medium">Siber ekiplerimiz radara düşen hatayı temizlemeye gidiyor amk.</p>
+              <p className="text-slate-400 text-base font-medium">Siber ekiplerimiz radara düşen hatayı temizlemeye gidiyor.</p>
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-8">

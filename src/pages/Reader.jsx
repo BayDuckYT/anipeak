@@ -318,7 +318,7 @@ export default function Reader() {
             <div className="py-40 text-center px-6">
                <Sun size={64} className="text-slate-800 mx-auto mb-6" />
                <h2 className="text-2xl font-black text-white mb-2">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
-               <p className="text-slate-500 max-w-sm mx-auto">Henüz sayfalar yüklenmemiş veya kozmik bir hata oluşmuş amk.</p>
+               <p className="text-slate-500 max-w-sm mx-auto">Henüz sayfalar yüklenmemiş veya kozmik bir hata oluşmuş.</p>
                <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-8 text-purple-400 font-bold hover:text-purple-300">
                   <ArrowLeft size={16} /> Seri Detayına Dön
                </Link>

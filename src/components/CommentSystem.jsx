@@ -68,7 +68,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
 
       if (error) {
         console.error('[COMMENTS] Kayıt Hatası:', error);
-        alert('Yorum gönderilemedi amk: ' + error.message);
+        alert('Yorum gönderilemedi: ' + error.message);
       } else {
         setText('');
         setIsSpoiler(false);
@@ -153,7 +153,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
         </form>
       ) : (
         <div className="glass border border-purple-500/10 rounded-2xl p-6 text-center bg-purple-500/[0.02]">
-          <p className="text-slate-200 text-xs font-bold mb-3">Yorum yapmak için giriş yapmalısın amk.</p>
+          <p className="text-slate-200 text-xs font-bold mb-3">Yorum yapmak için giriş yapmalısınız.</p>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }))}
             className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-xl text-xs shadow-neon-purple"
