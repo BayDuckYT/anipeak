@@ -307,10 +307,14 @@ export function AuthProvider({ children }) {
       return data;
     } catch (err) {
       console.error('[Auth] Login error:', err);
+      const message = err.message === 'Invalid login credentials' 
+        ? 'E-posta veya şifre hatalı!' 
+        : (err.message || 'Giriş yapılamadı.');
+        
       if (typeof window !== 'undefined') {
-        window.__AUTH_ERROR__ = `Giriş Hatası: ${err.message}`;
+        window.__AUTH_ERROR__ = message;
       }
-      throw err;
+      throw new Error(message);
     }
   };
 

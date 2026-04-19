@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
+import { supabase } from '../lib/supabaseClient';
 import CommentSystem from '../components/CommentSystem.jsx';
 import ChapterRating from '../components/ChapterRating.jsx';
 import ReportIssueModal from '../components/ReportIssueModal.jsx';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogIn, UserPlus, Eye, EyeOff, Zap, CheckCircle } from 'lucide-react';
+import { X, LogIn, UserPlus, Eye, EyeOff, Zap, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function AuthModal({ mode, onClose }) {
@@ -44,6 +44,10 @@ export default function AuthModal({ mode, onClose }) {
       console.error('Auth Error:', err);
       if (err.message === 'Failed to fetch') {
         setError('Bağlantı engellendi! Lütfen AdBlocker, VPN veya Brave Kalkanları kullanıyorsanız devredışı bırakıp sayfayı yenileyin.');
+      } else if (err.message === 'Invalid login credentials') {
+        setError('E-posta veya şifre hatalı!');
+      } else if (err.message === 'Email not confirmed') {
+        setError('E-posta adresi henüz doğrulanmamış.');
       } else {
         setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
       }
@@ -201,14 +205,22 @@ export default function AuthModal({ mode, onClose }) {
                 {/* Error */}
                 <AnimatePresence>
                   {error && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2"
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ 
+                        opacity: 1, 
+                        scale: 1,
+                        x: [0, -4, 4, -4, 4, 0] 
+                      }}
+                      transition={{ duration: 0.4 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 flex items-center gap-3"
                     >
-                      ⚠️ {error}
-                    </motion.p>
+                      <div className="w-6 h-6 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                        <AlertTriangle size={14} className="text-red-500" />
+                      </div>
+                      <span className="font-semibold">{error}</span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
 

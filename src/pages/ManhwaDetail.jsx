@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
-import { supabase } from '../lib/supabaseClient.js';
+import { supabase } from '../lib/supabaseClient';
 import StarRating from '../components/StarRating.jsx';
 import CommentSystem from '../components/CommentSystem.jsx';
 

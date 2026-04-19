@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
-import { supabase } from '../lib/supabaseClient.js';
+import { supabase } from '../lib/supabaseClient';
 import {
   LayoutDashboard, BookOpen, PlusCircle, Users, Settings,
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
