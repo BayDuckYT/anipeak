@@ -18,12 +18,12 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'settings', 'trash'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'settings', 'trash'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
@@ -47,7 +47,7 @@ const ALL_NAV = [
   { id: 'tickets', label: 'Bilet Hattı (Hata)', icon: ShieldAlert },
   { id: 'pages', label: 'Sayfa Yönetimi', icon: FileText },
   { id: 'messages', label: 'Gelen Mesajlar', icon: Mail },
-  { id: 'settings', label: 'Kainat Ayarları', icon: Settings },
+  { id: 'settings', label: 'Kozmik Ayarlar', icon: Settings },
   { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
 ];
 
@@ -1208,7 +1208,7 @@ export default function Admin() {
           <div className="space-y-6 max-w-4xl">
             <div className="glass border border-white/8 rounded-2xl p-6">
               <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
-                <Globe className="text-blue-400" size={20} /> Kainat Ayarları
+                <Globe className="text-blue-400" size={20} /> Kozmik Ayarlar
               </h3>
               <div className="space-y-8">
                 {/* Maintenance Mode */}
