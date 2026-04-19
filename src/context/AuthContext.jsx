@@ -353,6 +353,32 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const resetPassword = async (email) => {
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error('[Auth] Reset password error:', err);
+      throw err;
+    }
+  };
+
+  const updatePassword = async (newPassword) => {
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error('[Auth] Update password error:', err);
+      throw err;
+    }
+  };
+
   const logout = async () => {
     // 1. İstemci (tarayıcı) tarafındaki HER ŞEYİ KESİNLİKLE SİL
     setUser(null);
@@ -403,9 +429,6 @@ export function AuthProvider({ children }) {
     logout,
     signup,
     loginWithGoogle,
-    hasRole,
-    isOwner,
-    isAdmin,
     isMod,
     isEditor,
     readingHistory,
@@ -415,7 +438,9 @@ export function AuthProvider({ children }) {
     sendNotification,
     markAllRead,
     updateXP,
-    calculateTitle
+    calculateTitle,
+    resetPassword,
+    updatePassword
   };
 
   return (

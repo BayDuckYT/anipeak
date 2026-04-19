@@ -89,10 +89,18 @@ export default function Reader() {
     if (manhwa?.id) {
       if (user) addToHistory(manhwa.id, chapter);
       // Increment reads_num (Global view count)
-      supabase.rpc('increment_reads', { row_id: manhwa.id }).catch(() => {
-        // Fallback if RPC not defined
-        supabase.from('series').update({ reads_num: (manhwa.reads_num || 0) + 1 }).eq('id', manhwa.id);
-      });
+      const incrementReads = async () => {
+        try {
+          const { error } = await supabase.rpc('increment_reads', { row_id: manhwa.id });
+          if (error) {
+            // Fallback if RPC fails or not defined
+            await supabase.from('series').update({ reads_num: (manhwa.reads_num || 0) + 1 }).eq('id', manhwa.id);
+          }
+        } catch (err) {
+          console.error("[READER] Increment reads failed:", err);
+        }
+      };
+      incrementReads();
     }
   }, [chapter, manhwa?.id, user, addToHistory]);
 
