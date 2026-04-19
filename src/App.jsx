@@ -184,7 +184,9 @@ function AppContent() {
   }, []);
   
   // Bakım modundayken, eğer giriş yapan kişi BAŞ ADMİN DEĞİLSE ekranı kapat
-  const isMaintenanceBlocked = maintenanceMode && !isOwner;
+  // İSTİSNA: Şifre sıfırlama sayfası bakım modundan muaf tutulur
+  const isResetPage = window.location.pathname === '/reset-password';
+  const isMaintenanceBlocked = maintenanceMode && !isOwner && !isResetPage;
 
   return (
     <>
