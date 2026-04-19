@@ -429,6 +429,8 @@ export function AuthProvider({ children }) {
     logout,
     signup,
     loginWithGoogle,
+    isOwner,
+    isAdmin,
     isMod,
     isEditor,
     readingHistory,
