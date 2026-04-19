@@ -358,10 +358,18 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
-      if (error) throw error;
+      if (error) {
+        console.error('[Auth DEBUG] Reset Password Fail:', {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+          hint: error.hint
+        });
+        throw error;
+      }
       return data;
     } catch (err) {
-      console.error('[Auth] Reset password error:', err);
+      console.error('[Auth] Reset password exception:', err);
       throw err;
     }
   };
@@ -371,10 +379,17 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase.auth.updateUser({
         password: newPassword
       });
-      if (error) throw error;
+      if (error) {
+        console.error('[Auth DEBUG] Update Password Fail:', {
+          message: error.message,
+          status: error.status,
+          code: error.code
+        });
+        throw error;
+      }
       return data;
     } catch (err) {
-      console.error('[Auth] Update password error:', err);
+      console.error('[Auth] Update password exception:', err);
       throw err;
     }
   };
