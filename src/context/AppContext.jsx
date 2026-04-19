@@ -18,7 +18,9 @@ export function AppProvider({ children }) {
   });
   const [announcements,   setAnnouncements]   = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(() => {
+    try { return localStorage.getItem('anipeak_maintenance_mode') === 'true'; } catch { return false; }
+  });
 
   const loadSeries = useCallback(async () => {
     const { data, error } = await supabase
@@ -75,7 +77,11 @@ export function AppProvider({ children }) {
       .select('value')
       .eq('key', 'maintenance')
       .single();
-    if (data?.value) setMaintenanceMode(!!data.value.enabled);
+    if (data?.value) {
+      const isEnabled = !!data.value.enabled;
+      setMaintenanceMode(isEnabled);
+      localStorage.setItem('anipeak_maintenance_mode', String(isEnabled));
+    }
   }, []);
 
   // ── Bootstrap all data (sequential to avoid exhausting Supabase free tier connection pool) ────
@@ -132,7 +138,9 @@ export function AppProvider({ children }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'site_config' },
         (payload) => {
           if (payload.new?.key === 'maintenance') {
-            setMaintenanceMode(!!payload.new.value?.enabled);
+            const isEnabled = !!payload.new.value?.enabled;
+            setMaintenanceMode(isEnabled);
+            localStorage.setItem('anipeak_maintenance_mode', String(isEnabled));
           }
         })
       .subscribe();
@@ -145,9 +153,12 @@ export function AppProvider({ children }) {
     const { error } = await supabase
       .from('site_config')
       .upsert({ key: 'maintenance', value: { enabled }, updated_at: new Date().toISOString() },
-               { onConflict: 'key' });
+                { onConflict: 'key' });
     if (error) console.error('[AppCtx] Bakım modu güncellenemedi:', error.message);
-    else setMaintenanceMode(enabled);
+    else {
+      setMaintenanceMode(enabled);
+      localStorage.setItem('anipeak_maintenance_mode', String(enabled));
+    }
   }, []);
 
   // ── Chapters ─────────────────────────────────────────────────────────
