@@ -313,9 +313,5 @@ export default function AuthModal({ mode, onClose }) {
         </motion.div>
       </motion.div>
     </AnimatePresence>
-          )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
   );
 }
