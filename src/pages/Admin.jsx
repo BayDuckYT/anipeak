@@ -740,22 +740,28 @@ return (
 // ─────────────────────────────────────────────────────────────────────────────
 function CommandPanel({ showToast }) {
   const [staging, setStaging] = useState('Analiz ediliyor...');
+  const [proposal, setProposal] = useState('Analiz ediliyor...');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('IDLE'); // IDLE, DEPLOYING, ROLLBACK
 
-  const fetchStaging = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/admin/staging');
-      const data = await res.json();
-      setStaging(data.status);
+      const sRes = await fetch('http://localhost:3001/api/admin/staging');
+      const sData = await sRes.json();
+      setStaging(sData.status);
+
+      const pRes = await fetch('http://localhost:3001/api/admin/get-proposal');
+      const pData = await pRes.json();
+      setProposal(pData.title);
     } catch (err) {
-      setStaging('Siber Karargâh Sunucusu Çevrimdışı!');
+      setStaging('Sunucu Çevrimdışı!');
+      setProposal('Bağlantı Kesildi');
     }
   };
 
   useEffect(() => {
-    fetchStaging();
-    const interval = setInterval(fetchStaging, 5000);
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -817,7 +823,12 @@ function CommandPanel({ showToast }) {
           <div className="glass border border-white/8 rounded-3xl p-8 relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <h3 className="text-2xl font-black text-white mb-2">Hızlı Yayınlama (One-Click)</h3>
-            <p className="text-slate-500 text-sm mb-8">Tek tıkla tüm kodları GitHub'a fırlatır ve siteyi günceller.</p>
+            <p className="text-slate-500 text-sm mb-4">Tek tıkla tüm kodları GitHub'a fırlatır ve siteyi günceller.</p>
+            
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 mb-6">
+               <p className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">Siber Öneri (Sıradaki Güncelleme):</p>
+               <p className="text-white font-bold text-sm italic">"{proposal}"</p>
+            </div>
             
             <div className="space-y-4">
               {status === 'DEPLOYING' && (

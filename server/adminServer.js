@@ -36,15 +36,51 @@ app.get('/api/admin/staging', (req, res) => {
     }
 });
 
+// [COMMAND] - Propose Update Title (AI calls this)
+app.post('/api/admin/propose', (req, res) => {
+    const { title } = req.body;
+    if (!title) return res.status(400).json({ error: 'Başlık eksik.' });
+    
+    try {
+        const proposalFile = path.join(LOGS_DIR, 'proposed_changes.json');
+        fs.writeFileSync(proposalFile, JSON.stringify({ title, date: new Date().toLocaleString('tr-TR') }));
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// [COMMAND] - Get Current Proposal
+app.get('/api/admin/get-proposal', (req, res) => {
+    try {
+        const proposalFile = path.join(LOGS_DIR, 'proposed_changes.json');
+        if (fs.existsSync(proposalFile)) {
+            const data = JSON.parse(fs.readFileSync(proposalFile, 'utf8'));
+            res.json(data);
+        } else {
+            res.json({ title: 'Yeni Değişiklik Tespit Edilmedi' });
+        }
+    } catch (err) {
+        res.json({ title: 'Analiz Hatası' });
+    }
+});
+
 // [COMMAND] - Deploy (Git Push)
 app.post('/api/admin/deploy', (req, res) => {
     try {
+        const proposalFile = path.join(LOGS_DIR, 'proposed_changes.json');
+        let commitMsg = `Admin Update [${new Date().toLocaleString('tr-TR')}]`;
+        
+        if (fs.existsSync(proposalFile)) {
+            const proposal = JSON.parse(fs.readFileSync(proposalFile, 'utf8'));
+            commitMsg = proposal.title;
+        }
+
         console.log('🚀 Taarruz Başladı: Lokal Build Alınıyor...');
         execSync('npm run build', { stdio: 'inherit' });
 
         console.log('📦 Git İşlemleri Başladı...');
         execSync('git add .');
-        const commitMsg = `Admin Update [${new Date().toLocaleString('tr-TR')}]`;
         execSync(`git commit -m "${commitMsg}"`);
         execSync('git push origin main');
 
@@ -55,8 +91,10 @@ app.post('/api/admin/deploy', (req, res) => {
 
         // Log Deployment
         const deployLog = path.join(LOGS_DIR, 'deployments.txt');
-        if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
         fs.appendFileSync(deployLog, `[${new Date().toLocaleString('tr-TR')}] YAYINLANDI: ${commitMsg}\n`);
+
+        // Clean proposal
+        if (fs.existsSync(proposalFile)) fs.unlinkSync(proposalFile);
 
         res.json({ success: true, message: 'Taarruz Başarılı! Sistem güncellendi.' });
     } catch (err) {
