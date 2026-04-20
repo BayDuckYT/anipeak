@@ -13,6 +13,9 @@ import axios from 'axios';
 puppeteer.use(StealthPlugin());
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
+// SİBER LİMİT: Event listener uyarısını sustur ve sınırı kaldır amk!
+process.setMaxListeners(0);
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -157,7 +160,7 @@ async function processSingleSeries(title, browser) {
 
             const jsDelivrUrls = [];
             let localDir = '';
-            const CONCURRENCY = 50; 
+            const CONCURRENCY = 30; 
             for (let j = 0; j < pageUrls.length; j += CONCURRENCY) {
                 const chunk = pageUrls.slice(j, j + CONCURRENCY);
                 const chunkResults = await Promise.all(chunk.map(async (pUrl, idx) => {
@@ -198,7 +201,7 @@ async function runSiberNizam() {
   console.log("\x1b[35m%s\x1b[0m", "⚓ ANIPEAK: SİBER NİZAM (MANGAOKUTR ÖZEL) V67 ⚓");
   console.log("\x1b[35m%s\x1b[0m", "==========================================================");
 
-  try {
+    try {
     await ensureGitHubRepo();
     
     const input = await askQuestion("\n\x1b[33m[TEĞMEN-SORUSU]\x1b[0m >> Seri isimleri veya URL girin: ");
@@ -206,6 +209,9 @@ async function runSiberNizam() {
 
     const browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-accelerated-2d-canvas', '--no-first-run', '--no-zygote'] });
 
+    // SİBER AYAR: 5 çok yüklendi, 3'e çekip stabiliteyi koruyoruz usta!
+    const SERIES_CONCURRENCY = 3; 
+    
     // 1. ÖNCELİKLİ TAARRUZ (Kullanıcı Listesi)
     console.log(`\n\x1b[35m[AŞAMA-1]\x1b[0m >> Kullanıcı listesi sırayla işleniyor (MangaOkuTR)...`);
     for (const title of targetTitles) {

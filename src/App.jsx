@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage.jsx';
 import AllSeries from './pages/AllSeries.jsx';
 import StaticPage from './pages/StaticPage.jsx';
 import Contact from './pages/Contact.jsx';
+import Suggestions from './pages/Suggestions.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
@@ -45,6 +46,7 @@ function AnimatedRoutes({ onAuthOpen }) {
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/iletisim" element={<Contact />} />
+        <Route path="/oneriler" element={<Suggestions />} />
         <Route path="/:slug" element={<StaticPage />} />
       </Routes>
     </AnimatePresence>

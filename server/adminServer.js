@@ -7,6 +7,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// SİBER LİMİT: Komuta merkezi için dinleyici sınırını kaldır!
+process.setMaxListeners(0);
+
 const app = express();
 const PORT = 3001;
 const LOGS_DIR = path.join(process.cwd(), 'admin', 'logs');
@@ -71,11 +74,11 @@ app.post('/api/admin/rollback', (req, res) => {
 
 // [LOGISTICS] - Save Suggestion
 app.post('/api/admin/suggest', (req, res) => {
-    const { user, message } = req.body;
+    const { user, email, message } = req.body;
     if (!user || !message) return res.status(400).json({ error: 'Eksik mühimmat: İsim ve mesaj gerekli.' });
 
     const date = new Date().toLocaleString('tr-TR');
-    const entry = `[${date}][${user}]: ${message}\n`;
+    const entry = `[${date}][${user}][${email || 'E-posta Yok'}]: ${message}\n`;
 
     try {
         fs.appendFileSync(SUGGESTIONS_FILE, entry);
