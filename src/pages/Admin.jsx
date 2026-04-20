@@ -1383,6 +1383,8 @@ export default function Admin() {
         {safeActiveNav === 'messages' && <InboxPanel showToast={showToast} />}
         {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
         {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
+        {safeActiveNav === 'command' && <CommandPanel showToast={showToast} />}
+        {safeActiveNav === 'suggestions' && <SuggestionsPanel />}
 
         {/* Universe Settings */}
         {safeActiveNav === 'settings' && (
