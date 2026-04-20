@@ -28,12 +28,14 @@ export async function startImageInterception(page) {
   await page.setRequestInterception(true);
   
   page.on('request', (request) => {
-    const url = request.url();
-    const type = request.resourceType();
-    if (type === 'image' && (url.includes('.jpg') || url.includes('.png') || url.includes('.webp') || url.includes('chapter'))) {
-      images.push(url);
-    }
-    request.continue();
+    try {
+      const url = request.url();
+      const type = request.resourceType();
+      if (type === 'image' && (url.includes('.jpg') || url.includes('.png') || url.includes('.webp') || url.includes('chapter'))) {
+        images.push(url);
+      }
+      request.continue().catch(() => {});
+    } catch (e) {}
   });
   
   return images;

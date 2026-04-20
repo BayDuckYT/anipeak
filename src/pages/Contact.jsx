@@ -19,6 +19,21 @@ export default function Contact() {
         setSuccess(true);
         setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
       }
+    } else if (formData.subject === 'Lojistik Öneri') {
+      // Lojistik Öneri direkt sunucudaki suggestions.txt dosyasına mühürlenir
+      try {
+        const res = await fetch('http://localhost:3001/api/admin/suggest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user: formData.name, message: formData.message })
+        });
+        if (res.ok) {
+          setSuccess(true);
+          setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
+        }
+      } catch (err) {
+        alert('Lojistik Karargâhı şu an çevrimdışı. Lütfen daha sonra tekrar deneyin!');
+      }
     } else {
       // Diğer konular ilgili e-posta adreslerine yönlendirilir
       const subjectEmails = {
@@ -38,7 +53,7 @@ export default function Contact() {
 
   const contactCards = [
     { title: 'Genel İletişim', email: 'info@anipeak.com.tr', color: 'from-blue-500 to-cyan-500', icon: <Mail size={24} /> },
-    { title: 'Teknik Destek', email: 'support@anipeak.com.tr', color: 'from-purple-500 to-indigo-500', icon: <Phone size={24} /> },
+    { title: 'Lojistik Öneri', email: 'suggestions.txt', color: 'from-emerald-500 to-teal-500', icon: <Send size={24} /> },
     { title: 'İşbirlikleri & Reklam', email: 'business@anipeak.com.tr', color: 'from-rose-500 to-orange-500', icon: <Send size={24} /> },
     { title: 'Hata Bildirimi', email: 'Admin Paneli', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
   ];
@@ -56,7 +71,7 @@ export default function Contact() {
           </motion.h1>
           <p className="text-slate-500 max-w-2xl mx-auto font-medium">
             AniPeak karargâhına veri göndermek için konuyu seçin. 
-            <span className="text-red-400"> Hata bildirimleri</span> doğrudan teknik ekibin paneline düşer.
+            <span className="text-emerald-400"> Lojistik öneriler</span> doğrudan admin panelindeki dosyamıza mühürlenir.
           </p>
         </div>
 
@@ -123,6 +138,7 @@ export default function Contact() {
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all cursor-pointer"
                   >
                     <option value="Genel İletişim" className="bg-[#0a0a14]">Genel İletişim</option>
+                    <option value="Lojistik Öneri" className="bg-[#0a0a14]">Lojistik Öneri</option>
                     <option value="Teknik Destek" className="bg-[#0a0a14]">Teknik Destek</option>
                     <option value="İşbirlikleri" className="bg-[#0a0a14]">İşbirlikleri</option>
                     <option value="Hata Bildirimi" className="bg-[#0a0a14]">Hata Bildirimi</option>

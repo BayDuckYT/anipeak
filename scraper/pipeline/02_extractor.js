@@ -53,12 +53,17 @@ async function extractMadaraData(url) {
       const genres = [];
       document.querySelectorAll('.genres-content a').forEach(a => genres.push(a.innerText.trim()));
 
+      // [PROFESYONEL KEŞİF] "Daha Fazla" butonuna basarak tüm listeyi aç
+      const showMoreBtn = document.querySelector('.show-more-button') || document.querySelector('.load-more-chapters');
+      if (showMoreBtn) showMoreBtn.click();
+      
       const chapters = [];
       const seen = new Set();
-      document.querySelectorAll('li.wp-manga-chapter a').forEach(a => {
+      // Tüm olası bölüm linklerini tara (Madara spesifik)
+      document.querySelectorAll('li.wp-manga-chapter a, .chapter-link a').forEach(a => {
         const href = a.href;
         if (!href) return;
-        const numMatch = href.match(/bolum-(\d+(\.\d+)?)/) || href.match(/chapter-(\d+(\.\d+)?)/);
+        const numMatch = href.match(/bolum-(\d+(\.\d+)?)/) || href.match(/chapter-(\d+(\.\d+)?)/) || href.match(/-(\d+(\.\d+)?)\/?$/);
         const number = numMatch ? parseFloat(numMatch[1]) : null;
         if (number !== null && !seen.has(number)) {
           seen.add(number);
@@ -69,10 +74,11 @@ async function extractMadaraData(url) {
       return { title, cover, description, genres, chapters };
     });
 
+
     if (!data.title || data.chapters.length === 0) {
-      // Eğer hala 0 ise "Show More" butonuna basmayı deneyebiliriz ama genelde gerekmez
-      console.log(`\x1b[31m[RETRY]\x1b[0m >> Bölüm bulunamadı, AJAX bekleniyor...`);
-      await delay(3000);
+      console.log(`\x1b[31m[RETRY]\x1b[0m >> Bölüm bulunamadı, agresif AJAX bekleniyor...`);
+      await autoScroll(page);
+      await delay(4000);
     }
 
     await browser.close();
@@ -134,16 +140,39 @@ async function extractKatanaData(url) {
 
 export async function extractPopularSeriesUrls() {
   try {
-    const { data: html } = await axios.get(BASE_URL, { headers: HTTP_HEADERS, timeout: 20000 });
-    const $ = cheerio.load(html);
     const urls = [];
-    $('a[href*="/manga/"]').each((i, el) => {
-      const href = $(el).attr('href');
-      if (href && href.match(/\/manga\/[a-z0-9-]+\.\d+$/i)) {
-        const fullUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
-        if (!urls.includes(fullUrl)) urls.push(fullUrl);
+    const pagesToScan = [
+      `${BASE_URL}`,
+      `${BASE_URL}/manga-list/popular`,
+      `${BASE_URL}/manga-list/all/any/any/all/latest/1`,
+      `${BASE_URL}/manga-list/all/any/any/all/latest/2`
+    ];
+
+    console.log(`\x1b[35m[DISCOVERY]\x1b[0m >> Geniş çaplı siber keşif başlatıldı (4 sayfa)...`);
+    
+    for (const pageUrl of pagesToScan) {
+      try {
+        const { data: html } = await axios.get(pageUrl, { headers: HTTP_HEADERS, timeout: 15000 });
+        const $ = cheerio.load(html);
+        
+        $('a').each((i, el) => {
+          const href = $(el).attr('href');
+          // Manga linkleri genelde /manga/ ile başlar
+          if (href && href.includes('/manga/') && !href.includes('/manga-list/')) {
+            const fullUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
+            // Filtre: Çok kısa veya anlamsız linkleri atla
+            if (fullUrl.length > BASE_URL.length + 8) {
+              urls.push(fullUrl);
+            }
+          }
+        });
+      } catch (e) {
+        console.log(`\x1b[31m[!]\x1b[0m Keşif hatası (${pageUrl}): ${e.message}`);
       }
-    });
-    return [...new Set(urls)].slice(0, 5);
+    }
+
+    const finalUrls = [...new Set(urls)];
+    console.log(`\x1b[32m[✓]\x1b[0m Toplam ${finalUrls.length} farklı hedef kilitlendi!`);
+    return finalUrls;
   } catch (err) { return []; }
 }

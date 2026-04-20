@@ -188,6 +188,54 @@ export async function processAndUploadEliteImage(imageUrl, isCover = false, seri
 }
 
 /**
+ * V62: Local-only processing for GitHub Pipeline
+ * Saves images to the staging directory without cloud upload.
+ */
+export async function processAndSaveLocally(imageUrl, isCover = false, seriesTitle = 'Unknown', chapterNumber = 0, pageIndex = 1, stagingPath = 'C:\\Users\\Murathan\\Desktop\\anipeak-manga-assets') {
+  try {
+    const { data: buffer } = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://mangaokutr.co/',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+      },
+      timeout: 30000
+    });
+
+    // RAW NAKLİYE: Reklam kontrolü ve AI işlemleri devre dışı!
+    const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
+    const seriesDir = path.join(stagingPath, safeTitle);
+    let targetDir = seriesDir;
+    
+    // Uzantıyı URL'den veya varsayılan olarak .jpg/webp'den al
+    const ext = imageUrl.split('.').pop().split(/[?#]/)[0] || 'jpg';
+    let fileName = isCover ? `cover.${ext}` : `${pageIndex.toString().padStart(3, '0')}.${ext}`;
+
+    if (!isCover) {
+      targetDir = path.join(seriesDir, `Bolum_${chapterNumber.toString().replace('.', '_')}`);
+    }
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const filePath = path.join(targetDir, fileName);
+    fs.writeFileSync(filePath, buffer);
+    
+    // Loglama: Sadece nakliye bilgisi
+    console.log(`  [NAKLİYE] >> ${fileName} depoya kaldırıldı.`);
+
+    return path.relative(stagingPath, filePath).replace(/\\/g, '/');
+
+  } catch (error) {
+    logger.error(`[Archive-Raw-Logistics] Hata (${imageUrl}): ${error.message}`);
+    return null;
+  }
+}
+
+
+/**
  * Pixelmatch kullanarak reklam kontrolü yapar.
  */
 async function checkIsAd(imageBuffer) {

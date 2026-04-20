@@ -19,56 +19,50 @@ const envPath = fs.existsSync(path.resolve('.env')) ? path.resolve('.env') : pat
 dotenv.config({ path: envPath });
 console.log(`[SYSTEM] Config yüklendi: ${envPath}`);
 
-// ImgBB Key Pool (Virgülle ayrılmış birden fazla key desteği)
-const IMGBB_KEYS = (process.env.IMGBB_API_KEY || '').split(',').map(k => k.trim()).filter(k => k);
-let currentKeyIndex = 0;
+const UPLOAD_ENDPOINTS = [
+  'https://graph.org/upload',
+  'https://telegra.ph/upload'
+];
+const GLOBAL_UPLOAD_LIMIT = pLimit(3); 
 
 /**
- * Tek bir görseli ImgBB'ye yükler (Rate-Limit Safe & Key Rotation)
+ * Görseli Telegra.ph veya Graph.org sunucularına yükler (Bypass Modu)
+ * @param {string|Buffer} source - Dosya yolu veya Buffer
+ * @param {number} maxAttempts - Maksimum deneme sayısı
  */
-export async function uploadToImgBB(imageBuffer) {
+export async function uploadToTelegraph(source, maxAttempts = 20) {
   let attempts = 0;
-  const maxAttempts = IMGBB_KEYS.length * 2;
-
   while (attempts < maxAttempts) {
-    const key = IMGBB_KEYS[currentKeyIndex];
+    let endpoint = UPLOAD_ENDPOINTS[attempts % UPLOAD_ENDPOINTS.length];
+    const isCatbox = attempts > 5; 
+    if (isCatbox) endpoint = 'https://catbox.moe/user/api.php';
     try {
-      const base64 = imageBuffer.toString('base64');
       const form = new FormData();
-      form.append('image', base64);
-
-      const res = await axios.post(`https://api.imgbb.com/1/upload?key=${key}`, form, {
-        headers: form.getHeaders(),
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-        timeout: 90000
-      });
-
-      if (res.data && res.data.success) {
-        return res.data.data.url;
-      }
-      throw new Error("ImgBB success=false");
-
-    } catch (err) {
-      const isRateLimit = err.response?.status === 429 || err.response?.status === 400 || (err.response?.data?.error?.message?.toLowerCase().includes('rate limit'));
-      
-      if (isRateLimit) {
-        console.log(`\x1b[31m[RATE-LIMIT]\x1b[0m >> Key ${currentKeyIndex + 1} tıkandı veya limit doldu! 30 saniye mola ve key değişimi...`);
-        await new Promise(r => setTimeout(r, 30000));
-        currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
+      if (isCatbox) {
+        form.append('reqtype', 'fileupload');
+        form.append('fileToUpload', Buffer.isBuffer(source) ? source : fs.createReadStream(source), { filename: 'p.jpg' });
       } else {
-        logger.error(`[Distributor] ImgBB Hatası (Key ${currentKeyIndex + 1}): ${err.message}`);
-        currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
+        form.append('file', Buffer.isBuffer(source) ? source : fs.createReadStream(source), { filename: 'p.jpg' });
       }
-      
+      const res = await axios.post(endpoint, form, { headers: form.getHeaders(), timeout: 25000 });
+      if (isCatbox && typeof res.data === 'string' && res.data.startsWith('http')) return res.data;
+      if (!isCatbox && Array.isArray(res.data) && res.data[0]?.src) return `${new URL(endpoint).origin}${res.data[0].src}`;
+      throw new Error("Upload failed");
+    } catch (err) {
+      if (attempts >= 3) {
+        console.log(`\x1b[33m[SNIPER-WAIT]\x1b[0m >> Pusu ağırlaştı, 10sn geri çekiliyoruz... (Deneme: ${attempts})`);
+        await new Promise(r => setTimeout(r, 10000));
+      } else {
+        await new Promise(r => setTimeout(r, 2000));
+      }
       attempts++;
-      if (attempts < maxAttempts) {
-        console.log(`\x1b[33m[RETRY]\x1b[0m >> Diğer anahtar namluya sürülüyor (Deneme ${attempts}/${maxAttempts})...`);
-      }
     }
   }
   return null;
 }
+
+// Geriye dönük uyumluluk için takma ad (Kodun geri kalanı bozulmasın amk)
+export const uploadToImgBB = uploadToTelegraph;
 
 /**
  * Kapak görselini ImgBB'ye yükler.
@@ -76,42 +70,60 @@ export async function uploadToImgBB(imageBuffer) {
 export async function uploadCover(coverBuffer) {
   if (!coverBuffer) return null;
   console.log(`\x1b[36m[UPLOAD]\x1b[0m >> Kapak yükleniyor...`);
-  const url = await uploadToImgBB(coverBuffer);
-  if (url) {
-    console.log(`\x1b[32m[UPLOAD-OK]\x1b[0m >> Kapak: ${url}`);
+  
+  // Kapak için BENZERSİZ geçici dosya kullan (Paralel işlem çakışmasını önle)
+  const tempName = `temp_cover_${Date.now()}_${Math.floor(Math.random() * 1000)}.png`;
+  const tempPath = path.join(process.cwd(), tempName);
+  
+  try {
+    fs.writeFileSync(tempPath, coverBuffer);
+    const url = await uploadToTelegraph(tempPath, 3); // Kapak için sadece 3 deneme amk
+    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+
+    if (url) {
+      console.log(`\x1b[32m[UPLOAD-OK]\x1b[0m >> Kapak: ${url}`);
+    } else {
+      console.log(`\x1b[33m[V50-UYARI]\x1b[0m >> Kapak yüklenemedi, bölümlere geçiliyor...`);
+    }
+    return url;
+  } catch (err) {
+    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    return null;
   }
-  return url;
 }
 
 /**
- * İşlenmiş sayfaları ImgBB'ye yükler ve URL dizisini döndürür.
- * @param {string[]} processedPaths - İşlenmiş dosya yolları
- * @returns {string[]} ImgBB URL dizisi
+ * İşlenmiş sayfaları Telegra.ph/Graph.org'a yükler ve URL dizisini döndürür.
+ * @param {string[]|Buffer[]} sources - İşlenmiş dosya yolları veya Buffer dizisi
  */
-export async function uploadChapterPages(processedPaths) {
-  const urls = new Array(processedPaths.length); // Sırayı korumak için amk
+export async function uploadChapterPages(sources) {
+  const urls = new Array(sources.length); 
   const limit = pLimit(PAGE_UPLOAD_CONCURRENCY);
   
-  console.log(`\x1b[36m[UPLOAD]\x1b[0m >> ${processedPaths.length} sayfa paralel yükleniyor (Hız: ${PAGE_UPLOAD_CONCURRENCY})...`);
-
+  console.log(`\x1b[36m[UPLOAD]\x1b[0m >> ${sources.length} sayfa paralel yükleniyor (Hız: ${PAGE_UPLOAD_CONCURRENCY})...`);
+  
   let success = true;
-  const tasks = processedPaths.map((filePath, i) => limit(async () => {
+  const tasks = sources.map((source, i) => GLOBAL_UPLOAD_LIMIT(async () => {
     if (!success) return;
 
     try {
-      const buffer = fs.readFileSync(filePath);
-      const url = await uploadToImgBB(buffer);
+      const url = await uploadToTelegraph(source, 1000); // Bölümler için ölmek var dönmek yok
       
       if (url) {
         urls[i] = url;
-        console.log(`\x1b[90m  [${i + 1}/${processedPaths.length}]\x1b[0m ${url}`);
+        const completed = urls.filter(u => u).length;
+        
+        // [V61-SİGARA-MOLASI] 800ms sabit, her 10 resimde bir 4sn nefes al amk
+        await new Promise(r => setTimeout(r, 800));
+        if (completed % 10 === 0) await new Promise(r => setTimeout(r, 4000));
+
+        if (completed % 5 === 0 || completed === sources.length) {
+           // Sessiz progres, studio ana logu basacak amk
+        }
       } else {
         success = false;
-        logger.error(`[Distributor] Sayfa ${i + 1} yüklenemedi: ${filePath}`);
+        return null; // Bir resim bile patlarsa 10 deneme sonunda, bölümü sal amk
       }
-
-      // Rate limit koruması (Paralelde mola biraz riskli ama olsun amk)
-      if (UPLOAD_DELAY_MS > 0) await new Promise(r => setTimeout(r, UPLOAD_DELAY_MS));
     } catch (err) {
       success = false;
       logger.error(`[Distributor] Yükleme hatası (${i + 1}): ${err.message}`);
@@ -140,6 +152,8 @@ export async function syncChapter(seriesId, chapterNumber, title, pageUrls) {
   const result = await createChapterIfNotExists(seriesId, chapterNumber, title, pageUrls);
   if (result) {
     console.log(`\x1b[32m[DB-OK]\x1b[0m >> Bölüm ${chapterNumber} veritabanına kaydedildi. (${pageUrls.length} sayfa)`);
+  } else {
+    console.log(`\x1b[90m[DB-SKIP] Bölüm ${chapterNumber} zaten veritabanında var.\x1b[0m`);
   }
   return result;
 }
