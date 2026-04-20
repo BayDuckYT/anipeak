@@ -11,28 +11,52 @@ import {
 import { useApp } from '../context/AppContext.jsx';
 import { uploadAvatar } from '../lib/imageService';
 
-// Siber Kırpma Yardımcısı
+// Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
+  console.log("🎨 [KIRPMA] İşlem hazırlığı başladı...");
+  
   const image = new Image();
+  image.setAttribute('crossOrigin', 'anonymous'); // CORS desteği
   image.src = imageSrc;
-  await new Promise((resolve) => { image.onload = resolve; });
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = 512;
-  canvas.height = 512;
+  try {
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = () => {
+        console.error("❌ [KIRPMA] Resim yüklenemedi!");
+        reject(new Error('Resim yüklenemedi.'));
+      };
+    });
 
-  ctx.drawImage(
-    image,
-    pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
-    0, 0, 512, 512
-  );
+    console.log("📏 [KIRPMA] Resim boyutu:", image.width, "x", image.height);
 
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(blob);
-    }, 'image/webp', 0.8);
-  });
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('Canvas context oluşturulamadı.');
+    }
+
+    canvas.width = 512;
+    canvas.height = 512;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
+      0, 0, 512, 512
+    );
+
+    console.log("🧪 [KIRPMA] Blob oluşturuluyor...");
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        console.log("✅ [KIRPMA] Blob hazır.");
+        resolve(blob);
+      }, 'image/webp', 0.8);
+    });
+  } catch (err) {
+    console.error("❌ [KIRPMA] Kritik Hata:", err);
+    throw err;
+  }
 };
 
 export default function ProfilePage() {
@@ -59,7 +83,7 @@ export default function ProfilePage() {
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    console.log("Mermi namluya sürüldü: ", file);
+    console.log("📁 [DOSYA] Resim seçildi: ", file);
     if (!file) {
       console.warn("Siber Hata: Dosya seçilmedi veya iptal edildi.");
       return;
@@ -67,7 +91,7 @@ export default function ProfilePage() {
 
     const reader = new FileReader();
     reader.addEventListener('load', () => {
-      console.log("Siber Okuma: Görsel veri yoluna dönüştürüldü.");
+      console.log("📥 [SİSTEM] Görsel önizleme hazırlandı.");
       setImageSrc(reader.result);
     });
     reader.readAsDataURL(file);
@@ -77,17 +101,33 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
+    console.log("💾 [KAYDET] İşlem başlatıldı...");
+    if (!imageSrc || !croppedAreaPixels) {
+      console.warn("⚠️ [HATA] Görsel kaynağı veya kırpma verisi eksik!");
+      return;
+    }
+
     setUploading(true);
     try {
+      console.log("✂️ [KIRPMA] Görsel işleniyor...");
       const blob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      console.log("✅ [KIRPMA] Başarılı, Blob boyutu:", blob.size);
+
+      console.log("🚀 [YÜKLEME] Sunucuya gönderiliyor...");
       const url = await uploadAvatar(blob);
+      
       if (url) {
+        console.log("✅ [YÜKLEME] Başarılı, URL:", url);
         await updateProfile({ avatar_url: url });
+        console.log("✨ [PROFİL] Güncelleme tamamlandı!");
         setIsEditModalOpen(false);
         setImageSrc(null);
+      } else {
+        throw new Error("Sunucu URL dönmedi.");
       }
     } catch (err) {
-      alert('Siber yükleme başarısız oldu usta!');
+      console.error("❌ [KRİTİK HATA]:", err.message);
+      alert('Profil fotoğrafı güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setUploading(false);
     }
@@ -141,7 +181,7 @@ export default function ProfilePage() {
               )}
             </div>
             <p className="text-slate-500 text-sm mb-6 flex items-center justify-center sm:justify-start gap-2">
-               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Siber Hat: {user.email}
+               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Kayıtlı E-posta: {user.email}
             </p>
             
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
@@ -170,7 +210,7 @@ export default function ProfilePage() {
               className="relative w-full max-w-xl glass-strong border border-white/10 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-black text-white uppercase tracking-tight">SİBER AVATAR SEÇİMİ</h3>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">PROFİL FOTOĞRAFI SEÇİMİ</h3>
                 <button onClick={() => { setIsEditModalOpen(false); setImageSrc(null); }} className="p-2 rounded-xl hover:bg-white/5 text-slate-400"><X /></button>
               </div>
 
@@ -214,7 +254,7 @@ export default function ProfilePage() {
 
                     <div className="flex gap-3">
                       <button 
-                        onClick={() => { setImageSrc(null); console.log("Siber İptal: Geri dönüldü."); }}
+                        onClick={() => { setImageSrc(null); console.log("🔄 [İPTAL] Fotoğraf seçimine dönüldü."); }}
                         className="flex-1 py-4 glass border border-white/5 text-slate-400 font-bold rounded-2xl hover:text-white transition-all"
                       >
                         İPTAL
@@ -225,7 +265,7 @@ export default function ProfilePage() {
                         className="flex-[2] py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-2xl shadow-neon-purple flex items-center justify-center gap-2"
                       >
                         {uploading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check size={20} />}
-                        {uploading ? 'İŞLENİYOR...' : 'ONAYLA VE YÜKLE'}
+                        {uploading ? 'İŞLENİYOR...' : 'FOTOĞRAFI GÜNCELLE'}
                       </button>
                     </div>
                   </div>
@@ -233,9 +273,9 @@ export default function ProfilePage() {
                   <div className="space-y-8">
                     {/* Upload Section */}
                     <div>
-                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Lokal Karargâhtan Yükle</p>
+                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Cihazından Yükle</p>
                        <button 
-                         onClick={() => { console.log("Siber Tetik: Input'a basıldı."); fileInputRef.current?.click(); }}
+                        onClick={() => { console.log("🖱️ [TIKLA] Dosya seçici açılıyor."); fileInputRef.current?.click(); }}
                          className="w-full h-40 rounded-3xl border-2 border-dashed border-white/10 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all flex flex-col items-center justify-center gap-3 group"
                        >
                          <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-purple-400 group-hover:scale-110 transition-all">

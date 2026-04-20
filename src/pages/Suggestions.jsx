@@ -51,11 +51,11 @@ export default function Suggestions() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter"
           >
-            LOJİSTİK <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">ÖNERİ</span> HATTI
+            KULLANICI <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">ÖNERİ</span> HATTI
           </motion.h1>
           <p className="text-slate-500 max-w-xl mx-auto font-medium">
-            AniPeak'i siber nizamda zirveye taşımak için senin fikirlerine ihtiyacımız var amk. 
-            <span className="text-white"> Önerini gönder, karargâhta değerlendirelim!</span>
+            AniPeak'i daha iyi bir yer haline getirmek için fikirlerinize ihtiyacımız var. 
+            <span className="text-white"> Önerinizi gönderin, ekibimizle birlikte değerlendirelim!</span>
           </p>
         </div>
 
@@ -76,9 +76,9 @@ export default function Suggestions() {
                 <div className="w-24 h-24 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-8 border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
                   <CheckCircle2 size={56} />
                 </div>
-                <h2 className="text-4xl font-black text-white mb-4">MÜHÜRLENDİ!</h2>
+                <h2 className="text-4xl font-black text-white mb-4">BAŞARILI!</h2>
                 <p className="text-slate-400 mb-10 max-w-sm leading-relaxed">
-                  Önerin siber arşive güvenli bir şekilde eklendi usta. İnceleyip gerekirse seninle irtibata geçeceğiz!
+                  Öneriniz sistemimize başarıyla kaydedildi. İnceleyip en kısa sürede değerlendirmeye alacağız!
                 </p>
                 <button 
                   onClick={() => setSuccess(false)}
@@ -92,12 +92,12 @@ export default function Suggestions() {
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                      <User size={12} className="text-purple-400" /> SİBER ADINIZ
+                      <User size={12} className="text-purple-400" /> ADINIZ
                     </label>
                     <input 
                       required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-700"
-                      placeholder="Örn: SiberTeğmen17"
+                      placeholder="Adınız veya kullanıcı adınız"
                     />
                   </div>
                   <div className="space-y-2">
@@ -107,20 +107,21 @@ export default function Suggestions() {
                     <input 
                       required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-700"
-                      placeholder="siber@anipeak.com.tr"
+                      placeholder="eposta@adresiniz.com"
                     />
-                    <p className="text-[9px] text-slate-600 ml-1 italic">* Seninle iletişime geçebilmemiz için gereklidir.</p>
+                    <p className="text-[9px] text-slate-600 ml-1 italic">* Sizinle iletişime geçebilmemiz için gereklidir.</p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                    <MessageSquare size={12} className="text-purple-400" /> STRATEJİK ÖNERİNİZ
-                  </label>
-                  <textarea 
-                    required rows={8} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all resize-none placeholder-slate-700"
-                    placeholder="AniPeak'te ne görmek istersin? Hangi özellik gelmeli? Dök içini usta..."
+                <div>
+                  <label className="block text-sm font-bold text-slate-400 mb-2 ml-1">Öneriniz Nedir?</label>
+                  <textarea
+                    required
+                    value={formData.message}
+                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    rows={6}
+                    className="w-full glass border border-white/10 rounded-2xl p-4 text-white placeholder-slate-600 focus:border-purple-500 outline-none transition-all resize-none"
+                    placeholder="AniPeak'te hangi özellikleri görmek istersiniz? Fikirlerinizi bizimle paylaşın..."
                   />
                 </div>
 
@@ -134,7 +135,7 @@ export default function Suggestions() {
                   ) : (
                     <Send size={24} />
                   )}
-                  {loading ? 'VERİ İŞLENİYOR...' : 'ÖNERİYİ KARARGÂHA GÖNDER'}
+                  {loading ? 'GÖNDERİLİYOR...' : 'ÖNERİYİ GÖNDER'}
                 </button>
               </form>
             )}
@@ -144,10 +145,10 @@ export default function Suggestions() {
         {/* Footer Info */}
         <div className="mt-12 flex items-center justify-center gap-8 text-slate-600 font-bold text-[10px] uppercase tracking-widest">
            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-purple-500" /> %100 ANONİM VE GÜVENLİ
+              <div className="w-1.5 h-1.5 rounded-full bg-purple-500" /> %100 GÜVENLİ
            </div>
            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> SİBER NİZAM PROTOKOLÜ
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> KULLANICI ODAKLI SİSTEM
            </div>
         </div>
       </div>

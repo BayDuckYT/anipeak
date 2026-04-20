@@ -1,6 +1,6 @@
 /**
- * ANIPEAK SİBER LOJİSTİK - İmaj Servisi V1
- * Cloudinary entegrasyonu ve avatar yönetimi.
+ * ANİPEAK PROFİL YÖNETİMİ - İmaj Servisi
+ * Avatar yönetimi ve yükleme işlemleri.
  */
 
 const LOCAL_UPLOAD_URL = `http://localhost:3001/api/admin/upload-avatar`;

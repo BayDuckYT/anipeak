@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    // [KOZMİK ÖNBELLEK] Optimistik başlangıç: Supabase'den önce hafızadaki kullanıcıyı yükle
+    // [HIZLI ÖNBELLEK] Optimistik başlangıç: Supabase'den önce hafızadaki kullanıcıyı yükle
     try {
       const cached = localStorage.getItem('anipeak_user_cache');
       return cached ? JSON.parse(cached) : null;
@@ -39,20 +39,20 @@ export function AuthProvider({ children }) {
         console.error('[Auth] Profil çekme hatası:', error.message);
       }
 
-      // [KOZMİK YETKİ] Hardcoded Admin bypass for the owner
-      const isCosmicOwner = authUser.email === 'murathanozel134@gmail.com';
+      // [YÖNETİCİ YETKİSİ] Hardcoded Admin bypass for the owner
+      const isSystemOwner = authUser.email === 'murathanozel134@gmail.com';
 
       const merged = {
         ...authUser,
         username:  data?.username  || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
-        role:      isCosmicOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
+        role:      isSystemOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
         avatar:    data?.avatar_url || authUser.user_metadata?.avatar_url || null,
         premium:   data?.premium   || false,
         status:    data?.status    || 'Aktif',
       };
 
       setUser(merged);
-      // [KOZMİK SÜREKLİLİK] Başarılı profili hafızaya yedekle
+      // [SİSTEM YEDEĞİ] Başarılı profili hafızaya yedekle
       localStorage.setItem('anipeak_user_cache', JSON.stringify(merged));
       return merged;
     } catch (err) {
@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // [KOZMİK BİLDİRİM] Unified notification sender
+  // [SİSTEM DUYURUSU] Unified notification sender
   const sendNotification = useCallback(async (text, type = 'system') => {
     try {
       await supabase.from('announcements').insert([{ text, type, created_at: new Date().toISOString() }]);
@@ -161,10 +161,10 @@ export function AuthProvider({ children }) {
 
   // ── Gamification Logic ──────────────────────────────────────────────
   const calculateTitle = (xp = 0) => {
-    if (xp >= 1500) return 'Kozmik Varlık';
-    if (xp >= 500)  return 'Manga Fedaisi';
-    if (xp >= 100)  return 'Kıdemli Okur';
-    return 'Çömez Okur';
+    if (xp >= 1500) return 'Elit Okur';
+    if (xp >= 500)  return 'Manga Uzmanı';
+    if (xp >= 100)  return 'Kıdemli Üye';
+    return 'Yeni Üye';
   };
 
   const updateXP = useCallback(async (amount) => {
@@ -294,7 +294,7 @@ export function AuthProvider({ children }) {
       const mockAdmin = {
         id: 'bypass-admin-id',
         email: 'admin@123.com',
-        user_metadata: { username: 'Başkan' },
+        user_metadata: { username: 'Yönetici' },
         role: 'Baş Admin'
       };
       setUser(mockAdmin);

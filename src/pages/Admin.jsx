@@ -42,13 +42,13 @@ const ALL_NAV = [
   { id: 'content', label: 'Seri Envanteri', icon: BookOpen },
   { id: 'chapterEditor', label: 'Bölüm Editörü', icon: Layers },
   { id: 'add', label: 'Hızlı Ekle', icon: PlusCircle },
-  { id: 'suggestions', label: 'Lojistik Öneriler', icon: FileText },
+  { id: 'suggestions', label: 'Kullanıcı Önerileri', icon: FileText },
   { id: 'announcements', label: 'Duyuru Yönetimi', icon: Bell },
   { id: 'users', label: 'Kullanıcı Yönetimi', icon: UserCheck },
   { id: 'tickets', label: 'Bilet Hattı (Hata)', icon: ShieldAlert },
   { id: 'pages', label: 'Sayfa Yönetimi', icon: FileText },
   { id: 'messages', label: 'Gelen Mesajlar', icon: Mail },
-  { id: 'settings', label: 'Kozmik Ayarlar', icon: Settings },
+  { id: 'settings', label: 'Genel Ayarlar', icon: Settings },
   { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
 ];
 
@@ -746,7 +746,7 @@ function SuggestionsPanel() {
     try {
       const res = await fetch('http://localhost:3001/api/admin/suggestions');
       const data = await res.json();
-      setSuggestions(data.content || 'Henüz öneri gelmedi Teğmenim.');
+      setSuggestions(data.content || 'Henüz yeni bir öneri bulunmuyor.');
     } catch (err) {
       setSuggestions('Lojistik Sunucusu Çevrimdışı!');
     } finally {
@@ -764,8 +764,8 @@ function SuggestionsPanel() {
     <div className="space-y-6">
        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-black text-white">Lojistik Öneri Hattı</h2>
-            <p className="text-slate-500 text-sm mt-1">suggestions.txt dosyasından canlı olarak okunur.</p>
+            <h2 className="text-2xl font-black text-white">Kullanıcı Öneri Hattı</h2>
+            <p className="text-slate-500 text-sm mt-1">Gelen öneriler canlı olarak listelenir.</p>
           </div>
           <button onClick={fetchSuggestions} className="p-2.5 glass border border-white/10 rounded-xl text-slate-400 hover:text-white transition-all">
              <Activity size={18} className={loading ? 'animate-spin' : ''} />
@@ -780,7 +780,7 @@ function SuggestionsPanel() {
        
        <div className="flex gap-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
           <ShieldAlert className="text-amber-500 flex-shrink-0" size={20} />
-          <p className="text-amber-500/80 text-xs font-medium">Bu veriler veritabanını şişirmemesi için direkt olarak sunucu dosya sisteminde mühürlenmektedir.</p>
+          <p className="text-amber-500/80 text-xs font-medium">Bu veriler veritabanını meşgul etmemek için sunucu üzerinde saklanmaktadır.</p>
        </div>
     </div>
   );
@@ -806,7 +806,7 @@ function PageManagement({ showToast }) {
   const handleSavePage = async (e) => {
     e.preventDefault();
     if (!editingPage.slug || !editingPage.title) {
-      showToast('Slug ve Başlık boş olamaz Teğmenim!', 'error');
+      showToast('Slug ve Başlık boş olamaz!', 'error');
       return;
     }
 
@@ -927,7 +927,7 @@ function InboxPanel({ showToast }) {
             </div>
           </div>
         ))}
-        {messages.length === 0 && !loading && <div className="py-20 text-center text-slate-500">Henüz gelen bir mesaj yok Teğmenim.</div>}
+        {messages.length === 0 && !loading && <div className="py-20 text-center text-slate-500">Henüz gelen bir mesaj bulunmuyor.</div>}
       </div>
     </div>
   );
@@ -969,7 +969,7 @@ export default function Admin() {
     <div className="min-h-screen flex items-center justify-center bg-[#050507]">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-        <div className="text-purple-400 font-black tracking-widest animate-pulse uppercase text-xs">Kozmik Veriler Senkronize Ediliyor...</div>
+        <div className="text-purple-400 font-black tracking-widest animate-pulse uppercase text-xs">Veriler Senkronize Ediliyor...</div>
       </div>
     </div>
   );
@@ -1029,7 +1029,7 @@ export default function Admin() {
             {sidebarOpen && (
               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex items-center gap-2">
                 <Shield size={16} className="text-amber-400" />
-                <span className="text-sm font-bold text-white tracking-widest whitespace-nowrap">KOZMİK ODA</span>
+                <span className="text-sm font-bold text-white tracking-widest whitespace-nowrap">YÖNETİM PANELİ</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1262,7 +1262,7 @@ export default function Admin() {
           <div className="space-y-6 max-w-4xl">
             <div className="glass border border-white/8 rounded-2xl p-6">
               <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
-                <Globe className="text-blue-400" size={20} /> Kozmik Ayarlar
+                <Globe className="text-blue-400" size={20} /> Genel Ayarlar
               </h3>
               <div className="space-y-8">
                 {/* Maintenance Mode */}

@@ -9,7 +9,7 @@ import sharp from 'sharp';
 
 dotenv.config();
 
-// SİBER LİMİT: Komuta merkezi için dinleyici sınırını kaldır!
+// SİSTEM AYARI: Dinleyici sınırını kaldır
 process.setMaxListeners(0);
 
 const app = express();
@@ -18,7 +18,7 @@ const LOGS_DIR = path.join(process.cwd(), 'admin', 'logs');
 const SUGGESTIONS_FILE = path.join(LOGS_DIR, 'suggestions.txt');
 const AVATARS_DIR = path.join(process.cwd(), 'public', 'avatars', 'uploads');
 
-// Ensure logs directory exists
+// Log dizinlerini kontrol et
 if (!fs.existsSync(LOGS_DIR)) {
     fs.mkdirSync(LOGS_DIR, { recursive: true });
 }
@@ -32,40 +32,52 @@ app.use(express.static('public')); // Statik dosyaları servis et
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// [LOGISTICS] - Avatar Upload
+// [PROFİL] - Avatar Yükleme
 app.post('/api/admin/upload-avatar', upload.single('avatar'), async (req, res) => {
+    console.log("📥 [AVATAR] Yeni yükleme isteği alındı.");
     try {
-        if (!req.file) return res.status(400).json({ error: 'Dosya seçilmedi.' });
+        if (!req.file) {
+            console.warn("⚠️ [AVATAR] İstekte dosya bulunamadı.");
+            return res.status(400).json({ error: 'Dosya seçilmedi.' });
+        }
         
-        // Ensure avatars directory exists
-        if (!fs.existsSync(AVATARS_DIR)) fs.mkdirSync(AVATARS_DIR, { recursive: true });
+        console.log(`🖼️ [AVATAR] Dosya alındı: ${req.file.originalname} (${req.file.size} bytes)`);
+
+        // Klasör kontrolü
+        if (!fs.existsSync(AVATARS_DIR)) {
+            console.log("📁 [AVATAR] Upload dizini oluşturuluyor...");
+            fs.mkdirSync(AVATARS_DIR, { recursive: true });
+        }
 
         const fileName = `avatar_${Date.now()}.webp`;
         const filePath = path.join(AVATARS_DIR, fileName);
 
+        console.log("⚙️ [AVATAR] Görsel işleniyor (Sharp)...");
         await sharp(req.file.buffer)
             .resize(512, 512, { fit: 'cover' })
             .webp({ quality: 80 })
             .toFile(filePath);
 
-        res.json({ success: true, url: `http://localhost:3001/avatars/uploads/${fileName}` });
+        console.log(`✅ [AVATAR] Başarıyla kaydedildi: ${fileName}`);
+        const fullUrl = `http://localhost:3001/avatars/uploads/${fileName}`;
+        res.json({ success: true, url: fullUrl });
     } catch (err) {
-        console.error('[AVATAR-UPLOAD] Hata:', err.message);
+        console.error('❌ [AVATAR-HATASI]:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
 
-// [COMMAND CENTER] - Staging Area (Git Status)
+// [SİSTEM] - Taslak Durumu (Git Status)
 app.get('/api/admin/staging', (req, res) => {
     try {
         const status = execSync('git status -s').toString();
-        res.json({ success: true, status: status || 'Siber Nizam: Her şey güncel.' });
+        res.json({ success: true, status: status || 'Sistem Durumu: Her şey güncel.' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// [COMMAND] - Propose Update Title (AI calls this)
+// [SİSTEM] - Değişiklik Önerisi
 app.post('/api/admin/propose', (req, res) => {
     const { title } = req.body;
     if (!title) return res.status(400).json({ error: 'Başlık eksik.' });
@@ -79,7 +91,7 @@ app.post('/api/admin/propose', (req, res) => {
     }
 });
 
-// [COMMAND] - Get Current Proposal
+// [SİSTEM] - Öneriyi Getir
 app.get('/api/admin/get-proposal', (req, res) => {
     try {
         const proposalFile = path.join(LOGS_DIR, 'proposed_changes.json');
@@ -94,73 +106,73 @@ app.get('/api/admin/get-proposal', (req, res) => {
     }
 });
 
-// [COMMAND] - Deploy (Git Push)
+// [SİSTEM] - Yayınlama (Git Push)
 app.post('/api/admin/deploy', (req, res) => {
     try {
         const proposalFile = path.join(LOGS_DIR, 'proposed_changes.json');
-        let commitMsg = `Admin Update [${new Date().toLocaleString('tr-TR')}]`;
+        let commitMsg = `Sistem Güncellemesi [${new Date().toLocaleString('tr-TR')}]`;
         
         if (fs.existsSync(proposalFile)) {
             const proposal = JSON.parse(fs.readFileSync(proposalFile, 'utf8'));
             commitMsg = proposal.title;
         }
 
-        console.log('🚀 Taarruz Başladı: Lokal Build Alınıyor...');
+        console.log('🚀 Güncelleme Başladı: Yerel derleme yapılıyor...');
         execSync('npm run build', { stdio: 'inherit' });
 
-        console.log('📦 Git İşlemleri Başladı...');
+        console.log('📦 Veri senkronizasyonu başlatıldı...');
         execSync('git add .');
         execSync(`git commit -m "${commitMsg}"`);
         execSync('git push origin main');
 
-        // Cloudflare Webhook (Optional)
+        // Cloudflare Webhook (Opsiyonel)
         if (process.env.CLOUDFLARE_WEBHOOK_URL) {
             execSync(`curl -X POST ${process.env.CLOUDFLARE_WEBHOOK_URL}`);
         }
 
-        // Log Deployment
+        // Günlüğü Kaydet
         const deployLog = path.join(LOGS_DIR, 'deployments.txt');
-        fs.appendFileSync(deployLog, `[${new Date().toLocaleString('tr-TR')}] YAYINLANDI: ${commitMsg}\n`);
+        fs.appendFileSync(deployLog, `[${new Date().toLocaleString('tr-TR')}] GÜNCELLEDİ: ${commitMsg}\n`);
 
-        // Clean proposal
+        // Öneriyi temizle
         if (fs.existsSync(proposalFile)) fs.unlinkSync(proposalFile);
 
-        res.json({ success: true, message: 'Taarruz Başarılı! Sistem güncellendi.' });
+        res.json({ success: true, message: 'Güncelleme Başarılı! Sistem yenilendi.' });
     } catch (err) {
-        console.error('❌ Taarruz Başarısız:', err.message);
+        console.error('❌ Güncelleme Hatası:', err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// [COMMAND CENTER] - Rollback (Geri Alma)
+// [SİSTEM] - Geri Yükleme (Rollback)
 app.post('/api/admin/rollback', (req, res) => {
     try {
-        console.log('[ROLLBACK] Geri çekilme emri verildi!');
+        console.log('[ROLLBACK] Önceki sürüme dönülüyor...');
         execSync('git revert HEAD --no-edit');
         execSync('git push origin main');
-        res.json({ success: true, message: 'Geri Çekilme Başarılı! Sistem eski nizamına döndü.' });
+        res.json({ success: true, message: 'Geri Yükleme Başarılı! Sistem önceki kararlı haline döndü.' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// [LOGISTICS] - Save Suggestion
+// [ÖNERİ] - Öneriyi Kaydet
 app.post('/api/admin/suggest', (req, res) => {
     const { user, email, message } = req.body;
-    if (!user || !message) return res.status(400).json({ error: 'Eksik mühimmat: İsim ve mesaj gerekli.' });
+    if (!user || !message) return res.status(400).json({ error: 'Eksik veri: İsim ve mesaj gerekli.' });
 
     const date = new Date().toLocaleString('tr-TR');
     const entry = `[${date}][${user}][${email || 'E-posta Yok'}]: ${message}\n`;
 
     try {
         fs.appendFileSync(SUGGESTIONS_FILE, entry);
-        res.json({ success: true, message: 'Önerin karargâha ulaştı!' });
+        res.json({ success: true, message: 'Öneriniz yönetime ulaştı!' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// [LOGISTICS] - Read Suggestions (Real-time)
+// [ÖNERİ] - Önerileri Oku
 app.get('/api/admin/suggestions', (req, res) => {
     try {
         const content = fs.readFileSync(SUGGESTIONS_FILE, 'utf-8');
@@ -171,7 +183,7 @@ app.get('/api/admin/suggestions', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`\n\x1b[35m%s\x1b[0m`, `⚓ ANIPEAK SİBER KOMUTA MERKEZİ AKTİF ⚓`);
+    console.log(`\n\x1b[35m%s\x1b[0m`, `⚓ ANIPEAK YÖNETİM MERKEZİ AKTİF ⚓`);
     console.log(`\x1b[36m%s\x1b[0m`, `Port: ${PORT}`);
     console.log(`\x1b[90m%s\x1b[0m`, `-----------------------------------------`);
 });

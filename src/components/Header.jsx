@@ -161,7 +161,7 @@ export default function Header({ onAuthOpen }) {
           <div className="flex items-center gap-1.5">
             {/* Admin */}
             <Link to="/admin" className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all">
-              <Shield size={14} /> <span className="hidden lg:inline">Kozmik Oda</span>
+              <Shield size={14} /> <span className="hidden lg:inline">Yönetim Paneli</span>
             </Link>
 
           {/* Notifications Bell - Always Visible */}
@@ -382,7 +382,7 @@ export default function Header({ onAuthOpen }) {
                 )}
               </div>
               <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><Compass size={16} /> Keşfet</Link>
-              <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Shield size={16} /> Kozmik Oda</Link>
+              <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Shield size={16} /> Yönetim Paneli</Link>
               {user ? (
                 <>
                   <Link to="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 transition-all"><Library size={16} /> Okuduklarım</Link>
