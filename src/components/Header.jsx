@@ -235,8 +235,12 @@ export default function Header({ onAuthOpen }) {
                   onClick={() => setProfileOpen(!profileOpen)}
                   className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition-all"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple">
-                    {avatarLetter}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple overflow-hidden">
+                    {user.avatar_url ? (
+                      <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      avatarLetter
+                    )}
                   </div>
                   <div className="hidden md:block text-left">
                     <p className="text-white text-xs font-semibold leading-tight">{user.username}</p>
@@ -255,8 +259,12 @@ export default function Header({ onAuthOpen }) {
                       {/* User info header */}
                       <div className="px-4 py-3 border-b border-white/8 bg-gradient-to-r from-purple-500/10 to-blue-500/10">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-purple-500/20">
-                            {avatarLetter}
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-purple-500/20 overflow-hidden">
+                            {user.avatar_url ? (
+                              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              avatarLetter
+                            )}
                           </div>
                           <div className="min-w-0">
                             <p className="text-white text-sm font-bold truncate">{user.username}</p>

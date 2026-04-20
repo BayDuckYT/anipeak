@@ -394,6 +394,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateProfile = useCallback(async (updates) => {
+    if (!user?.id) return;
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id);
+    if (error) throw error;
+    setUser(prev => ({ ...prev, ...updates }));
+  }, [user?.id]);
+
   const logout = async () => {
     // 1. İstemci (tarayıcı) tarafındaki HER ŞEYİ KESİNLİKLE SİL
     setUser(null);
@@ -457,7 +467,8 @@ export function AuthProvider({ children }) {
     updateXP,
     calculateTitle,
     resetPassword,
-    updatePassword
+    updatePassword,
+    updateProfile
   };
 
   return (
