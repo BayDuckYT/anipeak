@@ -11,8 +11,25 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.from('contact_messages').insert([formData]);
-    if (!error) {
+
+    if (formData.subject === 'Hata Bildirimi') {
+      // Hata Bildirimi direkt Admin Paneline (Supabase) düşer
+      const { error } = await supabase.from('contact_messages').insert([formData]);
+      if (!error) {
+        setSuccess(true);
+        setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
+      }
+    } else {
+      // Diğer konular ilgili e-posta adreslerine yönlendirilir
+      const subjectEmails = {
+        'Genel İletişim': 'info@anipeak.com.tr',
+        'Teknik Destek': 'support@anipeak.com.tr',
+        'İşbirlikleri': 'business@anipeak.com.tr'
+      };
+      const targetEmail = subjectEmails[formData.subject] || 'info@anipeak.com.tr';
+      const mailtoLink = `mailto:${targetEmail}?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Gönderen: ${formData.name}\nE-posta: ${formData.email}\n\nMesaj:\n${formData.message}`)}`;
+      
+      window.location.href = mailtoLink;
       setSuccess(true);
       setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
     }
@@ -20,9 +37,10 @@ export default function Contact() {
   };
 
   const contactCards = [
-    { title: 'Genel İletişim', email: 'info@anipeak.com.tr', color: 'from-blue-500 to-cyan-500' },
-    { title: 'Teknik Destek', email: 'support@anipeak.com.tr', color: 'from-purple-500 to-indigo-500' },
-    { title: 'İşbirlikleri & Reklam', email: 'business@anipeak.com.tr', color: 'from-rose-500 to-orange-500' }
+    { title: 'Genel İletişim', email: 'info@anipeak.com.tr', color: 'from-blue-500 to-cyan-500', icon: <Mail size={24} /> },
+    { title: 'Teknik Destek', email: 'support@anipeak.com.tr', color: 'from-purple-500 to-indigo-500', icon: <Phone size={24} /> },
+    { title: 'İşbirlikleri & Reklam', email: 'business@anipeak.com.tr', color: 'from-rose-500 to-orange-500', icon: <Send size={24} /> },
+    { title: 'Hata Bildirimi', email: 'Admin Paneli', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
   ];
 
   return (
@@ -34,11 +52,11 @@ export default function Contact() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-6xl font-black text-white mb-4 italic uppercase"
           >
-            BİZİMLE <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">İLETİŞİME</span> GEÇİN
+            SİBER <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">HABERLEŞME</span> HATTI
           </motion.h1>
           <p className="text-slate-500 max-w-2xl mx-auto font-medium">
-            AniPeak siber sahasında bir sorun mu fark ettiniz veya bir öneriniz mi var? 
-            Ekibimizle 7/24 iletişime geçebilirsiniz.
+            AniPeak karargâhına veri göndermek için konuyu seçin. 
+            <span className="text-red-400"> Hata bildirimleri</span> doğrudan teknik ekibin paneline düşer.
           </p>
         </div>
 
@@ -54,10 +72,10 @@ export default function Contact() {
                 className="glass border border-white/10 rounded-3xl p-6 hover:border-white/20 transition-all group"
               >
                 <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-4 shadow-lg`}>
-                  <Mail className="text-white" size={24} />
+                  <div className="text-white">{card.icon}</div>
                 </div>
                 <h3 className="text-white font-black text-lg mb-1">{card.title}</h3>
-                <a href={`mailto:${card.email}`} className="text-slate-400 text-sm hover:text-blue-400 transition-colors">{card.email}</a>
+                <p className="text-slate-400 text-sm">{card.email}</p>
               </motion.div>
             ))}
           </div>
@@ -73,9 +91,9 @@ export default function Contact() {
                 <div className="w-24 h-24 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6">
                   <CheckCircle2 size={64} />
                 </div>
-                <h2 className="text-3xl font-black text-white mb-4">MESAJINIZ ALINDI!</h2>
-                <p className="text-slate-400 mb-8 max-w-sm">Siber haberleşme hattımız mesajınızı karargâha ulaştırdı. En kısa sürede dönüş yapacağız Teğmenim!</p>
-                <button onClick={() => setSuccess(false)} className="px-8 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all">Yeni Mesaj Gönder</button>
+                <h2 className="text-3xl font-black text-white mb-4">VERİ İLETİLDİ!</h2>
+                <p className="text-slate-400 mb-8 max-w-sm">Siber haberleşme hattımız veriyi ilgili birime ulaştırdı. En kısa sürede dönüş yapılacaktır!</p>
+                <button onClick={() => setSuccess(false)} className="px-8 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all">Yeni Veri Gönder</button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -125,7 +143,7 @@ export default function Contact() {
                   type="submit"
                   className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-2xl shadow-neon-purple hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                 >
-                  <Send size={20} /> {loading ? 'SİBER VERİ GÖNDERİLİYOR...' : 'MESAJI GÖNDER'}
+                  <Send size={20} /> {loading ? 'SİBER VERİ İLETİLİYOR...' : 'MESAJI GÖNDER'}
                 </button>
               </form>
             )}
