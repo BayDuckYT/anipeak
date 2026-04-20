@@ -9,7 +9,7 @@ import {
   Check, Upload, Sparkles, X, Minus, Plus
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
-import { uploadAvatar, DEFAULT_AVATARS } from '../lib/imageService';
+import { uploadAvatar } from '../lib/imageService';
 
 // Siber Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -59,11 +59,21 @@ export default function ProfilePage() {
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    console.log("Mermi namluya sürüldü: ", file);
+    if (!file) {
+      console.warn("Siber Hata: Dosya seçilmedi veya iptal edildi.");
+      return;
+    }
 
     const reader = new FileReader();
-    reader.addEventListener('load', () => setImageSrc(reader.result));
+    reader.addEventListener('load', () => {
+      console.log("Siber Okuma: Görsel veri yoluna dönüştürüldü.");
+      setImageSrc(reader.result);
+    });
     reader.readAsDataURL(file);
+    
+    // Reset input so same file can be selected again
+    e.target.value = null;
   };
 
   const handleSave = async () => {
@@ -78,16 +88,6 @@ export default function ProfilePage() {
       }
     } catch (err) {
       alert('Siber yükleme başarısız oldu usta!');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const selectDefault = async (url) => {
-    setUploading(true);
-    try {
-      await updateProfile({ avatar_url: url });
-      setIsEditModalOpen(false);
     } finally {
       setUploading(false);
     }
@@ -175,6 +175,11 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-6">
+                <input 
+                  type="file" ref={fileInputRef} className="hidden" 
+                  accept="image/*" onChange={handleFileUpload}
+                />
+
                 {imageSrc ? (
                   <div className="space-y-6">
                     <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden bg-black/40 border border-white/5">
@@ -209,7 +214,7 @@ export default function ProfilePage() {
 
                     <div className="flex gap-3">
                       <button 
-                        onClick={() => setImageSrc(null)}
+                        onClick={() => { setImageSrc(null); console.log("Siber İptal: Geri dönüldü."); }}
                         className="flex-1 py-4 glass border border-white/5 text-slate-400 font-bold rounded-2xl hover:text-white transition-all"
                       >
                         İPTAL
@@ -229,12 +234,8 @@ export default function ProfilePage() {
                     {/* Upload Section */}
                     <div>
                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Lokal Karargâhtan Yükle</p>
-                       <input 
-                         type="file" ref={fileInputRef} className="hidden" 
-                         accept="image/*" onChange={handleFileUpload}
-                       />
                        <button 
-                         onClick={() => fileInputRef.current?.click()}
+                         onClick={() => { console.log("Siber Tetik: Input'a basıldı."); fileInputRef.current?.click(); }}
                          className="w-full h-40 rounded-3xl border-2 border-dashed border-white/10 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all flex flex-col items-center justify-center gap-3 group"
                        >
                          <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-purple-400 group-hover:scale-110 transition-all">
@@ -245,28 +246,6 @@ export default function ProfilePage() {
                             <span className="text-[10px] text-slate-600 font-medium">JPEG, PNG veya WebP (Max 5MB)</span>
                          </div>
                        </button>
-                    </div>
-
-                    {/* Default Pool */}
-                    <div>
-                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Siber Karakter Havuzu</p>
-                       <div className="grid grid-cols-5 gap-3">
-                          {DEFAULT_AVATARS.map((url, i) => (
-                            <button 
-                              key={i} 
-                              onClick={() => selectDefault(url)}
-                              disabled={uploading}
-                              className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white/5 hover:border-purple-500 transition-all group shadow-lg"
-                            >
-                              <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                              {user.avatar_url === url && (
-                                <div className="absolute inset-0 bg-purple-600/40 flex items-center justify-center text-white">
-                                  <Check size={20} />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                       </div>
                     </div>
                   </div>
                 )}

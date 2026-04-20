@@ -18,17 +18,17 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'command', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'command', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
     badge: 'bg-gradient-to-br from-blue-600 to-cyan-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'command', 'suggestions', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'suggestions', 'trash'],
   },
   'Editör': {
     color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
@@ -42,7 +42,6 @@ const ALL_NAV = [
   { id: 'content', label: 'Seri Envanteri', icon: BookOpen },
   { id: 'chapterEditor', label: 'Bölüm Editörü', icon: Layers },
   { id: 'add', label: 'Hızlı Ekle', icon: PlusCircle },
-  { id: 'command', label: 'Siber Komuta', icon: Activity },
   { id: 'suggestions', label: 'Lojistik Öneriler', icon: FileText },
   { id: 'announcements', label: 'Duyuru Yönetimi', icon: Bell },
   { id: 'users', label: 'Kullanıcı Yönetimi', icon: UserCheck },
@@ -735,144 +734,6 @@ return (
 );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sub-component: Command Center (Update & Deploy)
-// ─────────────────────────────────────────────────────────────────────────────
-function CommandPanel({ showToast }) {
-  const [staging, setStaging] = useState('Analiz ediliyor...');
-  const [proposal, setProposal] = useState('Analiz ediliyor...');
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState('IDLE'); // IDLE, DEPLOYING, ROLLBACK
-
-  const fetchData = async () => {
-    try {
-      const sRes = await fetch('http://localhost:3001/api/admin/staging');
-      const sData = await sRes.json();
-      setStaging(sData.status);
-
-      const pRes = await fetch('http://localhost:3001/api/admin/get-proposal');
-      const pData = await pRes.json();
-      setProposal(pData.title);
-    } catch (err) {
-      setStaging('Sunucu Çevrimdışı!');
-      setProposal('Bağlantı Kesildi');
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleDeploy = async () => {
-    if (!window.confirm('Tüm değişiklikler yayına alınacak. Taarruz başlasın mı?')) return;
-    setLoading(true);
-    setStatus('DEPLOYING');
-    try {
-      const res = await fetch('http://localhost:3001/api/admin/deploy', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        showToast('🚀 Taarruz Başarılı! Site rebuild ediliyor.', 'success');
-      } else throw new Error(data.error);
-    } catch (err) {
-      showToast('Pusuya düşüldü: ' + err.message, 'error');
-    } finally {
-      setLoading(false);
-      setStatus('IDLE');
-      fetchStaging();
-    }
-  };
-
-  const handleRollback = async () => {
-    if (!window.confirm('Sistem bir önceki başarılı nizamına geri döndürülecek. Onaylıyor musunuz?')) return;
-    setLoading(true);
-    setStatus('ROLLBACK');
-    try {
-      const res = await fetch('http://localhost:3001/api/admin/rollback', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        showToast('⚓ Geri Çekilme Başarılı! Sistem eski haline döndü.', 'info');
-      } else throw new Error(data.error);
-    } catch (err) {
-      showToast('Geri çekilme başarısız: ' + err.message, 'error');
-    } finally {
-      setLoading(false);
-      setStatus('IDLE');
-      fetchStaging();
-    }
-  };
-
-  return (
-    <div className="space-y-8">
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Staging Area */}
-        <div className="glass border border-white/8 rounded-3xl p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/5 blur-[80px] pointer-events-none" />
-          <h3 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
-            <Layers className="text-purple-400" size={24} /> Staging Area (Taslak)
-          </h3>
-          <div className="bg-black/40 border border-white/10 rounded-2xl p-6 font-mono text-sm text-emerald-400 min-h-[200px] max-h-[400px] overflow-auto whitespace-pre-wrap shadow-inner">
-            {staging || 'Değişiklik taranıyor...'}
-          </div>
-          <p className="text-slate-500 text-xs mt-4 italic">* Yapılan yerel değişiklikler burada canlı olarak listelenir.</p>
-        </div>
-
-        {/* Deploy & Rollback */}
-        <div className="space-y-6">
-          <div className="glass border border-white/8 rounded-3xl p-8 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <h3 className="text-2xl font-black text-white mb-2">Hızlı Yayınlama (One-Click)</h3>
-            <p className="text-slate-500 text-sm mb-4">Tek tıkla tüm kodları GitHub'a fırlatır ve siteyi günceller.</p>
-            
-            <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 mb-6">
-               <p className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">Siber Öneri (Sıradaki Güncelleme):</p>
-               <p className="text-white font-bold text-sm italic">"{proposal}"</p>
-            </div>
-            
-            <div className="space-y-4">
-              {status === 'DEPLOYING' && (
-                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }} 
-                    animate={{ width: '100%' }} 
-                    transition={{ duration: 10, ease: "linear" }}
-                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500" 
-                  />
-                </div>
-              )}
-              <button 
-                onClick={handleDeploy} 
-                disabled={loading}
-                className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-2xl ${
-                  loading ? 'opacity-50 cursor-not-allowed bg-slate-800' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-[1.02] active:scale-95 shadow-neon-purple text-white'
-                }`}
-              >
-                {loading && status === 'DEPLOYING' ? <Activity className="animate-spin" /> : <Globe size={24} />}
-                {status === 'DEPLOYING' ? 'GÜNCELLEME YAYINLANIYOR...' : 'TASLAĞI YAYINLA'}
-              </button>
-            </div>
-          </div>
-
-          <div className="glass border border-white/8 rounded-3xl p-8 border-red-500/20 group">
-             <h3 className="text-xl font-black text-white mb-2">Kozmik Rollback (Geri Al)</h3>
-             <p className="text-slate-500 text-sm mb-6">Eğer bir hata çıktıysa, saniyeler içinde sistemi eski nizamına döndürür.</p>
-             <button 
-                onClick={handleRollback} 
-                disabled={loading}
-                className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 border border-red-500/30 ${
-                  loading ? 'opacity-50' : 'bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white'
-                }`}
-              >
-                {loading && status === 'ROLLBACK' ? <Activity className="animate-spin" /> : <SkipBack size={18} />}
-                {status === 'ROLLBACK' ? 'GERİ ÇEKİLME BAŞLADI...' : 'SİSTEMİ GERİ AL (ROLLBACK)'}
-              </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-component: Suggestions (Lojistik Öneriler)
@@ -1394,7 +1255,6 @@ export default function Admin() {
         {safeActiveNav === 'messages' && <InboxPanel showToast={showToast} />}
         {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
         {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
-        {safeActiveNav === 'command' && <CommandPanel showToast={showToast} />}
         {safeActiveNav === 'suggestions' && <SuggestionsPanel />}
 
         {/* Universe Settings */}
