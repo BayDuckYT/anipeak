@@ -16,7 +16,7 @@ const app = express();
 const PORT = 3001;
 const LOGS_DIR = path.join(process.cwd(), 'admin', 'logs');
 const SUGGESTIONS_FILE = path.join(LOGS_DIR, 'suggestions.txt');
-const AVATARS_DIR = path.join(process.cwd(), 'public', 'avatars', 'uploads');
+const AVATARS_DIR = path.join(process.cwd(), 'public', 'assets', 'avatars');
 
 // Log dizinlerini kontrol et
 if (!fs.existsSync(LOGS_DIR)) {
@@ -58,9 +58,9 @@ app.post('/api/admin/upload-avatar', upload.single('avatar'), async (req, res) =
             .webp({ quality: 80 })
             .toFile(filePath);
 
+        const relativeUrl = `/assets/avatars/${fileName}`;
         console.log(`✅ [AVATAR] Başarıyla kaydedildi: ${fileName}`);
-        const fullUrl = `http://localhost:3001/avatars/uploads/${fileName}`;
-        res.json({ success: true, url: fullUrl });
+        res.json({ success: true, url: relativeUrl });
     } catch (err) {
         console.error('❌ [AVATAR-HATASI]:', err.message);
         res.status(500).json({ error: err.message });

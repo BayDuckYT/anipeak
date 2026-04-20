@@ -20,15 +20,29 @@ export const uploadAvatar = async (file) => {
   const formData = new FormData();
   formData.append('avatar', file);
 
+  console.log("🚀 [IMAGE-SERVICE] Sunucuya yükleme başlatıldı...");
+  
   try {
     const response = await fetch(LOCAL_UPLOAD_URL, {
       method: 'POST',
       body: formData,
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Sunucu Hatası: ${response.status} - ${errorText}`);
+    }
+
     const data = await response.json();
-    return data.url; // /avatars/uploads/filename.webp döner
+    console.log("✅ [IMAGE-SERVICE] Yükleme başarılı, URL:", data.url);
+    return data.url; 
   } catch (error) {
-    console.error('[IMAGE-SERVICE] Yükleme Hatası:', error);
+    console.error('❌ [IMAGE-SERVICE] Yükleme Hatası:', error.message);
+    
+    if (error.message.includes('Failed to fetch')) {
+      alert('Yönetim sunucusu (Admin Server) çalışmıyor olabilir. Lütfen terminalden server/adminServer.js dosyasını başlattığınızdan emin olun.');
+    }
+    
     return null;
   }
 };

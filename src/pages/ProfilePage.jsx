@@ -123,11 +123,12 @@ export default function ProfilePage() {
         setIsEditModalOpen(false);
         setImageSrc(null);
       } else {
-        throw new Error("Sunucu URL dönmedi.");
+        // Hata zaten imageService içinde alert ile gösterildi veya loglandı
+        console.warn("⚠️ [YÜKLEME] İşlem durduruldu (URL alınamadı).");
       }
     } catch (err) {
       console.error("❌ [KRİTİK HATA]:", err.message);
-      alert('Profil fotoğrafı güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
+      alert(`Bir hata oluştu: ${err.message}`);
     } finally {
       setUploading(false);
     }
