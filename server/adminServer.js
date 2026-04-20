@@ -36,26 +36,31 @@ app.get('/api/admin/staging', (req, res) => {
     }
 });
 
-// [COMMAND CENTER] - One-Click Publish
-app.post('/api/admin/deploy', async (req, res) => {
+// [COMMAND] - Deploy (Git Push)
+app.post('/api/admin/deploy', (req, res) => {
     try {
-        const date = new Date().toLocaleString('tr-TR');
-        console.log(`[DEPLOY] Başlıyor: ${date}`);
-        
+        console.log('🚀 Taarruz Başladı: Lokal Build Alınıyor...');
+        execSync('npm run build', { stdio: 'inherit' });
+
+        console.log('📦 Git İşlemleri Başladı...');
         execSync('git add .');
-        execSync(`git commit -m "Admin Update [${date}]"`);
+        const commitMsg = `Admin Update [${new Date().toLocaleString('tr-TR')}]`;
+        execSync(`git commit -m "${commitMsg}"`);
         execSync('git push origin main');
 
-        // Cloudflare Webhook (Opsiyonel)
-        const webhookUrl = process.env.CLOUDFLARE_WEBHOOK_URL;
-        if (webhookUrl) {
-            console.log(`[DEPLOY] Webhook tetikleniyor...`);
-            await fetch(webhookUrl, { method: 'POST' });
+        // Cloudflare Webhook (Optional)
+        if (process.env.CLOUDFLARE_WEBHOOK_URL) {
+            execSync(`curl -X POST ${process.env.CLOUDFLARE_WEBHOOK_URL}`);
         }
 
-        res.json({ success: true, message: 'Taarruz Başarılı! Site güncellendi.' });
+        // Log Deployment
+        const deployLog = path.join(LOGS_DIR, 'deployments.txt');
+        if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
+        fs.appendFileSync(deployLog, `[${new Date().toLocaleString('tr-TR')}] YAYINLANDI: ${commitMsg}\n`);
+
+        res.json({ success: true, message: 'Taarruz Başarılı! Sistem güncellendi.' });
     } catch (err) {
-        console.error('[DEPLOY-ERROR]', err.message);
+        console.error('❌ Taarruz Başarısız:', err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });
