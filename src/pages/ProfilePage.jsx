@@ -1,14 +1,39 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Link, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import Cropper from 'react-easy-crop';
 import { 
   BookOpen, Settings, Crown, LayoutDashboard, History, 
   Bell, ChevronRight, Play, Camera, Image as ImageIcon,
-  Check, Upload, Sparkles, X
+  Check, Upload, Sparkles, X, Minus, Plus
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
-import { processImage, uploadToCloudinary, DEFAULT_AVATARS } from '../lib/imageService';
+import { uploadAvatar, DEFAULT_AVATARS } from '../lib/imageService';
+
+// Siber Kırpma Yardımcısı
+const getCroppedImg = async (imageSrc, pixelCrop) => {
+  const image = new Image();
+  image.src = imageSrc;
+  await new Promise((resolve) => { image.onload = resolve; });
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 512;
+  canvas.height = 512;
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
+    0, 0, 512, 512
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    }, 'image/webp', 0.8);
+  });
+};
 
 export default function ProfilePage() {
   const { user, readingHistory, updateProfile } = useAuth();
@@ -16,6 +41,10 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('history');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
 
   if (!user) {
@@ -24,19 +53,28 @@ export default function ProfilePage() {
 
   const avatarLetter = user?.username?.charAt(0)?.toUpperCase() || 'U';
 
+  const onCropComplete = useCallback((_, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    const reader = new FileReader();
+    reader.addEventListener('load', () => setImageSrc(reader.result));
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = async () => {
     setUploading(true);
     try {
-      // 1. İşle (WebP + Crop)
-      const blob = await processImage(file);
-      // 2. Yükle (Cloudinary)
-      const url = await uploadToCloudinary(blob);
+      const blob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      const url = await uploadAvatar(blob);
       if (url) {
         await updateProfile({ avatar_url: url });
         setIsEditModalOpen(false);
+        setImageSrc(null);
       }
     } catch (err) {
       alert('Siber yükleme başarısız oldu usta!');
@@ -124,65 +162,114 @@ export default function ProfilePage() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setIsEditModalOpen(false)}
+              onClick={() => { setIsEditModalOpen(false); setImageSrc(null); }}
               className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-lg glass-strong border border-white/10 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl"
+              className="relative w-full max-w-xl glass-strong border border-white/10 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl"
             >
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-black text-white uppercase tracking-tight">SİBER AVATAR SEÇİMİ</h3>
-                <button onClick={() => setIsEditModalOpen(false)} className="p-2 rounded-xl hover:bg-white/5 text-slate-400"><X /></button>
+                <button onClick={() => { setIsEditModalOpen(false); setImageSrc(null); }} className="p-2 rounded-xl hover:bg-white/5 text-slate-400"><X /></button>
               </div>
 
-              <div className="space-y-8">
-                {/* Upload Section */}
-                <div>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Lokal Karargâhtan Yükle</p>
-                   <input 
-                     type="file" ref={fileInputRef} className="hidden" 
-                     accept="image/*" onChange={handleFileUpload}
-                   />
-                   <button 
-                     onClick={() => fileInputRef.current?.click()}
-                     disabled={uploading}
-                     className="w-full h-32 rounded-3xl border-2 border-dashed border-white/10 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all flex flex-col items-center justify-center gap-3 group"
-                   >
-                     {uploading ? (
-                       <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-                     ) : (
-                       <>
-                         <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-purple-400 group-hover:scale-110 transition-all">
-                           <Upload size={24} />
-                         </div>
-                         <span className="text-xs font-bold text-slate-500 group-hover:text-slate-300">Resim Seç veya Sürükle</span>
-                       </>
-                     )}
-                   </button>
-                </div>
+              <div className="space-y-6">
+                {imageSrc ? (
+                  <div className="space-y-6">
+                    <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden bg-black/40 border border-white/5">
+                      <Cropper
+                        image={imageSrc}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onCropComplete={onCropComplete}
+                        onZoomChange={setZoom}
+                        cropShape="round"
+                        showGrid={false}
+                      />
+                    </div>
+                    
+                    {/* Zoom Control */}
+                    <div className="flex items-center gap-4 px-4 py-2 bg-white/5 rounded-2xl">
+                      <Minus size={16} className="text-slate-500" />
+                      <input
+                        type="range"
+                        value={zoom}
+                        min={1}
+                        max={3}
+                        step={0.1}
+                        aria-labelledby="Zoom"
+                        onChange={(e) => setZoom(e.target.value)}
+                        className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                      />
+                      <Plus size={16} className="text-slate-500" />
+                    </div>
 
-                {/* Default Pool */}
-                <div>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Siber Karakter Havuzu</p>
-                   <div className="grid grid-cols-5 gap-3">
-                      {DEFAULT_AVATARS.map((url, i) => (
-                        <button 
-                          key={i} 
-                          onClick={() => selectDefault(url)}
-                          disabled={uploading}
-                          className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white/5 hover:border-purple-500 transition-all group shadow-lg"
-                        >
-                          <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                          {user.avatar_url === url && (
-                            <div className="absolute inset-0 bg-purple-600/40 flex items-center justify-center text-white">
-                              <Check size={20} />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                   </div>
-                </div>
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => setImageSrc(null)}
+                        className="flex-1 py-4 glass border border-white/5 text-slate-400 font-bold rounded-2xl hover:text-white transition-all"
+                      >
+                        İPTAL
+                      </button>
+                      <button 
+                        onClick={handleSave}
+                        disabled={uploading}
+                        className="flex-[2] py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-2xl shadow-neon-purple flex items-center justify-center gap-2"
+                      >
+                        {uploading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check size={20} />}
+                        {uploading ? 'İŞLENİYOR...' : 'ONAYLA VE YÜKLE'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {/* Upload Section */}
+                    <div>
+                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Lokal Karargâhtan Yükle</p>
+                       <input 
+                         type="file" ref={fileInputRef} className="hidden" 
+                         accept="image/*" onChange={handleFileUpload}
+                       />
+                       <button 
+                         onClick={() => fileInputRef.current?.click()}
+                         className="w-full h-40 rounded-3xl border-2 border-dashed border-white/10 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all flex flex-col items-center justify-center gap-3 group"
+                       >
+                         <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-purple-400 group-hover:scale-110 transition-all">
+                           <Upload size={32} />
+                         </div>
+                         <div className="text-center">
+                            <span className="block text-sm font-bold text-slate-300">Yeni Fotoğraf Yükle</span>
+                            <span className="text-[10px] text-slate-600 font-medium">JPEG, PNG veya WebP (Max 5MB)</span>
+                         </div>
+                       </button>
+                    </div>
+
+                    {/* Default Pool */}
+                    <div>
+                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Siber Karakter Havuzu</p>
+                       <div className="grid grid-cols-5 gap-3">
+                          {DEFAULT_AVATARS.map((url, i) => (
+                            <button 
+                              key={i} 
+                              onClick={() => selectDefault(url)}
+                              disabled={uploading}
+                              className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white/5 hover:border-purple-500 transition-all group shadow-lg"
+                            >
+                              <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                              {user.avatar_url === url && (
+                                <div className="absolute inset-0 bg-purple-600/40 flex items-center justify-center text-white">
+                                  <Check size={20} />
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                       </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>

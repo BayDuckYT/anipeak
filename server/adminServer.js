@@ -4,6 +4,8 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import multer from 'multer';
+import sharp from 'sharp';
 
 dotenv.config();
 
@@ -14,6 +16,7 @@ const app = express();
 const PORT = 3001;
 const LOGS_DIR = path.join(process.cwd(), 'admin', 'logs');
 const SUGGESTIONS_FILE = path.join(LOGS_DIR, 'suggestions.txt');
+const AVATARS_DIR = path.join(process.cwd(), 'public', 'avatars', 'uploads');
 
 // Ensure logs directory exists
 if (!fs.existsSync(LOGS_DIR)) {
@@ -25,6 +28,32 @@ if (!fs.existsSync(SUGGESTIONS_FILE)) {
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public')); // Statik dosyaları servis et
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+// [LOGISTICS] - Avatar Upload
+app.post('/api/admin/upload-avatar', upload.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'Dosya seçilmedi.' });
+        
+        // Ensure avatars directory exists
+        if (!fs.existsSync(AVATARS_DIR)) fs.mkdirSync(AVATARS_DIR, { recursive: true });
+
+        const fileName = `avatar_${Date.now()}.webp`;
+        const filePath = path.join(AVATARS_DIR, fileName);
+
+        await sharp(req.file.buffer)
+            .resize(512, 512, { fit: 'cover' })
+            .webp({ quality: 80 })
+            .toFile(filePath);
+
+        res.json({ success: true, url: `http://localhost:3001/avatars/uploads/${fileName}` });
+    } catch (err) {
+        console.error('[AVATAR-UPLOAD] Hata:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // [COMMAND CENTER] - Staging Area (Git Status)
 app.get('/api/admin/staging', (req, res) => {

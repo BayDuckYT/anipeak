@@ -3,8 +3,7 @@
  * Cloudinary entegrasyonu ve avatar yönetimi.
  */
 
-const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/dzy8zvxky/image/upload`; // Varsayılan Cloud Name
-const UPLOAD_PRESET = 'anipeak_avatars'; // Cloudinary'de 'Unsigned' olmalı
+const LOCAL_UPLOAD_URL = `http://localhost:3001/api/admin/upload-avatar`;
 
 export const DEFAULT_AVATARS = [
   'https://res.cloudinary.com/dzy8zvxky/image/upload/v1713645000/avatars/saitama.webp',
@@ -15,52 +14,19 @@ export const DEFAULT_AVATARS = [
 ];
 
 /**
- * Dosyayı WebP formatına dönüştürür ve kare olarak kırpar (Canvas kullanarak).
+ * Dosyayı sunucuya yükler.
  */
-export const processImage = async (file, size = 512) => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        // Kare kırpma hesaplama (Center Crop)
-        const minSide = Math.min(img.width, img.height);
-        const sx = (img.width - minSide) / 2;
-        const sy = (img.height - minSide) / 2;
-
-        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
-        
-        // WebP olarak çıktı al (Sıkıştırma: 0.8)
-        canvas.toBlob((blob) => {
-          resolve(blob);
-        }, 'image/webp', 0.8);
-      };
-    };
-  });
-};
-
-/**
- * Cloudinary'ye imaj yükler.
- */
-export const uploadToCloudinary = async (blob) => {
+export const uploadAvatar = async (file) => {
   const formData = new FormData();
-  formData.append('file', blob);
-  formData.append('upload_preset', UPLOAD_PRESET);
+  formData.append('avatar', file);
 
   try {
-    const response = await fetch(CLOUDINARY_UPLOAD_URL, {
+    const response = await fetch(LOCAL_UPLOAD_URL, {
       method: 'POST',
       body: formData,
     });
     const data = await response.json();
-    return data.secure_url;
+    return data.url; // /avatars/uploads/filename.webp döner
   } catch (error) {
     console.error('[IMAGE-SERVICE] Yükleme Hatası:', error);
     return null;
