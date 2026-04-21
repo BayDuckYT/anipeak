@@ -326,17 +326,6 @@ export function AuthProvider({ children }) {
         options: { data: { username } },
       }));
       if (error) throw error;
-
-      // Ensure profile row exists immediately after signup
-      if (data.user) {
-        await supabase.from('profiles').upsert({
-          id:         data.user.id,
-          username,
-          role:       'Kullanıcı',
-          email,
-          created_at: new Date().toISOString(),
-        }, { onConflict: 'id' });
-      }
       return data;
     } catch (err) {
       console.error('[Auth] Signup error:', err);

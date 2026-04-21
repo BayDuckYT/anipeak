@@ -44,12 +44,19 @@ export default function AuthModal({ mode, onClose }) {
 
     setLoading(true);
     try {
+      let data;
       if (tab === 'register') {
-        await signup(form.email, form.password, form.username);
+        data = await signup(form.email, form.password, form.username);
       } else {
-        await login(form.email, form.password);
+        data = await login(form.email, form.password);
       }
       
+      // If no session is returned, it likely means email confirmation is required
+      if (tab === 'register' && !data?.session) {
+        setTab('confirm_email');
+        return;
+      }
+
       setSuccess(true);
       setTimeout(() => {
         onClose();
@@ -114,6 +121,7 @@ export default function AuthModal({ mode, onClose }) {
             <p className="text-slate-400 text-sm">
               {tab === 'login' ? 'Hesabına giriş yap ve okumaya devam et' : 
                tab === 'register' ? 'Ücretsiz hesap oluştur, evrene katıl' : 
+               tab === 'confirm_email' ? 'Kayıt başarılı! E-postanı onayla' :
                'Şifreni sıfırlamak için e-posta adresini gir'}
             </p>
           </div>
@@ -134,9 +142,9 @@ export default function AuthModal({ mode, onClose }) {
             ))}
           </div>
 
-          {/* Success state */}
+          {/* Success / Confirm Email state */}
           <AnimatePresence>
-            {success && (
+            {(success || tab === 'confirm_email') && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -144,12 +152,16 @@ export default function AuthModal({ mode, onClose }) {
               >
                 <CheckCircle size={48} className="text-emerald-400 mx-auto mb-3" />
                 <p className="text-white font-bold text-lg">
-                  {tab === 'forgot' ? 'Mail Gönderildi! 📧' : 'İşlem Başarılı! 🎉'}
+                  {tab === 'forgot' ? 'Mail Gönderildi! 📧' : 
+                   tab === 'confirm_email' ? 'Doğrulama Maili Gönderildi! 📧' : 
+                   'İşlem Başarılı! 🎉'}
                 </p>
                 <p className="text-slate-400 text-sm mt-1">
-                  {tab === 'forgot' ? 'Lütfen gelen kutunu kontrol et.' : 'Yönlendiriliyorsun...'}
+                  {tab === 'forgot' || tab === 'confirm_email' 
+                    ? 'Lütfen gelen kutunu (ve spam klasörünü) kontrol et.' 
+                    : 'Yönlendiriliyorsun...'}
                 </p>
-                {tab === 'forgot' && (
+                {(tab === 'forgot' || tab === 'confirm_email') && (
                   <button 
                     onClick={() => { setTab('login'); setSuccess(false); }}
                     className="mt-6 text-purple-400 text-xs font-bold hover:underline"
@@ -161,7 +173,7 @@ export default function AuthModal({ mode, onClose }) {
             )}
           </AnimatePresence>
 
-          {!success && (
+          {!success && tab !== 'confirm_email' && (
             <AnimatePresence mode="wait">
               <motion.form
                 key={tab}
@@ -220,15 +232,20 @@ export default function AuthModal({ mode, onClose }) {
                 {tab === 'register' && (
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Şifre Tekrarı</label>
-                    <input
-                      name="password2"
-                      value={form.password2}
-                      onChange={handleChange}
-                      type="password"
-                      required
-                      placeholder="••••••••"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_12px_rgba(59,130,246,0.4)] transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        name="password2"
+                        value={form.password2}
+                        onChange={handleChange}
+                        type={showPass ? 'text' : 'password'}
+                        required
+                        placeholder="••••••••"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_12px_rgba(59,130,246,0.4)] transition-all"
+                      />
+                      <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                        {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
                   </div>
                 )}
 
