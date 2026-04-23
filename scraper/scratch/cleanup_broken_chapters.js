@@ -53,13 +53,13 @@ async function cleanup() {
         } catch (err) {
             // Eğer 404 (bulunamadı) dönerse, GitHub'dan silinmiş demektir
             if (err.response && err.response.status === 404) {
-                console.log(`\x1b[31m[404-HATA]\x1b[0m >> ${sTitle} - Bölüm ${ch.number} silinmiş! Sistemden temizleniyor...`);
-                const { error: delError } = await supabase.from('chapters').delete().eq('id', ch.id);
-                if (!delError) {
-                    brokenCount++;
-                } else {
-                    console.error(`\x1b[31m[SİLME-HATASI]\x1b[0m ${delError.message}`);
-                }
+                console.log(`\x1b[31m[404-HATA]\x1b[0m >> ${sTitle} - Bölüm ${ch.number} silinmiş! [GÜVENLİK KORUMASI: SİLİNMEDİ]`);
+                // const { error: delError } = await supabase.from('chapters').delete().eq('id', ch.id); // [YAMALANDI] GÜVENLİK NEDENİYLE KAPATILDI
+                // if (!delError) {
+                brokenCount++;
+                // } else {
+                //    console.error(`\x1b[31m[SİLME-HATASI]\x1b[0m ${delError.message}`);
+                // }
             } else {
                 // Diğer hatalar (timeout vs.) için pas geçiyoruz
                 console.log(`\x1b[33m[UYARI]\x1b[0m >> ${sTitle} - Bölüm ${ch.number} erişim sorunu (Kod: ${err.response?.status || 'Timeout'})`);

@@ -36,13 +36,31 @@ export function AppProvider({ children }) {
   }, []);
 
   const loadChapters = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('chapters')
-      .select('*')
-      .order('number', { ascending: false });
-    if (error) throw error;
-    if (data) {
-      const grouped = data.reduce((acc, ch) => {
+    let allData = [];
+    let from = 0;
+    const step = 1000;
+    let keepFetching = true;
+
+    while (keepFetching) {
+      const { data, error } = await supabase
+        .from('chapters')
+        .select('*')
+        .order('number', { ascending: false })
+        .range(from, from + step - 1);
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        allData = [...allData, ...data];
+        if (data.length < step) keepFetching = false;
+        else from += step;
+      } else {
+        keepFetching = false;
+      }
+    }
+
+    if (allData.length > 0) {
+      const grouped = allData.reduce((acc, ch) => {
         const key = String(ch.series_id);
         if (!acc[key]) acc[key] = [];
         acc[key].push(ch);

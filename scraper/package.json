@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "v61": "node --max-old-space-size=18432 v61_speed_titan.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

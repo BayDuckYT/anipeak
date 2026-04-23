@@ -50,14 +50,15 @@ async function purgeToday() {
     console.log("🗑️ Temizlik başlıyor...");
     
     // Toplu silme
-    const { error: delError } = await supabase
-        .from('chapters')
-        .delete()
-        .in('id', idsToDelete);
+    // const { error: delError } = await supabase
+    //    .from('chapters')
+    //    .delete()
+    //    .in('id', idsToDelete); // [YAMALANDI] GÜVENLİK NEDENİYLE KAPATILDI
 
+    const delError = null; // Korumalı mod
     if (!delError) {
-        console.log(`\x1b[32m[OK]\x1b[0m ${idsToDelete.length} bölüm sistemden imha edildi.`);
-        console.log("\n🚀 Usta, saha temizlendi! Şimdi botu sal, tertemiz (kalıcı) yüklemeye başlasın!");
+        console.log(`\x1b[32m[OK]\x1b[0m ${idsToDelete.length} bölüm [GÜVENLİK KORUMASI: SİLİNMEDİ].`);
+        console.log("\n🚀 Usta, saha korumada! Bot eksikleri baştan indirecektir.");
     } else {
         console.error("\x1b[31m[HATA]\x1b[0m Silme işlemi başarısız:", delError.message);
     }

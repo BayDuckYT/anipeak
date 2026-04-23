@@ -52,14 +52,15 @@ async function migrate() {
 
             // 3. GitHub'a ateşle
             console.log(`  [GIT] >> GitHub'a fırlatılıyor (Push)...`);
-            execSync('git push -f origin master', { stdio: 'inherit' });
+            // execSync('git push -f origin master', { stdio: 'inherit' }); // [YAMALANDI] GÜVENLİK NEDENİYLE KAPATILDI
+            execSync('git push origin master', { stdio: 'inherit' }); // Sadece güvenli push at
 
             console.log(`\x1b[32m[OK]\x1b[0m >> ${series} GitHub'a başarıyla nakledildi.`);
 
             // 4. İmhâ Et (Yükle ve Sil)
-            console.log(`\x1b[31m[DESTROY]\x1b[0m >> Yerel dosyalar imha ediliyor...`);
-            process.chdir('..'); // Bir üst dizine çık ki klasörü silebilelim amk
-            fs.rmSync(seriesPath, { recursive: true, force: true });
+            console.log(`\x1b[31m[DESTROY]\x1b[0m >> Yerel dosyalar imha korumasında...`);
+            process.chdir('..'); // Bir üst dizine çık
+            // fs.rmSync(seriesPath, { recursive: true, force: true }); // [YAMALANDI] YEREL DOSYALAR ARTIK SİLİNMEYECEK
 
         } catch (err) {
             console.log(`\x1b[31m[!] HATA:\x1b[0m ${series} nakledilemedi. (Remote hung up veya Network hatası)`);
