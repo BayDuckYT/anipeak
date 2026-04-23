@@ -44,11 +44,12 @@ export function AuthProvider({ children }) {
 
       const merged = {
         ...authUser,
-        username:  data?.username  || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
-        role:      isSystemOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
-        avatar:    data?.avatar_url || authUser.user_metadata?.avatar_url || null,
-        premium:   data?.premium   || false,
-        status:    data?.status    || 'Aktif',
+        username:    data?.username  || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
+        role:        isSystemOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
+        avatar_url:  data?.avatar_url || authUser.user_metadata?.avatar_url || null,
+        avatar:      data?.avatar_url || authUser.user_metadata?.avatar_url || null,
+        premium:     data?.premium   || false,
+        status:      data?.status    || 'Aktif',
       };
 
       setUser(merged);

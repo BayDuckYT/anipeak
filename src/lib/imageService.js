@@ -1,9 +1,10 @@
 /**
  * ANİPEAK PROFİL YÖNETİMİ - İmaj Servisi
- * Avatar yönetimi ve yükleme işlemleri.
+ * Supabase Storage üzerinden avatar yükleme.
+ * Artık localhost'a bağımlılık YOK — canlı sitede de çalışır.
  */
 
-const LOCAL_UPLOAD_URL = `http://localhost:3001/api/admin/upload-avatar`;
+import { supabase } from './supabaseClient';
 
 export const DEFAULT_AVATARS = [
   'https://res.cloudinary.com/dzy8zvxky/image/upload/v1713645000/avatars/saitama.webp',
@@ -14,35 +15,78 @@ export const DEFAULT_AVATARS = [
 ];
 
 /**
- * Dosyayı sunucuya yükler.
+ * Avatarı Supabase Storage'a yükler ve public URL döndürür.
+ * @param {Blob|File} file - Yüklenecek dosya
+ * @returns {string|null} - Public URL veya null
  */
 export const uploadAvatar = async (file) => {
-  const formData = new FormData();
-  formData.append('avatar', file);
+  console.log("🚀 [IMAGE-SERVICE] Supabase Storage'a yükleme başlatıldı...");
 
-  console.log("🚀 [IMAGE-SERVICE] Sunucuya yükleme başlatıldı...");
-  
   try {
-    const response = await fetch(LOCAL_UPLOAD_URL, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Sunucu Hatası: ${response.status} - ${errorText}`);
+    // Kullanıcı oturumunu al
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error("❌ [IMAGE-SERVICE] Kullanıcı oturumu bulunamadı.");
+      alert("Avatar yüklemek için giriş yapmış olmalısınız.");
+      return null;
     }
 
-    const data = await response.json();
-    console.log("✅ [IMAGE-SERVICE] Yükleme başarılı, URL:", data.url);
-    return data.url; 
+    const userId = user.id;
+    const fileName = `${userId}_${Date.now()}.webp`;
+    const filePath = `avatars/${fileName}`;
+
+    // Eski avatarı silmeye çalış (hata verse de devam et)
+    try {
+      const { data: existingFiles } = await supabase.storage
+        .from('avatars')
+        .list('avatars', { search: userId });
+      
+      if (existingFiles && existingFiles.length > 0) {
+        const oldFiles = existingFiles
+          .filter(f => f.name.startsWith(userId))
+          .map(f => `avatars/${f.name}`);
+        if (oldFiles.length > 0) {
+          await supabase.storage.from('avatars').remove(oldFiles);
+          console.log("🗑️ [IMAGE-SERVICE] Eski avatar silindi.");
+        }
+      }
+    } catch (e) {
+      // Eski avatar silinemezse sorun değil, devam et
+    }
+
+    // Yeni avatarı yükle
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, {
+        contentType: 'image/webp',
+        upsert: true,
+        cacheControl: '3600'
+      });
+
+    if (uploadError) {
+      console.error("❌ [IMAGE-SERVICE] Yükleme hatası:", uploadError.message);
+      
+      if (uploadError.message.includes('Bucket not found') || uploadError.message.includes('not found')) {
+        alert("Supabase'de 'avatars' bucket'ı bulunamadı. Lütfen Supabase Dashboard > Storage bölümünden 'avatars' adında public bir bucket oluşturun.");
+      } else if (uploadError.message.includes('security') || uploadError.message.includes('policy')) {
+        alert("Supabase Storage erişim izni hatası. Lütfen 'avatars' bucket'ının public olduğundan ve RLS politikalarının doğru ayarlandığından emin olun.");
+      } else {
+        alert(`Avatar yüklenemedi: ${uploadError.message}`);
+      }
+      return null;
+    }
+
+    // Public URL al
+    const { data: publicUrlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    const url = publicUrlData?.publicUrl;
+    console.log("✅ [IMAGE-SERVICE] Yükleme başarılı, URL:", url);
+    return url;
   } catch (error) {
-    console.error('❌ [IMAGE-SERVICE] Yükleme Hatası:', error.message);
-    
-    if (error.message.includes('Failed to fetch')) {
-      alert('Yönetim sunucusu (Admin Server) çalışmıyor olabilir. Lütfen terminalden server/adminServer.js dosyasını başlattığınızdan emin olun.');
-    }
-    
+    console.error('❌ [IMAGE-SERVICE] Kritik Hata:', error.message);
+    alert(`Avatar yüklenirken bir hata oluştu: ${error.message}`);
     return null;
   }
 };
