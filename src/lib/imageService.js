@@ -32,19 +32,18 @@ export const uploadAvatar = async (file) => {
     }
 
     const userId = user.id;
-    const fileName = `${userId}_${Date.now()}.webp`;
-    const filePath = `avatars/${fileName}`;
+    const fileName = `avatar_${Date.now()}.webp`;
+    // Yol: {userId}/{dosya} — Supabase folder-based policy bunu bekler
+    const filePath = `${userId}/${fileName}`;
 
     // Eski avatarı silmeye çalış (hata verse de devam et)
     try {
       const { data: existingFiles } = await supabase.storage
         .from('avatars')
-        .list('avatars', { search: userId });
+        .list(userId);
       
       if (existingFiles && existingFiles.length > 0) {
-        const oldFiles = existingFiles
-          .filter(f => f.name.startsWith(userId))
-          .map(f => `avatars/${f.name}`);
+        const oldFiles = existingFiles.map(f => `${userId}/${f.name}`);
         if (oldFiles.length > 0) {
           await supabase.storage.from('avatars').remove(oldFiles);
           console.log("🗑️ [IMAGE-SERVICE] Eski avatar silindi.");
