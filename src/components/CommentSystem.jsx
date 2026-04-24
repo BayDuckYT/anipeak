@@ -4,6 +4,7 @@ import { MessageSquare, Send, User, Trash2, Clock, AlertTriangle, Eye, EyeOff } 
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabaseClient';
+import { getEffectCSS } from '../lib/profileEffects';
 
 export default function CommentSystem({ seriesId, chapterNum }) {
   const { user, updateXP } = useAuth();
@@ -63,7 +64,10 @@ export default function CommentSystem({ seriesId, chapterNum }) {
         avatar_url: user.avatar_url,
         text: text.trim(),
         chapterNum: chapterNum || null,
-        isSpoiler
+        isSpoiler,
+        avatar_effect: user?.avatar_effect || 'none',
+        comment_effect: user?.comment_effect || 'none',
+        nametag_effect: user?.nametag_effect || 'none'
       });
 
       if (error) {
@@ -171,10 +175,10 @@ export default function CommentSystem({ seriesId, chapterNum }) {
               key={comment.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass border border-white/5 rounded-2xl p-4 bg-white/[0.01] group relative"
+              className={`glass border border-white/5 rounded-2xl p-4 bg-white/[0.01] group relative ${getEffectCSS('comment', comment.comment_effect)}`}
             >
               <div className="flex gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 font-black text-sm overflow-hidden flex-shrink-0">
+                <div className={`w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 font-black text-sm overflow-hidden flex-shrink-0 ${getEffectCSS('avatar', comment.avatar_effect)}`}>
                   {comment.avatar_url ? (
                     <img src={comment.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -185,7 +189,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 overflow-hidden">
-                       <span className="text-white font-black text-sm italic tracking-tighter truncate">{comment.username}</span>
+                       <span className={`text-white font-black text-sm italic tracking-tighter truncate ${getEffectCSS('nametag', comment.nametag_effect)}`}>{comment.username}</span>
                        {comment.chapter_num && (
                          <span className="flex-shrink-0 text-[8px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 font-black uppercase">
                            B{comment.chapter_num}

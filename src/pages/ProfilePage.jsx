@@ -6,10 +6,11 @@ import Cropper from 'react-easy-crop';
 import { 
   BookOpen, Settings, Crown, LayoutDashboard, History, 
   Bell, ChevronRight, Play, Camera, Image as ImageIcon,
-  Check, Upload, Sparkles, X, Minus, Plus
+  Check, Upload, Sparkles, X, Minus, Plus, Palette, Lock, ShoppingCart
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { uploadAvatar } from '../lib/imageService';
+import { getAllEffects, canUseEffect, getLockReason, getEffectCSS, RARITY_CONFIG } from '../lib/profileEffects';
 
 // Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -70,6 +71,17 @@ export default function ProfilePage() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
+
+  // Efekt Market State'leri
+  const [activeEffectCategory, setActiveEffectCategory] = useState('avatar');
+  const [previewEffects, setPreviewEffects] = useState({
+    avatar: user?.avatar_effect || 'none',
+    comment: user?.comment_effect || 'none',
+    nametag: user?.nametag_effect || 'none'
+  });
+  const [purchasingEffect, setPurchasingEffect] = useState(null);
+
+  const allEffects = getAllEffects();
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -140,6 +152,49 @@ export default function ProfilePage() {
     manhwa: series?.find(m => String(m.id) === String(h.manhwaId))
   })).filter(h => h.manhwa) || [];
 
+  const handleEffectSelect = (category, effectId) => {
+    setPreviewEffects(prev => ({ ...prev, [category]: effectId }));
+  };
+
+  const handleSaveEffects = async () => {
+    try {
+      await updateProfile({
+        avatar_effect: previewEffects.avatar,
+        comment_effect: previewEffects.comment,
+        nametag_effect: previewEffects.nametag
+      });
+      alert('Profil efektleri güncellendi!');
+    } catch (err) {
+      alert('Efektler kaydedilirken hata oluştu: ' + err.message);
+    }
+  };
+
+  const handlePurchaseEffect = async (effect) => {
+    // Teğmen (Admin) kontrolü: Admin ise bedava alır
+    const isAdmin = user.role === 'Baş Admin' || user.role === 'Yönetici';
+    
+    // Satın alma onayı (Simülasyon)
+    if (!isAdmin) {
+      const confirmPurchase = window.confirm(`Bu efekti ${effect.price} Coin karşılığında satın almak istiyor musunuz?`);
+      if (!confirmPurchase) return;
+      // TODO: Coin düşme mantığı eklenecek
+    } else {
+       alert("Teğmenim hoşgeldiniz! Bu efekt size karargahın hediyesidir. 🎖️");
+    }
+
+    setPurchasingEffect(effect.id);
+    
+    try {
+      const updatedUnlocked = [...(user.unlocked_effects || []), effect.id];
+      await updateProfile({ unlocked_effects: updatedUnlocked });
+      alert(`"${effect.name}" efekti başarıyla açıldı!`);
+    } catch (err) {
+      alert("Hata oluştu: " + err.message);
+    } finally {
+      setPurchasingEffect(null);
+    }
+  };
+
   return (
     <main className="min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* ── PROFILE HEADER ── */}
@@ -150,7 +205,7 @@ export default function ProfilePage() {
         <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-10">
           {/* Avatar Container */}
           <div className="relative group">
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-purple-500/30 shadow-neon-purple relative bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center">
+            <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-purple-500/30 shadow-neon-purple relative bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center ${getEffectCSS('avatar', user?.avatar_effect)}`}>
               {user.avatar_url ? (
                 <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
               ) : (
@@ -174,7 +229,7 @@ export default function ProfilePage() {
           
           <div className="text-center sm:text-left flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-              <h1 className="text-3xl sm:text-4xl font-black text-white">{user.username}</h1>
+              <h1 className={`text-3xl sm:text-4xl font-black text-white ${getEffectCSS('nametag', user?.nametag_effect)}`}>{user.username}</h1>
               {(user.role === 'Baş Admin' || user.role === 'Yönetici') && (
                 <span className="w-fit mx-auto sm:mx-0 flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-widest">
                   <Crown size={12} /> {user.role}
@@ -302,6 +357,7 @@ export default function ProfilePage() {
           {[
             { id: 'history', label: 'Okuduklarım', icon: History },
             { id: 'settings', label: 'Hesap Ayarları', icon: Settings },
+            { id: 'effects', label: 'Profil Efektleri', icon: Palette },
             { id: 'notifications', label: 'Bildirim Tercihleri', icon: Bell },
           ].map(tab => (
             <button
@@ -385,6 +441,140 @@ export default function ProfilePage() {
                     Ayarları Kaydet
                   </button>
                 </form>
+              </motion.div>
+            )}
+
+            {/* EFFECTS TAB (MARKET) */}
+            {activeTab === 'effects' && (
+              <motion.div key="effects" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Palette className="text-purple-400" /> Profil Efektleri
+                  </h2>
+                  <button 
+                    onClick={handleSaveEffects}
+                    className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl text-sm font-black tracking-widest uppercase shadow-neon-purple hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                  >
+                    <Check size={16} /> Değişiklikleri Kaydet
+                  </button>
+                </div>
+                
+                {/* Canlı Önizleme */}
+                <div className="mb-8 p-6 glass-strong border border-purple-500/30 rounded-3xl relative overflow-hidden bg-gradient-to-br from-slate-900 to-black">
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Canlı Önizleme</h3>
+                   
+                   <div className={`glass border border-white/5 rounded-2xl p-4 group relative ${getEffectCSS('comment', previewEffects.comment)}`}>
+                     <div className="flex gap-4">
+                       <div className={`w-12 h-12 rounded-xl bg-slate-800 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 transition-all duration-300 ${getEffectCSS('avatar', previewEffects.avatar)}`}>
+                         {user.avatar_url ? (
+                           <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                         ) : (
+                           <span className="text-white font-black text-xl">{avatarLetter}</span>
+                         )}
+                       </div>
+                       <div className="flex-1">
+                         <div className="flex items-center gap-2 mb-1">
+                           <span className={`text-white font-black text-base italic tracking-tighter transition-all duration-300 ${getEffectCSS('nametag', previewEffects.nametag)}`}>
+                             {user.username}
+                           </span>
+                           <span className="text-[8px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 font-black uppercase">
+                             Teğmen
+                           </span>
+                         </div>
+                         <p className="text-slate-300 text-sm opacity-80">Teğmenim bu efektler harika görünüyor daa! 🚀⚓</p>
+                       </div>
+                     </div>
+                   </div>
+                </div>
+
+                {/* Kategori Seçici */}
+                <div className="flex gap-2 mb-6 border-b border-white/10 pb-4 overflow-x-auto no-scrollbar">
+                  {[
+                    { id: 'avatar', label: 'Çerçeveler' },
+                    { id: 'comment', label: 'Yorum Kutuları' },
+                    { id: 'nametag', label: 'İsim Etiketleri' }
+                  ].map(cat => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setActiveEffectCategory(cat.id)}
+                      className={`px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
+                        activeEffectCategory === cat.id 
+                          ? 'bg-white/10 text-white border border-white/20' 
+                          : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Efekt Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {allEffects[activeEffectCategory].map(effect => {
+                    const isUnlocked = canUseEffect(effect, user.xp, user.role, user.unlocked_effects || []);
+                    const isSelected = previewEffects[activeEffectCategory] === effect.id;
+                    const rarityInfo = RARITY_CONFIG[effect.rarity];
+                    const lockReason = !isUnlocked ? getLockReason(effect, user.xp) : null;
+                    const isPurchasable = !isUnlocked && effect.price > 0 && effect.minXP === 0 && !effect.adminOnly;
+
+                    return (
+                      <div 
+                        key={effect.id}
+                        onClick={() => {
+                           if (isUnlocked) handleEffectSelect(activeEffectCategory, effect.id);
+                        }}
+                        className={`relative p-5 rounded-2xl border transition-all duration-300
+                          ${!isUnlocked && !isPurchasable ? 'effect-card-locked border-white/5 bg-white/[0.02]' : ''}
+                          ${!isUnlocked && isPurchasable ? 'effect-card-locked purchasable border-amber-500/20 bg-amber-500/5 hover:border-amber-500/50' : ''}
+                          ${isUnlocked && !isSelected ? 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer' : ''}
+                          ${isSelected ? 'border-purple-500 bg-purple-500/10 shadow-neon-purple scale-[1.02]' : ''}
+                        `}
+                      >
+                        {/* Status / Selected Badge */}
+                        {isSelected && (
+                          <div className="absolute -top-3 -right-3 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg">
+                            <Check size={14} className="text-white" />
+                          </div>
+                        )}
+                        
+                        {/* Header */}
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="text-2xl">{effect.icon}</div>
+                          <div className="flex-1">
+                            <h4 className="text-white font-bold text-sm">{effect.name}</h4>
+                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${rarityInfo.color} ${rarityInfo.border} ${rarityInfo.bg}`}>
+                              {rarityInfo.label}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <p className="text-xs text-slate-400 mb-4 h-8">{effect.description}</p>
+                        
+                        {/* Footer (Unlock status or Select button) */}
+                        <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between">
+                          {isUnlocked ? (
+                            <span className={`text-xs font-bold ${isSelected ? 'text-purple-400' : 'text-slate-500'}`}>
+                              {isSelected ? 'Seçili' : 'Açık (Tıkla Seç)'}
+                            </span>
+                          ) : isPurchasable ? (
+                            <button
+                               onClick={(e) => { e.stopPropagation(); handlePurchaseEffect(effect); }}
+                               disabled={purchasingEffect === effect.id}
+                               className="w-full py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors"
+                            >
+                               {purchasingEffect === effect.id ? 'İşleniyor...' : <><ShoppingCart size={12} /> {effect.price} Coin</>}
+                            </button>
+                          ) : (
+                            <span className="text-xs font-bold text-red-400 flex items-center gap-1.5">
+                              <Lock size={12} /> {lockReason}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </motion.div>
             )}
 

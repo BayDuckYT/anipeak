@@ -291,7 +291,7 @@ export function AppProvider({ children }) {
   }, []);
 
   // ── Comments ─────────────────────────────────────────────────────────
-  const addComment = useCallback(async (seriesId, { userId, username, avatar_url, text, chapterNum, isSpoiler }) => {
+  const addComment = useCallback(async (seriesId, { userId, username, avatar_url, text, chapterNum, isSpoiler, avatar_effect, comment_effect, nametag_effect }) => {
     const sId = parseInt(seriesId);
     const cNum = (chapterNum !== undefined && chapterNum !== null) ? parseFloat(chapterNum) : null;
     
@@ -302,7 +302,10 @@ export function AppProvider({ children }) {
       avatar_url,
       text,
       chapter_num: cNum,
-      is_spoiler:  isSpoiler || false
+      is_spoiler:  isSpoiler || false,
+      avatar_effect:  avatar_effect || 'none',
+      comment_effect: comment_effect || 'none',
+      nametag_effect: nametag_effect || 'none'
     }]);
     return { error };
   }, []);

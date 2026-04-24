@@ -63,15 +63,10 @@ export const uploadAvatar = async (file) => {
       });
 
     if (uploadError) {
-      console.error("❌ [IMAGE-SERVICE] Yükleme hatası:", uploadError.message);
-      
-      if (uploadError.message.includes('Bucket not found') || uploadError.message.includes('not found')) {
-        alert("Supabase'de 'avatars' bucket'ı bulunamadı. Lütfen Supabase Dashboard > Storage bölümünden 'avatars' adında public bir bucket oluşturun.");
-      } else if (uploadError.message.includes('security') || uploadError.message.includes('policy')) {
-        alert("Supabase Storage erişim izni hatası. Lütfen 'avatars' bucket'ının public olduğundan ve RLS politikalarının doğru ayarlandığından emin olun.");
-      } else {
-        alert(`Avatar yüklenemedi: ${uploadError.message}`);
-      }
+      console.error("❌ [IMAGE-SERVICE] Yükleme hatası:", uploadError);
+      console.error("❌ [IMAGE-SERVICE] Hata detayı:", JSON.stringify(uploadError, null, 2));
+      console.error("❌ [IMAGE-SERVICE] Status:", uploadError.statusCode, "Message:", uploadError.message, "Error:", uploadError.error);
+      alert(`Avatar yüklenemedi!\n\nHata: ${uploadError.message}\nStatus: ${uploadError.statusCode || 'N/A'}\nDetay: ${uploadError.error || 'N/A'}\n\nYol: ${filePath}`);
       return null;
     }
 

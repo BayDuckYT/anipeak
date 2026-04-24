@@ -8,6 +8,7 @@ import { AppProvider, useApp } from './context/AppContext.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import AuthModal from './components/AuthModal.jsx';
+import GlobalEffects from './components/GlobalEffects.jsx';
 import Home from './pages/Home.jsx';
 import ManhwaDetail from './pages/ManhwaDetail.jsx';
 import Reader from './pages/Reader.jsx';
@@ -193,6 +194,7 @@ function AppContent() {
   return (
     <>
       <BrowserRouter>
+        <GlobalEffects />
         <div className="min-h-screen bg-[#050507]">
           {isMaintenanceBlocked ? (
             <MaintenanceScreen onAuthOpen={(mode) => setAuthModal(mode)} />
