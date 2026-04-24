@@ -370,3 +370,274 @@ body {
   animation: aura-pulse 4s ease-in-out infinite;
   filter: blur(15px);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ELITE ANIME EFEKT PAKETLERİ — 5 Karakter Temalı Premium Efektler
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── KEYFRAMES — ELITE PAKETLER ──────────────────────────────────────── */
+@keyframes gojo-void-flow {
+  0%   { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  50%  { background-position: 100% 50%; filter: hue-rotate(20deg); }
+  100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+}
+@keyframes gojo-text-shimmer {
+  0%   { background-position: -300% center; }
+  100% { background-position: 300% center; }
+}
+@keyframes sukuna-glitch {
+  0%, 85%, 100% { text-shadow: -2px 0 #ff0000, 2px 0 #000; transform: translate(0); }
+  87% { text-shadow: 3px 0 #ff0000, -3px 0 #400; transform: translate(-2px, 1px); }
+  89% { text-shadow: -3px 0 #ff0000, 3px 0 #400; transform: translate(2px, -1px) skewX(-1deg); }
+  91% { text-shadow: 2px 0 #ff0000, -2px 0 #400; transform: translate(-1px, -1px); }
+  93% { text-shadow: -2px 0 #ff0000, 2px 0 #400; transform: translate(1px, 1px) skewX(1deg); }
+}
+@keyframes sukuna-blood-pulse {
+  0%, 100% { border-color: rgba(220,38,38,0.4); box-shadow: inset 0 0 20px rgba(220,38,38,0.1), 0 0 10px rgba(220,38,38,0.15); }
+  50% { border-color: rgba(220,38,38,0.7); box-shadow: inset 0 0 35px rgba(220,38,38,0.2), 0 0 20px rgba(185,28,28,0.3); }
+}
+@keyframes cursed-energy-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes itadori-fire-text {
+  0%, 100% { color: #f97316; text-shadow: 0 0 8px rgba(249,115,22,0.8), 0 0 20px rgba(234,88,12,0.4); }
+  25% { color: #ef4444; text-shadow: 0 0 12px rgba(239,68,68,0.8), 0 0 25px rgba(239,68,68,0.4); }
+  50% { color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.8), 0 0 20px rgba(245,158,11,0.4); }
+  75% { color: #f97316; text-shadow: 0 0 15px rgba(249,115,22,0.9), 0 0 30px rgba(234,88,12,0.5); }
+}
+@keyframes shadow-runes {
+  0% { background-position: 50% 0%; }
+  100% { background-position: 50% 100%; }
+}
+@keyframes shadow-text-flow {
+  0%   { background-position: -200% center; text-shadow: 0 0 5px rgba(124,58,237,0.5); }
+  50%  { background-position: 0% center; text-shadow: 0 0 15px rgba(124,58,237,0.8), 0 0 30px rgba(124,58,237,0.3); }
+  100% { background-position: 200% center; text-shadow: 0 0 5px rgba(124,58,237,0.5); }
+}
+@keyframes dharma-wheel-spin {
+  0%   { background-position: 0% 50%; filter: drop-shadow(0 0 4px rgba(245,158,11,0.4)); }
+  50%  { background-position: 100% 50%; filter: drop-shadow(0 0 10px rgba(251,191,36,0.7)); }
+  100% { background-position: 0% 50%; filter: drop-shadow(0 0 4px rgba(245,158,11,0.4)); }
+}
+@keyframes dharma-border-glow {
+  0%, 100% { border-color: rgba(245,158,11,0.3); box-shadow: 0 0 10px rgba(245,158,11,0.1); }
+  50% { border-color: rgba(251,191,36,0.6); box-shadow: 0 0 25px rgba(251,191,36,0.25), inset 0 0 15px rgba(245,158,11,0.08); }
+}
+@keyframes gojo-aura-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 0.9; }
+}
+@keyframes sukuna-aura-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  30% { transform: scale(1.2); opacity: 0.7; }
+  60% { transform: scale(1.35); opacity: 0.85; }
+  80% { transform: scale(1.1); opacity: 0.6; }
+}
+
+/* ═══════════════════════ 1. SATORU GOJO ═══════════════════════ */
+
+/* Avatar Aura — Mavi-Mor Altı Göz */
+.avatar-effect-gojo-aura {
+  border-color: rgba(59,130,246,0.7) !important;
+  box-shadow: 0 0 20px rgba(59,130,246,0.6), 0 0 40px rgba(139,92,246,0.3) !important;
+  position: relative;
+}
+.avatar-effect-gojo-aura::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,0.8) 0%, rgba(139,92,246,0.5) 40%, transparent 70%);
+  z-index: -1;
+  animation: gojo-aura-breathe 3s ease-in-out infinite;
+  filter: blur(12px);
+}
+
+/* Yorum Teması — Sonsuz Boşluk (Void) */
+.comment-effect-gojo-void {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.05), rgba(59,130,246,0.08)) !important;
+  background-size: 200% 200% !important;
+  animation: gojo-void-flow 6s ease-in-out infinite;
+  border: 1px solid rgba(59,130,246,0.35) !important;
+  box-shadow: 0 0 20px rgba(59,130,246,0.15), inset 0 0 25px rgba(139,92,246,0.06) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* İsim Etiketi — Unlimited Void */
+.nametag-effect-unlimited-void {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4, #3b82f6, #8b5cf6) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  background-size: 300% auto !important;
+  animation: gojo-text-shimmer 4s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(59,130,246,0.5));
+}
+
+/* ═══════════════════════ 2. SUKUNA ═══════════════════════════ */
+
+/* Avatar Aura — Kan Kırmızısı */
+.avatar-effect-sukuna-aura {
+  border-color: rgba(220,38,38,0.7) !important;
+  box-shadow: 0 0 20px rgba(220,38,38,0.6), 0 0 40px rgba(185,28,28,0.3) !important;
+  position: relative;
+}
+.avatar-effect-sukuna-aura::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,38,38,0.8) 0%, rgba(127,29,29,0.5) 45%, transparent 70%);
+  z-index: -1;
+  animation: sukuna-aura-breathe 2.5s ease-in-out infinite;
+  filter: blur(12px);
+}
+
+/* Yorum Teması — Kötücül Tapınak */
+.comment-effect-sukuna-blood {
+  background: linear-gradient(180deg, rgba(127,29,29,0.12) 0%, rgba(220,38,38,0.06) 50%, rgba(127,29,29,0.12) 100%) !important;
+  border: 1px solid rgba(220,38,38,0.5) !important;
+  animation: sukuna-blood-pulse 3s ease-in-out infinite;
+  position: relative;
+}
+.comment-effect-sukuna-blood::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, transparent, rgba(220,38,38,0.6) 4px, transparent 8px);
+  border-radius: 2px 2px 0 0;
+}
+.comment-effect-sukuna-blood::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, transparent, rgba(220,38,38,0.6) 4px, transparent 8px);
+  border-radius: 0 0 2px 2px;
+}
+
+/* İsim Etiketi — Malevolent Shrine */
+.nametag-effect-malevolent-shrine {
+  background: linear-gradient(90deg, #dc2626, #991b1b, #dc2626) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  background-size: 200% auto !important;
+  animation: sukuna-glitch 3s infinite, shimmer-gold 2s linear infinite;
+}
+
+/* ═══════════════════════ 3. YUJI ITADORI ═══════════════════════ */
+
+/* Avatar Aura — Mavi Lanetli Enerji */
+.avatar-effect-itadori-aura {
+  border-color: rgba(249,115,22,0.7) !important;
+  box-shadow: 0 0 15px rgba(249,115,22,0.5), 0 0 35px rgba(59,130,246,0.3) !important;
+  position: relative;
+}
+.avatar-effect-itadori-aura::before {
+  content: '';
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(249,115,22,0.7) 0%, rgba(59,130,246,0.4) 50%, transparent 70%);
+  z-index: -1;
+  animation: aura-pulse 2.5s ease-in-out infinite;
+  filter: blur(10px);
+}
+
+/* Yorum Teması — Lanetli Ateş */
+.comment-effect-itadori-cursed {
+  background: linear-gradient(270deg, rgba(249,115,22,0.1), rgba(234,88,12,0.06), rgba(249,115,22,0.1)) !important;
+  background-size: 200% 200% !important;
+  animation: cursed-energy-flow 5s ease-in-out infinite;
+  border: 1px solid rgba(249,115,22,0.4) !important;
+  box-shadow: 0 0 15px rgba(249,115,22,0.15), inset 0 0 20px rgba(234,88,12,0.06) !important;
+}
+
+/* İsim Etiketi — Cursed Fire */
+.nametag-effect-cursed-fire {
+  animation: itadori-fire-text 2.5s ease-in-out infinite;
+  -webkit-text-fill-color: unset !important;
+  font-weight: 900 !important;
+}
+
+/* ═══════════════════════ 4. SUNG JIN WOO ═════════════════════ */
+
+/* Avatar Aura — Gölge Aurası */
+.avatar-effect-jinwoo-aura {
+  border-color: rgba(124,58,237,0.6) !important;
+  box-shadow: 0 0 20px rgba(124,58,237,0.5), 0 0 40px rgba(88,28,135,0.3) !important;
+  position: relative;
+}
+.avatar-effect-jinwoo-aura::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,58,237,0.7) 0%, rgba(88,28,135,0.4) 45%, transparent 70%);
+  z-index: -1;
+  animation: aura-pulse 3.5s ease-in-out infinite;
+  filter: blur(14px);
+}
+
+/* Yorum Teması — Gölge Ordusu */
+.comment-effect-jinwoo-shadow {
+  background-color: rgba(15, 10, 30, 0.9) !important;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(124,58,237,0.08) 18px, rgba(124,58,237,0.08) 19px) !important;
+  background-size: 100% 200% !important;
+  animation: shadow-runes 12s linear infinite;
+  border: 1px solid rgba(124,58,237,0.4) !important;
+  box-shadow: 0 0 20px rgba(124,58,237,0.15), inset 0 0 30px rgba(88,28,135,0.1) !important;
+}
+
+/* İsim Etiketi — Monarch of Shadows */
+.nametag-effect-monarch-shadows {
+  background: linear-gradient(90deg, #581c87, #7c3aed, #a78bfa, #7c3aed, #581c87) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  background-size: 300% auto !important;
+  animation: shadow-text-flow 4s ease-in-out infinite;
+}
+
+/* ═══════════════════════ 5. DAHİ GENERAL MAHORAGA ══════════════ */
+
+/* Avatar Aura — Altın Dharma Çarkı */
+.avatar-effect-mahoraga-aura {
+  border-color: rgba(245,158,11,0.7) !important;
+  box-shadow: 0 0 20px rgba(245,158,11,0.6), 0 0 40px rgba(251,191,36,0.3) !important;
+  position: relative;
+}
+.avatar-effect-mahoraga-aura::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251,191,36,0.8) 0%, rgba(245,158,11,0.4) 45%, transparent 70%);
+  z-index: -1;
+  animation: aura-pulse 4s ease-in-out infinite;
+  filter: blur(14px);
+}
+
+/* Yorum Teması — Dharma Çarkı */
+.comment-effect-mahoraga-dharma {
+  background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04), rgba(245,158,11,0.08)) !important;
+  background-size: 200% 200% !important;
+  animation: dharma-border-glow 4s ease-in-out infinite;
+  border: 1px solid rgba(245,158,11,0.35) !important;
+  box-shadow: 0 0 15px rgba(245,158,11,0.12), inset 0 1px 0 rgba(251,191,36,0.1) !important;
+}
+
+/* İsim Etiketi — Diviner General */
+.nametag-effect-diviner-general {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #ffffff, #fbbf24, #f59e0b, #fbbf24) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  background-size: 300% auto !important;
+  animation: dharma-wheel-spin 3s ease-in-out infinite;
+}

@@ -98,6 +98,67 @@ export const AVATAR_EFFECTS = [
     price: 2000,
     adminOnly: true,
     icon: '☀️'
+  },
+  // ── ELITE ANIME PAKETLER ──
+  {
+    id: 'gojo-aura',
+    name: 'Altı Göz Aurası',
+    description: 'Mavi-mor Altı Göz: avatar arkasında yüzen mavı ışıklar',
+    css: 'avatar-effect-gojo-aura',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔵',
+    elite: 'gojo'
+  },
+  {
+    id: 'sukuna-aura',
+    name: 'Kan Kırmızısı Aura',
+    description: 'Taşan güçlü, nefes alan kırmızı alev aurası',
+    css: 'avatar-effect-sukuna-aura',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔴',
+    elite: 'sukuna'
+  },
+  {
+    id: 'itadori-aura',
+    name: 'Lanetli Enerji',
+    description: 'Mavi lanetli enerji, parlayan şimşek ışıkları',
+    css: 'avatar-effect-itadori-aura',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '⚡',
+    elite: 'itadori'
+  },
+  {
+    id: 'jinwoo-aura',
+    name: 'Gölge Aurası',
+    description: 'Parçacıklarla nefes alan derin gölge aurası',
+    css: 'avatar-effect-jinwoo-aura',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🌑',
+    elite: 'jinwoo'
+  },
+  {
+    id: 'mahoraga-aura',
+    name: 'Altın Dharma Çarkı',
+    description: 'Ağır ağır dönen devasa altın parıltı',
+    css: 'avatar-effect-mahoraga-aura',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '☸️',
+    elite: 'mahoraga'
   }
 ];
 
@@ -194,6 +255,67 @@ export const COMMENT_EFFECTS = [
     price: 1000,
     adminOnly: true,
     icon: '🌋'
+  },
+  // ── ELITE ANIME YORUM TEMALARI ──
+  {
+    id: 'gojo-void',
+    name: 'Sonsuz Boşluk',
+    description: 'Saydam mavi void kutusu, yüzen ışık parçacıkları',
+    css: 'comment-effect-gojo-void',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔵',
+    elite: 'gojo'
+  },
+  {
+    id: 'sukuna-blood',
+    name: 'Kötücül Tapınak',
+    description: 'Koyu kırmızı tema, rünlü kenarlar',
+    css: 'comment-effect-sukuna-blood',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔴',
+    elite: 'sukuna'
+  },
+  {
+    id: 'itadori-cursed',
+    name: 'Lanetli Ateş',
+    description: 'Turuncu parlayan kutu, lanetli enerji',
+    css: 'comment-effect-itadori-cursed',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔥',
+    elite: 'itadori'
+  },
+  {
+    id: 'jinwoo-shadow',
+    name: 'Gölge Ordusu',
+    description: 'Gölge ordu teması, mor dikey rünler',
+    css: 'comment-effect-jinwoo-shadow',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🌑',
+    elite: 'jinwoo'
+  },
+  {
+    id: 'mahoraga-dharma',
+    name: 'Dharma Çarkı',
+    description: 'Altın dharma teması, parıltılar',
+    css: 'comment-effect-mahoraga-dharma',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '☸️',
+    elite: 'mahoraga'
   }
 ];
 
@@ -300,6 +422,67 @@ export const NAMETAG_EFFECTS = [
     price: 1200,
     adminOnly: true,
     icon: '☣️'
+  },
+  // ── ELITE ANIME İSİM ETİKETLERİ ──
+  {
+    id: 'unlimited-void',
+    name: 'Unlimited Void',
+    description: 'Mavi-mor parıltı dalgası, yazı içinden geçen kozmik akış',
+    css: 'nametag-effect-unlimited-void',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔵',
+    elite: 'gojo'
+  },
+  {
+    id: 'malevolent-shrine',
+    name: 'Malevolent Shrine',
+    description: 'Kırmızı-siyah glitch ve kan efekti',
+    css: 'nametag-effect-malevolent-shrine',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔴',
+    elite: 'sukuna'
+  },
+  {
+    id: 'cursed-fire',
+    name: 'Cursed Fire',
+    description: 'Alev efektli, içinden yumruk ikonları geçer',
+    css: 'nametag-effect-cursed-fire',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🔥',
+    elite: 'itadori'
+  },
+  {
+    id: 'monarch-shadows',
+    name: 'Monarch of Shadows',
+    description: 'Koyu mor parıltı, içinden rünler akar',
+    css: 'nametag-effect-monarch-shadows',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '🌑',
+    elite: 'jinwoo'
+  },
+  {
+    id: 'diviner-general',
+    name: 'Diviner General',
+    description: 'Yazı içinden altın parıltılı çark dalgası geçer',
+    css: 'nametag-effect-diviner-general',
+    rarity: 'legendary',
+    minXP: 0,
+    price: 3000,
+    adminOnly: true,
+    icon: '☸️',
+    elite: 'mahoraga'
   }
 ];
 
@@ -373,3 +556,67 @@ export function getAllEffects() {
     nametag: NAMETAG_EFFECTS
   };
 }
+
+// ── ELITE PAKET TANIMLARI ───────────────────────────────────────────────
+export const ELITE_PACKAGES = [
+  {
+    id: 'gojo',
+    name: 'Satoru Gojo',
+    anime: 'Jujutsu Kaisen',
+    icon: '🔵',
+    color: '#3b82f6',
+    effects: {
+      nametag: 'unlimited-void',
+      avatar: 'gojo-aura',
+      comment: 'gojo-void'
+    }
+  },
+  {
+    id: 'sukuna',
+    name: 'Sukuna',
+    anime: 'Jujutsu Kaisen',
+    icon: '🔴',
+    color: '#dc2626',
+    effects: {
+      nametag: 'malevolent-shrine',
+      avatar: 'sukuna-aura',
+      comment: 'sukuna-blood'
+    }
+  },
+  {
+    id: 'itadori',
+    name: 'Yuji Itadori',
+    anime: 'Jujutsu Kaisen',
+    icon: '🔥',
+    color: '#f97316',
+    effects: {
+      nametag: 'cursed-fire',
+      avatar: 'itadori-aura',
+      comment: 'itadori-cursed'
+    }
+  },
+  {
+    id: 'jinwoo',
+    name: 'Sung Jin Woo',
+    anime: 'Solo Leveling',
+    icon: '🌑',
+    color: '#7c3aed',
+    effects: {
+      nametag: 'monarch-shadows',
+      avatar: 'jinwoo-aura',
+      comment: 'jinwoo-shadow'
+    }
+  },
+  {
+    id: 'mahoraga',
+    name: 'Dahi General Mahoraga',
+    anime: 'Jujutsu Kaisen',
+    icon: '☸️',
+    color: '#f59e0b',
+    effects: {
+      nametag: 'diviner-general',
+      avatar: 'mahoraga-aura',
+      comment: 'mahoraga-dharma'
+    }
+  }
+];
