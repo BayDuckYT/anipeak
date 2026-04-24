@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { uploadAvatar } from '../lib/imageService';
-import { getAllEffects, canUseEffect, getLockReason, getEffectCSS, RARITY_CONFIG, ELITE_PACKAGES } from '../lib/profileEffects';
+import { getEffectCSS, canUseBundle, getUnlockedEffectParts, ELITE_BUNDLES } from '../lib/eliteBundles';
+import { renderCanvasEffect } from '../lib/canvasEffects';
 
 // Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -74,32 +75,80 @@ export default function ProfilePage() {
 
   // Elite Bundle State
   const [selectedBundle, setSelectedBundle] = useState(() => {
-    // Mevcut efektlerden aktif paketi bul
-    const currentNametag = user?.nametag_effect || 'none';
-    const found = ELITE_PACKAGES.find(p => p.effects.nametag === currentNametag);
-    return found?.id || null;
+    // Mevcut efektlerden aktif paketi bul (Eğer bir mix değilse)
+    // Eğer active_mix kullanılıyorsa, onu baz alıyoruz
+    const mix = user?.active_mix;
+    if (mix && mix.avatar !== 'none' && mix.avatar === mix.comment && mix.avatar === mix.nametag) {
+      // Eğer hepsi aynı paketse (mix yapılmamışsa) o paketi bul
+      const found = ELITE_BUNDLES.find(p => p.effects.avatar === mix.avatar);
+      return found?.id || 'mix'; // Eğer bulamazsa mix kabul et
+    }
+    if (mix && (mix.avatar !== 'none' || mix.comment !== 'none' || mix.nametag !== 'none' || mix.aura !== 'none')) {
+      return 'mix';
+    }
+    return null;
   });
+
   const [hoveredBundle, setHoveredBundle] = useState(null);
-  const [activeEffectCategory, setActiveEffectCategory] = useState('avatar');
+  
+  // Mix & Match State
+  const [isMixModalOpen, setIsMixModalOpen] = useState(false);
+  const [mixState, setMixState] = useState(() => {
+    return user?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' };
+  });
 
-  const allEffects = getAllEffects();
-
-  // Önizleme: hover varsa hover'daki paketi göster, yoksa seçili paketi
-  const previewBundle = hoveredBundle 
-    ? ELITE_PACKAGES.find(p => p.id === hoveredBundle) 
-    : selectedBundle 
-      ? ELITE_PACKAGES.find(p => p.id === selectedBundle) 
-      : null;
-
-  const previewEffects = previewBundle ? {
-    avatar: previewBundle.effects.avatar,
-    comment: previewBundle.effects.comment,
-    nametag: previewBundle.effects.nametag
-  } : {
-    avatar: user?.avatar_effect || 'none',
-    comment: user?.comment_effect || 'none',
-    nametag: user?.nametag_effect || 'none'
+  // Önizleme mantığı: hover varsa paketi/mix'i göster, yoksa seçili paketi/mix'i
+  const determinePreview = () => {
+    if (hoveredBundle === 'mix') return mixState;
+    if (hoveredBundle && hoveredBundle !== 'none') {
+      const bundle = ELITE_BUNDLES.find(p => p.id === hoveredBundle);
+      return { ...bundle.effects, aura: bundle.canvasEffect };
+    }
+    if (hoveredBundle === 'none') {
+      return { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' };
+    }
+    
+    // Hover yoksa seçili duruma bak
+    if (selectedBundle === 'mix') return mixState;
+    if (selectedBundle) {
+      const bundle = ELITE_BUNDLES.find(p => p.id === selectedBundle);
+      if (bundle) return { ...bundle.effects, aura: bundle.canvasEffect };
+    }
+    
+    // Hiçbiri yoksa kullanıcının aktif mix'ini kullan
+    return user?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' };
   };
+
+  const previewEffects = determinePreview();
+
+  // ── CANVAS ANİMASYONU ──
+  const canvasRef = useRef(null);
+  const particlesRef = useRef([]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    let animationFrameId;
+    const render = () => {
+      renderCanvasEffect(ctx, canvas, previewEffects.aura, particlesRef);
+      animationFrameId = requestAnimationFrame(render);
+    };
+    render();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [previewEffects.aura]);
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -172,13 +221,25 @@ export default function ProfilePage() {
 
   const handleSaveEffects = async () => {
     try {
-      const activeBundle = selectedBundle ? ELITE_PACKAGES.find(p => p.id === selectedBundle) : null;
+      let activeMix = { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' };
+      
+      if (selectedBundle === 'mix') {
+        activeMix = mixState;
+      } else if (selectedBundle) {
+        const bundle = ELITE_BUNDLES.find(p => p.id === selectedBundle);
+        if (bundle) {
+          activeMix = { ...bundle.effects, aura: bundle.canvasEffect };
+        }
+      }
+
       await updateProfile({
-        avatar_effect: activeBundle ? activeBundle.effects.avatar : 'none',
-        comment_effect: activeBundle ? activeBundle.effects.comment : 'none',
-        nametag_effect: activeBundle ? activeBundle.effects.nametag : 'none'
+        active_mix: activeMix,
+        // Geriye dönük uyumluluk için (eski kodlar için)
+        avatar_effect: activeMix.avatar,
+        comment_effect: activeMix.comment,
+        nametag_effect: activeMix.nametag
       });
-      alert('Elite Paket başarıyla uygulandı! 🎖️🚀');
+      alert('Siber Teçhizat başarıyla kuşanıltı! 🎖️🚀');
     } catch (err) {
       alert('Paket kaydedilirken hata oluştu: ' + err.message);
     }
@@ -206,6 +267,12 @@ export default function ProfilePage() {
     <main className="min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* ── PROFILE HEADER ── */}
       <div className="glass border border-white/10 rounded-3xl p-6 sm:p-10 mb-8 relative overflow-hidden">
+        {/* Canvas Animasyon Arka Planı */}
+        <canvas 
+          ref={canvasRef} 
+          className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80 mix-blend-screen"
+        />
+        
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
         
@@ -496,10 +563,10 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Elite Paketler Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {ELITE_PACKAGES.map(bundle => {
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                  {ELITE_BUNDLES.map(bundle => {
                     const isSelected = selectedBundle === bundle.id;
-                    const isUnlocked = user.role === 'Baş Admin' || user.role === 'Yönetici' || user.role === 'Admin Yardımcısı' || (user.unlocked_effects || []).includes(bundle.id);
+                    const isUnlocked = canUseBundle(bundle.id, user.role, user.unlocked_effects);
                     const bundleCSS = getEffectCSS('nametag', bundle.effects.nametag);
                     
                     return (
@@ -555,7 +622,7 @@ export default function ProfilePage() {
                             <div className="flex items-center gap-2 text-sm text-slate-300 bg-black/20 p-3 rounded-xl border border-white/5">
                               <Package size={16} className="text-slate-500" />
                               <span className="text-slate-400">İçerik:</span>
-                              <span className="font-semibold text-white">Avatar, Yorum, İsim Etiketi</span>
+                              <span className="font-semibold text-white">Avatar, Yorum, İsim, Aura</span>
                             </div>
                             {!isUnlocked && (
                               <div className="flex items-center justify-center gap-2 text-sm text-amber-400 bg-amber-500/10 p-2 rounded-xl border border-amber-500/20 font-bold">
@@ -567,29 +634,54 @@ export default function ProfilePage() {
                       </div>
                     );
                   })}
-                  
+                </div>
+
+                {/* Alt Kısım: Standart ve Mixle */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Mix & Karıştır Butonu */}
+                  <div
+                    onMouseEnter={() => setHoveredBundle('mix')}
+                    onMouseLeave={() => setHoveredBundle(null)}
+                    onClick={() => { setSelectedBundle('mix'); setIsMixModalOpen(true); }}
+                    className={`relative p-6 rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-center gap-4
+                      ${selectedBundle === 'mix'
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10 shadow-neon-purple scale-[1.02]' 
+                        : 'border-fuchsia-500/30 bg-fuchsia-500/5 hover:bg-fuchsia-500/10 hover:border-fuchsia-500/50'
+                      }
+                    `}
+                  >
+                    {selectedBundle === 'mix' && (
+                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-fuchsia-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10">
+                        <Check size={16} className="text-white" />
+                      </div>
+                    )}
+                    <Palette size={32} className="text-fuchsia-400" />
+                    <div>
+                      <h4 className="text-lg font-black text-white italic tracking-tight">Mixle & Karıştır</h4>
+                      <p className="text-xs text-fuchsia-300">Kendi siber paketini yarat!</p>
+                    </div>
+                  </div>
+
                   {/* Varsayılan / Efektsiz Paket */}
                   <div
                     onMouseEnter={() => setHoveredBundle('none')}
                     onMouseLeave={() => setHoveredBundle(null)}
-                    onClick={() => setSelectedBundle(null)}
-                    className={`relative p-6 rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col justify-center
-                      ${selectedBundle === null
+                    onClick={() => setSelectedBundle('none')}
+                    className={`relative p-6 rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-center gap-4
+                      ${selectedBundle === 'none'
                         ? 'border-slate-500 bg-slate-500/10 scale-[1.02]' 
                         : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
                       }
                     `}
                   >
-                    {selectedBundle === null && (
+                    {selectedBundle === 'none' && (
                       <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10">
                         <Check size={16} className="text-white" />
                       </div>
                     )}
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-slate-800 rounded-full flex items-center justify-center border-2 border-slate-700">
-                        <Minus size={24} className="text-slate-500" />
-                      </div>
-                      <h4 className="text-lg font-bold text-slate-300 mb-1">Standart Görünüm</h4>
+                    <Minus size={32} className="text-slate-500" />
+                    <div>
+                      <h4 className="text-lg font-bold text-slate-300">Standart Görünüm</h4>
                       <p className="text-xs text-slate-500">Tüm efektleri temizle</p>
                     </div>
                   </div>
@@ -629,6 +721,101 @@ export default function ProfilePage() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* ── MIX & KARIŞTIR MODAL ── */}
+      <AnimatePresence>
+        {isMixModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsMixModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl glass-strong border border-white/10 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 flex items-center justify-center border border-fuchsia-500/30">
+                    <Palette className="text-fuchsia-400" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">Siber Mix Masası</h3>
+                    <p className="text-sm text-slate-400">Kilidini açtığın paketlerin parçalarını birleştir</p>
+                  </div>
+                </div>
+                <button onClick={() => setIsMixModalOpen(false)} className="p-2 rounded-xl hover:bg-white/5 text-slate-400"><X /></button>
+              </div>
+
+              <div className="space-y-8">
+                {(() => {
+                  const parts = getUnlockedEffectParts(user.role, user.unlocked_effects);
+                  const sections = [
+                    { id: 'aura', label: 'Canvas Afiş (Arkaplan)', items: parts.aura },
+                    { id: 'avatar', label: 'Profil Çerçevesi (Aura)', items: parts.avatar },
+                    { id: 'comment', label: 'Yorum Kutusu', items: parts.comment },
+                    { id: 'nametag', label: 'İsim Etiketi', items: parts.nametag }
+                  ];
+
+                  return sections.map(section => (
+                    <div key={section.id} className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                      <h4 className="text-lg font-black text-slate-300 mb-4">{section.label}</h4>
+                      <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+                        <button
+                          onClick={() => setMixState(prev => ({ ...prev, [section.id]: 'none' }))}
+                          className={`flex-shrink-0 px-5 py-3 rounded-xl border transition-all duration-300 font-bold text-sm
+                            ${mixState[section.id] === 'none'
+                              ? 'bg-fuchsia-600 border-fuchsia-500 text-white shadow-neon-purple'
+                              : 'bg-black/20 border-white/10 text-slate-400 hover:border-white/20'
+                            }
+                          `}
+                        >
+                          Hiçbiri
+                        </button>
+                        {section.items.map(item => (
+                          <button
+                            key={item.id}
+                            onClick={() => setMixState(prev => ({ ...prev, [section.id]: item.id }))}
+                            className={`flex-shrink-0 px-5 py-3 rounded-xl border transition-all duration-300 font-bold text-sm
+                              ${mixState[section.id] === item.id
+                                ? 'bg-fuchsia-600 border-fuchsia-500 text-white shadow-neon-purple'
+                                : 'bg-black/20 border-white/10 text-slate-400 hover:border-white/20'
+                              }
+                            `}
+                          >
+                            {item.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+
+                <div className="flex gap-4 pt-4 border-t border-white/10">
+                  <button 
+                    onClick={() => setIsMixModalOpen(false)}
+                    className="flex-1 py-4 glass border border-white/5 text-slate-400 font-bold rounded-2xl hover:text-white transition-all"
+                  >
+                    Kapat
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setSelectedBundle('mix');
+                      setIsMixModalOpen(false);
+                      handleSaveEffects();
+                    }}
+                    className="flex-[2] py-4 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-black rounded-2xl shadow-neon-purple flex items-center justify-center gap-2"
+                  >
+                    <Check size={20} /> MİXİ KAYDET & KUŞAN
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </main>
   );
 }

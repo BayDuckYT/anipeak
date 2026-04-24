@@ -4,7 +4,7 @@ import { MessageSquare, Send, User, Trash2, Clock, AlertTriangle, Eye, EyeOff } 
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabaseClient';
-import { getEffectCSS } from '../lib/profileEffects';
+import { getEffectCSS } from '../lib/eliteBundles';
 
 export default function CommentSystem({ seriesId, chapterNum }) {
   const { user, updateXP } = useAuth();
