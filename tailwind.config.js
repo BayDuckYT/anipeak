@@ -1,10 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  safelist: [
-    { pattern: /^avatar-effect-/ },
-    { pattern: /^comment-effect-/ },
-    { pattern: /^nametag-effect-/ }
-  ],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
