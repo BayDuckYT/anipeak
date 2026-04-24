@@ -6,11 +6,11 @@ import Cropper from 'react-easy-crop';
 import { 
   BookOpen, Settings, Crown, LayoutDashboard, History, 
   Bell, ChevronRight, Play, Camera, Image as ImageIcon,
-  Check, Upload, Sparkles, X, Minus, Plus, Palette, Lock, ShoppingCart
+  Check, Upload, Sparkles, X, Minus, Plus, Palette, Lock, ShoppingCart, Package, Zap
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { uploadAvatar } from '../lib/imageService';
-import { getAllEffects, canUseEffect, getLockReason, getEffectCSS, RARITY_CONFIG } from '../lib/profileEffects';
+import { getAllEffects, canUseEffect, getLockReason, getEffectCSS, RARITY_CONFIG, ELITE_PACKAGES } from '../lib/profileEffects';
 
 // Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -72,16 +72,34 @@ export default function ProfilePage() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Efekt Market State'leri
+  // Elite Bundle State
+  const [selectedBundle, setSelectedBundle] = useState(() => {
+    // Mevcut efektlerden aktif paketi bul
+    const currentNametag = user?.nametag_effect || 'none';
+    const found = ELITE_PACKAGES.find(p => p.effects.nametag === currentNametag);
+    return found?.id || null;
+  });
+  const [hoveredBundle, setHoveredBundle] = useState(null);
   const [activeEffectCategory, setActiveEffectCategory] = useState('avatar');
-  const [previewEffects, setPreviewEffects] = useState({
+
+  const allEffects = getAllEffects();
+
+  // Önizleme: hover varsa hover'daki paketi göster, yoksa seçili paketi
+  const previewBundle = hoveredBundle 
+    ? ELITE_PACKAGES.find(p => p.id === hoveredBundle) 
+    : selectedBundle 
+      ? ELITE_PACKAGES.find(p => p.id === selectedBundle) 
+      : null;
+
+  const previewEffects = previewBundle ? {
+    avatar: previewBundle.effects.avatar,
+    comment: previewBundle.effects.comment,
+    nametag: previewBundle.effects.nametag
+  } : {
     avatar: user?.avatar_effect || 'none',
     comment: user?.comment_effect || 'none',
     nametag: user?.nametag_effect || 'none'
-  });
-  const [purchasingEffect, setPurchasingEffect] = useState(null);
-
-  const allEffects = getAllEffects();
+  };
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -152,46 +170,35 @@ export default function ProfilePage() {
     manhwa: series?.find(m => String(m.id) === String(h.manhwaId))
   })).filter(h => h.manhwa) || [];
 
-  const handleEffectSelect = (category, effectId) => {
-    setPreviewEffects(prev => ({ ...prev, [category]: effectId }));
-  };
-
   const handleSaveEffects = async () => {
     try {
+      const activeBundle = selectedBundle ? ELITE_PACKAGES.find(p => p.id === selectedBundle) : null;
       await updateProfile({
-        avatar_effect: previewEffects.avatar,
-        comment_effect: previewEffects.comment,
-        nametag_effect: previewEffects.nametag
+        avatar_effect: activeBundle ? activeBundle.effects.avatar : 'none',
+        comment_effect: activeBundle ? activeBundle.effects.comment : 'none',
+        nametag_effect: activeBundle ? activeBundle.effects.nametag : 'none'
       });
-      alert('Profil efektleri güncellendi!');
+      alert('Elite Paket başarıyla uygulandı! 🎖️🚀');
     } catch (err) {
-      alert('Efektler kaydedilirken hata oluştu: ' + err.message);
+      alert('Paket kaydedilirken hata oluştu: ' + err.message);
     }
   };
 
-  const handlePurchaseEffect = async (effect) => {
+  const handlePurchaseBundle = async (bundle) => {
     // Teğmen (Admin) kontrolü: Admin ise bedava alır
-    const isAdmin = user.role === 'Baş Admin' || user.role === 'Yönetici';
+    const isAdmin = user.role === 'Baş Admin' || user.role === 'Yönetici' || user.role === 'Admin Yardımcısı';
     
-    // Satın alma onayı (Simülasyon)
     if (!isAdmin) {
-      const confirmPurchase = window.confirm(`Bu efekti ${effect.price} Coin karşılığında satın almak istiyor musunuz?`);
-      if (!confirmPurchase) return;
-      // TODO: Coin düşme mantığı eklenecek
-    } else {
-       alert("Teğmenim hoşgeldiniz! Bu efekt size karargahın hediyesidir. 🎖️");
+      alert("Bu elit paketler sadece Karargah (Admin) üyelerine özeldir!");
+      return;
     }
 
-    setPurchasingEffect(effect.id);
-    
     try {
-      const updatedUnlocked = [...(user.unlocked_effects || []), effect.id];
+      const updatedUnlocked = [...(user.unlocked_effects || []), bundle.id];
       await updateProfile({ unlocked_effects: updatedUnlocked });
-      alert(`"${effect.name}" efekti başarıyla açıldı!`);
+      alert(`"${bundle.name}" elit paketi başarıyla açıldı!`);
     } catch (err) {
       alert("Hata oluştu: " + err.message);
-    } finally {
-      setPurchasingEffect(null);
     }
   };
 
@@ -488,92 +495,104 @@ export default function ProfilePage() {
                    </div>
                 </div>
 
-                {/* Kategori Seçici */}
-                <div className="flex gap-2 mb-6 border-b border-white/10 pb-4 overflow-x-auto no-scrollbar">
-                  {[
-                    { id: 'avatar', label: 'Çerçeveler' },
-                    { id: 'comment', label: 'Yorum Kutuları' },
-                    { id: 'nametag', label: 'İsim Etiketleri' }
-                  ].map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setActiveEffectCategory(cat.id)}
-                      className={`px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
-                        activeEffectCategory === cat.id 
-                          ? 'bg-white/10 text-white border border-white/20' 
-                          : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Efekt Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {allEffects[activeEffectCategory].map(effect => {
-                    const isUnlocked = canUseEffect(effect, user.xp, user.role, user.unlocked_effects || []);
-                    const isSelected = previewEffects[activeEffectCategory] === effect.id;
-                    const rarityInfo = RARITY_CONFIG[effect.rarity];
-                    const lockReason = !isUnlocked ? getLockReason(effect, user.xp) : null;
-                    const isPurchasable = !isUnlocked && effect.price > 0 && effect.minXP === 0 && !effect.adminOnly;
-
+                {/* Elite Paketler Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {ELITE_PACKAGES.map(bundle => {
+                    const isSelected = selectedBundle === bundle.id;
+                    const isUnlocked = user.role === 'Baş Admin' || user.role === 'Yönetici' || user.role === 'Admin Yardımcısı' || (user.unlocked_effects || []).includes(bundle.id);
+                    const bundleCSS = getEffectCSS('nametag', bundle.effects.nametag);
+                    
                     return (
-                      <div 
-                        key={effect.id}
+                      <div
+                        key={bundle.id}
+                        onMouseEnter={() => setHoveredBundle(bundle.id)}
+                        onMouseLeave={() => setHoveredBundle(null)}
                         onClick={() => {
-                           if (isUnlocked) handleEffectSelect(activeEffectCategory, effect.id);
+                          if (isUnlocked) setSelectedBundle(bundle.id);
+                          else handlePurchaseBundle(bundle);
                         }}
-                        className={`relative p-5 rounded-2xl border transition-all duration-300
-                          ${!isUnlocked && !isPurchasable ? 'effect-card-locked border-white/5 bg-white/[0.02]' : ''}
-                          ${!isUnlocked && isPurchasable ? 'effect-card-locked purchasable border-amber-500/20 bg-amber-500/5 hover:border-amber-500/50' : ''}
-                          ${isUnlocked && !isSelected ? 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer' : ''}
-                          ${isSelected ? 'border-purple-500 bg-purple-500/10 shadow-neon-purple scale-[1.02]' : ''}
+                        className={`relative p-6 rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden group
+                          ${isSelected 
+                            ? 'border-purple-500 bg-purple-500/10 shadow-neon-purple scale-[1.02]' 
+                            : isUnlocked
+                              ? 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                              : 'border-white/5 bg-black/40 grayscale opacity-70 hover:grayscale-0 hover:opacity-100'
+                          }
                         `}
                       >
-                        {/* Status / Selected Badge */}
+                        {/* Status Badge */}
                         {isSelected && (
-                          <div className="absolute -top-3 -right-3 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg">
-                            <Check size={14} className="text-white" />
+                          <div className="absolute -top-3 -right-3 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10">
+                            <Check size={16} className="text-white" />
                           </div>
                         )}
-                        
-                        {/* Header */}
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="text-2xl">{effect.icon}</div>
-                          <div className="flex-1">
-                            <h4 className="text-white font-bold text-sm">{effect.name}</h4>
-                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${rarityInfo.color} ${rarityInfo.border} ${rarityInfo.bg}`}>
-                              {rarityInfo.label}
+
+                        {/* Background Glow */}
+                        <div 
+                          className="absolute -inset-4 opacity-0 group-hover:opacity-20 transition-opacity blur-2xl pointer-events-none"
+                          style={{ backgroundColor: bundle.color }}
+                        />
+
+                        <div className="relative z-10">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <div className="text-4xl filter drop-shadow-lg">{bundle.icon}</div>
+                              <div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                  {bundle.anime}
+                                </span>
+                                <h4 className={`text-xl font-black italic tracking-tight ${bundleCSS}`}>
+                                  {bundle.name}
+                                </h4>
+                              </div>
+                            </div>
+                            <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
+                              <Zap size={12} /> Elite Bundle
                             </span>
                           </div>
-                        </div>
-                        
-                        <p className="text-xs text-slate-400 mb-4 h-8">{effect.description}</p>
-                        
-                        {/* Footer (Unlock status or Select button) */}
-                        <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between">
-                          {isUnlocked ? (
-                            <span className={`text-xs font-bold ${isSelected ? 'text-purple-400' : 'text-slate-500'}`}>
-                              {isSelected ? 'Seçili' : 'Açık (Tıkla Seç)'}
-                            </span>
-                          ) : isPurchasable ? (
-                            <button
-                               onClick={(e) => { e.stopPropagation(); handlePurchaseEffect(effect); }}
-                               disabled={purchasingEffect === effect.id}
-                               className="w-full py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors"
-                            >
-                               {purchasingEffect === effect.id ? 'İşleniyor...' : <><ShoppingCart size={12} /> {effect.price} Coin</>}
-                            </button>
-                          ) : (
-                            <span className="text-xs font-bold text-red-400 flex items-center gap-1.5">
-                              <Lock size={12} /> {lockReason}
-                            </span>
-                          )}
+
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-sm text-slate-300 bg-black/20 p-3 rounded-xl border border-white/5">
+                              <Package size={16} className="text-slate-500" />
+                              <span className="text-slate-400">İçerik:</span>
+                              <span className="font-semibold text-white">Avatar, Yorum, İsim Etiketi</span>
+                            </div>
+                            {!isUnlocked && (
+                              <div className="flex items-center justify-center gap-2 text-sm text-amber-400 bg-amber-500/10 p-2 rounded-xl border border-amber-500/20 font-bold">
+                                <Lock size={14} /> Karargah Üyelerine Özel
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
                   })}
+                  
+                  {/* Varsayılan / Efektsiz Paket */}
+                  <div
+                    onMouseEnter={() => setHoveredBundle('none')}
+                    onMouseLeave={() => setHoveredBundle(null)}
+                    onClick={() => setSelectedBundle(null)}
+                    className={`relative p-6 rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col justify-center
+                      ${selectedBundle === null
+                        ? 'border-slate-500 bg-slate-500/10 scale-[1.02]' 
+                        : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                      }
+                    `}
+                  >
+                    {selectedBundle === null && (
+                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10">
+                        <Check size={16} className="text-white" />
+                      </div>
+                    )}
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-slate-800 rounded-full flex items-center justify-center border-2 border-slate-700">
+                        <Minus size={24} className="text-slate-500" />
+                      </div>
+                      <h4 className="text-lg font-bold text-slate-300 mb-1">Standart Görünüm</h4>
+                      <p className="text-xs text-slate-500">Tüm efektleri temizle</p>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
