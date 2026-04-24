@@ -10,138 +10,192 @@ export function renderCanvasEffect(ctx, canvas, effectType, particlesRef) {
   if (!particlesRef.current || particlesRef.effect !== effectType) {
     particlesRef.current = [];
     particlesRef.effect = effectType;
+    particlesRef.globalAngle = 0; // For galaxy rotation
     
-    const count = effectType === 'void-particles' ? 50 
-                : effectType === 'blood-rain' ? 100 
-                : effectType === 'black-flash' ? 30
-                : effectType === 'shadow-arise' ? 80
+    const count = effectType === 'void-particles' ? 200 // Devasa galaksi
+                : effectType === 'blood-rain' ? 150 // Harlayan ateş kıvılcımları
+                : effectType === 'black-flash' ? 80 // Hızlı şimşekler
+                : effectType === 'shadow-arise' ? 120 // Yoğun gölge dumanları
                 : 1; // Dharma wheel just needs 1 main particle
                 
     for (let i = 0; i < count; i++) {
       particlesRef.current.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 3 + 1,
-        speedX: (Math.random() - 0.5) * 2,
-        speedY: (Math.random() - 0.5) * 2,
-        life: Math.random() * 100,
-        angle: Math.random() * Math.PI * 2
+        size: Math.random() * 5 + 2, // Daha büyük
+        speedX: (Math.random() - 0.5) * 6, // Daha hızlı
+        speedY: (Math.random() - 0.5) * 6, // Daha hızlı
+        life: Math.random() * 200, // Daha uzun ömür
+        angle: Math.random() * Math.PI * 2,
+        distance: Math.random() * (width / 2) // For spiral
       });
     }
   }
 
   const particles = particlesRef.current;
   
-  // Semi-transparent clear for trailing effect
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  // Clear slightly more opaque for stronger trails
+  ctx.fillStyle = 'rgba(5, 5, 10, 0.3)';
   ctx.fillRect(0, 0, width, height);
 
+  ctx.globalCompositeOperation = 'screen'; // Parlama efekti için çok kritik
+
   if (effectType === 'void-particles') {
-    // Gojo Void - Blue/Purple slow floating particles
+    // Gojo Void - Devasa Dönen Galaksi Girdabı
+    const cx = width / 2;
+    const cy = height / 2;
+    particlesRef.globalAngle += 0.002;
+    
     particles.forEach(p => {
+      p.distance -= 0.5; // Girdabın içine çekil
+      p.angle += 0.02 + (100 / Math.max(p.distance, 10)); // Merkeze yaklaştıkça hızlan
+      
+      if (p.distance <= 0) {
+        p.distance = width / 2;
+        p.angle = Math.random() * Math.PI * 2;
+      }
+
+      const x = cx + Math.cos(p.angle + particlesRef.globalAngle) * p.distance;
+      const y = cy + Math.sin(p.angle + particlesRef.globalAngle) * p.distance;
+
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${240 + Math.sin(p.life/20) * 40}, 100%, 70%, ${0.3 + Math.sin(p.life/10)*0.2})`;
+      ctx.arc(x, y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${230 + Math.sin(p.life/10)*50}, 100%, 70%, ${0.5 + Math.sin(p.life/20)*0.5})`;
+      ctx.shadowBlur = p.size * 3;
+      ctx.shadowColor = '#8b5cf6';
       ctx.fill();
       
-      p.y -= 0.5;
-      p.x += Math.sin(p.life / 20) * 0.5;
       p.life++;
-      
-      if (p.y < 0) p.y = height;
     });
   } 
   else if (effectType === 'blood-rain') {
-    // Sukuna - Fast red streaks falling
-    ctx.lineWidth = 2;
+    // Sukuna - Aşağıdan Yukarı Harlayan Kıvılcımlar (Malevolent Fire)
     particles.forEach(p => {
       ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x - p.speedX * 2, p.y - p.speedY * 5);
-      ctx.strokeStyle = `rgba(220, 38, 38, ${Math.random() * 0.5 + 0.2})`; // Red
-      ctx.stroke();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = Math.random() > 0.5 ? '#dc2626' : '#f97316'; // Kan kırmızısı ve ateş turuncusu
+      ctx.shadowBlur = p.size * 4;
+      ctx.shadowColor = '#dc2626';
+      ctx.fill();
       
-      p.y += p.speedY * 2 + 5;
-      p.x += p.speedX;
+      // Aşağıdan yukarıya doğru hızla fırla
+      p.y -= (Math.random() * 4 + 3);
+      p.x += Math.sin(p.life / 10) * 2;
+      p.life++;
+      p.size *= 0.98; // Yukarı çıktıkça küçül (küle dönüş)
       
-      if (p.y > height) {
-        p.y = 0;
+      if (p.y < 0 || p.size < 0.5) {
+        p.y = height + 10;
         p.x = Math.random() * width;
+        p.size = Math.random() * 6 + 3;
       }
     });
   }
   else if (effectType === 'black-flash') {
-    // Itadori - Sharp erratic orange/black flashes
+    // Itadori - Agresif ve Patlayıcı Şimşekler
+    ctx.lineWidth = 3;
     particles.forEach(p => {
-      if (Math.random() > 0.95) {
+      if (Math.random() > 0.90) { // Sık şimşekler
         ctx.beginPath();
         ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x + (Math.random() - 0.5) * 50, p.y + (Math.random() - 0.5) * 50);
-        ctx.strokeStyle = Math.random() > 0.5 ? '#f97316' : '#000000';
-        ctx.lineWidth = Math.random() * 3 + 1;
+        ctx.lineTo(p.x + (Math.random() - 0.5) * 150, p.y + (Math.random() - 0.5) * 150); // Uzun şimşek kolları
+        const isBlack = Math.random() > 0.6;
+        ctx.strokeStyle = isBlack ? 'rgba(0,0,0,0.8)' : '#3b82f6';
+        ctx.shadowBlur = isBlack ? 0 : 20;
+        ctx.shadowColor = '#3b82f6';
         ctx.stroke();
+        
+        // Çarpma noktasında kıvılcım
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.random() * 10 + 5, 0, Math.PI*2);
+        ctx.fillStyle = isBlack ? '#000' : '#f97316';
+        ctx.fill();
       }
-      p.x += p.speedX * 3;
-      p.y += p.speedY * 3;
+      p.x += p.speedX * 5;
+      p.y += p.speedY * 5;
       if (p.x < 0 || p.x > width) p.speedX *= -1;
       if (p.y < 0 || p.y > height) p.speedY *= -1;
     });
   }
   else if (effectType === 'shadow-arise') {
-    // Jinwoo - Dark purple/black rising smoke-like particles
+    // Jinwoo - Devasa, Ağır Ağır Yükselen Kara Alevler/Gölge
     particles.forEach(p => {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(124, 58, 237, ${0.1 + (100-p.life)/500})`;
+      ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(124, 58, 237, ${0.1 + (200-p.life)/1000})`; // Mor ve siyah arası
+      ctx.shadowBlur = 30;
+      ctx.shadowColor = '#581c87';
       ctx.fill();
       
-      p.y -= 1.5;
-      p.size += 0.05;
+      // Kara gölge efekti (üst üste bindirme)
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.3 + (200-p.life)/500})`;
+      ctx.fill();
+      
+      p.y -= (Math.random() * 2 + 1);
+      p.x += Math.sin(p.life / 20) * 1.5;
+      p.size += 0.1;
       p.life--;
       
-      if (p.life <= 0 || p.y < 0) {
-        p.y = height;
+      if (p.life <= 0 || p.y < -50) {
+        p.y = height + 50;
         p.x = Math.random() * width;
-        p.life = 100;
-        p.size = Math.random() * 3 + 1;
+        p.life = 200;
+        p.size = Math.random() * 5 + 3;
       }
     });
   }
   else if (effectType === 'dharma-wheel') {
-    // Mahoraga - Golden rotating wheel in the background center
+    // Mahoraga - Arkada dönen devasa ışıklı altın çark ve yayılan enerji dalgaları
     const p = particles[0];
     const centerX = width / 2;
     const centerY = height / 2;
-    const radius = Math.min(width, height) * 0.4;
+    const radius = Math.min(width, height) * 0.45; // Daha devasa
     
     ctx.save();
     ctx.translate(centerX, centerY);
     ctx.rotate(p.angle);
     
-    // Draw wheel
+    // Göz kamaştırıcı arka plan ışıltısı
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 1.2, 0, Math.PI * 2);
+    const grad = ctx.createRadialGradient(0,0,radius*0.5, 0,0,radius*1.2);
+    grad.addColorStop(0, 'rgba(251, 191, 36, 0.1)');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Dış Çember
     ctx.beginPath();
     ctx.arc(0, 0, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
+    ctx.lineWidth = 10;
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = '#f59e0b';
     ctx.stroke();
     
-    // Draw spokes
+    // Çark Külliyesi (Spokes)
     for (let i = 0; i < 8; i++) {
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(Math.cos((i * Math.PI) / 4) * radius, Math.sin((i * Math.PI) / 4) * radius);
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.2)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)';
+      ctx.lineWidth = 6;
       ctx.stroke();
       
-      // Draw end nodes
+      // Topuzlar
       ctx.beginPath();
-      ctx.arc(Math.cos((i * Math.PI) / 4) * radius, Math.sin((i * Math.PI) / 4) * radius, 8, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.5)';
+      ctx.arc(Math.cos((i * Math.PI) / 4) * radius, Math.sin((i * Math.PI) / 4) * radius, 15, 0, Math.PI*2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#fef08a';
       ctx.fill();
     }
     
     ctx.restore();
-    p.angle += 0.005; // Slow rotation
+    p.angle += 0.01; // Dönüş hızı arttırıldı
   }
+
+  ctx.globalCompositeOperation = 'source-over'; // Restore
 }
