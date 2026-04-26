@@ -6,6 +6,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import sharp from 'sharp';
+import { setupSecurityEngine, strictAuthLimiter } from './securityEngine.js';
 
 dotenv.config();
 
@@ -26,7 +27,8 @@ if (!fs.existsSync(SUGGESTIONS_FILE)) {
     fs.writeFileSync(SUGGESTIONS_FILE, '');
 }
 
-app.use(cors());
+// INFINITY-GUARD - Siber Güvenlik Motorunu Başlat
+setupSecurityEngine(app);
 app.use(express.json());
 app.use(express.static('public')); // Statik dosyaları servis et
 

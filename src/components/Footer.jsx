@@ -35,6 +35,9 @@ export default function Footer() {
       </div>
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
         <span>© 2026 AniPeak Production. Tüm hakları saklıdır.</span>
+        <span className="text-emerald-500/80 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] animate-pulse">
+          🛡️ SİBER GÜVENLİK: ANİPEAK İNFİNİTY-GUARD
+        </span>
         <span>Altyapı: AniPeak Core v3.0</span>
       </div>
     </footer>
