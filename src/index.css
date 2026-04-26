@@ -703,3 +703,374 @@ body {
   filter: drop-shadow(0 0 10px rgba(245,158,11,0.8));
   font-weight: 900 !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SUKUNA PROFİL SAYFASI — Malevolent Elite Modernizasyon
+   Video Arka Plan & Kırmızı-Siyah UI — 4K Çözünürlük
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Fixed Video Background — 4K ── */
+.sukuna-bg-video {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  filter: brightness(0.45) saturate(1.6) contrast(1.1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DOMAIN EXPANSION — Sağ Taraftaki Sukuna Tahtı Video Alanı
+   ══════════════════════════════════════════════════════════════════════════ */
+.sukuna-domain-wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+}
+.sukuna-domain-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+  mix-blend-mode: screen;
+  opacity: 0.95;
+  filter: saturate(1.4) contrast(1.8) brightness(1.2); /* Contrast artırıldı ki siyahlar tam gizlensin */
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AVATAR — Büyütülmüş & Koyulaştırılmış Video Halkası
+   ══════════════════════════════════════════════════════════════════════════ */
+.sukuna-avatar-video-wrap {
+  position: relative;
+  width: 148px; height: 148px;
+  border-radius: 50%;
+  border: 3px solid rgba(220,38,38,0.7);
+  box-shadow: 
+    0 0 30px rgba(220,38,38,0.6), 
+    0 0 80px rgba(153,27,27,0.3),
+    0 0 120px rgba(220,38,38,0.15),
+    inset 0 0 20px rgba(220,38,38,0.2);
+}
+.sukuna-avatar-video {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 250px; /* Büyük bir kareye oturtalım */
+  height: 250px;
+  max-width: none !important; /* Tailwind img/video sınırını kırmak için kritik */
+  transform: translate(-50%, -50%); /* Tam merkeze konumlandır */
+  object-fit: cover;
+  mix-blend-mode: screen; /* Siyahlıkları siler */
+  pointer-events: none;
+  z-index: 2;
+  opacity: 1;
+  filter: saturate(1.4) brightness(1.3) contrast(1.6); /* Siyahlıkları yutması için contrast artırıldı */
+}
+/* Avatar Koyulaştırma Filtresi */
+.sukuna-avatar-darken {
+  filter: brightness(0.75) contrast(1.15) saturate(0.9);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   OKUDUKLARIM — Video Zemin Bölümü
+   ══════════════════════════════════════════════════════════════════════════ */
+.sukuna-reading-section {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: transparent !important;
+  border: 1px solid rgba(220,38,38,0.15);
+}
+.sukuna-reading-video {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1; /* Çok daha belirgin */
+  filter: saturate(1.8) brightness(1.1);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SUKUNA İSİM ANİMASYONU — Paket Sahipleri İçin
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes sukuna-name-flicker {
+  0%, 100% {
+    text-shadow: 
+      0 0 7px rgba(220,38,38,0.8),
+      0 0 15px rgba(220,38,38,0.5),
+      0 0 30px rgba(220,38,38,0.3),
+      0 0 50px rgba(153,27,27,0.2);
+    opacity: 1;
+  }
+  8% {
+    text-shadow: 
+      0 0 4px rgba(255,50,0,0.9),
+      0 0 10px rgba(255,50,0,0.6),
+      0 0 25px rgba(255,50,0,0.3);
+    opacity: 0.95;
+  }
+  12% {
+    text-shadow: 
+      -2px 0 rgba(255,0,0,0.8),
+      2px 0 rgba(180,0,0,0.8),
+      0 0 20px rgba(220,38,38,0.6);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 
+      0 0 12px rgba(220,38,38,1),
+      0 0 25px rgba(220,38,38,0.7),
+      0 0 50px rgba(220,38,38,0.4),
+      0 0 80px rgba(153,27,27,0.3);
+    opacity: 1;
+  }
+  52% {
+    text-shadow: 
+      3px 0 rgba(255,0,0,0.9),
+      -3px 0 rgba(100,0,0,0.7);
+    opacity: 0.92;
+    transform: translate(-1px, 0) skewX(-0.5deg);
+  }
+  54% {
+    text-shadow: 
+      0 0 10px rgba(220,38,38,0.9),
+      0 0 20px rgba(220,38,38,0.5);
+    opacity: 1;
+    transform: translate(0, 0) skewX(0deg);
+  }
+}
+
+@keyframes sukuna-rune-underline {
+  0% { width: 0; opacity: 0; }
+  30% { width: 60%; opacity: 1; }
+  70% { width: 100%; opacity: 0.8; }
+  100% { width: 0; opacity: 0; }
+}
+
+.sukuna-name-animation {
+  position: relative;
+  animation: sukuna-name-flicker 5s ease-in-out infinite;
+  letter-spacing: 0.02em;
+}
+.sukuna-name-animation::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #dc2626, #ff4500, #dc2626, transparent);
+  animation: sukuna-rune-underline 5s ease-in-out infinite;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(220,38,38,0.6);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MALEVOLENT ELITE BADGE — Kırmızı Lanetli Rozet
+   ══════════════════════════════════════════════════════════════════════════ */
+.sukuna-elite-badge {
+  background: rgba(220,38,38,0.15);
+  border: 1px solid rgba(220,38,38,0.4);
+  color: #f87171;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 4px 12px;
+  border-radius: 8px;
+  text-shadow: 0 0 8px rgba(220,38,38,0.4);
+  transition: all 0.3s ease;
+}
+.sukuna-elite-badge:hover {
+  background: rgba(220,38,38,0.25);
+  box-shadow: 0 0 15px rgba(220,38,38,0.3);
+}
+
+@keyframes malevolent-badge-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(220,38,38,0.3), inset 0 0 8px rgba(220,38,38,0.1);
+    border-color: rgba(220,38,38,0.4);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(220,38,38,0.6), inset 0 0 15px rgba(220,38,38,0.2);
+    border-color: rgba(220,38,38,0.7);
+  }
+}
+
+.sukuna-malevolent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #fca5a5;
+  background: linear-gradient(135deg, rgba(153,27,27,0.4), rgba(220,38,38,0.2));
+  border: 1px solid rgba(220,38,38,0.5);
+  animation: malevolent-badge-pulse 3s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(220,38,38,0.5);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STAT PILLS — İstatistik Kapsülleri (Bölüm, KP)
+   ══════════════════════════════════════════════════════════════════════════ */
+.sukuna-stat-pill {
+  background: rgba(15, 2, 2, 0.7);
+  border: 1px solid rgba(220,38,38,0.2);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 10px rgba(220,38,38,0.05);
+}
+.sukuna-stat-pill:hover {
+  border-color: rgba(220,38,38,0.5);
+  box-shadow: 0 0 15px rgba(220,38,38,0.2), inset 0 0 15px rgba(220,38,38,0.1);
+  transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GENEL UI KOMPONENTLERİ — Kırmızı-Siyah Uyum
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Sukuna Neon Shadows ── */
+.shadow-neon-sukuna {
+  box-shadow: 0 0 20px rgba(220,38,38,0.5), 0 0 60px rgba(220,38,38,0.2);
+}
+
+/* ── Sukuna Gradient Button ── */
+.sukuna-btn {
+  background: linear-gradient(135deg, #991b1b, #dc2626, #b91c1c);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(220,38,38,0.6);
+  box-shadow: 
+    0 0 15px rgba(220,38,38,0.4), 
+    0 4px 15px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sukuna-btn:hover {
+  background: linear-gradient(135deg, #b91c1c, #ef4444, #dc2626);
+  box-shadow: 
+    0 0 35px rgba(220,38,38,0.7), 
+    0 0 80px rgba(220,38,38,0.25),
+    0 8px 25px rgba(0,0,0,0.4);
+  transform: translateY(-2px) scale(1.03);
+}
+.sukuna-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ── Sukuna Glass Panel ── */
+.sukuna-glass {
+  background: rgba(8, 0, 0, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(220,38,38,0.18);
+  box-shadow: 
+    0 8px 40px rgba(0,0,0,0.6), 
+    inset 0 0 50px rgba(220,38,38,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ── Sukuna Card Hover ── */
+.sukuna-card {
+  background: rgba(12, 1, 1, 0.65);
+  border: 1px solid rgba(220,38,38,0.12);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sukuna-card:hover {
+  border-color: rgba(220,38,38,0.45);
+  box-shadow: 
+    0 0 30px rgba(220,38,38,0.2), 
+    0 8px 30px rgba(0,0,0,0.5),
+    inset 0 0 20px rgba(220,38,38,0.05);
+  transform: translateY(-2px);
+}
+
+/* ── Sukuna Sidebar Active ── */
+.sukuna-tab-active {
+  background: linear-gradient(135deg, #991b1b, #b91c1c) !important;
+  color: #fff !important;
+  box-shadow: 
+    0 4px 25px rgba(220,38,38,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  border-color: rgba(220,38,38,0.6) !important;
+  text-shadow: 0 0 10px rgba(220,38,38,0.3);
+}
+
+/* ── Sukuna Scrollbar ── */
+.sukuna-page ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #dc2626, #7f1d1d) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ANİMASYONLAR — Sukuna Temalı Keyframes
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes sukuna-border-breathe {
+  0%, 100% { border-color: rgba(220,38,38,0.15); }
+  50% { border-color: rgba(220,38,38,0.55); }
+}
+
+@keyframes sukuna-rune-glow {
+  0%, 100% { 
+    opacity: 0.6; 
+    filter: drop-shadow(0 0 4px rgba(220,38,38,0.6)); 
+  }
+  50% { 
+    opacity: 1; 
+    filter: drop-shadow(0 0 15px rgba(220,38,38,1)); 
+  }
+}
+
+.sukuna-rune-pulse {
+  animation: sukuna-rune-glow 2.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RESPONSİF TASARIM
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .sukuna-domain-wrap {
+    width: 35%;
+    opacity: 0.6;
+  }
+  .sukuna-avatar-video-wrap {
+    width: 120px; height: 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sukuna-avatar-video-wrap {
+    width: 100px; height: 100px;
+  }
+  .sukuna-avatar-video {
+    inset: -10px;
+    width: calc(100% + 20px);
+    height: calc(100% + 20px);
+  }
+  .sukuna-domain-wrap {
+    display: none; /* Mobilde domain gizle */
+  }
+  .sukuna-malevolent-badge {
+    font-size: 8px;
+    padding: 3px 10px;
+  }
+}
