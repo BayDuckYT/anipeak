@@ -5,6 +5,7 @@ import { ShieldAlert, Zap } from 'lucide-react';
 
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { AppProvider, useApp } from './context/AppContext.jsx';
+import { PerformanceProvider } from './context/PerformanceContext.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import AuthModal from './components/AuthModal.jsx';
@@ -237,11 +238,13 @@ function AppContent() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AppProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </AppProvider>
+      <PerformanceProvider>
+        <AppProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </AppProvider>
+      </PerformanceProvider>
     </ErrorBoundary>
   );
 }

@@ -717,8 +717,8 @@ body {
   object-fit: cover;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.4;
-  filter: brightness(0.45) saturate(1.6) contrast(1.1);
+  opacity: 0.8;
+  filter: brightness(0.6) saturate(1.4) contrast(1.2);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -731,6 +731,7 @@ body {
   width: 45%;
   height: 100%;
   overflow: hidden;
+  border-radius: 1.5rem;
   z-index: 0;
   pointer-events: none;
   mix-blend-mode: screen;
@@ -752,28 +753,42 @@ body {
    ══════════════════════════════════════════════════════════════════════════ */
 .sukuna-avatar-video-wrap {
   position: relative;
-  width: 148px; height: 148px;
+  width: 128px !important;
+  height: 128px !important;
+  min-width: 128px !important;
+  min-height: 128px !important;
+  aspect-ratio: 1 / 1 !important;
+  flex-shrink: 0 !important;
   border-radius: 50%;
   border: 3px solid rgba(220,38,38,0.7);
+  transform: translateZ(0);
+  will-change: transform;
   box-shadow: 
-    0 0 30px rgba(220,38,38,0.6), 
-    0 0 80px rgba(153,27,27,0.3),
-    0 0 120px rgba(220,38,38,0.15),
-    inset 0 0 20px rgba(220,38,38,0.2);
+    0 0 20px rgba(220,38,38,0.5), 
+    0 0 60px rgba(153,27,27,0.25),
+    inset 0 0 15px rgba(220,38,38,0.15);
 }
 .sukuna-avatar-video {
   position: absolute;
   top: 50%; left: 50%;
-  width: 250px; /* Büyük bir kareye oturtalım */
-  height: 250px;
-  max-width: none !important; /* Tailwind img/video sınırını kırmak için kritik */
-  transform: translate(-50%, -50%); /* Tam merkeze konumlandır */
-  object-fit: cover;
-  mix-blend-mode: screen; /* Siyahlıkları siler */
+  width: 230px !important;
+  height: 230px !important;
+  min-width: 230px !important;
+  min-height: 230px !important;
+  aspect-ratio: 1 / 1 !important;
+  max-width: none !important;
+  max-height: none !important;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  object-fit: cover !important;
+  mix-blend-mode: screen;
   pointer-events: none;
   z-index: 2;
   opacity: 1;
-  filter: saturate(1.4) brightness(1.3) contrast(1.6); /* Siyahlıkları yutması için contrast artırıldı */
+  filter: saturate(1.4) brightness(1.3) contrast(1.6);
+  -webkit-mask-image: radial-gradient(circle, black 50%, rgba(0,0,0,0.8) 65%, transparent 80%);
+  mask-image: radial-gradient(circle, black 50%, rgba(0,0,0,0.8) 65%, transparent 80%);
 }
 /* Avatar Koyulaştırma Filtresi */
 .sukuna-avatar-darken {
@@ -1053,24 +1068,207 @@ body {
     opacity: 0.6;
   }
   .sukuna-avatar-video-wrap {
-    width: 120px; height: 120px;
+    width: 110px; height: 110px;
   }
 }
 
 @media (max-width: 640px) {
-  .sukuna-avatar-video-wrap {
-    width: 100px; height: 100px;
+  .sukuna-avatar-video-wrap, .gojo-avatar-video-wrap {
+    width: 96px !important; 
+    height: 96px !important;
+    min-width: 96px !important;
+    min-height: 96px !important;
   }
-  .sukuna-avatar-video {
-    inset: -10px;
-    width: calc(100% + 20px);
-    height: calc(100% + 20px);
+  .sukuna-avatar-video, .gojo-avatar-video {
+    width: 180px !important;
+    height: 180px !important;
+    min-width: 180px !important;
+    min-height: 180px !important;
   }
-  .sukuna-domain-wrap {
+  .sukuna-domain-wrap, .gojo-domain-wrap {
     display: none; /* Mobilde domain gizle */
   }
-  .sukuna-malevolent-badge {
+  .sukuna-malevolent-badge, .gojo-elite-badge {
     font-size: 8px;
     padding: 3px 10px;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GOJO PROFİL SAYFASI — Sınırsız Boşluk Modernizasyon
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.gojo-bg-video {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+  filter: brightness(0.7) saturate(1.2) contrast(1.2);
+}
+
+.gojo-domain-wrap {
+  position: absolute;
+  top: 0; right: 0;
+  width: 45%; height: 100%;
+  overflow: hidden; z-index: 0;
+  border-radius: 1.5rem;
+  pointer-events: none; mix-blend-mode: screen;
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+}
+.gojo-domain-video {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: right center;
+  mix-blend-mode: screen; opacity: 0.95;
+  filter: saturate(1.3) contrast(1.6) brightness(1.1);
+}
+
+.gojo-avatar-video-wrap {
+  position: relative;
+  width: 128px !important;
+  height: 128px !important;
+  min-width: 128px !important;
+  min-height: 128px !important;
+  aspect-ratio: 1 / 1 !important;
+  flex-shrink: 0 !important;
+  border-radius: 50%;
+  border: 3px solid rgba(59,130,246,0.7);
+  transform: translateZ(0);
+  will-change: transform;
+  box-shadow: 
+    0 0 20px rgba(59,130,246,0.5), 
+    0 0 60px rgba(139,92,246,0.25),
+    inset 0 0 15px rgba(59,130,246,0.15);
+}
+.gojo-avatar-video {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 230px !important;
+  height: 230px !important;
+  min-width: 230px !important;
+  min-height: 230px !important;
+  aspect-ratio: 1 / 1 !important;
+  max-width: none !important;
+  max-height: none !important;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  object-fit: cover !important;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 1;
+  filter: saturate(1.4) brightness(1.3) contrast(1.6);
+  -webkit-mask-image: radial-gradient(circle, black 50%, rgba(0,0,0,0.8) 65%, transparent 80%);
+  mask-image: radial-gradient(circle, black 50%, rgba(0,0,0,0.8) 65%, transparent 80%);
+}
+.gojo-avatar-darken {
+  filter: brightness(0.8) contrast(1.1) saturate(1.1);
+}
+
+.gojo-reading-section {
+  position: relative; overflow: hidden;
+  border-radius: 1.5rem; background: transparent !important;
+  border: 1px solid rgba(59,130,246,0.15);
+}
+.gojo-reading-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; mix-blend-mode: screen;
+  pointer-events: none; z-index: 0; opacity: 0.8;
+  filter: saturate(1.5) brightness(1.1);
+  transform: translateZ(0); will-change: transform;
+}
+
+@keyframes gojo-name-flicker {
+  0%, 100% { text-shadow: 0 0 7px rgba(59,130,246,0.8), 0 0 15px rgba(59,130,246,0.5), 0 0 30px rgba(139,92,246,0.3); opacity: 1; }
+  50% { text-shadow: 0 0 12px rgba(59,130,246,1), 0 0 25px rgba(59,130,246,0.7), 0 0 50px rgba(139,92,246,0.4); opacity: 1; }
+}
+.gojo-name-animation {
+  position: relative; animation: gojo-name-flicker 4s ease-in-out infinite; letter-spacing: 0.02em;
+}
+
+.gojo-elite-badge {
+  background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #93c5fd;
+  font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em;
+  padding: 4px 12px; border-radius: 8px; text-shadow: 0 0 8px rgba(59,130,246,0.4);
+  transition: all 0.3s ease;
+}
+.gojo-stat-pill {
+  background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(59,130,246,0.2);
+  backdrop-filter: blur(12px); box-shadow: inset 0 0 10px rgba(59,130,246,0.05); transition: all 0.3s ease;
+}
+.gojo-stat-pill:hover { border-color: rgba(59,130,246,0.5); transform: translateY(-1px); }
+
+.gojo-btn {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6, #2563eb); color: #fff;
+  font-weight: 900; letter-spacing: 0.05em; border: 1px solid rgba(59,130,246,0.6);
+  box-shadow: 0 0 15px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
+  transition: all 0.3s ease;
+}
+.gojo-btn:hover { background: linear-gradient(135deg, #2563eb, #60a5fa, #3b82f6); transform: translateY(-2px) scale(1.03); }
+
+.gojo-glass {
+  background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(59,130,246,0.18);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 0 50px rgba(59,130,246,0.04);
+}
+.gojo-card {
+  background: rgba(2, 6, 23, 0.65); border: 1px solid rgba(59,130,246,0.12); backdrop-filter: blur(12px); transition: all 0.3s ease;
+}
+.gojo-card:hover { border-color: rgba(59,130,246,0.45); transform: translateY(-2px); }
+.gojo-tab-active {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb) !important; color: #fff !important;
+  box-shadow: 0 4px 25px rgba(59,130,246,0.5) !important; border-color: rgba(59,130,246,0.6) !important;
+}
+
+@keyframes gojo-border-breathe {
+  0%, 100% { border-color: rgba(59,130,246,0.15); }
+  50% { border-color: rgba(59,130,246,0.55); }
+}
+
+@keyframes gojo-rune-glow {
+  0%, 100% { 
+    opacity: 0.6; 
+    filter: drop-shadow(0 0 4px rgba(59,130,246,0.6)); 
+  }
+  50% { 
+    opacity: 1; 
+    filter: drop-shadow(0 0 15px rgba(59,130,246,1)); 
+  }
+}
+
+.gojo-rune-pulse {
+  animation: gojo-rune-glow 2.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SİBER PERFORMANS VE PİL KORUMA MODU
+   ══════════════════════════════════════════════════════════════════════════ */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Low Performance (CPU Mode) Fallbacks - Simplify filters and object-fit */
+.low-performance-mode .sukuna-avatar-video-wrap,
+.low-performance-mode .sukuna-bg-video,
+.low-performance-mode .sukuna-domain-video,
+.low-performance-mode .sukuna-reading-video,
+.low-performance-mode .gojo-avatar-video-wrap,
+.low-performance-mode .gojo-bg-video,
+.low-performance-mode .gojo-domain-video,
+.low-performance-mode .gojo-reading-video {
+  filter: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Optimize object-fit for CPU mode */
+.low-performance-mode video {
+  object-fit: fill !important; /* Less CPU intensive than cover */
 }

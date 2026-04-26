@@ -12,6 +12,8 @@ import { useApp } from '../context/AppContext.jsx';
 import { uploadAvatar } from '../lib/imageService';
 import { getEffectCSS, canUseBundle, getUnlockedEffectParts, ELITE_BUNDLES } from '../lib/eliteBundles';
 import { renderCanvasEffect } from '../lib/canvasEffects';
+import SiberVideo from '../components/SiberVideo';
+import { usePerformance } from '../context/PerformanceContext';
 
 // Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -72,6 +74,9 @@ export default function ProfilePage() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
+  
+  // Siber Performans Modu
+  const { isLowPerformanceMode } = usePerformance();
 
   // Elite Bundle State
   const [selectedBundle, setSelectedBundle] = useState(() => {
@@ -124,8 +129,14 @@ export default function ProfilePage() {
   
   // Arkaplan, Avatar vb. global özellikler sadece MÜHÜRLENMİŞ (kaydedilmiş) paketle değişir.
   const isSukuna = appliedEffects.aura === 'blood-rain' || appliedEffects.avatar === 'sukuna-aura';
+  const isGojo = appliedEffects.aura === 'void-particles' || appliedEffects.avatar === 'gojo-aura';
+  
+  // DEBUG — tarayıcı konsolunda kontrol et
+  console.log('[ProfilePage] appliedEffects:', JSON.stringify(appliedEffects), '| isSukuna:', isSukuna, '| isGojo:', isGojo);
+  
   // Canlı Önizleme kutusu ise o an hoverlanan efekte göre renk değiştirir.
   const isPreviewSukuna = previewEffects.aura === 'blood-rain' || previewEffects.avatar === 'sukuna-aura';
+  const isPreviewGojo = previewEffects.aura === 'void-particles' || previewEffects.avatar === 'gojo-aura';
 
   // ── CANVAS ANİMASYONU ──
   const canvasRef = useRef(null);
@@ -232,22 +243,28 @@ export default function ProfilePage() {
       
       if (selectedBundle === 'mix') {
         activeMix = mixState;
-      } else if (selectedBundle) {
+      } else if (selectedBundle && selectedBundle !== 'none') {
         const bundle = ELITE_BUNDLES.find(p => p.id === selectedBundle);
         if (bundle) {
           activeMix = { ...bundle.effects, aura: bundle.canvasEffect };
         }
       }
 
+      console.log('[Efektler] Kaydediliyor:', JSON.stringify(activeMix));
+      console.log('[Efektler] isSukuna olacak mı?', activeMix.aura === 'blood-rain' || activeMix.avatar === 'sukuna-aura');
+      console.log('[Efektler] isGojo olacak mı?', activeMix.aura === 'void-particles' || activeMix.avatar === 'gojo-aura');
+
       await updateProfile({
         active_mix: activeMix,
-        // Geriye dönük uyumluluk için (eski kodlar için)
         avatar_effect: activeMix.avatar,
         comment_effect: activeMix.comment,
         nametag_effect: activeMix.nametag
       });
-      alert('Siber Teçhizat başarıyla kuşanıltı! 🎖️🚀');
+      
+      console.log('[Efektler] Kayıt başarılı! Sayfa yeniden render olacak.');
+      alert('Efektler başarıyla kaydedildi! 🎖️');
     } catch (err) {
+      console.error('[Efektler] HATA:', err);
       alert('Paket kaydedilirken hata oluştu: ' + err.message);
     }
   };
@@ -271,24 +288,40 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className={`min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative ${isSukuna ? 'sukuna-page' : ''}`}>
+    <main className={`min-h-screen pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10 ${isSukuna ? 'sukuna-page' : ''} ${isGojo ? 'gojo-page' : ''} ${isLowPerformanceMode ? 'low-performance-mode' : ''}`}>
       {/* ── SUKUNA FIXED VIDEO BACKGROUND — 4K ── */}
       {isSukuna && (
-        <video
+        <SiberVideo
           className="sukuna-bg-video"
           src="/sukuna/bg.webm"
-          autoPlay muted loop playsInline
+        />
+      )}
+      {/* ── GOJO FIXED VIDEO BACKGROUND — 4K ── */}
+      {isGojo && (
+        <SiberVideo
+          className="gojo-bg-video"
+          src="/gojo/arkaplangojo.webm"
         />
       )}
 
       {/* ── PROFILE HEADER ── */}
-      <div className={`${isSukuna ? 'sukuna-glass border-red-900/30' : 'bg-slate-900/50 backdrop-blur-xl border-white/10'} rounded-3xl p-6 sm:p-10 mb-8 relative overflow-hidden z-10 border`} style={isSukuna ? {animation: 'sukuna-border-breathe 4s ease-in-out infinite'} : {}}>
+      <div 
+        className={`${isSukuna ? 'bg-[#1a0505]/60 backdrop-blur-xl border-red-900/40' : isGojo ? 'bg-[#050a1a]/60 backdrop-blur-xl border-blue-900/40' : 'bg-slate-900/50 backdrop-blur-xl border-white/10'} rounded-3xl p-6 sm:p-10 mb-8 relative z-10 border`} 
+        style={{
+          animation: isSukuna ? 'sukuna-border-breathe 4s ease-in-out infinite' : isGojo ? 'gojo-border-breathe 4s ease-in-out infinite' : 'none'
+        }}
+      >
         
         {/* Arka Plan Işıkları / Animasyonları */}
         {isSukuna ? (
           <>
             <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-900/10 rounded-full blur-3xl pointer-events-none" />
+          </>
+        ) : isGojo ? (
+          <>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-900/10 rounded-full blur-3xl pointer-events-none" />
           </>
         ) : (
           <canvas 
@@ -300,35 +333,49 @@ export default function ProfilePage() {
         {/* ── SUKUNA DOMAIN EXPANSION — Profil Header Sağ Taraf ── */}
         {isSukuna && (
           <div className="sukuna-domain-wrap">
-            <video
+            <SiberVideo
               className="sukuna-domain-video"
               src="/sukuna/domains.webm"
-              autoPlay muted loop playsInline
             />
           </div>
         )}
+        
+        {/* ── GOJO DOMAIN EXPANSION ── */}
+        {isGojo && (
+          <div className="gojo-domain-wrap">
+             <img src="/gojo/gojo.png" className="absolute right-0 top-0 w-full h-full object-contain object-right mix-blend-screen opacity-50 pointer-events-none" alt="Gojo Domain" />
+          </div>
+        )}
 
-        <div className={`relative z-20 flex flex-col sm:flex-row items-center sm:items-start gap-6 ${isSukuna ? 'sm:gap-16 lg:gap-24' : 'sm:gap-10'}`}>
+        <div className={`relative z-20 flex flex-col sm:flex-row items-center sm:items-start gap-6 ${isSukuna || isGojo ? 'sm:gap-16 lg:gap-24' : 'sm:gap-10'}`}>
           {/* Avatar Container */}
-          <div className="relative group z-50">
+          <div className="relative group shrink-0 w-24 h-24 sm:w-32 sm:h-32 min-w-[96px] sm:min-w-[128px]">
             {/* Siber Avatar — Video Overlay veya Standart */}
             <div className={isSukuna 
-              ? `sukuna-avatar-video-wrap overflow-visible ${getEffectCSS('avatar', appliedEffects.avatar)}`
-              : `relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-slate-800 bg-slate-900 ${getEffectCSS('avatar', appliedEffects.avatar)}`
+              ? `sukuna-avatar-video-wrap ${getEffectCSS('avatar', appliedEffects.avatar)}`
+              : isGojo
+                ? `gojo-avatar-video-wrap ${getEffectCSS('avatar', appliedEffects.avatar)}`
+                : `relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-slate-800 bg-slate-900 ${getEffectCSS('avatar', appliedEffects.avatar)}`
             }>
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt={user.username} className={`w-full h-full object-cover absolute inset-0 z-1 ${isSukuna ? 'sukuna-avatar-darken' : ''} rounded-full`} />
+                <img src={user.avatar_url} alt={user.username} className={`w-full h-full object-cover absolute inset-0 z-1 ${isSukuna ? 'sukuna-avatar-darken' : isGojo ? 'gojo-avatar-darken' : ''} rounded-full`} />
               ) : (
-                <div className={`w-full h-full bg-gradient-to-br ${isSukuna ? 'from-red-950 to-black' : 'from-slate-800 to-slate-900'} flex items-center justify-center absolute inset-0 z-1 rounded-full overflow-hidden`}>
-                  <span className={`text-white font-black ${isSukuna ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-5xl'}`}>{avatarLetter}</span>
+                <div className={`w-full h-full bg-gradient-to-br ${isSukuna ? 'from-red-950 to-black' : isGojo ? 'from-blue-950 to-black' : 'from-slate-800 to-slate-900'} flex items-center justify-center absolute inset-0 z-1 rounded-full overflow-hidden`}>
+                  <span className={`text-white font-black ${isSukuna || isGojo ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-5xl'}`}>{avatarLetter}</span>
                 </div>
               )}
               {/* Sukuna Rün Video */}
               {isSukuna && (
-                <video
+                <SiberVideo
                   className="sukuna-avatar-video"
                   src="/sukuna/avatar.webm"
-                  autoPlay muted loop playsInline
+                />
+              )}
+              {/* Gojo Rün Video */}
+              {isGojo && (
+                <SiberVideo
+                  className="gojo-avatar-video"
+                  src="/gojo/avatargojo.webm"
                 />
               )}
               
@@ -342,17 +389,24 @@ export default function ProfilePage() {
               </button>
             </div>
             {/* Rank Badge */}
-            <div className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full ${isSukuna ? 'bg-red-950 border-2 border-red-500 shadow-lg sukuna-rune-pulse' : 'bg-slate-800 border-2 border-slate-700 shadow-lg'} flex items-center justify-center`}>
-               <Sparkles size={14} className={isSukuna ? 'text-red-400' : 'text-purple-400'} />
+            <div className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full ${isSukuna ? 'bg-red-950 border-2 border-red-500 shadow-lg sukuna-rune-pulse' : isGojo ? 'bg-blue-950 border-2 border-blue-500 shadow-lg gojo-rune-pulse' : 'bg-slate-800 border-2 border-slate-700 shadow-lg'} flex items-center justify-center`}>
+               <Sparkles size={14} className={isSukuna ? 'text-red-400' : isGojo ? 'text-blue-400' : 'text-purple-400'} />
             </div>
           </div>
           
           <div className="text-center sm:text-left flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
               {/* İsim Animasyonu */}
-              <h1 className={`text-3xl sm:text-4xl font-black text-white ${isSukuna ? 'sukuna-name-animation' : ''} ${getEffectCSS('nametag', appliedEffects.nametag)}`} style={isSukuna ? {textShadow: '0 0 20px rgba(220,38,38,0.3)'} : {}}>{user.username}</h1>
+              <h1 
+                className={`text-3xl sm:text-4xl font-black text-white ${isSukuna ? 'sukuna-name-animation' : isGojo ? 'gojo-name-animation' : ''} ${getEffectCSS('nametag', appliedEffects.nametag)}`} 
+                style={{
+                  textShadow: isSukuna ? '0 0 20px rgba(220,38,38,0.3)' : isGojo ? '0 0 20px rgba(59,130,246,0.3)' : 'none'
+                }}
+              >
+                {user.username}
+              </h1>
               {(user.role === 'Baş Admin' || user.role === 'Yönetici') && (
-                <span className={`w-fit mx-auto sm:mx-0 flex items-center gap-1.5 px-3 py-1 rounded-lg ${isSukuna ? 'sukuna-elite-badge' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-bold'}`}>
+                <span className={`w-fit mx-auto sm:mx-0 flex items-center gap-1.5 px-3 py-1 rounded-lg ${isSukuna ? 'sukuna-elite-badge' : isGojo ? 'gojo-elite-badge' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-bold'}`}>
                   <Crown size={12} /> {user.role}
                 </span>
               )}
@@ -362,17 +416,23 @@ export default function ProfilePage() {
                   Malevolent Elite
                 </span>
               )}
+              {/* Honored One Badge */}
+              {isGojo && (
+                <span className="w-fit mx-auto sm:mx-0 gojo-elite-badge">
+                  Honored One
+                </span>
+              )}
             </div>
             <p className="text-slate-500 text-sm mb-6 flex items-center justify-center sm:justify-start gap-2">
-               {isSukuna ? <span className="w-2 h-2 rounded-full bg-red-500 sukuna-rune-pulse" /> : null} Kayıtlı E-posta: {user.email}
+               {isSukuna ? <span className="w-2 h-2 rounded-full bg-red-500 sukuna-rune-pulse" /> : isGojo ? <span className="w-2 h-2 rounded-full bg-blue-500 gojo-rune-pulse" /> : null} Kayıtlı E-posta: {user.email}
             </p>
             
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-              <span className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl ${isSukuna ? 'sukuna-stat-pill' : 'bg-slate-800/50 border border-white/5'} text-slate-300 text-xs font-bold`}>
-                <BookOpen size={14} className={isSukuna ? "text-red-400" : "text-purple-400"} /> {user.totalRead || richHistory.length} Bölüm
+              <span className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl ${isSukuna ? 'sukuna-stat-pill' : isGojo ? 'gojo-stat-pill' : 'bg-slate-800/50 border border-white/5'} text-slate-300 text-xs font-bold`}>
+                <BookOpen size={14} className={isSukuna ? "text-red-400" : isGojo ? "text-blue-400" : "text-purple-400"} /> {user.totalRead || richHistory.length} Bölüm
               </span>
-              <span className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl ${isSukuna ? 'sukuna-stat-pill' : 'bg-slate-800/50 border border-white/5'} text-slate-300 text-xs font-bold`}>
-                <Sparkles size={14} className={isSukuna ? "text-red-400" : "text-purple-400"} /> {user.xp || 0} KP
+              <span className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl ${isSukuna ? 'sukuna-stat-pill' : isGojo ? 'gojo-stat-pill' : 'bg-slate-800/50 border border-white/5'} text-slate-300 text-xs font-bold`}>
+                <Sparkles size={14} className={isSukuna ? "text-red-400" : isGojo ? "text-blue-400" : "text-purple-400"} /> {user.xp || 0} KP
               </span>
             </div>
           </div>
@@ -445,7 +505,7 @@ export default function ProfilePage() {
                       <button 
                         onClick={handleSave}
                         disabled={uploading}
-                        className="flex-[2] py-4 sukuna-btn rounded-2xl shadow-neon-sukuna flex items-center justify-center gap-2"
+                        className={`flex-[2] py-4 rounded-2xl flex items-center justify-center gap-2 ${isSukuna ? 'sukuna-btn shadow-neon-sukuna' : isGojo ? 'gojo-btn' : 'bg-purple-600 text-white shadow-neon-purple hover:bg-purple-500 font-bold'}`}
                       >
                         {uploading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check size={20} />}
                         {uploading ? 'İŞLENİYOR...' : 'FOTOĞRAFI GÜNCELLE'}
@@ -492,8 +552,8 @@ export default function ProfilePage() {
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                 activeTab === tab.id 
-                  ? (isSukuna ? 'sukuna-tab-active' : 'bg-purple-600 text-white shadow-lg shadow-purple-500/25')
-                  : (isSukuna ? 'sukuna-card text-slate-400 hover:text-white hover:border-red-900/30' : 'bg-slate-800/30 text-slate-400 hover:bg-slate-800 hover:text-white')
+                  ? (isSukuna ? 'sukuna-tab-active' : isGojo ? 'gojo-tab-active' : 'bg-purple-600 text-white shadow-lg shadow-purple-500/25')
+                  : (isSukuna ? 'sukuna-card text-slate-400 hover:text-white hover:border-red-900/30' : isGojo ? 'gojo-card text-slate-400 hover:text-white hover:border-blue-900/30' : 'bg-slate-800/30 text-slate-400 hover:bg-slate-800 hover:text-white')
               }`}
             >
               <tab.icon size={18} />
@@ -504,7 +564,7 @@ export default function ProfilePage() {
           {/* Admin link if user is admin */}
           {(user.role === 'Baş Admin' || user.role === 'Yönetici' || user.role === 'Admin Yardımcısı') && (
             <Link to="/admin" className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all mt-4 ${
-              isSukuna ? 'sukuna-card border border-red-500/20 text-red-400 hover:bg-red-500/10' : 'bg-slate-800/30 border border-purple-500/20 text-purple-400 hover:bg-purple-500/10'
+              isSukuna ? 'sukuna-card border border-red-500/20 text-red-400 hover:bg-red-500/10' : isGojo ? 'gojo-card border border-blue-500/20 text-blue-400 hover:bg-blue-500/10' : 'bg-slate-800/30 border border-purple-500/20 text-purple-400 hover:bg-purple-500/10'
             }`}>
               <LayoutDashboard size={18} />
               Yönetim Paneli
@@ -518,39 +578,33 @@ export default function ProfilePage() {
             
             {/* HISTORY TAB */}
             {activeTab === 'history' && (
-              <motion.div key="history" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className={isSukuna ? "sukuna-reading-section p-6 sm:p-10 min-h-[400px]" : "bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-10"}>
-                {/* Okuduklarım Video Zemin — sukuna/ klasöründen */}
-                {isSukuna && (
-                  <video
-                    className="sukuna-reading-video"
-                    src="/sukuna/okuduklar%C4%B1m.webm"
-                    autoPlay muted loop playsInline
-                  />
-                )}
+              <motion.div key="history" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className={isSukuna ? "bg-[#1a0505]/20 backdrop-blur-sm border border-red-900/20 rounded-3xl p-6 sm:p-10 min-h-[400px] relative z-10" : isGojo ? "bg-[#050a1a]/20 backdrop-blur-sm border border-blue-900/20 rounded-3xl p-6 sm:p-10 min-h-[400px] relative z-10" : "bg-slate-900/40 backdrop-blur-md border border-white/10 rounded-3xl p-6 sm:p-10 relative z-10"}>
                 
-                <h2 className="text-xl font-bold text-white mb-6 relative z-10" style={isSukuna ? {textShadow: '0 0 15px rgba(220,38,38,0.4)'} : {}}>Okumaya Devam Et</h2>
+                <h2 className="text-xl font-bold text-white mb-6 relative z-10" style={isSukuna ? {textShadow: '0 0 15px rgba(220,38,38,0.4)'} : isGojo ? {textShadow: '0 0 15px rgba(59,130,246,0.4)'} : {}}>Okumaya Devam Et</h2>
                 
                 {richHistory.length === 0 ? (
-                  <div className={isSukuna ? "bg-black/30 backdrop-blur-sm border border-red-900/20 rounded-2xl p-10 text-center relative z-10" : "bg-slate-800/50 rounded-2xl p-10 text-center relative z-10 border border-white/5"}>
-                    <BookOpen size={48} className={`mx-auto mb-4 ${isSukuna ? 'text-red-600/60' : 'text-slate-600'}`} />
+                  <div className={isSukuna ? "bg-black/30 backdrop-blur-sm border border-red-900/20 rounded-2xl p-10 text-center relative z-10" : isGojo ? "bg-black/30 backdrop-blur-sm border border-blue-900/20 rounded-2xl p-10 text-center relative z-10" : "bg-slate-800/50 rounded-2xl p-10 text-center relative z-10 border border-white/5"}>
+                    <BookOpen size={48} className={`mx-auto mb-4 ${isSukuna ? 'text-red-600/60' : isGojo ? 'text-blue-600/60' : 'text-slate-600'}`} />
                     <h3 className="text-white font-bold mb-2">Henüz seriye başlamadın</h3>
                     <p className="text-slate-400 text-sm mb-6">Keşfetmeye başla ve maceraya katıl!</p>
-                    <Link to="/" className={`px-6 py-2.5 rounded-lg text-sm ${isSukuna ? 'sukuna-btn' : 'bg-purple-600 text-white font-semibold hover:bg-purple-500 transition-colors'}`}>Serileri Keşfet</Link>
+                    <Link to="/" className={`px-6 py-2.5 rounded-lg text-sm ${isSukuna ? 'sukuna-btn' : isGojo ? 'gojo-btn' : 'bg-purple-600 text-white font-semibold hover:bg-purple-500 transition-colors'}`}>Serileri Keşfet</Link>
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-4 relative z-10">
                     {richHistory.map((item) => (
-                      <div key={item.manhwaId} className={`flex gap-4 p-4 rounded-2xl transition-all group ${isSukuna ? 'sukuna-card' : 'bg-slate-800/30 hover:bg-slate-800 border border-white/5'}`}>
+                      <div key={item.manhwaId} className={`flex gap-4 p-4 rounded-2xl transition-all group ${isSukuna ? 'sukuna-card' : isGojo ? 'gojo-card' : 'bg-slate-800/30 hover:bg-slate-800 border border-white/5'}`}>
                         <img src={item.manhwa.cover} alt={item.manhwa.title} className="w-20 h-28 object-cover rounded-lg border border-white/10" />
                         <div className="flex-1 min-w-0 flex flex-col pt-1">
                           <h3 className="text-white font-bold text-sm truncate mb-1">{item.manhwa.title}</h3>
-                          <p className={`text-xs font-semibold mb-2 ${isSukuna ? 'text-red-400' : 'text-purple-400'}`}>Kaldığın Bölüm: {item.lastChapter}</p>
+                          <p className={`text-xs font-semibold mb-2 ${isSukuna ? 'text-red-400' : isGojo ? 'text-blue-400' : 'text-purple-400'}`}>Kaldığın Bölüm: {item.lastChapter}</p>
                           <p className="text-slate-500 text-[10px] mb-auto">Son okuma: {new Date(item.updatedAt).toLocaleDateString('tr-TR')}</p>
                           
                           <Link to={`/read/${item.manhwaId}/${item.lastChapter}`} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all w-fit mt-2 ${
                             isSukuna 
                               ? 'bg-red-950/50 border-red-900/30 text-red-300 hover:bg-red-600 hover:text-white hover:border-red-500' 
-                              : 'bg-slate-900 border-white/10 text-slate-300 hover:bg-purple-600 hover:text-white hover:border-purple-500'
+                              : isGojo
+                                ? 'bg-blue-950/50 border-blue-900/30 text-blue-300 hover:bg-blue-600 hover:text-white hover:border-blue-500'
+                                : 'bg-slate-900 border-white/10 text-slate-300 hover:bg-purple-600 hover:text-white hover:border-purple-500'
                           }`}>
                             <Play size={12} /> Devam Et
                           </Link>
@@ -569,17 +623,17 @@ export default function ProfilePage() {
                 <form className="max-w-md space-y-4" onSubmit={e => e.preventDefault()}>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5">Kullanıcı Adı</label>
-                    <input type="text" defaultValue={user.username} className={`w-full border rounded-xl px-4 py-3 text-sm transition-all ${isSukuna ? 'bg-white/5 border-red-900/20 text-white focus:border-red-500' : 'bg-slate-800/80 border-slate-700 text-slate-200 focus:border-purple-500'}`} />
+                    <input type="text" defaultValue={user.username} className={`w-full border rounded-xl px-4 py-3 text-sm transition-all ${isSukuna ? 'bg-white/5 border-red-900/20 text-white focus:border-red-500' : isGojo ? 'bg-white/5 border-blue-900/20 text-white focus:border-blue-500' : 'bg-slate-800/80 border-slate-700 text-slate-200 focus:border-purple-500'}`} />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5">E-posta Adresi</label>
-                    <input type="email" defaultValue={user.email} className={`w-full border rounded-xl px-4 py-3 text-sm disabled:opacity-50 ${isSukuna ? 'bg-black/20 border-white/10 text-slate-400' : 'bg-slate-900/50 border-slate-800 text-slate-400'}`} disabled />
+                    <input type="email" defaultValue={user.email} className={`w-full border rounded-xl px-4 py-3 text-sm disabled:opacity-50 ${isSukuna ? 'bg-black/20 border-white/10 text-slate-400' : isGojo ? 'bg-black/20 border-white/10 text-slate-400' : 'bg-slate-900/50 border-slate-800 text-slate-400'}`} disabled />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5">Yeni Şifre</label>
-                    <input type="password" placeholder="••••••••" className={`w-full border rounded-xl px-4 py-3 text-sm transition-all ${isSukuna ? 'bg-white/5 border-red-900/20 text-white focus:border-red-500' : 'bg-slate-800/80 border-slate-700 text-slate-200 focus:border-purple-500'}`} />
+                    <input type="password" placeholder="••••••••" className={`w-full border rounded-xl px-4 py-3 text-sm transition-all ${isSukuna ? 'bg-white/5 border-red-900/20 text-white focus:border-red-500' : isGojo ? 'bg-white/5 border-blue-900/20 text-white focus:border-blue-500' : 'bg-slate-800/80 border-slate-700 text-slate-200 focus:border-purple-500'}`} />
                   </div>
-                  <button className={`px-6 py-3 rounded-xl text-sm mt-2 transition-all ${isSukuna ? 'sukuna-btn' : 'bg-purple-600 text-white font-semibold hover:bg-purple-500 shadow-lg shadow-purple-500/20'}`}>
+                  <button className={`px-6 py-3 rounded-xl text-sm mt-2 transition-all ${isSukuna ? 'sukuna-btn' : isGojo ? 'gojo-btn' : 'bg-purple-600 text-white font-semibold hover:bg-purple-500 shadow-lg shadow-purple-500/20'}`}>
                     Ayarları Kaydet
                   </button>
                 </form>
@@ -591,24 +645,43 @@ export default function ProfilePage() {
               <motion.div key="effects" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Palette className={isSukuna ? "text-red-400" : "text-purple-400"} /> Profil Efektleri
+                    <Palette className={isSukuna ? "text-red-400" : isGojo ? "text-blue-400" : "text-purple-400"} /> Profil Efektleri
                   </h2>
                   <button 
                     onClick={handleSaveEffects}
-                    className={`px-6 py-2 rounded-xl text-sm tracking-widest uppercase flex items-center gap-2 hover:scale-105 active:scale-95 transition-all ${isSukuna ? 'sukuna-btn' : 'bg-purple-600 text-white font-bold shadow-lg shadow-purple-500/25'}`}
+                    className={`px-6 py-2 rounded-xl text-sm tracking-widest uppercase flex items-center gap-2 hover:scale-105 active:scale-95 transition-all ${isSukuna ? 'sukuna-btn' : isGojo ? 'gojo-btn' : 'bg-purple-600 text-white font-bold shadow-lg shadow-purple-500/25'}`}
                   >
                     <Check size={16} /> Değişiklikleri Kaydet
                   </button>
                 </div>
                 
                 {/* Canlı Önizleme */}
-                <div className={`mb-8 p-6 rounded-3xl relative overflow-hidden ${isPreviewSukuna ? 'sukuna-glass bg-gradient-to-br from-red-950/30 to-black' : 'bg-slate-900/50 border border-white/10 backdrop-blur-xl bg-gradient-to-br from-purple-900/20 to-black'}`}>
-                   {isPreviewSukuna ? <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/20 rounded-full blur-3xl pointer-events-none" /> : null}
-                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Canlı Önizleme</h3>
+                <div className={`mb-8 p-6 rounded-3xl relative overflow-hidden ${isPreviewSukuna ? 'sukuna-glass' : isPreviewGojo ? 'gojo-glass' : 'bg-slate-900/50 border border-white/10 backdrop-blur-xl'}`}>
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 relative z-10">Canlı Önizleme</h3>
+                    
+                    {/* Önizleme Arka Plan Videoları */}
+                    {isPreviewSukuna && (
+                      <SiberVideo className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none" src="/sukuna/bg.webm" />
+                    )}
+                    {isPreviewGojo && (
+                      <SiberVideo className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen pointer-events-none" src="/gojo/arkaplangojo.webm" />
+                    )}
+
+                    {/* Önizleme Domain Efektleri */}
+                    {isPreviewSukuna && (
+                      <div className="absolute top-0 -right-4 w-40 h-full opacity-60 pointer-events-none z-0">
+                        <SiberVideo className="w-full h-full object-cover mix-blend-screen" src="/sukuna/domains.webm" />
+                      </div>
+                    )}
+                    {isPreviewGojo && (
+                      <div className="absolute top-0 -right-8 w-56 h-full opacity-60 pointer-events-none z-0">
+                         <img src="/gojo/gojo.png" className="w-full h-full object-contain mix-blend-screen" alt="Gojo" />
+                      </div>
+                    )}
                    
                    <div className={`glass border border-white/5 rounded-2xl p-4 group relative ${getEffectCSS('comment', previewEffects.comment)}`}>
                      <div className="flex gap-4">
-                       <div className={`w-12 h-12 rounded-xl bg-slate-800 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 transition-all duration-300 ${getEffectCSS('avatar', previewEffects.avatar)}`}>
+                       <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-800 border-2 border-white/10 flex items-center justify-center overflow-visible flex-shrink-0 transition-all duration-300 relative z-10 ${getEffectCSS('avatar', previewEffects.avatar)}`}>
                          {user.avatar_url ? (
                            <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                          ) : (
@@ -620,7 +693,7 @@ export default function ProfilePage() {
                            <span className={`text-white font-black text-base italic tracking-tighter transition-all duration-300 ${getEffectCSS('nametag', previewEffects.nametag)}`}>
                              {user.username}
                            </span>
-                           <span className="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30 font-black uppercase">
+                           <span className={`text-[8px] px-1.5 py-0.5 rounded border font-black uppercase ${isPreviewSukuna ? 'bg-red-500/20 text-red-400 border-red-500/30' : isPreviewGojo ? 'bg-blue-500/20 text-blue-400 border-blue-400/30' : 'bg-purple-500/20 text-purple-400 border-purple-500/30'}`}>
                              Teğmen
                            </span>
                          </div>
@@ -628,9 +701,11 @@ export default function ProfilePage() {
                        </div>
                      </div>
                    </div>
-                </div>
+
 
                 {/* Elite Paketler Grid */}
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                   {ELITE_BUNDLES.map(bundle => {
                     const isSelected = selectedBundle === bundle.id;
@@ -648,16 +723,21 @@ export default function ProfilePage() {
                         }}
                         className={`relative p-6 rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden group
                           ${isSelected 
-                            ? 'border-red-500 bg-red-500/10 shadow-neon-sukuna scale-[1.02]' 
+                            ? 'scale-[1.02]' 
                             : isUnlocked
-                              ? 'sukuna-card hover:bg-red-950/30 hover:border-red-900/30'
+                              ? (isSukuna ? 'sukuna-card hover:border-red-900/30' : isGojo ? 'gojo-card hover:border-blue-900/30' : 'bg-slate-900/40 border-white/5 hover:bg-slate-800 hover:border-white/20')
                               : 'border-white/5 bg-black/40 grayscale opacity-70 hover:grayscale-0 hover:opacity-100'
                           }
                         `}
+                        style={isSelected ? { 
+                          borderColor: bundle.color, 
+                          backgroundColor: `${bundle.color}15`,
+                          boxShadow: `0 0 25px ${bundle.color}40`
+                        } : {}}
                       >
                         {/* Status Badge */}
                         {isSelected && (
-                          <div className="absolute -top-3 -right-3 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10">
+                          <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10" style={{ backgroundColor: bundle.color }}>
                             <Check size={16} className="text-white" />
                           </div>
                         )}
@@ -713,20 +793,20 @@ export default function ProfilePage() {
                     onClick={() => { setSelectedBundle('mix'); setIsMixModalOpen(true); }}
                     className={`relative p-6 rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-center gap-4
                       ${selectedBundle === 'mix'
-                        ? 'border-red-500 bg-red-500/10 shadow-neon-sukuna scale-[1.02]' 
-                        : 'border-red-500/30 bg-red-500/5 hover:bg-red-500/10 hover:border-red-500/50'
+                        ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/20 scale-[1.02]' 
+                        : 'border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-500/50'
                       }
                     `}
                   >
                     {selectedBundle === 'mix' && (
-                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10">
+                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center border-4 border-[#050507] shadow-lg z-10">
                         <Check size={16} className="text-white" />
                       </div>
                     )}
-                    <Palette size={32} className="text-red-400" />
+                    <Palette size={32} className="text-purple-400" />
                     <div>
                       <h4 className="text-lg font-black text-white italic tracking-tight">Mixle & Karıştır</h4>
-                      <p className="text-xs text-red-300">Kendi siber paketini yarat!</p>
+                      <p className="text-xs text-purple-300">Kendi siber paketini yarat!</p>
                     </div>
                   </div>
 
@@ -779,7 +859,7 @@ export default function ProfilePage() {
                     </div>
                   ))}
                   
-                  <button className="px-6 py-3 sukuna-btn rounded-xl text-sm mt-4 w-fit">
+                  <button className={`px-6 py-3 rounded-xl text-sm mt-4 w-fit transition-all ${isSukuna ? 'sukuna-btn' : isGojo ? 'gojo-btn' : 'bg-purple-600 text-white font-bold hover:bg-purple-500 shadow-lg shadow-purple-500/20'}`}>
                     Tercihleri Kaydet
                   </button>
                 </div>
