@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
-        is_elite:        data?.is_elite || authUser.email === 'murathanozel134@gmail.com' || authData.role === 'admin' || authData.role === 'owner' || false,
+        is_elite:        data?.is_elite || authUser.email === 'murathanozel134@gmail.com' || authData.role === 'Baş Admin' || authData.role === 'Yönetici' || false,
       };
 
       setUser(merged);
@@ -86,6 +86,7 @@ export function AuthProvider({ children }) {
       // Garantili Kurucu (Owner) Koruması (Ağ çökse bile yetki düşmesin)
       if (authUser.email === 'murathanozel134@gmail.com') {
          fallbackUser.role = 'Baş Admin';
+         fallbackUser.is_elite = true;
       }
 
       setUser(fallbackUser);

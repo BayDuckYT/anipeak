@@ -51,24 +51,26 @@ export default function CitadelCategory() {
     );
   }
 
-  // --- STATE FOR POSTS ---
+  // --- MOCK DATA ---
   const [posts, setPosts] = useState([
-    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Son bölümdeki dövüş animasyonları hakkında ne düşünüyorsunuz?', replies: 142, views: 5000, avatar_url: 'https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg' },
-    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Yeni başlayanlar için okunması gereken manhwa önerileri', replies: 12, views: 340, avatar_url: 'https://i.pinimg.com/736x/8b/63/05/8b630560a631d8e12177cd05ffb70e7a.jpg' },
+    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Domain Expansion İncelemesi', content: 'Son bölümdeki dövüş animasyonları hakkında ne düşünüyorsunuz? Bence kusursuzdu.\n\n![Gojo](https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg)\n\n||Sıradaki bölümde işler karışacak||', replies: 142, views: 5000, avatar_url: 'https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg' },
+    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Manhwa Önerileri', content: 'Yeni başlayanlar için okunması gereken manhwa önerileri alabilir miyim?', replies: 12, views: 340, avatar_url: 'https://i.pinimg.com/736x/8b/63/05/8b630560a631d8e12177cd05ffb70e7a.jpg' },
   ]);
   const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostContent, setNewPostContent] = useState('');
+  const [expandedPostId, setExpandedPostId] = useState(null);
   const textareaRef = useRef(null);
 
   const insertTextAtCursor = (text) => {
     if (!textareaRef.current) {
-      setNewPostTitle(prev => prev + text);
+      setNewPostContent(prev => prev + text);
       return;
     }
     const start = textareaRef.current.selectionStart;
     const end = textareaRef.current.selectionEnd;
     const val = textareaRef.current.value;
     const newVal = val.substring(0, start) + text + val.substring(end);
-    setNewPostTitle(newVal);
+    setNewPostContent(newVal);
     
     setTimeout(() => {
       textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + text.length;
@@ -77,7 +79,7 @@ export default function CitadelCategory() {
   };
   
   const handlePostSubmit = () => {
-    if (!newPostTitle.trim()) return;
+    if (!newPostTitle.trim() || !newPostContent.trim()) return;
     if (!user) {
       alert("Gönderi paylaşmak için giriş yapmalısın.");
       return;
@@ -89,12 +91,26 @@ export default function CitadelCategory() {
       isElite: user.is_elite || false,
       avatar_url: user.avatar_url || null,
       title: newPostTitle,
+      content: newPostContent,
       replies: 0,
       views: 0
     };
     
     setPosts([newPost, ...posts]);
     setNewPostTitle('');
+    setNewPostContent('');
+  };
+
+  const renderContent = (text) => {
+    if (!text) return null;
+    let html = text
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;') // escape HTML
+      .replace(/\n/g, '<br />')
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full md:max-w-[400px] rounded-xl my-3 border border-white/10 shadow-lg" />')
+      .replace(/```([\s\S]*?)```/g, '<pre class="bg-[#0a0a0c] p-4 rounded-xl font-mono text-xs my-3 text-emerald-400 overflow-x-auto border border-white/5 shadow-inner"><code>$1</code></pre>')
+      .replace(/\|\|(.*?)\|\|/g, '<span class="bg-white/10 text-transparent hover:text-white px-2 py-0.5 rounded cursor-pointer transition-colors duration-300" onclick="this.classList.remove(\'text-transparent\')">$1</span>');
+      
+    return <div dangerouslySetInnerHTML={{ __html: html }} className="text-slate-300 text-sm leading-relaxed" />;
   };
 
   return (
@@ -111,21 +127,23 @@ export default function CitadelCategory() {
               {isEliteChamber ? <><Crown className="text-red-500"/> ELITE ODASI</> : category.toUpperCase().replace('-', ' ')}
             </h1>
           </div>
-          
-          <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold shadow-neon-blue hover:scale-[1.02] transition-transform">
-            <Plus size={18} /> Yeni Konu Aç
-          </button>
         </div>
 
-        {/* Post Editor Preview (Mock) */}
-        <div className="glass-strong border border-white/10 rounded-2xl p-6 mb-8">
-           <h3 className="text-white font-bold mb-4">Hızlı Gönderi Paylaş</h3>
-           <textarea 
-             ref={textareaRef}
+        {/* Post Editor */}
+        <div className="glass-strong border border-white/10 rounded-2xl p-6 mb-8 shadow-xl">
+           <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Plus size={18} className="text-blue-400"/> Hızlı Gönderi Paylaş</h3>
+           <input 
              value={newPostTitle}
              onChange={(e) => setNewPostTitle(e.target.value)}
+             placeholder="Konu Başlığı..." 
+             className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors mb-3 font-bold"
+           />
+           <textarea 
+             ref={textareaRef}
+             value={newPostContent}
+             onChange={(e) => setNewPostContent(e.target.value)}
              placeholder="Düşüncelerini buraya dök..." 
-             className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors mb-4 resize-none h-24"
+             className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors mb-4 resize-none h-32"
            />
            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -135,8 +153,8 @@ export default function CitadelCategory() {
               </div>
               <button 
                 onClick={handlePostSubmit}
-                disabled={!newPostTitle.trim()}
-                className="px-6 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!newPostTitle.trim() || !newPostContent.trim()}
+                className="px-8 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold shadow-neon-blue hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Gönder
               </button>
@@ -145,33 +163,69 @@ export default function CitadelCategory() {
 
         {/* Post List */}
         <div className="space-y-4">
-          {posts.map(post => (
-            <div key={post.id} className="glass border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-200 mb-2 cursor-pointer hover:text-blue-400 transition-colors">
-                  {post.title}
-                </h3>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
-                    {post.avatar_url ? (
-                      <img src={post.avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-[10px] font-bold text-white">{post.author?.charAt(0).toUpperCase()}</span>
-                    )}
+          {posts.map(post => {
+            const isExpanded = expandedPostId === post.id;
+            
+            return (
+            <motion.div 
+              layout
+              key={post.id} 
+              className={`glass border ${isExpanded ? 'border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]' : 'border-white/5 hover:border-white/10'} rounded-2xl p-6 transition-colors overflow-hidden`}
+            >
+              <div 
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer"
+                onClick={() => setExpandedPostId(isExpanded ? null : post.id)}
+              >
+                <div>
+                  <h3 className={`text-lg font-bold mb-2 transition-colors ${isExpanded ? 'text-blue-400' : 'text-slate-200 group-hover:text-blue-400'}`}>
+                    {post.title}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
+                      {post.avatar_url ? (
+                        <img src={post.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[10px] font-bold text-white">{post.author?.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <span className={`text-sm font-semibold ${post.isElite ? 'elite-text-gradient' : 'text-slate-400'}`}>
+                      {post.author}
+                    </span>
+                    {post.isElite && <EliteBadge className="!w-4 !h-4 text-[9px]" />}
+                    <span className="text-xs text-slate-600">• 2 saat önce</span>
                   </div>
-                  <span className={`text-sm font-semibold ${post.isElite ? 'elite-text-gradient' : 'text-slate-400'}`}>
-                    {post.author}
-                  </span>
-                  {post.isElite && <EliteBadge className="!w-4 !h-4 text-[9px]" />}
-                  <span className="text-xs text-slate-600">• 2 saat önce</span>
+                </div>
+                <div className="flex items-center gap-6 text-sm font-bold text-slate-500">
+                  <span>{post.replies} YANIT</span>
+                  <span>{post.views} OKUNMA</span>
                 </div>
               </div>
-              <div className="flex items-center gap-6 text-sm font-bold text-slate-500">
-                <span>{post.replies} YANIT</span>
-                <span>{post.views} OKUNMA</span>
-              </div>
-            </div>
-          ))}
+              
+              {/* Expanded Content */}
+              {isExpanded && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-6 pt-6 border-t border-white/10"
+                >
+                  {renderContent(post.content)}
+                  
+                  {/* Fake Reply Box */}
+                  <div className="mt-8 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                       <span className="text-xs text-slate-400">{user ? user.username.charAt(0).toUpperCase() : 'U'}</span>
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="Bu konuya cevap yaz..." 
+                      className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors"
+                    />
+                    <button className="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-bold shadow-neon-purple hover:bg-purple-500 transition-colors">Yanıtla</button>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          )})}
         </div>
         
       </div>
