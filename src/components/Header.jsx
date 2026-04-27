@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, MessageSquare
+  ChevronDown, Crown, CheckCheck, Zap, MessageSquare, Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -106,8 +106,11 @@ export default function Header({ onAuthOpen }) {
             <Link to="/#trendler" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.hash === '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
               <TrendingUp size={15} /> Trendler
             </Link>
-            <Link to="/oneriler" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/oneriler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
-              <MessageSquare size={15} /> Öneri
+            <Link to="/citadel" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/citadel') ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
+              <Users size={15} /> Forum
+            </Link>
+            <Link to="/elite-upgrade" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all ${location.pathname === '/elite-upgrade' ? 'text-red-400 bg-red-500/10 border border-red-500/30' : 'text-slate-300 hover:text-red-400 hover:bg-red-500/10'}`}>
+              <Crown size={15} className="text-red-500" /> Premium
             </Link>
           </nav>
 
@@ -382,6 +385,8 @@ export default function Header({ onAuthOpen }) {
                 )}
               </div>
               <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><Compass size={16} /> Keşfet</Link>
+              <Link to="/citadel" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><Users size={16} /> Forum</Link>
+              <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all"><Crown size={16} /> Premium</Link>
               <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Shield size={16} /> Yönetim Paneli</Link>
               {user ? (
                 <>

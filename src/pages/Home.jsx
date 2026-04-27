@@ -433,21 +433,23 @@ export default function Home({ onAuthOpen }) {
           initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="max-w-4xl mx-auto relative rounded-3xl overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/60 to-blue-900/60" />
-          <div className="absolute inset-0 border border-purple-500/20 rounded-3xl" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-purple-600/30 blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-red-900/40 via-[#050507] to-blue-900/40" />
+          <div className="absolute inset-0 border border-red-500/20 rounded-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-red-600/20 blur-3xl" />
           <div className="relative z-10 text-center py-16 px-6">
-            <Flame size={40} className="text-orange-400 mx-auto mb-4" />
-            <h3 className="text-3xl sm:text-4xl font-black text-white mb-3">Tüm Serileri Keşfet</h3>
+            <Crown size={40} className="text-red-500 mx-auto mb-4 animate-pulse" />
+            <h3 className="text-3xl sm:text-4xl font-black text-white mb-3">
+              <span className="elite-text-gradient">Sınırsız Güce Eriş</span>
+            </h3>
             <p className="text-slate-400 mb-8 max-w-lg mx-auto">
-              Binlerce Manhwa ve Webtoon serisine ücretsiz eriş. Okumaya hemen başla!
+              Karargah forumuna (Elite odalara) giriş yap, ismin parlasın, canlı sohbette fark yarat. Sıradan olma, Elite ol!
             </p>
-            <button
-              onClick={handleHeroBtnClick}
-              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-base hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple"
+            <Link
+              to="/elite-upgrade"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-blue-600 text-white font-bold text-base hover:scale-[1.02] transition-transform shadow-neon-purple"
             >
-              {user ? 'Trendleri Keşfet' : 'Hemen Başla'}
-            </button>
+              Premiuma Katıl
+            </Link>
           </div>
         </motion.div>
       </section>

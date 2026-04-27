@@ -9,7 +9,7 @@ export default function CitadelCategory() {
   const { category } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isEliteChamber = category === 'elite-chambers';
+  const isEliteChamber = category === 'elite-odasi';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,7 +30,7 @@ export default function CitadelCategory() {
         >
           <Lock size={80} className="text-red-500 mx-auto mb-6 opacity-90" />
           <h1 className="text-3xl font-black text-white mb-2">YASAK BÖLGE</h1>
-          <p className="text-slate-400 mb-8">Sadece Elite Okurlar Karargaha Girebilir. Buradaki kadim parşömenleri okumak için sınırsız güce erişmelisin.</p>
+          <p className="text-slate-400 mb-8">Sadece Elite statüsündeki okurlar bu odaya girebilir. Buradaki gizli gönderileri okumak ve siber elitlerin arasına katılmak için Premium'a yükselt.</p>
           
           <div className="flex flex-col gap-4">
             <button 
@@ -43,7 +43,7 @@ export default function CitadelCategory() {
               onClick={() => navigate('/citadel')}
               className="w-full py-4 rounded-xl glass border border-white/10 text-slate-400 font-bold hover:text-white transition-colors"
             >
-              Geri Dön
+              Foruma Dön
             </button>
           </div>
         </motion.div>
@@ -51,11 +51,32 @@ export default function CitadelCategory() {
     );
   }
 
-  // --- MOCK DATA ---
-  const posts = [
-    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Son bölümdeki domain expansion cidden böyle mi olmalıydı?', replies: 142, views: 5000 },
-    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Abi Sukuna harbiden harika çizilmiş', replies: 12, views: 340 },
-  ];
+  // --- STATE FOR POSTS ---
+  const [posts, setPosts] = useState([
+    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Son bölümdeki dövüş animasyonları hakkında ne düşünüyorsunuz?', replies: 142, views: 5000 },
+    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Yeni başlayanlar için okunması gereken manhwa önerileri', replies: 12, views: 340 },
+  ]);
+  const [newPostTitle, setNewPostTitle] = useState('');
+  
+  const handlePostSubmit = () => {
+    if (!newPostTitle.trim()) return;
+    if (!user) {
+      alert("Gönderi paylaşmak için giriş yapmalısın.");
+      return;
+    }
+    
+    const newPost = {
+      id: Date.now(),
+      author: user.username || 'Misafir',
+      isElite: user.is_elite || false,
+      title: newPostTitle,
+      replies: 0,
+      views: 0
+    };
+    
+    setPosts([newPost, ...posts]);
+    setNewPostTitle('');
+  };
 
   return (
     <div className="min-h-screen bg-[#050507] pt-24 pb-20 relative">
@@ -65,7 +86,7 @@ export default function CitadelCategory() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b border-white/10 gap-4">
           <div>
             <Link to="/citadel" className="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-sm font-bold mb-4">
-              <ArrowLeft size={16} /> Karargah'a Dön
+              <ArrowLeft size={16} /> Forum'a Dön
             </Link>
             <h1 className="text-3xl font-black text-white flex items-center gap-3">
               {isEliteChamber ? <><Crown className="text-red-500"/> ELITE ODASI</> : category.toUpperCase().replace('-', ' ')}
@@ -79,8 +100,10 @@ export default function CitadelCategory() {
 
         {/* Post Editor Preview (Mock) */}
         <div className="glass-strong border border-white/10 rounded-2xl p-6 mb-8">
-           <h3 className="text-white font-bold mb-4">Hızlı Gönderi (Simülasyon)</h3>
+           <h3 className="text-white font-bold mb-4">Hızlı Gönderi Paylaş</h3>
            <textarea 
+             value={newPostTitle}
+             onChange={(e) => setNewPostTitle(e.target.value)}
              placeholder="Düşüncelerini buraya dök..." 
              className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors mb-4 resize-none h-24"
            />
@@ -90,7 +113,11 @@ export default function CitadelCategory() {
                 <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-purple-400 transition-colors" title="Görsel Ekle"><ImageIcon size={18}/></button>
                 <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-red-400 transition-colors" title="Spoiler Gizle"><EyeOff size={18}/></button>
               </div>
-              <button className="px-6 py-2 rounded-lg bg-white/10 text-white font-bold hover:bg-white/20 transition-colors">
+              <button 
+                onClick={handlePostSubmit}
+                disabled={!newPostTitle.trim()}
+                className="px-6 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Gönder
               </button>
            </div>

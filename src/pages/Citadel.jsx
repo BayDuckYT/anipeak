@@ -33,9 +33,9 @@ const FORUM_CATEGORIES = [
     borderColor: 'border-emerald-500/30'
   },
   {
-    id: 'elite-chambers',
-    name: 'Elite Karargah Odası',
-    description: 'Sadece Elite statüsüne sahip efendilerin girebileceği gizli mabet.',
+    id: 'elite-odasi',
+    name: 'Elite Topluluk Odası',
+    description: 'Sadece Elite statüsüne sahip manga gurmelerinin girebileceği gizli mabet.',
     icon: <Crown size={24} className="text-red-500" />,
     requiresElite: true,
     color: 'from-red-600/20 via-blue-900/20 to-purple-900/20',
@@ -58,13 +58,13 @@ export default function Citadel() {
         {/* Header */}
         <div className="mb-12 border-b border-white/10 pb-8">
           <div className="flex items-center gap-3 mb-4">
-            <ShieldAlert size={32} className="text-blue-500" />
+            <MessageSquare size={32} className="text-blue-500" />
             <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
-              KARARGAH <span className="text-slate-500">FORUMU</span>
+              ANIPEAK <span className="text-slate-500">FORUMU</span>
             </h1>
           </div>
           <p className="text-slate-400 max-w-2xl text-lg">
-            Siber dünyadaki sığınağımız. Fikirlerini paylaş, teorilerini çarpıştır, sadece elitlerin girdiği odaların kapılarını zorla.
+            Siber dünyadaki manga sığınağımız. Fikirlerini paylaş, teorilerini çarpıştır, favori serilerini diğer okurlarla tartış.
           </p>
         </div>
 
