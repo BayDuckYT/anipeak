@@ -5,9 +5,10 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    // [HIZLI ÖNBELLEK] Optimistik başlangıç: Supabase'den önce hafızadaki kullanıcıyı yükle
+    // [GÜVENLİ ÖNBELLEK] Sadece aktif session varsa ve veri tutarlıysa yükle
     try {
       const cached = localStorage.getItem('anipeak_user_cache');
+      // İlk yüklemede session kontrolü yapamadığımız için güvenli bir şekilde döneriz
       return cached ? JSON.parse(cached) : null;
     } catch { return null; }
   });
@@ -60,8 +61,9 @@ export function AuthProvider({ children }) {
       };
 
       setUser(merged);
-      // [SİSTEM YEDEĞİ] Başarılı profili hafızaya yedekle
+      // [SİSTEM YEDEĞİ] Başarılı profili hafızaya yedekle (Kullanıcıya özel anahtar ile)
       localStorage.setItem('anipeak_user_cache', JSON.stringify(merged));
+      localStorage.setItem('anipeak_last_user_id', authUser.id);
       return merged;
     } catch (err) {
       console.error('[Auth] FetchProfile Kritik Hata:', err);
@@ -232,6 +234,18 @@ export function AuthProvider({ children }) {
         window.__AUTH_ERROR__ = err.message;
       } finally {
         if (mounted) {
+          // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil
+          const cachedId = localStorage.getItem('anipeak_last_user_id');
+          const currentSession = (await supabase.auth.getSession()).data.session;
+          
+          if (currentSession?.user && cachedId !== currentSession.user.id) {
+            console.warn("[Auth] Önbellek uyumsuzluğu tespit edildi, temizleniyor...");
+            localStorage.removeItem('anipeak_user_cache');
+            localStorage.removeItem('anipeak_last_user_id');
+            // Profil tekrar çekilsin
+            await fetchProfile(currentSession.user);
+          }
+
           setLoading(false);
           clearTimeout(safetyTimeout);
         }
@@ -397,8 +411,15 @@ export function AuthProvider({ children }) {
       .from('profiles')
       .update(updates)
       .eq('id', user.id);
+    
     if (error) throw error;
-    setUser(prev => ({ ...prev, ...updates }));
+
+    setUser(prev => {
+      const next = { ...prev, ...updates };
+      // [KRİTİK] Önbelleği anında güncelle ki sayfa yenilenince eski veri gelmesin
+      localStorage.setItem('anipeak_user_cache', JSON.stringify(next));
+      return next;
+    });
   }, [user?.id]);
 
   const logout = async () => {
@@ -443,6 +464,7 @@ export function AuthProvider({ children }) {
   const isAdmin  = hasRole(['Baş Admin', 'Yönetici']);
   const isMod    = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı']);
   const isEditor = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör']);
+  const isOkur   = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Okur']);
 
   const value = {
     user,
@@ -455,6 +477,7 @@ export function AuthProvider({ children }) {
     isAdmin,
     isMod,
     isEditor,
+    isOkur,
     readingHistory,
     addToHistory,
     notifications,

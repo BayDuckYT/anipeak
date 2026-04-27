@@ -21,6 +21,8 @@ import Contact from './pages/Contact.jsx';
 import Suggestions from './pages/Suggestions.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import GlobalBundleTheme from './components/GlobalBundleTheme.jsx';
+import ScrollToTop from './components/ScrollToTop.jsx';
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
@@ -190,12 +192,15 @@ function AppContent() {
   // Bakım modundayken, eğer giriş yapan kişi BAŞ ADMİN DEĞİLSE ekranı kapat
   // İSTİSNA: Şifre sıfırlama sayfası bakım modundan muaf tutulur
   const isResetPage = window.location.pathname === '/reset-password';
-  const isMaintenanceBlocked = maintenanceMode && !isOwner && !isResetPage;
+  const { isOkur } = useAuth();
+  const isMaintenanceBlocked = maintenanceMode && !isOwner && !isOkur && !isResetPage;
 
   return (
     <>
       <BrowserRouter>
+        <ScrollToTop />
         <GlobalEffects />
+        <GlobalBundleTheme />
         <div className="min-h-screen bg-[#050507]">
           {isMaintenanceBlocked ? (
             <MaintenanceScreen onAuthOpen={(mode) => setAuthModal(mode)} />

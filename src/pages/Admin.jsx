@@ -35,6 +35,11 @@ export const ADMIN_ROLES = {
     badge: 'bg-gradient-to-br from-emerald-600 to-teal-800',
     access: ['dashboard', 'content', 'chapterEditor'],
   },
+  'Okur': {
+    color: 'text-sky-400 bg-sky-500/10 border-sky-500/30',
+    badge: 'bg-gradient-to-br from-sky-400 to-blue-600',
+    access: [], // Sadece bakım modu geçişi (App.jsx üzerinden kontrol ediliyor)
+  },
 };
 
 const ALL_NAV = [
@@ -105,7 +110,7 @@ function QuickAddForm({ seriesList, showToast }) {
   });
 
   const compressToBase64 = (file) => new Promise((resolve, reject) => {
-    console.log(`[PROCESS] Sıkıştırma başladı: ${file.name} (${(file.size/1024).toFixed(1)} KB)`);
+    console.log(`[PROCESS] Sıkıştırma başladı: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onerror = (e) => reject(new Error("Dosya okuma hatası!"));
@@ -123,7 +128,7 @@ function QuickAddForm({ seriesList, showToast }) {
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
           const b64 = canvas.toDataURL('image/jpeg', 0.8);
-          console.log(`[PROCESS] Sıkıştırma tamam: ${file.name} -> ${(b64.length/1024).toFixed(1)} KB`);
+          console.log(`[PROCESS] Sıkıştırma tamam: ${file.name} -> ${(b64.length / 1024).toFixed(1)} KB`);
           resolve(b64);
         } catch (err) {
           reject(new Error("Canvas işleme hatası: " + err.message));
@@ -140,18 +145,18 @@ function QuickAddForm({ seriesList, showToast }) {
         console.log(`[UPLOAD] ${fileName} gönderiliyor (Key: ${currentKeyIndex + 1})`);
         const form = new FormData();
         form.append('image', base64.split(',')[1]);
-        
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, { 
-          method: 'POST', 
-          body: form 
+
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
+          method: 'POST',
+          body: form
         });
         const json = await res.json();
-        
+
         if (json.success) {
           console.log(`[UPLOAD-OK] ${fileName} yüklendi: ${json.data.url}`);
           return json.data.url;
         }
-        
+
         console.warn(`[UPLOAD-HATA] Key ${currentKeyIndex + 1} reddetti:`, json.error?.message);
         currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
         attempts++;
@@ -167,11 +172,11 @@ function QuickAddForm({ seriesList, showToast }) {
   const handleFileSelect = async (e, target) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    
+
     try {
       showToast(`${files.length} görsel işleniyor...`, 'info');
       const urls = [];
-      
+
       for (const file of files) {
         const b64 = await compressToBase64(file);
         const url = await uploadToImgBB(b64, file.name);
@@ -359,8 +364,8 @@ function AnnouncementsPanel({ showToast }) {
                 <td className="px-5 py-4 text-slate-200 max-w-xs truncate">{a.text}</td>
                 <td className="px-5 py-4">
                   <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${a.type === 'chapter' ? 'bg-emerald-500/10 text-emerald-400' :
-                      a.type === 'series' ? 'bg-blue-500/10 text-blue-400' :
-                        'bg-purple-500/10 text-purple-400'}`}>{a.type}</span>
+                    a.type === 'series' ? 'bg-blue-500/10 text-blue-400' :
+                      'bg-purple-500/10 text-purple-400'}`}>{a.type}</span>
                 </td>
                 <td className="px-5 py-4 text-slate-500 text-xs">
                   {new Date(a.created_at || a.ts).toLocaleString('tr-TR')}
@@ -518,10 +523,9 @@ function TicketsPanel({ showToast }) {
                       <select
                         value={t.status}
                         onChange={(e) => handleStatusUpdate(t.id, e.target.value)}
-                        className={`text-[10px] font-black uppercase tracking-widest bg-black/40 border border-white/10 rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-white/20 transition-all ${
-                          t.status === 'Çözüldü' ? 'text-emerald-400' : 
-                          t.status === 'İnceleniyor' ? 'text-amber-400' : 'text-red-400'
-                        }`}
+                        className={`text-[10px] font-black uppercase tracking-widest bg-black/40 border border-white/10 rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-white/20 transition-all ${t.status === 'Çözüldü' ? 'text-emerald-400' :
+                            t.status === 'İnceleniyor' ? 'text-amber-400' : 'text-red-400'
+                          }`}
                       >
                         <option value="Beklemede">🔴 BEKLEMEDE</option>
                         <option value="İnceleniyor">🟡 İNCELENİYOR</option>
@@ -531,7 +535,7 @@ function TicketsPanel({ showToast }) {
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center justify-end gap-2">
-                      <button 
+                      <button
                         onClick={() => handleStatusUpdate(t.id, 'Çözüldü')}
                         disabled={t.status === 'Çözüldü'}
                         className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-30 disabled:pointer-events-none"
@@ -539,7 +543,7 @@ function TicketsPanel({ showToast }) {
                       >
                         <Check size={16} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteTicket(t.id)}
                         className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
                         title="İhbarı İmhâ Et"
@@ -571,167 +575,165 @@ function TicketsPanel({ showToast }) {
 // Sub-component: Users Panel
 // ─────────────────────────────────────────────────────────────────────────────
 function UsersPanel({ showToast }) {
-const { calculateTitle } = useAuth();
-const { registeredUsers, updateProfile, deleteProfile } = useApp();
-const [search, setSearch] = useState('');
-const [editingUser, setEditingUser] = useState(null);
-const [confirmDelete, setConfirmDelete] = useState(null);
+  const { calculateTitle } = useAuth();
+  const { registeredUsers, updateProfile, deleteProfile } = useApp();
+  const [search, setSearch] = useState('');
+  const [editingUser, setEditingUser] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
-const filtered = registeredUsers.filter(u =>
-  (u.username || '').toLowerCase().includes(search.toLowerCase()) ||
-  (u.email || '').toLowerCase().includes(search.toLowerCase())
-);
+  const filtered = registeredUsers.filter(u =>
+    (u.username || '').toLowerCase().includes(search.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(search.toLowerCase())
+  );
 
-return (
-  <div className="space-y-4">
-    <div className="glass border border-white/8 rounded-2xl overflow-hidden">
-      <div className="p-5 border-b border-white/8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-black/20">
-        <div>
-          <h3 className="text-white font-black text-lg">Kullanıcı Yönetimi</h3>
-          <p className="text-slate-500 text-xs mt-0.5">{registeredUsers.length} kayıtlı kullanıcı</p>
+  return (
+    <div className="space-y-4">
+      <div className="glass border border-white/8 rounded-2xl overflow-hidden">
+        <div className="p-5 border-b border-white/8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-black/20">
+          <div>
+            <h3 className="text-white font-black text-lg">Kullanıcı Yönetimi</h3>
+            <p className="text-slate-500 text-xs mt-0.5">{registeredUsers.length} kayıtlı kullanıcı</p>
+          </div>
+          <div className="relative">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input type="text" placeholder="İsim veya e-posta ara..." value={search} onChange={e => setSearch(e.target.value)}
+              className="bg-[#0a0a14] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all w-full sm:w-64" />
+          </div>
         </div>
-        <div className="relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input type="text" placeholder="İsim veya e-posta ara..." value={search} onChange={e => setSearch(e.target.value)}
-            className="bg-[#0a0a14] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all w-full sm:w-64" />
-        </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-white/5 bg-black/40">
-            {['Kullanıcı', 'E-posta', 'Level / Rütbe', 'Rol', 'Katılım', 'İşlem'].map(h => (
-              <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-4 py-3.5">{h}</th>
-            ))}
-          </tr></thead>
-          <tbody>
-            <AnimatePresence>
-              {filtered.map(u => (
-                <motion.tr key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-xs flex-shrink-0 ${ADMIN_ROLES[u.role] ? ADMIN_ROLES[u.role].badge : 'bg-gradient-to-br from-slate-700 to-slate-900'}`}>
-                        {(u.username || 'U').charAt(0).toUpperCase()}
-                      </div>
-                      <span className="text-white font-bold text-sm">{u.username || '—'}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-400 text-xs">{u.email}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-purple-400 font-black text-[10px] uppercase tracking-tighter">XP: {u.xp || 0}</span>
-                      <span className="text-white font-bold text-[10px] whitespace-nowrap bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                        {calculateTitle(u.xp || 0)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {ADMIN_ROLES[u.role] ? (
-                      <span className={`inline-flex px-2 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${ADMIN_ROLES[u.role].color}`}>{u.role}</span>
-                    ) : (
-                      <span className="text-slate-400 border border-slate-600/50 bg-slate-800/30 px-2 py-1 rounded-lg text-[9px] font-black uppercase">Kullanıcı</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 text-xs">
-                    {u.created_at ? new Date(u.created_at).toLocaleDateString('tr-TR') : '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1.5">
-                      {confirmDelete === u.id ? (
-                        <>
-                          <button onClick={() => setConfirmDelete(null)} className="p-1.5 text-slate-400 hover:bg-white/10 rounded-lg"><X size={14} /></button>
-                          <button onClick={async () => { await deleteProfile(u.id); setConfirmDelete(null); showToast('Kullanıcı silindi', 'error'); }}
-                            className="px-2 py-1 text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg text-[10px] font-black flex items-center gap-1">
-                            SİL <Check size={12} />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => setEditingUser({ ...u })} className="p-1.5 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all" title="Düzenle">
-                            <Edit3 size={14} />
-                          </button>
-                          <button onClick={() => setConfirmDelete(u.id)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-all" title="Sil">
-                            <Trash2 size={14} />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </motion.tr>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-white/5 bg-black/40">
+              {['Kullanıcı', 'E-posta', 'Level / Rütbe', 'Rol', 'Katılım', 'İşlem'].map(h => (
+                <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-4 py-3.5">{h}</th>
               ))}
-            </AnimatePresence>
-            {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-5 py-10 text-center text-slate-500">Kullanıcı bulunamadı.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    {/* Edit User Modal */}
-    <AnimatePresence>
-      {editingUser && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-            className="w-full max-w-md glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.25)]">
-            <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-5 px-6 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <UserCheck size={20} className="text-purple-400" />
-                <h3 className="text-xl font-black text-white">Kullanıcı Editörü</h3>
-              </div>
-              <button onClick={() => setEditingUser(null)} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl"><X size={20} /></button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Kullanıcı Adı</label>
-                <input type="text" value={editingUser.username || ''} onChange={e => setEditingUser(p => ({ ...p, username: e.target.value }))}
-                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
-              </div>
-              <div>
-                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">E-posta</label>
-                <input type="email" value={editingUser.email || ''} onChange={e => setEditingUser(p => ({ ...p, email: e.target.value }))}
-                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
-              </div>
-              <div>
-                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Yeni Şifre (Boş bırakılırsa değişmez)</label>
-                <input type="password" value={editingUser.password || ''} onChange={e => setEditingUser(p => ({ ...p, password: e.target.value }))}
-                  placeholder="••••••••"
-                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
-                <p className="text-[9px] text-amber-500/70 mt-1 font-bold italic">Not: Şifre değişikliği sadece Auth sağlayıcısı email ise çalışır.</p>
-              </div>
-              <div>
-                <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Sistem Rolü</label>
-                <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))}
-                  className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer">
-                  {['Kullanıcı', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
-                    <option key={r} value={r} className="bg-[#0a0a14]">{r}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="p-5 border-t border-white/10 bg-black/40 flex justify-end gap-3">
-              <button onClick={() => setEditingUser(null)} className="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 font-bold text-sm">İptal</button>
-              <button onClick={async () => {
-                const updates = { role: editingUser.role, username: editingUser.username, email: editingUser.email };
-                await updateProfile(editingUser.id, updates);
-
-                // Password update is handled separately if provided
-                if (editingUser.password) {
-                  showToast('Şifre güncelleme isteği gönderildi (Admin API gereklidir).', 'info');
-                }
-
-                setEditingUser(null);
-                showToast('Kullanıcı bilgileri güncellendi!', 'success');
-              }} className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black text-sm shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
-                <Save size={16} /> Kaydet
-              </button>
-            </div>
-          </motion.div>
+            </tr></thead>
+            <tbody>
+              <AnimatePresence>
+                {filtered.map(u => (
+                  <motion.tr key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-xs flex-shrink-0 ${ADMIN_ROLES[u.role] ? ADMIN_ROLES[u.role].badge : 'bg-gradient-to-br from-slate-700 to-slate-900'}`}>
+                          {(u.username || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-white font-bold text-sm">{u.username || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-400 text-xs">{u.email}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-purple-400 font-black text-[10px] uppercase tracking-tighter">XP: {u.xp || 0}</span>
+                        <span className="text-white font-bold text-[10px] whitespace-nowrap bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                          {calculateTitle(u.xp || 0)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      {ADMIN_ROLES[u.role] ? (
+                        <span className={`inline-flex px-2 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${ADMIN_ROLES[u.role].color}`}>{u.role}</span>
+                      ) : (
+                        <span className="text-slate-400 border border-slate-600/50 bg-slate-800/30 px-2 py-1 rounded-lg text-[9px] font-black uppercase">Kullanıcı</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">
+                      {u.created_at ? new Date(u.created_at).toLocaleDateString('tr-TR') : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1.5">
+                        {confirmDelete === u.id ? (
+                          <>
+                            <button onClick={() => setConfirmDelete(null)} className="p-1.5 text-slate-400 hover:bg-white/10 rounded-lg"><X size={14} /></button>
+                            <button onClick={async () => { await deleteProfile(u.id); setConfirmDelete(null); showToast('Kullanıcı silindi', 'error'); }}
+                              className="px-2 py-1 text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg text-[10px] font-black flex items-center gap-1">
+                              SİL <Check size={12} />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button onClick={() => setEditingUser({ ...u })} className="p-1.5 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all" title="Düzenle">
+                              <Edit3 size={14} />
+                            </button>
+                            <button onClick={() => setConfirmDelete(u.id)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-all" title="Sil">
+                              <Trash2 size={14} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
+              {filtered.length === 0 && (
+                <tr><td colSpan={6} className="px-5 py-10 text-center text-slate-500">Kullanıcı bulunamadı.</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
-    </AnimatePresence>
-  </div>
-);
+      </div>
+
+      {/* Edit User Modal */}
+      <AnimatePresence>
+        {editingUser && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-md glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.25)]">
+              <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-5 px-6 border-b border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <UserCheck size={20} className="text-purple-400" />
+                  <h3 className="text-xl font-black text-white">Kullanıcı Editörü</h3>
+                </div>
+                <button onClick={() => setEditingUser(null)} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl"><X size={20} /></button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Kullanıcı Adı</label>
+                  <input type="text" value={editingUser.username || ''} onChange={e => setEditingUser(p => ({ ...p, username: e.target.value }))}
+                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">E-posta</label>
+                  <input type="email" value={editingUser.email || ''} onChange={e => setEditingUser(p => ({ ...p, email: e.target.value }))}
+                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Yeni Şifre (Boş bırakılırsa değişmez)</label>
+                  <input type="password" value={editingUser.password || ''} onChange={e => setEditingUser(p => ({ ...p, password: e.target.value }))}
+                    placeholder="••••••••"
+                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-all" />
+                  <p className="text-[9px] text-amber-500/70 mt-1 font-bold italic">Not: Şifre değişikliği sadece Auth sağlayıcısı email ise çalışır.</p>
+                </div>
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Sistem Rolü</label>
+                  <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))}
+                    className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer">
+                    {['Kullanıcı', 'Okur', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
+                      <option key={r} value={r} className="bg-[#0a0a14]">{r}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="p-5 border-t border-white/10 bg-black/40 flex justify-end gap-3">
+                <button onClick={() => setEditingUser(null)} className="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 font-bold text-sm">İptal</button>
+                <button onClick={async () => {
+                  try {
+                    const updates = { role: editingUser.role, username: editingUser.username, email: editingUser.email };
+                    await updateProfile(editingUser.id, updates);
+                    setEditingUser(null);
+                    showToast('Kullanıcı bilgileri güncellendi!', 'success');
+                  } catch (err) {
+                    showToast('HATA: ' + err.message, 'error');
+                  }
+                }} className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-black text-sm shadow-neon-purple hover:scale-[1.02] transition-transform flex items-center gap-2">
+                  <Save size={16} /> Kaydet
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 
@@ -762,26 +764,26 @@ function SuggestionsPanel() {
 
   return (
     <div className="space-y-6">
-       <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-black text-white">Kullanıcı Öneri Hattı</h2>
-            <p className="text-slate-500 text-sm mt-1">Gelen öneriler canlı olarak listelenir.</p>
-          </div>
-          <button onClick={fetchSuggestions} className="p-2.5 glass border border-white/10 rounded-xl text-slate-400 hover:text-white transition-all">
-             <Activity size={18} className={loading ? 'animate-spin' : ''} />
-          </button>
-       </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-black text-white">Kullanıcı Öneri Hattı</h2>
+          <p className="text-slate-500 text-sm mt-1">Gelen öneriler canlı olarak listelenir.</p>
+        </div>
+        <button onClick={fetchSuggestions} className="p-2.5 glass border border-white/10 rounded-xl text-slate-400 hover:text-white transition-all">
+          <Activity size={18} className={loading ? 'animate-spin' : ''} />
+        </button>
+      </div>
 
-       <div className="glass border border-white/8 rounded-3xl p-8 bg-black/30">
-          <div className="font-mono text-sm leading-relaxed text-slate-300 whitespace-pre-wrap max-h-[600px] overflow-auto custom-scrollbar">
-             {suggestions}
-          </div>
-       </div>
-       
-       <div className="flex gap-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
-          <ShieldAlert className="text-amber-500 flex-shrink-0" size={20} />
-          <p className="text-amber-500/80 text-xs font-medium">Bu veriler veritabanını meşgul etmemek için sunucu üzerinde saklanmaktadır.</p>
-       </div>
+      <div className="glass border border-white/8 rounded-3xl p-8 bg-black/30">
+        <div className="font-mono text-sm leading-relaxed text-slate-300 whitespace-pre-wrap max-h-[600px] overflow-auto custom-scrollbar">
+          {suggestions}
+        </div>
+      </div>
+
+      <div className="flex gap-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
+        <ShieldAlert className="text-amber-500 flex-shrink-0" size={20} />
+        <p className="text-amber-500/80 text-xs font-medium">Bu veriler veritabanını meşgul etmemek için sunucu üzerinde saklanmaktadır.</p>
+      </div>
     </div>
   );
 }
@@ -833,7 +835,7 @@ function PageManagement({ showToast }) {
         <h2 className="text-2xl font-black text-white flex items-center gap-2">
           <FileText size={24} className="text-blue-400" /> Sayfa Yönetimi (CMS)
         </h2>
-        <button 
+        <button
           onClick={() => setEditingPage({ slug: '', title: '', content: '' })}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2"
         >
@@ -848,7 +850,7 @@ function PageManagement({ showToast }) {
             <p className="text-xs text-slate-500 font-mono mb-4">/{p.slug}</p>
             <div className="flex gap-2">
               <button onClick={() => setEditingPage(p)} className="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-black uppercase text-slate-300 transition-all">Düzenle</button>
-              <button 
+              <button
                 onClick={async () => { if (window.confirm('Silinsin mi?')) { await supabase.from('pages').delete().eq('id', p.id); fetchPages(); } }}
                 className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg"
               >
@@ -864,9 +866,9 @@ function PageManagement({ showToast }) {
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl glass-strong border border-white/10 rounded-3xl p-8 space-y-6">
             <h3 className="text-2xl font-black text-white">Sayfa Düzenle: {editingPage.slug}</h3>
             <div className="space-y-4">
-              <input type="text" placeholder="Slug (örn: gizlilik)" value={editingPage.slug} onChange={e => setEditingPage({...editingPage, slug: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
-              <input type="text" placeholder="Başlık" value={editingPage.title} onChange={e => setEditingPage({...editingPage, title: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
-              <textarea rows={10} placeholder="İçerik (HTML destekler)" value={editingPage.content} onChange={e => setEditingPage({...editingPage, content: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none resize-none" />
+              <input type="text" placeholder="Slug (örn: gizlilik)" value={editingPage.slug} onChange={e => setEditingPage({ ...editingPage, slug: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
+              <input type="text" placeholder="Başlık" value={editingPage.title} onChange={e => setEditingPage({ ...editingPage, title: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
+              <textarea rows={10} placeholder="İçerik (HTML destekler)" value={editingPage.content} onChange={e => setEditingPage({ ...editingPage, content: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none resize-none" />
             </div>
             <div className="flex justify-end gap-3">
               <button onClick={() => setEditingPage(null)} className="px-6 py-2 text-slate-400 font-bold">Vazgeç</button>
@@ -1317,12 +1319,12 @@ export default function Admin() {
         {toast && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
             className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 glass-strong border ${toast.type === 'error' ? 'border-red-500/50 text-red-200' :
-                toast.type === 'info' ? 'border-blue-500/50 text-blue-200' :
-                  'border-emerald-500/50 text-emerald-200'
+              toast.type === 'info' ? 'border-blue-500/50 text-blue-200' :
+                'border-emerald-500/50 text-emerald-200'
               }`}>
             <div className={`w-2 h-2 rounded-full animate-pulse ${toast.type === 'error' ? 'bg-red-500' :
-                toast.type === 'info' ? 'bg-blue-500' :
-                  'bg-emerald-500'
+              toast.type === 'info' ? 'bg-blue-500' :
+                'bg-emerald-500'
               }`} />
             <span className="text-sm font-bold">{toast.msg}</span>
           </motion.div>

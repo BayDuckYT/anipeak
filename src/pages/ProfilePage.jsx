@@ -350,39 +350,43 @@ export default function ProfilePage() {
         <div className={`relative z-20 flex flex-col sm:flex-row items-center sm:items-start gap-6 ${isSukuna || isGojo ? 'sm:gap-16 lg:gap-24' : 'sm:gap-10'}`}>
           {/* Avatar Container */}
           <div className="relative group shrink-0 w-24 h-24 sm:w-32 sm:h-32 min-w-[96px] sm:min-w-[128px]">
-            {/* Siber Avatar — Video Overlay veya Standart */}
-            <div className={isSukuna 
-              ? `sukuna-avatar-video-wrap ${getEffectCSS('avatar', appliedEffects.avatar)}`
-              : isGojo
-                ? `gojo-avatar-video-wrap ${getEffectCSS('avatar', appliedEffects.avatar)}`
-                : `relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-slate-800 bg-slate-900 ${getEffectCSS('avatar', appliedEffects.avatar)}`
-            }>
-              {user.avatar_url ? (
-                <img src={user.avatar_url} alt={user.username} className={`w-full h-full object-cover absolute inset-0 z-1 ${isSukuna ? 'sukuna-avatar-darken' : isGojo ? 'gojo-avatar-darken' : ''} rounded-full`} />
-              ) : (
-                <div className={`w-full h-full bg-gradient-to-br ${isSukuna ? 'from-red-950 to-black' : isGojo ? 'from-blue-950 to-black' : 'from-slate-800 to-slate-900'} flex items-center justify-center absolute inset-0 z-1 rounded-full overflow-hidden`}>
-                  <span className={`text-white font-black ${isSukuna || isGojo ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-5xl'}`}>{avatarLetter}</span>
-                </div>
-              )}
-              {/* Sukuna Rün Video */}
+            {/* Siber Aura Katmanı — Dışarı Taşabilen Kısım */}
+            <div className={`absolute inset-[-20%] z-0 pointer-events-none ${getEffectCSS('avatar', appliedEffects.avatar)}`}>
+              {/* Sukuna Rün Video — Aura Olarak */}
               {isSukuna && (
                 <SiberVideo
-                  className="sukuna-avatar-video"
+                  className="sukuna-aura-video"
                   src="/sukuna/avatar.webm"
                 />
               )}
-              {/* Gojo Rün Video */}
+              {/* Gojo Rün Video — Aura Olarak */}
               {isGojo && (
                 <SiberVideo
-                  className="gojo-avatar-video"
+                  className="gojo-aura-video"
                   src="/gojo/avatargojo.webm"
                 />
+              )}
+            </div>
+
+            {/* Siber Avatar — Video Overlay veya Standart */}
+            <div className={isSukuna 
+              ? "sukuna-avatar-video-wrap"
+              : isGojo
+                ? "gojo-avatar-video-wrap"
+                : `relative w-full h-full rounded-full overflow-hidden border-4 border-slate-800 bg-slate-900`
+            }>
+              {user.avatar_url ? (
+                <img src={user.avatar_url} alt={user.username} className={`w-full h-full object-cover absolute inset-0 z-[1] ${isSukuna ? 'sukuna-avatar-darken' : isGojo ? 'gojo-avatar-darken' : ''} rounded-full`} />
+              ) : (
+                <div className={`w-full h-full bg-gradient-to-br ${isSukuna ? 'from-red-950 to-black' : isGojo ? 'from-blue-950 to-black' : 'from-slate-800 to-slate-900'} flex items-center justify-center absolute inset-0 z-[1] rounded-full overflow-hidden`}>
+                  <span className={`text-white font-black ${isSukuna || isGojo ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-5xl'}`}>{avatarLetter}</span>
+                </div>
               )}
               
               {/* Overlay on Hover */}
               <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 text-white z-10"
+                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 text-white z-[20] rounded-full"
               >
                 <Camera size={20} />
                 <span className="text-[10px] font-black uppercase">Düzenle</span>
@@ -681,12 +685,17 @@ export default function ProfilePage() {
                    
                    <div className={`glass border border-white/5 rounded-2xl p-4 group relative ${getEffectCSS('comment', previewEffects.comment)}`}>
                      <div className="flex gap-4">
-                       <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-800 border-2 border-white/10 flex items-center justify-center overflow-visible flex-shrink-0 transition-all duration-300 relative z-10 ${getEffectCSS('avatar', previewEffects.avatar)}`}>
-                         {user.avatar_url ? (
-                           <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                         ) : (
-                           <span className="text-white font-black text-xl">{avatarLetter}</span>
-                         )}
+                       <div className="w-14 h-14 sm:w-16 sm:h-16 relative flex-shrink-0">
+                         {/* Önizleme Aurası Katmanı */}
+                         <div className={`absolute inset-[-20%] z-0 pointer-events-none ${getEffectCSS('avatar', previewEffects.avatar)}`} />
+                         
+                         <div className="w-full h-full rounded-2xl bg-slate-800 border-2 border-white/10 flex items-center justify-center overflow-hidden relative z-10 transition-all duration-300">
+                           {user.avatar_url ? (
+                             <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                           ) : (
+                             <span className="text-white font-black text-xl">{avatarLetter}</span>
+                           )}
+                         </div>
                        </div>
                        <div className="flex-1">
                          <div className="flex items-center gap-2 mb-1">

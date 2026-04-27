@@ -316,9 +316,31 @@ export function AppProvider({ children }) {
 
   // ── User Management (Admin) ──────────────────────────────────────────
   const updateProfile = useCallback(async (userId, updates) => {
-    const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
-    if (error) console.error('[AppCtx] Profil güncellenemedi:', error.message);
-  }, []);
+    try {
+      // 1. Optimistik Güncelleme: Arayüzü anında değiştir
+      setRegisteredUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
+
+      // 2. Veritabanını Güncelle
+      const { data, error, status } = await supabase.from('profiles').update(updates).eq('id', userId).select();
+      
+      console.log(`[AppCtx] DB Update Status: ${status}`, updates);
+
+      if (error) {
+        console.error('[AppCtx] Profil güncellenirken hata:', error.message);
+        loadProfiles(); // Eski haline dön
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn('[AppCtx] Uyarı: Hiçbir satır güncellenmedi! RLS politikalarını kontrol edin.');
+        loadProfiles();
+        throw new Error('Veritabanı bu değişikliğe izin vermedi (RLS Engeli olabilir).');
+      }
+    } catch (err) {
+      console.error('[AppCtx] UpdateProfile Kritik Hata:', err);
+      throw err;
+    }
+  }, [loadProfiles]);
 
   const deleteProfile = useCallback(async (userId) => {
     await supabase.from('profiles').delete().eq('id', userId);

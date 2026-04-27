@@ -6,11 +6,18 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+anipeak_bot.log
+scraper_error.log
 
 node_modules
 dist
 dist-ssr
 *.local
+
+# Assets (Large Files)
+scraper/assets_repo/
+videos/
+temp_cover_*
 
 # Editor directories and files
 .vscode/*
