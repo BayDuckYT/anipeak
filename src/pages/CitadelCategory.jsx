@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock, Crown, Plus, Image as ImageIcon, Code, EyeOff } from 'lucide-react';
@@ -53,10 +53,28 @@ export default function CitadelCategory() {
 
   // --- STATE FOR POSTS ---
   const [posts, setPosts] = useState([
-    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Son bölümdeki dövüş animasyonları hakkında ne düşünüyorsunuz?', replies: 142, views: 5000 },
-    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Yeni başlayanlar için okunması gereken manhwa önerileri', replies: 12, views: 340 },
+    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Son bölümdeki dövüş animasyonları hakkında ne düşünüyorsunuz?', replies: 142, views: 5000, avatar_url: 'https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg' },
+    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Yeni başlayanlar için okunması gereken manhwa önerileri', replies: 12, views: 340, avatar_url: 'https://i.pinimg.com/736x/8b/63/05/8b630560a631d8e12177cd05ffb70e7a.jpg' },
   ]);
   const [newPostTitle, setNewPostTitle] = useState('');
+  const textareaRef = useRef(null);
+
+  const insertTextAtCursor = (text) => {
+    if (!textareaRef.current) {
+      setNewPostTitle(prev => prev + text);
+      return;
+    }
+    const start = textareaRef.current.selectionStart;
+    const end = textareaRef.current.selectionEnd;
+    const val = textareaRef.current.value;
+    const newVal = val.substring(0, start) + text + val.substring(end);
+    setNewPostTitle(newVal);
+    
+    setTimeout(() => {
+      textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + text.length;
+      textareaRef.current.focus();
+    }, 0);
+  };
   
   const handlePostSubmit = () => {
     if (!newPostTitle.trim()) return;
@@ -69,6 +87,7 @@ export default function CitadelCategory() {
       id: Date.now(),
       author: user.username || 'Misafir',
       isElite: user.is_elite || false,
+      avatar_url: user.avatar_url || null,
       title: newPostTitle,
       replies: 0,
       views: 0
@@ -102,6 +121,7 @@ export default function CitadelCategory() {
         <div className="glass-strong border border-white/10 rounded-2xl p-6 mb-8">
            <h3 className="text-white font-bold mb-4">Hızlı Gönderi Paylaş</h3>
            <textarea 
+             ref={textareaRef}
              value={newPostTitle}
              onChange={(e) => setNewPostTitle(e.target.value)}
              placeholder="Düşüncelerini buraya dök..." 
@@ -109,9 +129,9 @@ export default function CitadelCategory() {
            />
            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-blue-400 transition-colors" title="Kod Ekle"><Code size={18}/></button>
-                <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-purple-400 transition-colors" title="Görsel Ekle"><ImageIcon size={18}/></button>
-                <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-red-400 transition-colors" title="Spoiler Gizle"><EyeOff size={18}/></button>
+                <button onClick={() => insertTextAtCursor('```\n\n```')} className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-blue-400 transition-colors" title="Kod Ekle"><Code size={18}/></button>
+                <button onClick={() => insertTextAtCursor('![Resim Açıklaması](resim_linki)')} className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-purple-400 transition-colors" title="Görsel Ekle"><ImageIcon size={18}/></button>
+                <button onClick={() => insertTextAtCursor('||gizli metin||')} className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-red-400 transition-colors" title="Spoiler Gizle"><EyeOff size={18}/></button>
               </div>
               <button 
                 onClick={handlePostSubmit}
@@ -131,12 +151,19 @@ export default function CitadelCategory() {
                 <h3 className="text-lg font-bold text-slate-200 mb-2 cursor-pointer hover:text-blue-400 transition-colors">
                   {post.title}
                 </h3>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className={`font-semibold ${post.isElite ? 'elite-text-gradient' : 'text-slate-400'}`}>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
+                    {post.avatar_url ? (
+                      <img src={post.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-white">{post.author?.charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <span className={`text-sm font-semibold ${post.isElite ? 'elite-text-gradient' : 'text-slate-400'}`}>
                     {post.author}
                   </span>
-                  {post.isElite && <EliteBadge />}
-                  <span className="text-slate-600">• 2 saat önce</span>
+                  {post.isElite && <EliteBadge className="!w-4 !h-4 text-[9px]" />}
+                  <span className="text-xs text-slate-600">• 2 saat önce</span>
                 </div>
               </div>
               <div className="flex items-center gap-6 text-sm font-bold text-slate-500">

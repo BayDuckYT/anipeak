@@ -273,7 +273,7 @@ export default function Header({ onAuthOpen }) {
                             <p className="text-white text-sm font-bold truncate">{user.username}</p>
                             <div className="flex items-center gap-1.5 mt-0.5">
                                <span className="text-[10px] font-black uppercase text-purple-400 tracking-wider">
-                                 {calculateTitle(user.xp || 0)}
+                                 {calculateTitle(user.xp || 0, user.is_elite)}
                                </span>
                                <span className="w-1 h-1 rounded-full bg-slate-700" />
                                <span className="text-[10px] font-bold text-slate-500">XP: {user.xp || 0}</span>

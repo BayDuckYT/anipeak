@@ -625,7 +625,7 @@ function UsersPanel({ showToast }) {
                       <div className="flex flex-col gap-0.5">
                         <span className="text-purple-400 font-black text-[10px] uppercase tracking-tighter">XP: {u.xp || 0}</span>
                         <span className="text-white font-bold text-[10px] whitespace-nowrap bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                          {calculateTitle(u.xp || 0)}
+                          {calculateTitle(u.xp || 0, u.is_elite)}
                         </span>
                       </div>
                     </td>

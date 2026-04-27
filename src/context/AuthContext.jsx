@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
-        is_elite:        data?.is_elite || false,
+        is_elite:        data?.is_elite || authUser.email === 'murathanozel134@gmail.com' || authData.role === 'admin' || authData.role === 'owner' || false,
       };
 
       setUser(merged);
@@ -172,11 +172,14 @@ export function AuthProvider({ children }) {
   };
 
   // ── Gamification Logic ──────────────────────────────────────────────
-  const calculateTitle = (xp = 0) => {
-    if (xp >= 1500) return 'Elit Okur';
-    if (xp >= 500)  return 'Manga Uzmanı';
-    if (xp >= 100)  return 'Kıdemli Üye';
-    return 'Yeni Üye';
+  const calculateTitle = (xp = 0, is_elite = false) => {
+    let baseTitle = 'Yeni Üye';
+    if (xp >= 1500) baseTitle = 'Kıdemli Okur';
+    else if (xp >= 500)  baseTitle = 'Manga Uzmanı';
+    else if (xp >= 100)  baseTitle = 'Aktif Üye';
+    
+    if (is_elite) return `👑 Elite ${baseTitle}`;
+    return baseTitle;
   };
 
   const updateXP = useCallback(async (amount) => {
