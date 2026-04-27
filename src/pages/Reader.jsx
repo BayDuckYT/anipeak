@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabaseClient';
 import CommentSystem from '../components/CommentSystem.jsx';
 import ChapterRating from '../components/ChapterRating.jsx';
 import ReportIssueModal from '../components/ReportIssueModal.jsx';
+import LiveChatPanel from '../components/LiveChatPanel.jsx';
 
 function ReaderImage({ src, alt, idx, chapter }) {
   const [error, setError] = useState(false);
@@ -73,6 +74,7 @@ export default function Reader() {
   const [brightness, setBrightness] = useState(100);
   const [showPanel, setShowPanel] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [liked, setLiked] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [xpUpdated, setXpUpdated] = useState(false);
@@ -250,6 +252,13 @@ export default function Reader() {
                 <Maximize2 size={16} />
               </button>
               <button
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className={`p-2 rounded-lg transition-all ${isChatOpen ? 'text-blue-400 bg-blue-500/10' : 'text-slate-400 hover:text-blue-400 hover:bg-blue-500/10'}`}
+                title="Canlı Sohbet"
+              >
+                <MessageSquare size={16} />
+              </button>
+              <button
                 onClick={() => setShowPanel(!showPanel)}
                 className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all relative"
                 title="Ayarlar & Bölümler"
@@ -301,11 +310,9 @@ export default function Reader() {
 
       {/* ── READER CONTENT ── */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-3xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)]"
+        layout
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        className={`w-full mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)] ${isChatOpen ? 'max-w-2xl sm:mr-96' : 'max-w-3xl'}`}
       >
         <div className="flex flex-col">
           {(() => {
@@ -394,6 +401,9 @@ export default function Reader() {
           </div>
         )}
       </motion.div>
+
+      {/* ── LIVE CHAT PANEL ── */}
+      <LiveChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 }

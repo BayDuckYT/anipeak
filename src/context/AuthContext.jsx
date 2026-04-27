@@ -58,6 +58,7 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
+        is_elite:        data?.is_elite || false,
       };
 
       setUser(merged);
@@ -78,7 +79,8 @@ export function AuthProvider({ children }) {
       const fallbackUser = (cachedUser && cachedUser.id === authUser.id) ? cachedUser : {
         ...authUser,
         username: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
-        role: 'Kullanıcı'
+        role: 'Kullanıcı',
+        is_elite: false
       };
 
       // Garantili Kurucu (Owner) Koruması (Ağ çökse bile yetki düşmesin)
@@ -438,6 +440,34 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // ── Elite System (Placeholder) ────────────────────────────────────────
+  const upgradeToElite = useCallback(async () => {
+    if (!user?.id) return false;
+    try {
+      // NOTE: Backend dev will link this to real payment/stripe logic
+      // For now, we simulate success and update the local state/DB
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_elite: true })
+        .eq('id', user.id);
+        
+      if (error) {
+        console.error('[Elite] Yükseltme hatası:', error);
+        return false;
+      }
+      
+      setUser(prev => {
+        const next = { ...prev, is_elite: true };
+        localStorage.setItem('anipeak_user_cache', JSON.stringify(next));
+        return next;
+      });
+      return true;
+    } catch (err) {
+      console.error('[Elite] Beklenmeyen hata:', err);
+      return false;
+    }
+  }, [user]);
+
   // â”€â”€ Reading History (localStorage â€” lightweight feature) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const addToHistory = useCallback((manhwaId, chapter) => {
     setReadingHistory(prev => {
@@ -488,7 +518,8 @@ export function AuthProvider({ children }) {
     calculateTitle,
     resetPassword,
     updatePassword,
-    updateProfile
+    updateProfile,
+    upgradeToElite
   };
 
   return (

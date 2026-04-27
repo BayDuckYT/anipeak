@@ -20,6 +20,9 @@ import StaticPage from './pages/StaticPage.jsx';
 import Contact from './pages/Contact.jsx';
 import Suggestions from './pages/Suggestions.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
+import Citadel from './pages/Citadel.jsx';
+import CitadelCategory from './pages/CitadelCategory.jsx';
+import EliteUpgrade from './pages/EliteUpgrade.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import GlobalBundleTheme from './components/GlobalBundleTheme.jsx';
 import ScrollToTop from './components/ScrollToTop.jsx';
@@ -51,6 +54,9 @@ function AnimatedRoutes({ onAuthOpen }) {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/iletisim" element={<Contact />} />
         <Route path="/oneriler" element={<Suggestions />} />
+        <Route path="/citadel" element={<Citadel />} />
+        <Route path="/citadel/:category" element={<CitadelCategory />} />
+        <Route path="/elite-upgrade" element={<EliteUpgrade />} />
         <Route path="/:slug" element={<StaticPage />} />
       </Routes>
     </AnimatePresence>

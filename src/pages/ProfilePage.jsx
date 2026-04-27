@@ -350,38 +350,51 @@ export default function ProfilePage() {
         <div className={`relative z-20 flex flex-col sm:flex-row items-center sm:items-start gap-6 ${isSukuna || isGojo ? 'sm:gap-16 lg:gap-24' : 'sm:gap-10'}`}>
           {/* Avatar Container */}
           <div className="relative group shrink-0 w-24 h-24 sm:w-32 sm:h-32 min-w-[96px] sm:min-w-[128px]">
-            {/* Siber Aura Katmanı — Dışarı Taşabilen Kısım */}
-            <div className={`absolute inset-[-20%] z-0 pointer-events-none ${getEffectCSS('avatar', appliedEffects.avatar)}`}>
-              {/* Sukuna Rün Video — Aura Olarak */}
-              {isSukuna && (
-                <SiberVideo
-                  className="sukuna-aura-video"
-                  src="/sukuna/avatar.webm"
-                />
-              )}
-              {/* Gojo Rün Video — Aura Olarak */}
-              {isGojo && (
-                <SiberVideo
-                  className="gojo-aura-video"
-                  src="/gojo/avatargojo.webm"
-                />
-              )}
-            </div>
+            {/* Siber Aura Katmanı — Dışarı Taşabilen Kısım (Gojo vb. için eski mantık devam eder) */}
+            {!isSukuna && (
+              <div className={`absolute inset-[-20%] z-0 pointer-events-none ${getEffectCSS('avatar', appliedEffects.avatar)}`}>
+                {/* Gojo Rün Video — Aura Olarak */}
+                {isGojo && (
+                  <SiberVideo
+                    className="gojo-aura-video"
+                    src="/gojo/avatargojo.webm"
+                  />
+                )}
+              </div>
+            )}
 
-            {/* Siber Avatar — Video Overlay veya Standart */}
+            {/* SUKUNA SPECIAL: Siber Avatar Master Frame (Jilet gibi mühürlenmiş) */}
             <div className={isSukuna 
-              ? "sukuna-avatar-video-wrap"
-              : isGojo
-                ? "gojo-avatar-video-wrap"
-                : `relative w-full h-full rounded-full overflow-hidden border-4 border-slate-800 bg-slate-900`
+              ? "sukuna-avatar-master-frame" 
+              : isGojo 
+                ? "gojo-avatar-video-wrap" 
+                : "relative w-full h-full rounded-full overflow-hidden border-4 border-slate-800 bg-slate-900"
             }>
-              {user.avatar_url ? (
-                <img src={user.avatar_url} alt={user.username} className={`w-full h-full object-cover absolute inset-0 z-[1] ${isSukuna ? 'sukuna-avatar-darken' : isGojo ? 'gojo-avatar-darken' : ''} rounded-full`} />
-              ) : (
-                <div className={`w-full h-full bg-gradient-to-br ${isSukuna ? 'from-red-950 to-black' : isGojo ? 'from-blue-950 to-black' : 'from-slate-800 to-slate-900'} flex items-center justify-center absolute inset-0 z-[1] rounded-full overflow-hidden`}>
-                  <span className={`text-white font-black ${isSukuna || isGojo ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-5xl'}`}>{avatarLetter}</span>
+              
+              {/* Sukuna Rün Video — Arkaplanda Frame İçinde */}
+              {isSukuna && (
+                <div className="sukuna-aura-video-container">
+                  <SiberVideo
+                    className="sukuna-aura-video-new"
+                    src="/sukuna/avatar.webm"
+                  />
                 </div>
               )}
+
+              {/* Logo / Avatar Image */}
+              <div className={isSukuna ? "sukuna-avatar-inner" : "w-full h-full relative"}>
+                {user.avatar_url ? (
+                  <img 
+                    src={user.avatar_url} 
+                    alt={user.username} 
+                    className={`w-full h-full object-cover absolute inset-0 z-[1] ${isSukuna ? 'sukuna-avatar-darken' : isGojo ? 'gojo-avatar-darken' : ''} rounded-full`} 
+                  />
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${isSukuna ? 'from-red-950 to-black' : isGojo ? 'from-blue-950 to-black' : 'from-slate-800 to-slate-900'} flex items-center justify-center absolute inset-0 z-[1] rounded-full overflow-hidden`}>
+                    <span className={`text-white font-black ${isSukuna || isGojo ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-5xl'}`}>{avatarLetter}</span>
+                  </div>
+                )}
+              </div>
               
               {/* Overlay on Hover */}
               <button 

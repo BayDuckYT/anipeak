@@ -751,7 +751,8 @@ body {
 /* ══════════════════════════════════════════════════════════════════════════
    AVATAR — Büyütülmüş & Koyulaştırılmış Video Halkası
    ══════════════════════════════════════════════════════════════════════════ */
-.sukuna-avatar-video-wrap {
+/* ── SUKUNA MASTER FRAME: Jilet Gibi Mühürlenmiş Dairesel Çerçeve ── */
+.sukuna-avatar-master-frame {
   position: relative;
   width: 128px !important;
   height: 128px !important;
@@ -760,13 +761,59 @@ body {
   aspect-ratio: 1 / 1 !important;
   flex-shrink: 0 !important;
   border-radius: 50%;
-  border: 3px solid rgba(220,38,38,0.7);
+  overflow: hidden !important; /* Dışarı taşma engellenir, mühürlenmiş görüntü */
+  border: 4px solid #dc2626; /* Daha keskin kırmızı border */
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transform: translateZ(0);
   will-change: transform;
   box-shadow: 
-    0 0 20px rgba(220,38,38,0.5), 
-    0 0 60px rgba(153,27,27,0.25),
-    inset 0 0 15px rgba(220,38,38,0.15);
+    0 0 0 2px rgba(220,38,38,0.2), /* Ekstra dış parlama sınırı */
+    0 0 25px rgba(220,38,38,0.6), 
+    0 0 50px rgba(153,27,27,0.3);
+  z-index: 10;
+}
+
+/* ── SUKUNA AURA VIDEO: Tam Merkezlenmiş Arkaplan ── */
+.sukuna-aura-video-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(220,38,38,0.2) 0%, transparent 70%);
+}
+
+.sukuna-aura-video-new {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  filter: saturate(1.6) brightness(1.2) contrast(1.4);
+  transform: scale(1.1); /* Çemberin kenarlara oturması için hafif scale */
+  mix-blend-mode: screen;
+}
+
+/* ── SUKUNA AVATAR INNER: Logo Keskinliği ve Ölçeklendirme ── */
+.sukuna-avatar-inner {
+  position: relative;
+  width: 78% !important; /* Logo çemberin içinde kalsın diye ölçeklendi */
+  height: 78% !important;
+  border-radius: 50%;
+  z-index: 5;
+  overflow: hidden;
+  border: 2px solid rgba(220,38,38,0.8); /* Logonun kendi keskin çerçevesi */
+  box-shadow: 
+    0 0 15px rgba(0,0,0,0.8), /* Derinlik için gölge */
+    inset 0 0 10px rgba(220,38,38,0.3);
+  background: #000;
+}
+
+/* Eski class'ları uyumluluk için koruyoruz veya güncelliyoruz */
+.sukuna-avatar-video-wrap {
+  display: none; /* Master frame'e geçtik */
 }
 .sukuna-avatar-video {
   position: absolute;
@@ -1445,4 +1492,70 @@ body {
 .theme-gojo .min-h-screen {
   background-color: transparent !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ELITE DASHBOARD & PREMIUM STYLES
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Elite Name Gradient */
+.elite-text-gradient {
+  background: linear-gradient(135deg, #ef4444 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: shine 4s linear infinite;
+  background-size: 200% auto;
+}
+
+@keyframes elite-border-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Spinning Runic Frame globally around avatar */
+.elite-runic-frame {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px dashed rgba(239, 68, 68, 0.5); /* Sukuna red dash */
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); /* Gojo blue glow */
+  animation: elite-border-spin 8s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Citadel/Forum Specific Accents */
+.citadel-card {
+  background: rgba(10, 10, 15, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+.citadel-card:hover {
+  border-color: rgba(239, 68, 68, 0.3); /* Sukuna Red hover */
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.1), inset 0 0 15px rgba(59, 130, 246, 0.05); /* Mix */
+  transform: translateY(-2px);
+}
+
+/* Citadel Locked State */
+.citadel-locked {
+  position: relative;
+  overflow: hidden;
+}
+.citadel-locked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0,0,0,0.8),
+    rgba(0,0,0,0.8) 10px,
+    rgba(239,68,68,0.1) 10px,
+    rgba(239,68,68,0.1) 20px
+  );
+  z-index: 10;
+  pointer-events: none;
+}
+
 
