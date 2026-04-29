@@ -35,21 +35,6 @@ export default function ProfileShowcase() {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState('listeler');
-  const [showLinksModal, setShowLinksModal] = useState(false);
-  const [userLinks, setUserLinks] = useState([
-    { platform: 'discord', value: 'Murathan#0001', type: 'username' },
-    { platform: 'instagram', value: 'murathan', type: 'username' }
-  ]);
-  
-  // Handle Hash-based Tabs
-  useEffect(() => {
-    const hash = location.hash.replace('#', '');
-    if (['listeler', 'basarimlar', 'etkinlik', 'customize'].includes(hash)) {
-      setActiveTab(hash);
-    }
-  }, [location.hash]);
-
   const isOwnProfile = currentUser?.username === username;
   
   // Mock/Fallback data
@@ -65,9 +50,22 @@ export default function ProfileShowcase() {
     following: 0,
     favorites: 0,
     comments: 0,
+    active_decoration: 'lightning-bolt' // Default for showcase if not set
   };
 
-  const selectedDecoration = effectsData.avatarDecorations[0];
+  const [activeTab, setActiveTab] = useState('listeler');
+  const [showLinksModal, setShowLinksModal] = useState(false);
+  const [userLinks, setUserLinks] = useState(displayUser.links || []);
+  
+  // Handle Hash-based Tabs
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (['listeler', 'basarimlar', 'etkinlik', 'customize'].includes(hash)) {
+      setActiveTab(hash);
+    }
+  }, [location.hash]);
+
+  const selectedDecoration = effectsData.avatarDecorations.find(d => d.id === displayUser.active_decoration) || effectsData.avatarDecorations[0];
   const selectedNameplate = effectsData.nameplates[1];
 
   const tabs = [

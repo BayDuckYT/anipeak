@@ -16,7 +16,7 @@ export default function SiberAvatar({
     if (!effect || !effect.src) return null;
 
     // Layer 3: Siber Çerçeve / Efekt (absolute inset-0 w-full h-full z-10)
-    const effectClasses = "absolute inset-0 w-full h-full z-10 pointer-events-none scale-[1.12]";
+    const effectClasses = "absolute inset-0 w-full h-full z-10 pointer-events-none scale-[1.2]";
 
     if (effect.type === 'spritesheet') {
       const frames = effect.steps || 24;
