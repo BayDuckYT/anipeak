@@ -57,8 +57,12 @@ export default function ProfileShowcase() {
 
   const [activeTab, setActiveTab] = useState('listeler');
   const [showLinksModal, setShowLinksModal] = useState(false);
-  const [userLinks, setUserLinks] = useState(displayUser.links || []);
   const [decorationCategory, setDecorationCategory] = useState('Tümü');
+  const [activeDecoration, setActiveDecoration] = useState(displayUser.active_decoration || 'lightning-bolt');
+  const [userLinks, setUserLinks] = useState(displayUser.links || []);
+
+  // Update displayUser with the activeDecoration state
+  displayUser.active_decoration = activeDecoration;
   
   // Handle Hash-based Tabs
   useEffect(() => {
@@ -363,26 +367,34 @@ export default function ProfileShowcase() {
                           <h4 className="text-[10px] font-black uppercase tracking-widest">KARAKTER ÇERÇEVELERİ</h4>
                        </div>
                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6">
-                         {filteredDecorations.map((effect) => (
-                           <motion.div 
-                             key={effect.id} 
-                             whileHover={{ scale: 1.05 }}
-                             whileTap={{ scale: 0.95 }}
-                             className="group flex flex-col items-center gap-4"
-                           >
-                              <div className={`relative p-3 rounded-[2rem] bg-zinc-950/50 border transition-all cursor-pointer flex items-center justify-center ${displayUser.active_decoration === effect.id ? 'border-purple-500 bg-purple-500/5 shadow-2xl shadow-purple-500/10' : 'border-zinc-800 hover:border-zinc-700'}`}>
-                                 <SiberAvatar 
-                                   src={displayUser.avatar_url} 
-                                   effect={effect} 
-                                   size="w-24 h-24" 
-                                 />
-                                 
-                                 {displayUser.active_decoration === effect.id && (
-                                   <div className="absolute -top-2 -right-2 p-1.5 rounded-full bg-purple-600 text-white shadow-lg">
-                                      <Zap size={10} />
-                                   </div>
-                                 )}
-                              </div>
+                         {filteredDecorations.map((effect) => {
+                           const isActive = (displayUser.active_decoration === effect.id);
+                           
+                           return (
+                             <motion.div 
+                               key={effect.id} 
+                               whileHover={{ scale: 1.05 }}
+                               whileTap={{ scale: 0.95 }}
+                               className="group flex flex-col items-center gap-4 cursor-pointer"
+                               onClick={() => {
+                                 if (isOwnProfile) {
+                                   setActiveDecoration(effect.id);
+                                 }
+                               }}
+                             >
+                                <div className={`relative p-3 rounded-[2rem] bg-zinc-950/50 border transition-all flex items-center justify-center ${isActive ? 'border-purple-500 bg-purple-500/5 shadow-2xl shadow-purple-500/10' : 'border-zinc-800 hover:border-zinc-700'}`}>
+                                   <SiberAvatar 
+                                     src={displayUser.avatar_url} 
+                                     effect={effect} 
+                                     size="w-24 h-24" 
+                                   />
+                                   
+                                   {isActive && (
+                                     <div className="absolute -top-2 -right-2 p-1.5 rounded-full bg-purple-600 text-white shadow-lg">
+                                        <Zap size={10} />
+                                     </div>
+                                   )}
+                                </div>
                               <div className="text-center space-y-1">
                                  <span className="block text-[11px] font-black text-zinc-100 uppercase tracking-tight group-hover:text-purple-400 transition-colors">{effect.label || effect.name}</span>
                                  <span className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest italic">{effect.category}</span>
