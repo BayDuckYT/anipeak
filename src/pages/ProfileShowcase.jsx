@@ -36,6 +36,11 @@ export default function ProfileShowcase() {
   const { user: currentUser } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('listeler');
+  const [showLinksModal, setShowLinksModal] = useState(false);
+  const [userLinks, setUserLinks] = useState([
+    { platform: 'discord', value: 'Murathan#0001', type: 'username' },
+    { platform: 'instagram', value: 'murathan', type: 'username' }
+  ]);
   
   // Handle Hash-based Tabs
   useEffect(() => {
@@ -60,7 +65,6 @@ export default function ProfileShowcase() {
     following: 0,
     favorites: 0,
     comments: 0,
-    socialLinks: []
   };
 
   const selectedDecoration = effectsData.avatarDecorations[0];
@@ -73,8 +77,42 @@ export default function ProfileShowcase() {
     { id: 'customize', label: 'Özelleştir', icon: Palette },
   ];
 
+  const getSocialIcon = (platform) => {
+    switch (platform) {
+      case 'discord': return <MessageSquare size={14} className="text-indigo-400" />;
+      case 'youtube': return <Youtube size={14} className="text-red-500" />;
+      case 'instagram': return <Instagram size={14} className="text-pink-500" />;
+      case 'twitter': return <Twitter size={14} className="text-blue-400" />;
+      case 'github': return <Github size={14} className="text-white" />;
+      default: return <LinkIcon size={14} className="text-zinc-500" />;
+    }
+  };
+
+  const getPlatformUrl = (link) => {
+    if (link.type === 'url') return link.value;
+    switch (link.platform) {
+      case 'instagram': return `https://instagram.com/${link.value}`;
+      case 'twitter': return `https://twitter.com/${link.value}`;
+      case 'youtube': return `https://youtube.com/@${link.value}`;
+      case 'github': return `https://github.com/${link.value}`;
+      case 'discord': return `https://discord.com/users/${link.value}`;
+      default: return '#';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0B0E14] text-zinc-100 font-sans selection:bg-purple-500/30 pt-20">
+      <AnimatePresence>
+        {showLinksModal && (
+          <ConnectedAccountsModal 
+            isOpen={showLinksModal} 
+            onClose={() => setShowLinksModal(false)} 
+            onSave={setUserLinks}
+            initialLinks={userLinks}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         
         <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -151,11 +189,27 @@ export default function ProfileShowcase() {
                 {/* Social Links */}
                 <div className="space-y-3">
                   <h3 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">BAĞLANTILAR</h3>
-                  <div className="flex flex-col gap-2 text-center text-zinc-500 text-[10px] font-medium py-4 bg-zinc-950/20 rounded-2xl border border-dashed border-zinc-800/50">
-                    Sosyal hesaplarını ekle
-                    <button className="mx-auto mt-1 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[9px] font-black uppercase transition-all">
-                      <Plus size={12} /> Bağlantı Ekle
-                    </button>
+                  <div className="flex flex-col gap-2">
+                    {userLinks.map((link, idx) => (
+                      <a 
+                        key={idx}
+                        href={getPlatformUrl(link)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 rounded-2xl bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900 transition-all group"
+                      >
+                         {getSocialIcon(link.platform)}
+                         <span className="text-[10px] font-bold text-zinc-400 group-hover:text-white truncate">{link.value}</span>
+                      </a>
+                    ))}
+                    {isOwnProfile && (
+                      <button 
+                        onClick={() => setShowLinksModal(true)}
+                        className="flex items-center justify-center gap-2 mt-1 p-3 rounded-2xl bg-zinc-950/20 border border-dashed border-zinc-800/50 text-[9px] font-black uppercase text-zinc-500 hover:text-white hover:border-zinc-600 transition-all"
+                      >
+                        <Plus size={12} /> Bağlantı Ekle
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -343,6 +397,125 @@ export default function ProfileShowcase() {
         </div>
 
       </div>
+    </div>
+  );
+}
+
+function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
+  const [links, setLinks] = useState(initialLinks?.length > 0 ? initialLinks : [{ platform: '', value: '', type: 'username' }]);
+  const platforms = [
+    { id: 'discord', label: 'Discord', icon: MessageSquare },
+    { id: 'youtube', label: 'YouTube', icon: Youtube },
+    { id: 'instagram', label: 'Instagram', icon: Instagram },
+    { id: 'twitter', label: 'Twitter / X', icon: Twitter },
+    { id: 'reddit', label: 'Reddit', icon: LinkIcon },
+    { id: 'tiktok', label: 'TikTok', icon: Zap },
+    { id: 'github', label: 'GitHub', icon: Github },
+  ];
+
+  const addRow = () => setLinks([...links, { platform: '', value: '', type: 'username' }]);
+  const removeRow = (idx) => setLinks(links.filter((_, i) => i !== idx));
+  const updateRow = (idx, field, val) => {
+    const newLinks = [...links];
+    newLinks[idx][field] = val;
+    setLinks(newLinks);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+      />
+      
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        className="relative w-full max-w-lg bg-[#151921] border border-zinc-800 rounded-[2rem] shadow-2xl overflow-hidden"
+      >
+        {/* Modal Header */}
+        <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+          <h3 className="text-xl font-black text-white uppercase tracking-tight">Bağlı Hesaplar</h3>
+          <button onClick={onClose} className="p-2 rounded-xl bg-zinc-900 text-zinc-500 hover:text-white transition-all">
+            <Plus size={20} className="rotate-45" />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+          {links.map((link, idx) => (
+            <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center group">
+              <div className="relative w-full sm:w-40 shrink-0">
+                <select 
+                  value={link.platform}
+                  onChange={(e) => updateRow(idx, 'platform', e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-xs font-bold text-zinc-300 appearance-none focus:border-purple-500 transition-all cursor-pointer"
+                >
+                  <option value="">Platform Seç</option>
+                  {platforms.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600">
+                   <Plus size={14} className="rotate-0" />
+                </div>
+              </div>
+
+              <div className="relative flex-1 w-full">
+                <input 
+                  type="text"
+                  placeholder={link.type === 'username' ? "Kullanıcı adı" : "Bağlantı URL'si"}
+                  value={link.value}
+                  onChange={(e) => updateRow(idx, 'value', e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all"
+                />
+                <button 
+                  onClick={() => updateRow(idx, 'type', link.type === 'username' ? 'url' : 'username')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-zinc-500 hover:text-purple-400 transition-all"
+                >
+                  {link.type === 'username' ? 'URL GİR' : 'AD GİR'}
+                </button>
+              </div>
+
+              <button 
+                onClick={() => removeRow(idx)}
+                className="p-3 rounded-xl bg-zinc-900 text-zinc-600 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
+              >
+                <Plus size={16} className="rotate-45" />
+              </button>
+            </div>
+          ))}
+
+          <button 
+            onClick={addRow}
+            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-zinc-900/50 border border-zinc-800 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all w-fit"
+          >
+            <Plus size={14} /> Bağlantı Ekle
+          </button>
+        </div>
+
+        {/* Modal Footer */}
+        <div className="p-6 border-t border-zinc-800 flex justify-end gap-3 bg-zinc-900/20">
+          <button 
+            onClick={onClose}
+            className="px-6 py-3 rounded-2xl bg-zinc-900 text-zinc-400 text-xs font-black uppercase hover:bg-zinc-800 transition-all"
+          >
+            İptal
+          </button>
+          <button 
+            onClick={() => {
+              onSave(links.filter(l => l.platform && l.value));
+              onClose();
+            }}
+            className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-black uppercase shadow-lg shadow-purple-500/40 hover:scale-105 active:scale-95 transition-all"
+          >
+            <Plus size={14} className="rotate-0" /> Kaydet
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
