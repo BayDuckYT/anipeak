@@ -29,7 +29,7 @@ export default function SiberAvatar({
       return (
         <div className={effectClasses}>
            <div 
-            className="w-full h-full bg-contain bg-no-repeat bg-center"
+            className="w-full h-full bg-no-repeat bg-center"
             style={{
               backgroundImage: `url(${effectSrc})`,
               backgroundSize: `100% ${frames * 100}%`,
