@@ -25,7 +25,8 @@ import {
   Palette,
   Image as ImageIcon,
   User,
-  Filter
+  Filter,
+  Paintbrush
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -78,7 +79,7 @@ export default function ProfileShowcase() {
     { id: 'listeler', label: 'Listeler', icon: BookOpen },
     { id: 'basarimlar', label: 'Başarımlar', icon: Award },
     { id: 'etkinlik', label: 'Etkinlik', icon: History },
-    { id: 'customize', label: 'Özelleştir', icon: Palette },
+    { id: 'customize', label: 'Özelleştir', icon: Palette || Paintbrush },
   ];
 
   const categories = useMemo(() => ['Tümü', ...new Set(effectsData.map(d => d.category))], []);
