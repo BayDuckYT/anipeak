@@ -15,6 +15,8 @@ import ManhwaDetail from './pages/ManhwaDetail.jsx';
 import Reader from './pages/Reader.jsx';
 import Admin from './pages/Admin.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import ProfileShowcase from './pages/ProfileShowcase.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
 import AllSeries from './pages/AllSeries.jsx';
 import StaticPage from './pages/StaticPage.jsx';
 import Contact from './pages/Contact.jsx';
@@ -51,6 +53,8 @@ function AnimatedRoutes({ onAuthOpen }) {
         <Route path="/read/:id/:chapter" element={<Reader />} />
         <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+        <Route path="/profil/:username" element={<ProfileShowcase />} />
+        <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/iletisim" element={<Contact />} />
         <Route path="/oneriler" element={<Suggestions />} />

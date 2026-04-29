@@ -270,13 +270,13 @@ export default function Header({ onAuthOpen }) {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-white text-sm font-bold truncate">{user.username}</p>
+                            <p className="text-white text-sm font-black truncate uppercase tracking-tight">{user.username}</p>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                               <span className="text-[10px] font-black uppercase text-purple-400 tracking-wider">
-                                 {calculateTitle(user.xp || 0, user.is_elite)}
+                               <span className="text-[9px] font-black uppercase text-purple-400 tracking-widest">
+                                 YENİ ÜYE
                                </span>
                                <span className="w-1 h-1 rounded-full bg-slate-700" />
-                               <span className="text-[10px] font-bold text-slate-500">XP: {user.xp || 0}</span>
+                               <span className="text-[9px] font-bold text-slate-500 uppercase">XP: {user.xp || 0}</span>
                             </div>
                           </div>
                         </div>
@@ -295,22 +295,29 @@ export default function Header({ onAuthOpen }) {
 
                       <div className="p-1.5">
                         <Link
+                          to={`/profil/${user.username}`}
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                        >
+                          <User size={15} className="text-purple-400 group-hover:scale-110 transition-transform" />
+                          Profilim
+                        </Link>
+                        <Link
                           to="/profile"
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
-                          <Library size={15} className="text-purple-400" />
+                          <Library size={15} className="text-blue-400 group-hover:scale-110 transition-transform" />
                           Okuduklarım
                         </Link>
                         <Link
-                          to="/profile?tab=settings"
+                          to="/settings"
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
-                          <Settings size={15} className="text-blue-400" />
+                          <Settings size={15} className="text-emerald-400 group-hover:scale-110 transition-transform" />
                           Ayarlar
                         </Link>
-
                       </div>
 
                       <div className="p-1.5 border-t border-white/8">
