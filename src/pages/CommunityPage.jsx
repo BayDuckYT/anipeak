@@ -20,7 +20,10 @@ import {
   MoreVertical,
   Edit,
   Mail,
-  Zap
+  Zap,
+  Palette,
+  Globe,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
