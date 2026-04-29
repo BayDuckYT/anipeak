@@ -1559,7 +1559,7 @@ body {
 }
 
 
-@keyframes siber-spritesheet-v2 {
-  from { transform: translateY(0); }
-  to { transform: translateY(-100%); }
+@keyframes siber-spritesheet-v3 {
+  from { background-position: 0 0; }
+  to { background-position: 0 100%; }
 }

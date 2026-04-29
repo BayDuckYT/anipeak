@@ -28,20 +28,29 @@ export default function SiberAvatar({
       
       return (
         <div className={effectClasses + " overflow-hidden bg-zinc-800/10 animate-pulse"}>
-           <img 
-            src={effectSrc}
-            alt=""
-            loading="eager"
-            className="w-full h-auto max-w-none block"
+           <div 
+            className="w-full h-full bg-no-repeat bg-top"
             style={{
-              animation: `siber-spritesheet-v2 ${duration}s steps(${frames}) infinite`,
+              backgroundImage: `url(${effectSrc})`,
+              backgroundSize: '100% auto',
+              animation: `siber-spritesheet-v3 ${duration}s steps(${Math.max(1, frames - 1)}) infinite`,
+              '--frames': frames
             }}
             onLoad={(e) => {
+              // Note: Background images don't have onLoad, but we can assume success if no error
               e.currentTarget.parentElement.classList.remove('animate-pulse', 'bg-zinc-800/10');
             }}
-            onError={(e) => {
-              e.currentTarget.parentElement.classList.remove('animate-pulse');
-              e.currentTarget.style.display = 'none';
+          />
+          {/* Hidden image to trigger cache and onLoad-like behavior if needed, 
+              but for now let's just use a timeout or trust the browser. 
+              Actually, the user wants the pulse to go away. 
+              I'll use a hidden img to detect load. */}
+          <img 
+            src={effectSrc} 
+            className="hidden" 
+            onLoad={(e) => {
+              const parent = e.currentTarget.parentElement;
+              if (parent) parent.classList.remove('animate-pulse', 'bg-zinc-800/10');
             }}
           />
         </div>
