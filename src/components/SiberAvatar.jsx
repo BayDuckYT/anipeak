@@ -19,8 +19,8 @@ export default function SiberAvatar({
     // Auto-detect type if missing (Discord PNGs are usually spritesheets)
     const type = effect.type || (effectSrc.includes('discordapp.com') ? 'spritesheet' : 'static');
 
-    // Layer 3: Siber Çerçeve / Efekt (absolute inset-0 w-full h-full z-10)
-    const effectClasses = "absolute inset-0 w-full h-full z-10 pointer-events-none scale-[1.2]";
+    // Layer 3: Siber Çerçeve / Efekt (absolute z-10 oversized)
+    const effectClasses = "absolute -left-[10%] -top-[10%] w-[120%] h-[120%] z-10 pointer-events-none bg-transparent";
 
     if (type === 'spritesheet') {
       const frames = effect.steps || 24;
@@ -29,7 +29,7 @@ export default function SiberAvatar({
       return (
         <div className={effectClasses}>
            <div 
-            className="w-full h-full bg-no-repeat bg-center"
+            className="w-full h-full bg-contain bg-no-repeat bg-center"
             style={{
               backgroundImage: `url(${effectSrc})`,
               backgroundSize: `100% ${frames * 100}%`,
@@ -61,7 +61,7 @@ export default function SiberAvatar({
     return (
       <img 
         src={effectSrc} 
-        className={effectClasses} 
+        className={effectClasses + " object-contain"} 
         alt={effect.label || effect.name || "Decoration"} 
       />
     );
@@ -71,8 +71,8 @@ export default function SiberAvatar({
     // Layer 1: Ana Karargah (relative flex items-center justify-center)
     <div className={`relative flex items-center justify-center ${size} ${className}`}>
       
-      {/* Layer 2: Alt Katman (Kullanıcı Avatarı - absolute w-[85%] h-[85%] rounded-full z-0) */}
-      <div className="absolute w-[84%] h-[84%] rounded-full overflow-hidden z-0 bg-zinc-900 border border-zinc-800">
+      {/* Layer 2: Alt Katman (Kullanıcı Avatarı - absolute w-full h-full rounded-full z-0) */}
+      <div className="absolute w-full h-full rounded-full overflow-hidden z-0 bg-zinc-900 border border-zinc-800">
         <img 
           src={src || "https://github.com/shadcn.png"} 
           alt="Avatar" 
@@ -81,7 +81,7 @@ export default function SiberAvatar({
         />
       </div>
 
-      {/* Layer 3: Efekt Katmanı */}
+      {/* Layer 3: Efekt Katmanı (z-10) */}
       {renderEffect()}
       
       {/* Glow Effect Support */}
