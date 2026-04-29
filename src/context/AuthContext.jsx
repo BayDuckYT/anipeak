@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
-        is_elite:        data?.is_elite || authUser.email === 'murathanozel134@gmail.com' || authData.role === 'Baş Admin' || authData.role === 'Yönetici' || false,
+        is_elite:        data?.is_elite || authUser.email === 'murathanozel134@gmail.com' || data?.role === 'Baş Admin' || data?.role === 'Yönetici' || false,
       };
 
       setUser(merged);
