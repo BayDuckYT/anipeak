@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -81,11 +81,13 @@ export default function ProfileShowcase() {
     { id: 'customize', label: 'Özelleştir', icon: Palette },
   ];
 
-  const categories = ['Tümü', ...new Set(effectsData.map(d => d.category))];
+  const categories = useMemo(() => ['Tümü', ...new Set(effectsData.map(d => d.category))], []);
 
-  const filteredDecorations = decorationCategory === 'Tümü' 
-    ? effectsData 
-    : effectsData.filter(d => d.category === decorationCategory);
+  const filteredDecorations = useMemo(() => {
+    return decorationCategory === 'Tümü' 
+      ? effectsData 
+      : effectsData.filter(d => d.category === decorationCategory);
+  }, [decorationCategory]);
 
   const getSocialIcon = (platform) => {
     switch (platform) {

@@ -27,14 +27,21 @@ export default function SiberAvatar({
       const duration = frames / (effect.fps || 12);
       
       return (
-        <div className={effectClasses + " overflow-hidden"}>
-           <div 
-            className="w-full bg-no-repeat bg-top"
+        <div className={effectClasses + " overflow-hidden bg-zinc-800/10 animate-pulse"}>
+           <img 
+            src={effectSrc}
+            alt=""
+            loading="eager"
+            className="w-full h-auto max-w-none block"
             style={{
-              height: `${frames * 100}%`,
-              backgroundImage: `url(${effectSrc})`,
-              backgroundSize: '100% auto',
               animation: `siber-spritesheet-v2 ${duration}s steps(${frames}) infinite`,
+            }}
+            onLoad={(e) => {
+              e.currentTarget.parentElement.classList.remove('animate-pulse', 'bg-zinc-800/10');
+            }}
+            onError={(e) => {
+              e.currentTarget.parentElement.classList.remove('animate-pulse');
+              e.currentTarget.style.display = 'none';
             }}
           />
         </div>
