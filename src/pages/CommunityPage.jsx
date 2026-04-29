@@ -30,6 +30,30 @@ export default function CommunityPage() {
   const [acceptedRules, setAcceptedRules] = useState(false);
   const [activeTab, setActiveTab] = useState('dm');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showThemeModal, setShowThemeModal] = useState(false);
+  const [chatTheme, setChatTheme] = useState({
+    type: 'color',
+    value: '#050507',
+    gradient: null
+  });
+
+  const chatThemes = [
+    { id: 1, type: 'color', value: '#0B0E14' },
+    { id: 2, type: 'color', value: '#0F1219' },
+    { id: 3, type: 'gradient', value: 'linear-gradient(to bottom right, #0F1219, #050507)' },
+    { id: 4, type: 'gradient', value: 'linear-gradient(to bottom right, #1e1b4b, #050507)' },
+    { id: 5, type: 'gradient', value: 'linear-gradient(to bottom right, #312e81, #1e1b4b)' },
+    { id: 6, type: 'gradient', value: 'linear-gradient(to bottom right, #1e1b4b, #312e81)' },
+    { id: 7, type: 'gradient', value: 'linear-gradient(to bottom right, #4c1d95, #1e1b4b)' },
+    { id: 8, type: 'gradient', value: 'linear-gradient(to bottom right, #581c87, #050507)' },
+    { id: 9, type: 'gradient', value: 'linear-gradient(to bottom right, #701a75, #1e1b4b)' },
+    { id: 10, type: 'gradient', value: 'linear-gradient(to bottom right, #1e1b4b, #050507)' },
+    { id: 11, type: 'gradient', value: 'linear-gradient(45deg, #1e1b4b, #0B0E14)' },
+    { id: 12, type: 'gradient', value: 'linear-gradient(135deg, #0f172a, #020617)' },
+    { id: 13, type: 'gradient', value: 'linear-gradient(to bottom right, #020617, #1e1b4b)' },
+    { id: 14, type: 'gradient', value: 'linear-gradient(to right, #050507, #0f172a, #050507)' },
+    { id: 15, type: 'gradient', value: 'linear-gradient(to bottom, #111827, #000000)' },
+  ];
 
   const rules = [
     { 
@@ -152,6 +176,103 @@ export default function CommunityPage() {
         )}
       </AnimatePresence>
 
+      {/* Chat Theme Modal */}
+      <AnimatePresence>
+        {showThemeModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+             <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               onClick={() => setShowThemeModal(false)}
+               className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+             />
+             
+             <motion.div 
+               initial={{ x: 20, opacity: 0 }}
+               animate={{ x: 0, opacity: 1 }}
+               exit={{ x: 20, opacity: 0 }}
+               className="relative ml-auto w-full max-w-sm h-full bg-[#0F1219] border-l border-zinc-800 shadow-2xl flex flex-col"
+             >
+                {/* Header */}
+                <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+                   <h3 className="text-lg font-black text-white flex items-center gap-2">
+                      <Palette size={20} className="text-purple-500" /> Sohbet Arka Planı
+                   </h3>
+                   <button onClick={() => setShowThemeModal(false)} className="p-2 rounded-xl bg-zinc-900 text-zinc-500 hover:text-white transition-all">
+                      <X size={20} />
+                   </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+                   {/* Hazır Resimler */}
+                   <section className="space-y-4">
+                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Hazır Resimler</h4>
+                      <div className="grid grid-cols-1 gap-3">
+                         <button className="relative aspect-video rounded-2xl bg-zinc-900 border border-zinc-800 overflow-hidden group hover:border-purple-500 transition-all">
+                            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1614850523296-e84e09ad8a73?q=80&w=1000')] bg-cover opacity-40 group-hover:opacity-20 transition-opacity" />
+                            <div className="absolute bottom-3 left-3 flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-tighter">
+                               <div className="p-1 rounded bg-zinc-950/80"><Globe size={12} /></div> Masaüstü
+                            </div>
+                         </button>
+                      </div>
+                   </section>
+
+                   {/* Hazır Renkler */}
+                   <section className="space-y-4">
+                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Hazır Renkler</h4>
+                      <div className="grid grid-cols-5 gap-3">
+                         {chatThemes.map((theme) => (
+                           <button 
+                             key={theme.id}
+                             onClick={() => setChatTheme(theme)}
+                             className={`aspect-square rounded-xl border-2 transition-all hover:scale-110 active:scale-90 relative ${chatTheme.value === theme.value ? 'border-white' : 'border-zinc-800 hover:border-zinc-700'}`}
+                             style={{ background: theme.value }}
+                           >
+                              {chatTheme.value === theme.value && (
+                                <div className="absolute inset-0 flex items-center justify-center text-white">
+                                   <CheckCircle2 size={16} />
+                                </div>
+                              )}
+                           </button>
+                         ))}
+                      </div>
+                   </section>
+
+                   {/* Özel Renk */}
+                   <section className="space-y-4">
+                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Özel Renk</h4>
+                      <div className="flex gap-3">
+                         <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800" />
+                         <button className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all">
+                            <CheckCircle2 size={16} /> Uygula
+                         </button>
+                      </div>
+                   </section>
+
+                   {/* Resim Yükle */}
+                   <section className="space-y-4">
+                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Resim Yükle</h4>
+                      <button className="w-full h-20 rounded-2xl border-2 border-dashed border-zinc-800 flex flex-col items-center justify-center gap-2 text-zinc-600 hover:text-zinc-400 hover:border-zinc-700 transition-all group">
+                         <ImageIcon size={24} className="group-hover:scale-110 transition-transform" />
+                         <span className="text-[10px] font-black uppercase tracking-widest">Resim Seç</span>
+                      </button>
+                   </section>
+                </div>
+
+                <div className="p-6 border-t border-zinc-800">
+                   <button 
+                     onClick={() => setChatTheme({ type: 'color', value: '#050507', gradient: null })}
+                     className="w-full py-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all flex items-center justify-center gap-2"
+                   >
+                      <Clock size={16} /> Varsayılana Sıfırla
+                   </button>
+                </div>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-[1600px] mx-auto h-[calc(100vh-64px)] flex overflow-hidden">
         
         {/* LEFT SIDEBAR: Messages & Channels */}
@@ -169,6 +290,12 @@ export default function CommunityPage() {
                  </h2>
                </div>
                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setShowThemeModal(true)}
+                    className="p-2.5 rounded-xl bg-zinc-900 text-zinc-500 hover:text-purple-500 transition-all hover:scale-110 active:scale-90"
+                  >
+                     <Palette size={16} />
+                  </button>
                   <button className="p-2.5 rounded-xl bg-zinc-900 text-zinc-500 hover:text-white transition-all hover:scale-110 active:scale-90">
                      <Edit size={16} />
                   </button>
@@ -225,7 +352,10 @@ export default function CommunityPage() {
         </aside>
 
         {/* MAIN AREA: Chat / Selected Conversation */}
-        <main className="flex-1 bg-[#050507] flex flex-col relative overflow-hidden">
+        <main 
+          className="flex-1 flex flex-col relative overflow-hidden transition-all duration-500"
+          style={{ background: chatTheme.value }}
+        >
           
           {/* Background Glows */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
