@@ -1559,3 +1559,7 @@ body {
 }
 
 
+@keyframes siber-spritesheet {
+  from { background-position: 0 0; }
+  to { background-position: 0 var(--end-pos, -2400%); }
+}

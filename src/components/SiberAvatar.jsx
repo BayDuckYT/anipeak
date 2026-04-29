@@ -33,15 +33,10 @@ export default function SiberAvatar({
             style={{
               backgroundImage: `url(${effectSrc})`,
               backgroundSize: `100% ${frames * 100}%`,
-              animation: `play-spritesheet-${effect.id} ${duration}s steps(${frames}) infinite`,
+              animation: `siber-spritesheet ${duration}s steps(${frames}) infinite`,
+              '--end-pos': `-${frames * 100}%`
             }}
           />
-          <style dangerouslySetInnerHTML={{ __html: `
-            @keyframes play-spritesheet-${effect.id} {
-              from { background-position: 0 0; }
-              to { background-position: 0 -${frames * 100}%; }
-            }
-          `}} />
         </div>
       );
     }
