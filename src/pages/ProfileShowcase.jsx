@@ -10,7 +10,13 @@ import {
   Share2,
   Calendar,
   Award,
-  Link as LinkIcon
+  Link as LinkIcon,
+  UserPlus,
+  Mail,
+  Instagram,
+  Twitter,
+  Github,
+  Youtube
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -23,7 +29,6 @@ export default function ProfileShowcase() {
   const { series } = useApp();
   
   // In a real app, you'd fetch the user data for 'username' from the backend.
-  // For now, if it's the current user, use their data.
   const isOwnProfile = currentUser?.username === username;
   
   // Mock/Fallback data if not current user
@@ -35,13 +40,30 @@ export default function ProfileShowcase() {
     xp: 0,
     level: 1,
     joinDate: 'Nisan 2024',
-    totalRead: 0
+    totalRead: 0,
+    followers: 128,
+    following: 42,
+    socialLinks: [
+      { platform: 'instagram', url: 'https://instagram.com/murathan' },
+      { platform: 'twitter', url: 'https://twitter.com/murathan' },
+      { platform: 'discord', url: 'https://discord.gg/anipeak' }
+    ]
+  };
+
+  const getSocialIcon = (platform) => {
+    switch (platform.toLowerCase()) {
+      case 'instagram': return <Instagram size={14} className="text-pink-500" />;
+      case 'twitter': return <Twitter size={14} className="text-blue-400" />;
+      case 'github': return <Github size={14} className="text-white" />;
+      case 'youtube': return <Youtube size={14} className="text-red-500" />;
+      default: return <LinkIcon size={14} className="text-zinc-400" />;
+    }
   };
 
   // Effects selection (Mocked for now based on effects.json)
   const selectedDecoration = effectsData.avatarDecorations[0];
   const selectedNameplate = effectsData.nameplates[1];
-  const glowColor = selectedNameplate.glow || 'rgba(168, 85, 247, 0.2)';
+  const glowColor = selectedNameplate.glow || 'rgba(220, 38, 38, 0.2)';
 
   const stats = [
     { label: 'Bölüm Okundu', value: displayUser.totalRead || 0, icon: BookOpen },
@@ -147,7 +169,7 @@ export default function ProfileShowcase() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
-              className="mb-4 sm:mb-6 text-center sm:text-left relative"
+              className="mb-4 sm:mb-6 text-center sm:text-left relative flex-1"
             >
                {/* Video Nameplate Overlay */}
                {selectedNameplate.video && (
@@ -177,9 +199,28 @@ export default function ProfileShowcase() {
                      {displayUser.role}
                   </span>
                 </div>
-                <p className="text-zinc-500 text-xs font-medium flex items-center justify-center sm:justify-start gap-2">
-                  <Calendar size={12} /> {displayUser.joinDate || 'Nisan 2024'} tarihinde katıldı
-                </p>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-2">
+                  <p className="text-zinc-500 text-xs font-medium flex items-center justify-center sm:justify-start gap-2">
+                    <Calendar size={12} /> {displayUser.joinDate || 'Nisan 2024'} tarihinde katıldı
+                  </p>
+                  <div className="flex items-center justify-center sm:justify-start gap-4 text-xs">
+                    <span className="text-zinc-400 font-bold"><span className="text-white">{displayUser.followers || 0}</span> Takipçi</span>
+                    <span className="text-zinc-400 font-bold"><span className="text-white">{displayUser.following || 0}</span> Takip</span>
+                  </div>
+                </div>
+
+                {/* Interaction Buttons - Only if not own profile */}
+                {!isOwnProfile && (
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mt-6">
+                    <button className="px-6 py-2 rounded-xl bg-purple-600 text-white text-xs font-black uppercase tracking-widest hover:bg-purple-500 transition-all flex items-center gap-2 shadow-lg shadow-purple-900/20">
+                      <UserPlus size={14} /> Takip Et
+                    </button>
+                    <button className="px-6 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-white text-xs font-black uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center gap-2">
+                      <Mail size={14} /> Mesaj Gönder
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -191,17 +232,36 @@ export default function ProfileShowcase() {
           {/* Left Column: Bio & Links */}
           <div className="space-y-8">
             <section className="p-6 sm:p-8 rounded-[2.5rem] bg-zinc-900/30 border border-zinc-800/50 backdrop-blur-xl space-y-6">
-              <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                <Zap size={16} /> HAKKINDA
-              </h3>
-              <p className="text-zinc-300 text-sm leading-relaxed font-medium">
-                {displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}
-              </p>
+              <div className="space-y-6">
+                <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                  <Zap size={16} /> HAKKINDA
+                </h3>
+                <p className="text-zinc-300 text-sm leading-relaxed font-medium">
+                  {displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}
+                </p>
+              </div>
               
-              <div className="pt-2 flex flex-wrap gap-2">
-                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-950 border border-zinc-800 text-[10px] font-bold text-zinc-400">
-                    <LinkIcon size={12} /> anipeak.com/{displayUser.username}
-                 </div>
+              <div className="space-y-4 pt-4 border-t border-zinc-800/50">
+                <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                  <LinkIcon size={14} /> SOSYAL MEDYA
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                   {displayUser.socialLinks?.map((link, idx) => (
+                     <a 
+                       key={idx} 
+                       href={link.url} 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-[10px] font-black text-zinc-400 hover:text-white hover:border-zinc-600 transition-all group"
+                     >
+                        {getSocialIcon(link.platform)}
+                        <span className="uppercase tracking-tighter">{link.platform}</span>
+                     </a>
+                   ))}
+                   <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-[10px] font-bold text-zinc-400">
+                      <LinkIcon size={12} className="text-zinc-500" /> anipeak.com/{displayUser.username}
+                   </div>
+                </div>
               </div>
             </section>
 

@@ -152,6 +152,44 @@ export default function SettingsPage() {
 
                     <section className="space-y-6">
                       <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                        <LinkIcon size={14} /> SOSYAL BAĞLANTILAR
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="relative group">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-zinc-900 text-pink-500 group-focus-within:bg-pink-500/20 transition-all">
+                            <Instagram size={16} />
+                          </div>
+                          <input 
+                            type="text" 
+                            placeholder="Instagram Kullanıcı Adı" 
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 pl-14 pr-4 text-zinc-100 focus:border-pink-500 transition-all text-sm" 
+                          />
+                        </div>
+                        <div className="relative group">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-zinc-900 text-blue-400 group-focus-within:bg-blue-400/20 transition-all">
+                            <Twitter size={16} />
+                          </div>
+                          <input 
+                            type="text" 
+                            placeholder="Twitter Kullanıcı Adı" 
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 pl-14 pr-4 text-zinc-100 focus:border-blue-400 transition-all text-sm" 
+                          />
+                        </div>
+                        <div className="relative group">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-zinc-900 text-indigo-400 group-focus-within:bg-indigo-400/20 transition-all">
+                            <MessageSquare size={16} />
+                          </div>
+                          <input 
+                            type="text" 
+                            placeholder="Discord Kullanıcı Adı (Örn: murathan#0001)" 
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 pl-14 pr-4 text-zinc-100 focus:border-indigo-500 transition-all text-sm" 
+                          />
+                        </div>
+                      </div>
+                    </section>
+
+                    <section className="space-y-6">
+                      <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                         <Sparkles size={14} className="text-amber-400" /> DEKORASYONLAR
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
