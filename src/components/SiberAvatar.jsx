@@ -13,7 +13,7 @@ export default function SiberAvatar({
 }) {
   
   const renderEffect = () => {
-    const effectSrc = effect.url || effect.src;
+    const effectSrc = effect.url || effect.src || effect.image || effect.asset;
     if (!effect || !effectSrc) return null;
 
     // Auto-detect type if missing (Discord PNGs are usually spritesheets)
@@ -27,14 +27,14 @@ export default function SiberAvatar({
       const duration = frames / (effect.fps || 12);
       
       return (
-        <div className={effectClasses}>
+        <div className={effectClasses + " overflow-hidden"}>
            <div 
-            className="w-full h-full bg-no-repeat bg-center"
+            className="w-full bg-no-repeat bg-top"
             style={{
+              height: `${frames * 100}%`,
               backgroundImage: `url(${effectSrc})`,
-              backgroundSize: `100% ${frames * 100}%`,
-              animation: `siber-spritesheet ${duration}s steps(${frames}) infinite`,
-              '--end-pos': `-${frames * 100}%`
+              backgroundSize: '100% auto',
+              animation: `siber-spritesheet-v2 ${duration}s steps(${frames}) infinite`,
             }}
           />
         </div>
