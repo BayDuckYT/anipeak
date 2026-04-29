@@ -24,7 +24,8 @@ import {
   EyeOff,
   Palette,
   Image as ImageIcon,
-  User
+  User,
+  Filter
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -35,6 +36,7 @@ export default function ProfileShowcase() {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
   const location = useLocation();
+  
   const isOwnProfile = currentUser?.username === username;
   
   // Mock/Fallback data
@@ -50,12 +52,13 @@ export default function ProfileShowcase() {
     following: 0,
     favorites: 0,
     comments: 0,
-    active_decoration: 'lightning-bolt' // Default for showcase if not set
+    active_decoration: 'lightning-bolt'
   };
 
   const [activeTab, setActiveTab] = useState('listeler');
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [userLinks, setUserLinks] = useState(displayUser.links || []);
+  const [decorationCategory, setDecorationCategory] = useState('Tümü');
   
   // Handle Hash-based Tabs
   useEffect(() => {
@@ -66,7 +69,6 @@ export default function ProfileShowcase() {
   }, [location.hash]);
 
   const selectedDecoration = effectsData.avatarDecorations.find(d => d.id === displayUser.active_decoration) || effectsData.avatarDecorations[0];
-  const selectedNameplate = effectsData.nameplates[1];
 
   const tabs = [
     { id: 'listeler', label: 'Listeler', icon: BookOpen },
@@ -74,6 +76,12 @@ export default function ProfileShowcase() {
     { id: 'etkinlik', label: 'Etkinlik', icon: History },
     { id: 'customize', label: 'Özelleştir', icon: Palette },
   ];
+
+  const categories = ['Tümü', ...new Set(effectsData.avatarDecorations.map(d => d.category))];
+
+  const filteredDecorations = decorationCategory === 'Tümü' 
+    ? effectsData.avatarDecorations 
+    : effectsData.avatarDecorations.filter(d => d.category === decorationCategory);
 
   const getSocialIcon = (platform) => {
     switch (platform) {
@@ -318,49 +326,68 @@ export default function ProfileShowcase() {
 
                 {activeTab === 'customize' && (
                   <div className="space-y-10">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-400">
-                          <Palette size={24} />
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-400">
+                              <Palette size={24} />
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-black text-white uppercase tracking-tight">Profil Özelleştir</h3>
+                              <p className="text-zinc-500 text-xs">Siber mühimmatını seç ve kuşan</p>
+                            </div>
                         </div>
-                        <div>
-                          <h3 className="text-xl font-black text-white uppercase tracking-tight">Profil Özelleştir</h3>
-                          <p className="text-zinc-500 text-xs">Premium özelliklerin kilidini aç</p>
+                        {/* Premium Badge */}
+                        <div className="px-4 py-2 rounded-xl bg-purple-600/10 border border-purple-500/20 flex items-center gap-2">
+                           <Zap size={14} className="text-purple-400" />
+                           <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Premium Aktif</span>
                         </div>
                     </div>
 
-                    {/* Privacy Toggle */}
-                    <div className="p-6 rounded-3xl bg-zinc-950/30 border border-zinc-800/50 space-y-6">
-                       <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                         <Eye size={14} /> ETKİNLİK GİZLİLİĞİ
-                       </h4>
-                       <div className="flex items-center justify-between">
-                         <div className="space-y-1">
-                           <p className="text-white text-sm font-bold">Etkinliğimi Göster</p>
-                           <p className="text-zinc-500 text-[10px]">Profilinde ne izlediğini başkalarının görmesini sağla</p>
-                         </div>
-                         <div className="w-12 h-6 rounded-full bg-purple-600 p-1 flex justify-end cursor-pointer">
-                           <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
-                         </div>
-                       </div>
+                    {/* Category Tabs */}
+                    <div className="flex gap-2 p-1.5 rounded-2xl bg-zinc-950/50 border border-zinc-800/50 w-fit">
+                        {categories.map(cat => (
+                           <button 
+                             key={cat}
+                             onClick={() => setDecorationCategory(cat)}
+                             className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${decorationCategory === cat ? 'bg-zinc-800 text-white shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}
+                           >
+                              {cat}
+                           </button>
+                        ))}
                     </div>
 
                     {/* Character Frames Grid */}
                     <div className="space-y-6">
-                       <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                         <ImageIcon size={14} /> KARAKTER ÇERÇEVESİ
-                       </h4>
-                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
-                         {effectsData.avatarDecorations.map((effect, idx) => (
-                           <div key={idx} className="group flex flex-col items-center gap-3">
-                              <div className={`relative p-2 rounded-2xl bg-zinc-950/50 border transition-all cursor-pointer flex items-center justify-center ${displayUser.active_decoration === effect.id ? 'border-purple-500' : 'border-zinc-800 hover:border-zinc-700'}`}>
+                       <div className="flex items-center gap-3 text-zinc-500">
+                          <ImageIcon size={14} />
+                          <h4 className="text-[10px] font-black uppercase tracking-widest">KARAKTER ÇERÇEVELERİ</h4>
+                       </div>
+                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6">
+                         {filteredDecorations.map((effect) => (
+                           <motion.div 
+                             key={effect.id} 
+                             whileHover={{ scale: 1.05 }}
+                             whileTap={{ scale: 0.95 }}
+                             className="group flex flex-col items-center gap-4"
+                           >
+                              <div className={`relative p-3 rounded-[2rem] bg-zinc-950/50 border transition-all cursor-pointer flex items-center justify-center ${displayUser.active_decoration === effect.id ? 'border-purple-500 bg-purple-500/5 shadow-2xl shadow-purple-500/10' : 'border-zinc-800 hover:border-zinc-700'}`}>
                                  <SiberAvatar 
-                                   src={null} 
+                                   src={displayUser.avatar_url} 
                                    effect={effect} 
-                                   size="w-20 h-20" 
+                                   size="w-24 h-24" 
                                  />
+                                 
+                                 {displayUser.active_decoration === effect.id && (
+                                   <div className="absolute -top-2 -right-2 p-1.5 rounded-full bg-purple-600 text-white shadow-lg">
+                                      <Zap size={10} />
+                                   </div>
+                                 )}
                               </div>
-                              <span className="text-[9px] font-black text-zinc-500 uppercase text-center group-hover:text-zinc-300 truncate w-full">{effect.name}</span>
-                           </div>
+                              <div className="text-center space-y-1">
+                                 <span className="block text-[11px] font-black text-zinc-100 uppercase tracking-tight group-hover:text-purple-400 transition-colors">{effect.name}</span>
+                                 <span className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest italic">{effect.category}</span>
+                              </div>
+                           </motion.div>
                          ))}
                        </div>
                     </div>

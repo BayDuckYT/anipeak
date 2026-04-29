@@ -4,6 +4,7 @@
       "id": "lightning-bolt",
       "name": "Mavi Şimşek",
       "type": "spritesheet",
+      "category": "Animasyon",
       "src": "https://cdn.discordapp.com/avatar-decoration-presets/v2/502934443534516224/521743603411030017.png?size=160&passthrough=true",
       "steps": 24,
       "fps": 12,
@@ -13,6 +14,7 @@
       "id": "sakura-petals",
       "name": "Sakura Esintisi",
       "type": "spritesheet",
+      "category": "Anime",
       "src": "https://cdn.discordapp.com/avatar-decoration-presets/v2/502934443534516224/521743603411030017.png?size=160&passthrough=true",
       "steps": 20,
       "fps": 10,
@@ -22,8 +24,39 @@
       "id": "sukuna-eyes",
       "name": "Lanetli Gözler",
       "type": "video",
+      "category": "Lanet",
       "src": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHJndXp4bmZyYXAxeHR4eHR4eHR4eHR4eHR4eHR4eHR4eHR4eHR4JnVpZD1n/3o7TKMGpxP5pXp7Tpe/giphy.mp4",
       "color": "#dc2626"
+    },
+    {
+      "id": "gojo-infinity",
+      "name": "Sonsuz Boşluk",
+      "type": "spritesheet",
+      "category": "Özel",
+      "src": "https://cdn.discordapp.com/avatar-decoration-presets/v2/502934443534516224/521743603411030017.png?size=160&passthrough=true",
+      "steps": 24,
+      "fps": 12,
+      "color": "#a855f7"
+    },
+    {
+      "id": "cyber-neon",
+      "name": "Siber Neon",
+      "type": "spritesheet",
+      "category": "Siber",
+      "src": "https://cdn.discordapp.com/avatar-decoration-presets/v2/502934443534516224/521743603411030017.png?size=160&passthrough=true",
+      "steps": 24,
+      "fps": 12,
+      "color": "#06b6d4"
+    },
+    {
+      "id": "turkey-flag",
+      "name": "Ay Yıldız",
+      "type": "spritesheet",
+      "category": "Bayraklar",
+      "src": "https://cdn.discordapp.com/avatar-decoration-presets/v2/502934443534516224/521743603411030017.png?size=160&passthrough=true",
+      "steps": 24,
+      "fps": 12,
+      "color": "#ef4444"
     }
   ],
   "nameplates": [
@@ -36,6 +69,7 @@
     {
       "id": "malevolent-shrine",
       "name": "Malevolent Shrine",
+      "category": "Lanet",
       "video": "https://assets.mixkit.co/videos/preview/mixkit-blood-dripping-on-a-surface-34208-large.mp4",
       "color": "#ff4d4d",
       "glow": "rgba(220, 38, 38, 0.3)"
@@ -43,6 +77,7 @@
     {
       "id": "unlimited-void",
       "name": "Unlimited Void",
+      "category": "Özel",
       "video": "https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-4070-large.mp4",
       "color": "#a855f7",
       "glow": "rgba(168, 85, 247, 0.3)"
