@@ -67,13 +67,15 @@ export default function SiberAvatar({
     <div className={`relative flex items-center justify-center ${size} ${className}`}>
       
       {/* Layer 2: Alt Katman (Kullanıcı Avatarı - absolute w-full h-full rounded-full z-0) */}
-      <div className="absolute w-full h-full rounded-full overflow-hidden z-0 bg-zinc-900 border border-zinc-800">
-        <img 
-          src={src || "https://github.com/shadcn.png"} 
-          alt="Avatar" 
-          className="w-full h-full object-cover"
-          onError={(e) => { e.target.src = "https://github.com/shadcn.png"; }}
-        />
+      <div className="absolute w-full h-full rounded-full overflow-hidden z-0 bg-zinc-950/50 border border-zinc-800/50">
+        {src && (
+          <img 
+            src={src} 
+            alt="Avatar" 
+            className="w-full h-full object-cover"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        )}
       </div>
 
       {/* Layer 3: Efekt Katmanı (z-10) */}

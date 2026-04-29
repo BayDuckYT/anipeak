@@ -391,7 +391,7 @@ export default function ProfileShowcase() {
                              >
                                 <div className="relative mb-3 flex items-center justify-center">
                                    <SiberAvatar 
-                                     src={displayUser.avatar_url} 
+                                     src={null} 
                                      effect={effect} 
                                      size="w-24 h-24" 
                                    />
