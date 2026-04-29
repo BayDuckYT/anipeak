@@ -399,8 +399,9 @@ export default function ProfileShowcase() {
                                  <span className="block text-[11px] font-black text-zinc-100 uppercase tracking-tight group-hover:text-purple-400 transition-colors">{effect.label || effect.name}</span>
                                  <span className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest italic">{effect.category}</span>
                               </div>
-                           </motion.div>
-                         ))}
+                             </motion.div>
+                           );
+                         })}
                        </div>
                     </div>
                   </div>
