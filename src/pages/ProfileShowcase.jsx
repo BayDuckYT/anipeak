@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
-import Decoration from '../components/Decoration';
+import SiberAvatar from '../components/SiberAvatar.jsx';
 import effectsData from '../data/effects.json';
 
 export default function ProfileShowcase() {
@@ -122,20 +122,11 @@ export default function ProfileShowcase() {
             <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-[2rem] overflow-hidden shadow-2xl">
               {/* Profile Header */}
               <div className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className="relative w-32 h-32">
-                  <div className="absolute inset-[-15%] z-20 pointer-events-none">
-                    <Decoration effect={selectedDecoration} />
-                  </div>
-                  <div className="w-full h-full rounded-full border-[6px] border-zinc-900 bg-zinc-800 overflow-hidden relative z-10 shadow-2xl">
-                    {displayUser.avatar_url ? (
-                      <img src={displayUser.avatar_url} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-700 to-zinc-900 text-3xl font-black text-white/20 uppercase">
-                        {displayUser.username?.[0]}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <SiberAvatar 
+                  src={displayUser.avatar_url} 
+                  effect={selectedDecoration} 
+                  size="w-32 h-32" 
+                />
 
                 <div className="space-y-1">
                   <h2 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-2">
@@ -363,15 +354,12 @@ export default function ProfileShowcase() {
                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
                          {effectsData.avatarDecorations.map((effect, idx) => (
                            <div key={idx} className="group flex flex-col items-center gap-3">
-                              <div className={`relative w-24 h-24 rounded-2xl bg-zinc-950/50 border transition-all cursor-pointer flex items-center justify-center ${displayUser.active_decoration === effect.id ? 'border-purple-500' : 'border-zinc-800 hover:border-zinc-700'}`}>
-                                 <div className="absolute inset-[-10%] z-20 pointer-events-none">
-                                    <Decoration effect={effect} />
-                                 </div>
-                                 <div className="w-16 h-16 rounded-full bg-zinc-800 overflow-hidden relative z-10">
-                                   <div className="w-full h-full flex items-center justify-center text-zinc-700">
-                                      <User size={32} />
-                                   </div>
-                                 </div>
+                              <div className={`relative p-2 rounded-2xl bg-zinc-950/50 border transition-all cursor-pointer flex items-center justify-center ${displayUser.active_decoration === effect.id ? 'border-purple-500' : 'border-zinc-800 hover:border-zinc-700'}`}>
+                                 <SiberAvatar 
+                                   src={null} 
+                                   effect={effect} 
+                                   size="w-20 h-20" 
+                                 />
                               </div>
                               <span className="text-[9px] font-black text-zinc-500 uppercase text-center group-hover:text-zinc-300 truncate w-full">{effect.name}</span>
                            </div>
@@ -519,4 +507,3 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
     </div>
   );
 }
-

@@ -23,8 +23,8 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import SiberAvatar from '../components/SiberAvatar.jsx';
 import effectsData from '../data/effects.json';
-import Decoration from '../components/Decoration';
 
 export default function SettingsPage() {
   const { user } = useAuth();
