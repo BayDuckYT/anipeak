@@ -68,7 +68,7 @@ export default function ProfileShowcase() {
     }
   }, [location.hash]);
 
-  const selectedDecoration = effectsData.avatarDecorations.find(d => d.id === displayUser.active_decoration) || effectsData.avatarDecorations[0];
+  const selectedDecoration = effectsData.find(d => d.id === displayUser.active_decoration) || effectsData[0];
 
   const tabs = [
     { id: 'listeler', label: 'Listeler', icon: BookOpen },
@@ -77,11 +77,11 @@ export default function ProfileShowcase() {
     { id: 'customize', label: 'Özelleştir', icon: Palette },
   ];
 
-  const categories = ['Tümü', ...new Set(effectsData.avatarDecorations.map(d => d.category))];
+  const categories = ['Tümü', ...new Set(effectsData.map(d => d.category))];
 
   const filteredDecorations = decorationCategory === 'Tümü' 
-    ? effectsData.avatarDecorations 
-    : effectsData.avatarDecorations.filter(d => d.category === decorationCategory);
+    ? effectsData 
+    : effectsData.filter(d => d.category === decorationCategory);
 
   const getSocialIcon = (platform) => {
     switch (platform) {
@@ -384,7 +384,7 @@ export default function ProfileShowcase() {
                                  )}
                               </div>
                               <div className="text-center space-y-1">
-                                 <span className="block text-[11px] font-black text-zinc-100 uppercase tracking-tight group-hover:text-purple-400 transition-colors">{effect.name}</span>
+                                 <span className="block text-[11px] font-black text-zinc-100 uppercase tracking-tight group-hover:text-purple-400 transition-colors">{effect.label || effect.name}</span>
                                  <span className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest italic">{effect.category}</span>
                               </div>
                            </motion.div>

@@ -13,12 +13,16 @@ export default function SiberAvatar({
 }) {
   
   const renderEffect = () => {
-    if (!effect || !effect.src) return null;
+    const effectSrc = effect.url || effect.src;
+    if (!effect || !effectSrc) return null;
+
+    // Auto-detect type if missing (Discord PNGs are usually spritesheets)
+    const type = effect.type || (effectSrc.includes('discordapp.com') ? 'spritesheet' : 'static');
 
     // Layer 3: Siber Çerçeve / Efekt (absolute inset-0 w-full h-full z-10)
     const effectClasses = "absolute inset-0 w-full h-full z-10 pointer-events-none scale-[1.2]";
 
-    if (effect.type === 'spritesheet') {
+    if (type === 'spritesheet') {
       const frames = effect.steps || 24;
       const duration = frames / (effect.fps || 12);
       
@@ -27,7 +31,7 @@ export default function SiberAvatar({
            <div 
             className="w-full h-full bg-no-repeat bg-center"
             style={{
-              backgroundImage: `url(${effect.src})`,
+              backgroundImage: `url(${effectSrc})`,
               backgroundSize: `100% ${frames * 100}%`,
               animation: `play-spritesheet-${effect.id} ${duration}s steps(${frames}) infinite`,
             }}
@@ -42,11 +46,11 @@ export default function SiberAvatar({
       );
     }
 
-    if (effect.type === 'video') {
+    if (type === 'video') {
       return (
         <div className={effectClasses + " overflow-hidden rounded-full"}>
           <video 
-            src={effect.src} 
+            src={effectSrc} 
             autoPlay loop muted playsInline
             className="w-full h-full object-cover mix-blend-screen opacity-90 scale-[1.1]"
           />
@@ -56,9 +60,9 @@ export default function SiberAvatar({
 
     return (
       <img 
-        src={effect.src} 
+        src={effectSrc} 
         className={effectClasses} 
-        alt="Decoration" 
+        alt={effect.label || effect.name || "Decoration"} 
       />
     );
   };
