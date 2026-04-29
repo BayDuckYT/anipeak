@@ -373,15 +373,15 @@ export default function ProfileShowcase() {
                            return (
                              <motion.div 
                                key={effect.id} 
-                               whileHover={{ scale: 1.02 }}
-                               whileTap={{ scale: 0.98 }}
+                               whileHover={{ scale: 1.05 }}
+                               whileTap={{ scale: 0.95 }}
                                className={`
                                  group relative flex flex-col items-center justify-center p-4 
-                                 bg-zinc-900 border border-zinc-800/50 rounded-2xl 
-                                 transition-all duration-200 cursor-pointer
-                                 hover:-translate-y-1 hover:bg-zinc-800 
-                                 hover:shadow-[0_0_20px_rgba(99,102,241,0.25)]
-                                 ${isActive ? 'bg-zinc-800 ring-2 ring-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.5)] border-transparent' : 'hover:border-indigo-500/30'}
+                                 bg-zinc-900 border border-transparent rounded-2xl 
+                                 transition-all duration-300 ease-out cursor-pointer
+                                 hover:-translate-y-2 hover:bg-white/10
+                                 hover:border-indigo-400 hover:shadow-[0_0_25px_rgba(99,102,241,0.8)]
+                                 ${isActive ? 'bg-zinc-800 ring-2 ring-indigo-500 shadow-[0_0_35px_rgba(99,102,241,0.6)] border-transparent' : ''}
                                `}
                                onClick={() => {
                                  if (isOwnProfile) {
