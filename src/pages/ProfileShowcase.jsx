@@ -22,7 +22,9 @@ import {
   Plus,
   Eye,
   EyeOff,
-  Palette
+  Palette,
+  Image as ImageIcon,
+  User
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
