@@ -31,13 +31,13 @@ export function AuthProvider({ children }) {
         .single();
         
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profil yükleme zaman aşımı')), 5000)
+        setTimeout(() => reject(new Error('Profil yükleme gecikti (Timeout)')), 10000)
       );
 
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
 
       if (error && error.code !== 'PGRST116') {
-        console.warn('[Auth] Profil çekme hatası (Supabase):', error.message);
+        console.warn('[Auth] Profil çekme uyarısı:', error.message);
       }
 
       // [YÖNETİCİ YETKİSİ] Güvenli Admin kontrolü
@@ -66,7 +66,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem('anipeak_last_user_id', authUser.id);
       return merged;
     } catch (err) {
-      console.error('[Auth] FetchProfile Kritik Hata Yakalandı:', err.message);
+      // Sessiz hata yönetimi - Kullanıcıyı rahatsız etmeden fallback'e geç
+      console.warn('[Auth] FetchProfile Fallback Devreye Girdi:', err.message);
       
       // HATA DURUMUNDA GÜVENLİ LİMANA DÖN (CACHE VEYA DEFAULT)
       let cachedUser = null;
