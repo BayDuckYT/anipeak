@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
     if (!authUser) { setUser(null); return; }
 
     try {
-      // PROFIL ÇEKME İŞLEMİNE TIMEOUT EKLENDİ
+      // PROFIL ÇEKME İŞLEMİNE 5 SN TIMEOUT EKLENDİ (DAHA GÜVENLİ)
       const profilePromise = supabase
         .from('profiles')
         .select('*')
@@ -31,63 +31,58 @@ export function AuthProvider({ children }) {
         .single();
         
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profil yükleme zaman aşımı')), 2500)
+        setTimeout(() => reject(new Error('Profil yükleme zaman aşımı')), 5000)
       );
 
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
 
       if (error && error.code !== 'PGRST116') {
-        console.error('[Auth] Profil çekme hatası:', error.message);
+        console.warn('[Auth] Profil çekme hatası (Supabase):', error.message);
       }
 
-      // [YÖNETİCİ YETKİSİ] Hardcoded Admin bypass for the owner
-      const isSystemOwner = authUser.email === 'murathanozel134@gmail.com';
+      // [YÖNETİCİ YETKİSİ] Güvenli Admin kontrolü
+      const isSystemOwner = authUser?.email === 'murathanozel134@gmail.com';
+      const userRole = data?.role || (isSystemOwner ? 'Baş Admin' : 'Kullanıcı');
 
       const merged = {
         ...authUser,
-        username:    data?.username  || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
-        role:        isSystemOwner ? 'Baş Admin' : (data?.role || 'Kullanıcı'),
-        avatar_url:  data?.avatar_url || authUser.user_metadata?.avatar_url || null,
-        avatar:      data?.avatar_url || authUser.user_metadata?.avatar_url || null,
+        username:    data?.username  || authUser?.user_metadata?.full_name || authUser?.email?.split('@')[0] || 'Kullanıcı',
+        role:        userRole,
+        avatar_url:  data?.avatar_url || authUser?.user_metadata?.avatar_url || null,
+        avatar:      data?.avatar_url || authUser?.user_metadata?.avatar_url || null,
         premium:     data?.premium   || false,
         status:      data?.status    || 'Aktif',
-        // Profil efektleri ve Mix Bundle
         active_mix:      data?.active_mix      || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' },
         avatar_effect:   data?.avatar_effect   || 'none',
         comment_effect:  data?.comment_effect  || 'none',
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
-        is_elite:        data?.is_elite || authUser.email === 'murathanozel134@gmail.com' || data?.role === 'Baş Admin' || data?.role === 'Yönetici' || false,
+        is_elite:        data?.is_elite || isSystemOwner || userRole === 'Baş Admin' || userRole === 'Yönetici' || false,
       };
 
       setUser(merged);
-      // [SİSTEM YEDEĞİ] Başarılı profili hafızaya yedekle (Kullanıcıya özel anahtar ile)
       localStorage.setItem('anipeak_user_cache', JSON.stringify(merged));
       localStorage.setItem('anipeak_last_user_id', authUser.id);
       return merged;
     } catch (err) {
-      console.error('[Auth] FetchProfile Kritik Hata:', err);
-      // Hata veya timeout durumunda döngüyü kırmak için yedek profil ver
+      console.error('[Auth] FetchProfile Kritik Hata Yakalandı:', err.message);
+      
+      // HATA DURUMUNDA GÜVENLİ LİMANA DÖN (CACHE VEYA DEFAULT)
       let cachedUser = null;
       try {
         const cached = localStorage.getItem('anipeak_user_cache');
         if (cached) cachedUser = JSON.parse(cached);
       } catch (e) {}
 
-      // Cache varsa onu kullan, yoksa boş bir kullanıcı oluştur
       const fallbackUser = (cachedUser && cachedUser.id === authUser.id) ? cachedUser : {
         ...authUser,
-        username: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Kullanıcı',
-        role: 'Kullanıcı',
-        is_elite: false
+        username: authUser?.user_metadata?.full_name || authUser?.email?.split('@')[0] || 'Kullanıcı',
+        role: (authUser?.email === 'murathanozel134@gmail.com') ? 'Baş Admin' : 'Kullanıcı',
+        is_elite: (authUser?.email === 'murathanozel134@gmail.com'),
+        avatar_url: authUser?.user_metadata?.avatar_url || null,
+        xp: 0
       };
-
-      // Garantili Kurucu (Owner) Koruması (Ağ çökse bile yetki düşmesin)
-      if (authUser.email === 'murathanozel134@gmail.com') {
-         fallbackUser.role = 'Baş Admin';
-         fallbackUser.is_elite = true;
-      }
 
       setUser(fallbackUser);
       return fallbackUser;
