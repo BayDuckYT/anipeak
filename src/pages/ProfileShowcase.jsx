@@ -373,16 +373,23 @@ export default function ProfileShowcase() {
                            return (
                              <motion.div 
                                key={effect.id} 
-                               whileHover={{ scale: 1.05 }}
-                               whileTap={{ scale: 0.95 }}
-                               className="group flex flex-col items-center gap-4 cursor-pointer"
+                               whileHover={{ scale: 1.02 }}
+                               whileTap={{ scale: 0.98 }}
+                               className={`
+                                 group relative flex flex-col items-center justify-center p-4 
+                                 bg-zinc-900 border border-zinc-800/50 rounded-2xl 
+                                 transition-all duration-200 cursor-pointer
+                                 hover:-translate-y-1 hover:bg-zinc-800 
+                                 hover:shadow-[0_0_20px_rgba(99,102,241,0.25)]
+                                 ${isActive ? 'bg-zinc-800 ring-2 ring-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.5)] border-transparent' : 'hover:border-indigo-500/30'}
+                               `}
                                onClick={() => {
                                  if (isOwnProfile) {
                                    setActiveDecoration(effect.id);
                                  }
                                }}
                              >
-                                <div className={`relative p-3 rounded-[2rem] bg-zinc-950/50 border transition-all flex items-center justify-center ${isActive ? 'border-purple-500 bg-purple-500/5 shadow-2xl shadow-purple-500/10' : 'border-zinc-800 hover:border-zinc-700'}`}>
+                                <div className="relative mb-3 flex items-center justify-center">
                                    <SiberAvatar 
                                      src={displayUser.avatar_url} 
                                      effect={effect} 
@@ -390,15 +397,20 @@ export default function ProfileShowcase() {
                                    />
                                    
                                    {isActive && (
-                                     <div className="absolute -top-2 -right-2 p-1.5 rounded-full bg-purple-600 text-white shadow-lg">
-                                        <Zap size={10} />
+                                     <div className="absolute -top-3 -right-3 p-1.5 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 z-20">
+                                        <Zap size={12} className="fill-current" />
                                      </div>
                                    )}
                                 </div>
-                              <div className="text-center space-y-1">
-                                 <span className="block text-[11px] font-black text-zinc-100 uppercase tracking-tight group-hover:text-purple-400 transition-colors">{effect.label || effect.name}</span>
-                                 <span className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest italic">{effect.category}</span>
-                              </div>
+
+                                <div className="text-center w-full overflow-hidden">
+                                   <span className={`block text-[10px] font-black uppercase tracking-tight transition-colors truncate ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'}`}>
+                                     {effect.label || effect.name}
+                                   </span>
+                                   <span className="block text-[7px] font-bold text-zinc-600 uppercase tracking-[0.2em] mt-1 italic">
+                                     {effect.category}
+                                   </span>
+                                </div>
                              </motion.div>
                            );
                          })}
