@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ShieldAlert, Zap, Crown, Check, ArrowRight, Palette, CircleSlash, Box, Image as ImageIcon, Star, Sparkles, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import SiberAvatar from '../components/SiberAvatar';
+import AnimeAvatar from '../components/AnimeAvatar';
 import effectsData from '../data/effects.json';
 
 export default function EliteUpgrade() {
@@ -199,8 +199,8 @@ export default function EliteUpgrade() {
                   <div className="relative mb-6 flex items-center justify-center w-24 h-24">
                     {/* Arka plandaki karanlık daire (Avatar yer tutucu) */}
                     <div className="absolute inset-0 m-auto w-[4.5rem] h-[4.5rem] bg-zinc-950 rounded-full border border-zinc-800 shadow-inner" />
-                    {/* SiberAvatar bileşeni (tam oturacak şekilde boyutlandırıldı) */}
-                    <SiberAvatar src={null} effect={effect} size="w-[4.5rem] h-[4.5rem]" className="absolute inset-0 z-10" />
+                    {/* AnimeAvatar bileşeni (tam oturacak şekilde boyutlandırıldı) */}
+                    <AnimeAvatar src={null} effect={effect} size="w-[4.5rem] h-[4.5rem]" className="absolute inset-0 z-10" />
                   </div>
                   <div className="text-center w-full">
                     <span className="block text-xs font-black text-white uppercase tracking-tight truncate opacity-90 mb-1">

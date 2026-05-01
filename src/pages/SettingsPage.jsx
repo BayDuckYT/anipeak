@@ -23,7 +23,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
-import SiberAvatar from '../components/SiberAvatar.jsx';
+import AnimeAvatar from '../components/AnimeAvatar.jsx';
 import effectsData from '../data/effects.json';
 
 export default function SettingsPage() {

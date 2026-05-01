@@ -31,12 +31,14 @@ import {
   Bell,
   Play,
   Lock,
-  X
+  X,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
-import SiberAvatar from '../components/SiberAvatar.jsx';
+import AnimeAvatar from '../components/AnimeAvatar.jsx';
 import effectsData from '../data/effects.json';
+import nameplatesData from '../data/nameplates.json';
 import Cropper from 'react-easy-crop';
 import { uploadAvatar } from '../lib/imageService';
 import { getEffectCSS, canUseBundle, getUnlockedEffectParts, ELITE_BUNDLES } from '../lib/eliteBundles';
@@ -187,7 +189,7 @@ export default function ProfileShowcase() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
   const [isMixModalOpen, setIsMixModalOpen] = useState(false);
-  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' });
+  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none' });
   const [previewEffect, setPreviewEffect] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumToast, setPremiumToast] = useState(false);
@@ -279,15 +281,50 @@ export default function ProfileShowcase() {
     try {
       let updates = {};
       if (bundleId === 'none') {
-        updates = { active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' } };
+        updates = { active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none' } };
       } else if (bundleId && bundleId !== 'mix') {
         const bundle = ELITE_BUNDLES.find(b => b.id === bundleId);
-        updates = { active_mix: { ...bundle.effects, aura: bundle.canvasEffect } };
+        updates = { active_mix: { ...bundle.effects, aura: bundle.canvasEffect, nameplate: mixState.nameplate } };
       } else {
         updates = { active_mix: mixState };
       }
       await updateProfile(updates);
     } catch (err) { console.error(err); }
+  };
+
+  // --- SUB-COMPONENT: Nameplate Item ---
+  const NameplateItem = ({ filename, isActive, onSelect }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    return (
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={onSelect}
+        className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
+          isActive 
+            ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]' 
+            : 'border-white/5 hover:border-white/20 bg-zinc-900/50'
+        }`}
+      >
+        <video 
+          src={`/nameplates/${filename}`} 
+          autoPlay={isActive || isHovered} 
+          muted loop 
+          playsInline
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isActive || isHovered ? 'opacity-100' : 'opacity-40'}`}
+        />
+        
+        {isActive && (
+          <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
+            <div className="bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-md shadow-xl flex items-center gap-1">
+              <Check size={10} /> KUŞANILDI
+            </div>
+          </div>
+        )}
+      </motion.div>
+    );
   };
 
   const categories = useMemo(() => ['Tümü', ...new Set(effectsData.map(d => d.category))], []);
@@ -297,6 +334,8 @@ export default function ProfileShowcase() {
       ? effectsData 
       : effectsData.filter(d => d.category === decorationCategory);
   }, [decorationCategory]);
+
+  // ... (getSocialIcon, getPlatformUrl logic)
 
   const getSocialIcon = (platform) => {
     switch (platform) {
@@ -518,19 +557,37 @@ export default function ProfileShowcase() {
 
               {/* Profile Header */}
               <div className="p-8 flex flex-col items-center text-center space-y-4 relative z-10">
-                <SiberAvatar 
+                <AnimeAvatar 
                   src={displayUser.avatar_url} 
                   effect={previewEffect || activeEffectObj} 
                   size="w-32 h-32" 
                   forcePlay={true}
                 />
 
-                <div className="space-y-1">
-                  <h2 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-2">
-                    {displayUser.username}
-                    <span className="text-[10px] font-black bg-zinc-800 px-2 py-0.5 rounded text-zinc-500">SV.{displayUser.level || 1}</span>
-                  </h2>
-                  <p className="text-zinc-500 text-[10px] font-medium tracking-wider uppercase">anipeak.com/profil/{displayUser.username}</p>
+                <div className="relative w-full aspect-[3/1] flex flex-col items-center justify-center overflow-hidden rounded-2xl group border border-white/5 shadow-xl">
+                  {/* --- NAMEPLATE VIDEO BACKGROUND --- */}
+                  {(isOwnProfile ? mixState.nameplate : (displayUser.active_mix?.nameplate || 'none')) !== 'none' && (
+                    <div className="absolute inset-0 z-0">
+                      <video 
+                        src={`/nameplates/${isOwnProfile ? mixState.nameplate : displayUser.active_mix.nameplate}`} 
+                        autoPlay muted loop playsInline 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+                    </div>
+                  )}
+
+                  <div className="relative z-10 text-center w-full px-2">
+                    <h2 className={`text-xl font-black tracking-tighter flex items-center justify-center gap-1.5 ${
+                      (isOwnProfile ? mixState.nametag : (displayUser.active_mix?.nametag || 'none')) !== 'none' 
+                        ? `nametag-effect-${isOwnProfile ? mixState.nametag : displayUser.active_mix.nametag}` 
+                        : 'text-white'
+                    }`}>
+                      <span className="truncate max-w-[140px]">{displayUser.username}</span>
+                      <span className="text-[7px] font-black bg-white/10 px-1 py-0.5 rounded text-zinc-400 border border-white/5 shadow-sm shrink-0">SV.{displayUser.level || 1}</span>
+                    </h2>
+                    <p className="text-zinc-500 text-[7px] font-bold tracking-[0.15em] uppercase mt-0.5 opacity-50 truncate">anipeak.com/profil/{displayUser.username}</p>
+                  </div>
                 </div>
 
                 <p className="text-zinc-400 text-xs italic font-medium">
@@ -813,6 +870,58 @@ export default function ProfileShowcase() {
                     </div>
                     */}
 
+                    {/* --- İSİM PLAKETİ SECTION --- */}
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center gap-3 text-zinc-500">
+                          <CreditCard size={14} />
+                          <h4 className="text-[10px] font-black uppercase tracking-widest italic">İSİM PLAKETİ MARKERİ</h4>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                        {/* Remove Option */}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            const newMix = { ...mixState, nameplate: 'none' };
+                            setMixState(newMix);
+                            handleSaveEffects('mix');
+                          }}
+                          className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 flex items-center justify-center cursor-pointer transition-all ${
+                            mixState.nameplate === 'none' ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/5 bg-zinc-900/50'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center gap-1">
+                            <X size={16} className="text-zinc-500" />
+                            <span className="text-[10px] font-black uppercase text-zinc-500">Kaldır</span>
+                          </div>
+                          {mixState.nameplate === 'none' && (
+                            <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center">
+                              <Check size={10} className="text-white" />
+                            </div>
+                          )}
+                        </motion.div>
+
+                        {/* Nameplate List */}
+                        {nameplatesData.map((filename) => (
+                          <NameplateItem 
+                            key={filename} 
+                            filename={filename} 
+                            isActive={mixState.nameplate === filename}
+                            onSelect={() => {
+                              const newMix = { ...mixState, nameplate: filename };
+                              setMixState(newMix);
+                              updateProfile({ active_mix: newMix });
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="h-[1px] bg-white/5 w-full my-8" />
+
                     {/* ── DECORATION GRID ── */}
                     <div>
                       <div className="flex items-center justify-between mb-5">
@@ -920,7 +1029,7 @@ export default function ProfileShowcase() {
                             >
                               {/* Effect preview image */}
                               <div className="relative flex items-center justify-center p-0 m-0 overflow-visible mb-6">
-                                <SiberAvatar 
+                                <AnimeAvatar 
                                   src={null} 
                                   effect={effect} 
                                   size="w-20 h-20" 

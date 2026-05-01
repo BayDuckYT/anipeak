@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS conversation_members CASCADE;
 DROP TABLE IF EXISTS conversations CASCADE;
 
+-- 1. Veri Tipi Uyumluluğu (BIGINT vs UUID Fix)
+-- Tabloları sıfırdan ve UUID uyumlu oluşturuyoruz.
+
 -- 2. error_reports tablosundaki eski default 'Açık' yerine 'Beklemede' olsun
 ALTER TABLE error_reports ALTER COLUMN status SET DEFAULT 'Beklemede';
 
@@ -23,6 +26,7 @@ CREATE POLICY "error_user_view_own" ON error_reports FOR SELECT USING (
 
 -- 4. Profiles tablosuna eksik kolonları ekle (Dekorasyon ve Linkler)
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS active_decoration TEXT DEFAULT 'none';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS active_mix JSONB DEFAULT '{"avatar": "none", "comment": "none", "nametag": "none", "aura": "none", "nameplate": "none"}';
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]';
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS xp BIGINT DEFAULT 0;
 
@@ -41,21 +45,21 @@ CREATE TABLE conversations (
   last_message_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE conversation_members (
-  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  joined_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(conversation_id, user_id)
-);
-
 CREATE TABLE messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-  sender_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  text TEXT,
+  sender_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  text TEXT NOT NULL,
   attachments JSONB DEFAULT '[]',
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE conversation_members (
+  conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  joined_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (conversation_id, user_id)
 );
 
 -- RLS Politikaları (Tip Bağımsız Karşılaştırma)
@@ -93,12 +97,20 @@ CREATE POLICY "members_manage_own" ON conversation_members FOR DELETE USING (use
 
 -- Global Topluluk Sohbetini oluştur
 INSERT INTO conversations (id, name, type)
-VALUES ('00000000-0000-0000-0000-000000000000', 'TOPLULUK', 'community');
+VALUES ('00000000-0000-0000-0000-000000000000', 'TOPLULUK', 'community')
+ON CONFLICT (id) DO NOTHING;
 
 -- İlk Hoş Geldin Mesajı
 INSERT INTO messages (conversation_id, sender_id, text)
-VALUES ('00000000-0000-0000-0000-000000000000', NULL, 'AniPeak Karargahına Hoş Geldiniz! Siber sinyal aktif, operasyon başladı. 🚀');
+VALUES ('00000000-0000-0000-0000-000000000000', NULL, 'AniPeak Dünyasına Hoş Geldiniz! Sohbet kanalları aktif, iyi eğlenceler uşağım! 🚀')
+ON CONFLICT DO NOTHING;
+
+-- REALTIME AKTİFLEŞTİRME (Supabase Dashboard'da da yapılabilir)
+-- Not: Eğer hata alırsanız Supabase Dashboard > Database > Replication kısmından aktif edin.
+ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE conversations;
+ALTER PUBLICATION supabase_realtime ADD TABLE conversation_members;
 
 -- Bitti!
-SELECT 'AniPeak patch başarıyla uygulandı ✅' AS result;
+SELECT 'AniPeak Manga & Eğlence Yaması başarıyla uygulandı ✅' AS result;
 NOTIFY pgrst, 'reload schema';

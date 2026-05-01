@@ -23,89 +23,165 @@ import {
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { supabase } from '../lib/supabaseClient';
-import SiberAvatar from '../components/SiberAvatar.jsx';
+import AnimeAvatar from '../components/AnimeAvatar.jsx';
+
+// --- SUB-COMPONENT: Message Item ---
+import { Link } from 'react-router-dom';
+
+// --- SUB-COMPONENT: Anime Nameplate (Discord Style) ---
+const AnimeNameplate = ({ username, role, mix }) => {
+  const nametagEffect = mix?.nametag || 'none';
+  const nameplateFile = mix?.nameplate || 'none';
+  const isAdmin = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(role);
+  
+  const isMalevolent = nametagEffect === 'malevolent-shrine';
+  const isVoid = nametagEffect === 'unlimited-void';
+  const isCursed = nametagEffect === 'cursed-fire';
+
+  return (
+    <Link to={`/profil/${username}`} className="relative group cursor-pointer w-[130px] h-[44px] block">
+      <div className={`relative w-full h-full rounded-md transition-all duration-500 flex items-center justify-center gap-2 overflow-hidden border
+        ${nametagEffect !== 'none' || nameplateFile !== 'none'
+          ? 'border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] bg-zinc-950/40' 
+          : 'bg-transparent border-transparent'
+        }`}
+      >
+        {/* ── VIDEO NAMEPLATE BACKGROUND ── */}
+        {nameplateFile !== 'none' && (
+          <div className="absolute inset-0 z-0">
+            <video 
+              src={`/nameplates/${nameplateFile}`} 
+              autoPlay muted loop playsInline 
+              className="absolute inset-0 w-full h-full object-cover z-0"
+            />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] z-[1]" />
+          </div>
+        )}
+
+        {/* ── ANIMATED CSS EFFECTS ── */}
+        {isMalevolent && (
+          <div className="absolute inset-0 z-[2] pointer-events-none overflow-hidden">
+             <div className="absolute bottom-0 left-0 right-0 h-[60%] bg-gradient-to-t from-red-600/40 to-transparent animate-pulse" />
+             <motion.div 
+               animate={{ x: [-100, 100] }}
+               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+               className="absolute bottom-0 left-0 w-full h-[2px] bg-red-500 blur-[2px] opacity-50"
+             />
+          </div>
+        )}
+
+        {isVoid && (
+          <div className="absolute inset-0 z-[2] pointer-events-none">
+             <div className="absolute inset-0 bg-indigo-600/10 animate-pulse" />
+          </div>
+        )}
+        
+        {/* Username */}
+        <span className={`relative z-10 text-[10px] font-black uppercase tracking-tight transition-all duration-300 truncate max-w-[80px]
+          ${nametagEffect !== 'none' ? `nametag-effect-${nametagEffect}` : 'text-slate-300 group-hover:text-white'}
+        `}>
+          {username}
+        </span>
+
+        {/* Admin Badge */}
+        {isAdmin && (
+          <span className="relative z-10 text-[6px] bg-red-600 text-white px-1 py-0.5 rounded-sm font-black uppercase tracking-widest shadow-[0_0_10px_rgba(220,38,38,0.4)] shrink-0">
+            ADM
+          </span>
+        )}
+      </div>
+      
+      {/* Outer Glow */}
+      {(nametagEffect !== 'none' || nameplateFile !== 'none') && (
+        <div className="absolute inset-0 -z-10 rounded-md bg-white/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      )}
+    </Link>
+  );
+};
 
 // --- SUB-COMPONENT: Message Item ---
 const MessageItem = ({ msg, isMe, effectLookup }) => {
-  // Efekt Linki Tespiti (Örn: /effect/123)
   const effectMatch = msg.text?.match(/\/effect\/(\d+)/);
   const effectId = effectMatch ? parseInt(effectMatch[1]) : null;
   const linkedEffect = effectId ? effectLookup.find(e => e.id === effectId) : null;
 
-  const isAdmin = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(msg.sender?.role);
+  const mix = msg.sender?.active_mix || { avatar: 'none', nametag: 'none', nameplate: 'none' };
+  const avatarEffect = effectLookup.find(e => e.id === mix.avatar);
+  const nameplateFile = mix.nameplate || 'none';
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      className={`flex ${isMe ? 'justify-end' : 'justify-start'} mb-6`}
+      initial={{ opacity: 0, x: -5 }}
+      animate={{ opacity: 1, x: 0 }}
+      className={`relative flex items-start gap-4 mb-4 p-3 rounded-2xl transition-all group overflow-hidden border border-transparent hover:border-white/5`}
     >
-      {!isMe && (
-        <div className="mr-3 flex-shrink-0 mt-auto">
-          <SiberAvatar 
-            url={msg.sender?.avatar_url} 
-            decorationId={msg.sender?.active_decoration} 
-            size="w-10 h-10" 
+      {/* ── FULL BUBBLE NAMEPLATE BACKGROUND ── */}
+      {nameplateFile !== 'none' && (
+        <div className="absolute inset-0 z-0">
+          <video 
+            src={`/nameplates/${nameplateFile}`} 
+            autoPlay muted loop playsInline 
+            className="absolute inset-0 w-full h-full object-cover z-0"
           />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[1]" />
         </div>
       )}
 
-      <div className={`max-w-[85%] sm:max-w-[70%] group flex flex-col ${isMe ? 'items-end' : 'items-start'} gap-1.5`}>
-        {/* Sender Name & Badge */}
-        {!isMe && (
-          <div className="flex items-center gap-2 mb-0.5 px-1">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter italic">{msg.sender?.username}</span>
-            {isAdmin && (
-              <span className="text-[8px] bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded font-black uppercase tracking-widest animate-pulse">
-                YETKİLİ
-              </span>
-            )}
-          </div>
-        )}
+      {/* LEFT: Avatar Area */}
+      <Link to={`/profil/${msg.sender?.username}`} className="relative z-10 flex-shrink-0 mt-1 hover:scale-105 transition-transform">
+        <AnimeAvatar 
+          src={msg.sender?.avatar_url} 
+          effect={avatarEffect}
+          size="w-11 h-11" 
+          forcePlay={true}
+        />
+      </Link>
 
-        <div className={`relative px-4 py-3 rounded-[1.5rem] text-sm leading-relaxed shadow-xl backdrop-blur-md transition-all ${
-          isMe 
-            ? 'bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-br-none shadow-indigo-600/20' 
-            : isAdmin 
-              ? 'bg-red-950/20 border border-red-500/20 text-slate-100 rounded-bl-none shadow-red-500/5'
-              : 'bg-zinc-900/80 border border-white/10 text-slate-200 rounded-bl-none'
-        }`}>
-          {/* Text Content */}
-          <p className="relative z-10">{msg.text}</p>
+      {/* RIGHT: Content Area */}
+      <div className="relative z-10 flex-1 min-w-0 space-y-1">
+        {/* Top: Nameplate & Timestamp */}
+        <div className="flex items-center gap-2">
+          <AnimeNameplate 
+            username={msg.sender?.username || 'Anonim'} 
+            role={msg.sender?.role} 
+            mix={mix} 
+          />
+          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
+            {new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
 
-          {/* Effect Preview (Siber Mini Video) */}
+        {/* Middle: Message Body */}
+        <div className={`text-sm leading-relaxed ${isMe ? 'text-slate-100' : 'text-slate-300'} break-words font-medium`}>
+          <p>{msg.text}</p>
+
+          {/* Mini Preview */}
           {linkedEffect && (
-            <div className="mt-3 p-2 rounded-xl bg-black/40 border border-white/5 overflow-hidden">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+            <div className="mt-3 p-4 rounded-2xl bg-black/40 border border-white/5 max-w-xs shadow-2xl backdrop-blur-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
                   <Zap size={14} className="text-indigo-400" />
                 </div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-indigo-300">Efekt Önizlemesi</div>
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">Efekt Koleksiyonu</div>
               </div>
-              <div className="w-32 h-32 mx-auto relative flex items-center justify-center">
-                <SiberAvatar effect={linkedEffect} size="w-24 h-24" forcePlay={true} />
+              <div className="relative aspect-square flex items-center justify-center bg-black/40 rounded-xl overflow-hidden">
+                <AnimeAvatar effect={linkedEffect} size="w-32 h-32" forcePlay={true} />
               </div>
+              <p className="mt-3 text-center text-[10px] font-black uppercase text-slate-500 tracking-widest">{linkedEffect.label}</p>
             </div>
           )}
 
           {/* Attachments */}
           {msg.attachments?.length > 0 && (
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {msg.attachments.map((at, i) => (
-                <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
+                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all cursor-pointer">
                   <FileText size={14} className="text-blue-400" />
-                  <span className="text-[10px] truncate max-w-[150px] font-bold">{at.name}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">{at.name}</span>
                 </div>
               ))}
             </div>
           )}
-        </div>
-        
-        <div className="flex items-center gap-2 px-1">
-          <span className="text-[9px] text-slate-600 font-bold uppercase tracking-tighter">
-            {new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-          {isMe && <CheckCheck size={12} className="text-indigo-500" />}
         </div>
       </div>
     </motion.div>
@@ -175,7 +251,7 @@ export default function MessagesPage() {
           // Profil bilgilerini arka planda çekip güncelle
           const { data: profile } = await supabase
             .from('profiles')
-            .select('username, avatar_url, role, active_decoration')
+            .select('username, avatar_url, role, active_mix')
             .eq('id', payload.new.sender_id)
             .single();
           
@@ -243,7 +319,7 @@ export default function MessagesPage() {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*, sender:profiles(username, avatar_url, role, active_decoration)')
+        .select('*, sender:profiles(username, avatar_url, role, active_mix)')
         .eq('conversation_id', convId)
         .order('created_at', { ascending: true })
         .limit(100); 
@@ -268,9 +344,10 @@ export default function MessagesPage() {
       text: text,
       created_at: new Date().toISOString(),
       sender: {
-        username: user.email?.split('@')[0] || 'Ben',
-        avatar_url: null,
-        role: 'Kullanıcı'
+        username: user.username || 'Ben',
+        avatar_url: user.avatar_url,
+        role: user.role || 'Kullanıcı',
+        active_mix: user.active_mix
       }
     };
     setMessages(prev => [...prev, tempMsg]);
@@ -352,10 +429,10 @@ export default function MessagesPage() {
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <h2 className="text-2xl font-black italic tracking-tighter gradient-text uppercase">Siber Mesajlar</h2>
+                <h2 className="text-2xl font-black italic tracking-tighter text-indigo-500 uppercase">AniPeak Sohbet</h2>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-widest">Sinyal Aktif</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-widest">Çevrimiçi</span>
                 </div>
               </div>
               <button 
@@ -369,9 +446,9 @@ export default function MessagesPage() {
             {/* Search */}
             <div className="relative group">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-500 transition-colors" />
-              <input 
+                <input 
                 type="text" 
-                placeholder="Kod adı veya kanal ara..."
+                placeholder="Arkadaşlarını veya grupları ara..."
                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
               />
             </div>
@@ -405,7 +482,7 @@ export default function MessagesPage() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-20">
                 <div className="w-12 h-12 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Şifreler Çözülüyor...</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Mesajlar Yükleniyor...</span>
               </div>
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((chat) => (
@@ -431,7 +508,7 @@ export default function MessagesPage() {
                       </span>
                     </div>
                     <p className="text-[10px] truncate text-slate-500 font-medium tracking-tight">
-                      {chat.lastMessage?.text || 'Sinyal bekleniyor...'}
+                      {chat.lastMessage?.text || 'Henüz mesaj yok...'}
                     </p>
                   </div>
                 </button>
@@ -461,8 +538,8 @@ export default function MessagesPage() {
                   <div className="min-w-0">
                     <h3 className="text-lg font-black truncate tracking-tighter uppercase italic">{activeChat.name || 'Özel Sohbet'}</h3>
                     <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                      <span className="text-[9px] text-indigo-400 font-black uppercase tracking-widest italic">Güvenli Hat</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                      <span className="text-[9px] text-indigo-400 font-black uppercase tracking-widest italic">Canlı Sohbet</span>
                     </div>
                   </div>
                 </div>
@@ -498,7 +575,7 @@ export default function MessagesPage() {
                     type="text" 
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Siber mühürlü mesajını buraya gir..."
+                    placeholder="Bir mesaj yaz uşağım..."
                     className="flex-1 bg-transparent border-none text-white text-sm font-bold focus:ring-0 outline-none placeholder:text-slate-700"
                   />
                   <div className="flex items-center gap-1 pr-1">
@@ -529,9 +606,9 @@ export default function MessagesPage() {
                 </motion.div>
               </div>
               <div className="space-y-4 relative z-10">
-                <h2 className="text-5xl font-black italic tracking-tighter uppercase gradient-text">Siber Mesajlar</h2>
+                <h2 className="text-5xl font-black italic tracking-tighter uppercase text-indigo-500">AniPeak Sohbet</h2>
                 <p className="text-slate-500 text-sm font-black uppercase tracking-[0.2em] max-w-[350px] mx-auto leading-loose">
-                  Uçtan uca şifreli, mühürlü bir konuşma başlatmak için bir hedef seç uşağım!
+                  Sohbet başlatmak için bir arkadaşını seç uşağım!
                 </p>
               </div>
               <button 
@@ -563,14 +640,14 @@ export default function MessagesPage() {
                 className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8 relative z-[101] shadow-2xl"
               >
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-2xl font-black italic tracking-tighter uppercase gradient-text">Operasyon Merkezi</h3>
+                  <h3 className="text-2xl font-black italic tracking-tighter uppercase text-indigo-500">Yeni Sohbet</h3>
                   <button onClick={() => setShowNewChat(false)} className="p-2 rounded-xl hover:bg-white/5 text-slate-500 hover:text-white transition-all"><X size={24} /></button>
                 </div>
 
                 <div className="space-y-6">
                   {/* Search User */}
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Siber Hedef Arama</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Kullanıcı Ara</label>
                     <div className="relative">
                       <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
                       <input 

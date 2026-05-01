@@ -52,7 +52,7 @@ export function AuthProvider({ children }) {
         avatar:      data?.avatar_url || authUser?.user_metadata?.avatar_url || null,
         premium:     data?.premium   || false,
         status:      data?.status    || 'Aktif',
-        active_mix:      data?.active_mix      || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none' },
+        active_mix:      data?.active_mix      || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none' },
         avatar_effect:   data?.avatar_effect   || 'none',
         comment_effect:  data?.comment_effect  || 'none',
         nametag_effect:  data?.nametag_effect  || 'none',

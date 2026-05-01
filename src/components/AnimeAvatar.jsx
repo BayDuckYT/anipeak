@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * SiberAvatar - AniPeak High-Fidelity Avatar System (V4-ULTRA)
+ * AnimeAvatar - AniPeak High-Fidelity Avatar System (V4-ULTRA)
  * Profesyonel Render: IntersectionObserver, Lazy Loading, Hover-Play ve Yerel Asset Desteği.
  */
-export default function SiberAvatar({ 
+export default function AnimeAvatar({ 
   src, 
   effect, 
   size = "w-32 h-32", 
@@ -55,13 +55,13 @@ export default function SiberAvatar({
 
     const isVideo = rawSrc.endsWith('.webm') || effect.type === 'video';
     
-    // Milimetrik Hizalama Stili (SİBER BALYOZ V5 - Perfect Center)
+    // Milimetrik Hizalama Stili (Perfect Center)
     const effectStyle = {
       position: 'absolute',
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
-      width: '130%', // %130 Mermi Taşıma
+      width: '130%',
       height: '130%',
       zIndex: 10,
       pointerEvents: 'none',
