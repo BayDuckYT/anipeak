@@ -367,13 +367,14 @@ export default function ProfileShowcase() {
     );
   };
 
-  const categories = useMemo(() => ['Tümü', ...new Set(effectsData.map(d => d.category))], []);
+  const decorationEffectsData = useMemo(() => effectsData.filter(e => e.category !== 'profile_effects'), []);
+  const categories = useMemo(() => ['Tümü', ...new Set(decorationEffectsData.map(d => d.category))], [decorationEffectsData]);
 
   const filteredDecorations = useMemo(() => {
     return decorationCategory === 'Tümü' 
-      ? effectsData 
-      : effectsData.filter(d => d.category === decorationCategory);
-  }, [decorationCategory]);
+      ? decorationEffectsData 
+      : decorationEffectsData.filter(d => d.category === decorationCategory);
+  }, [decorationCategory, decorationEffectsData]);
 
   // ... (getSocialIcon, getPlatformUrl logic)
 
@@ -618,7 +619,7 @@ export default function ProfileShowcase() {
               <div className="p-8 flex flex-col items-center text-center space-y-4 relative z-10">
                 <AnimeAvatar 
                   src={displayUser.avatar_url} 
-                  effect={previewEffect || activeEffectObj} 
+                  effect={(previewEffect?.category !== 'profile_effects' ? previewEffect : null) || activeEffectObj} 
                   size="w-32 h-32" 
                   forcePlay={true}
                 />
