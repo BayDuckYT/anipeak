@@ -107,82 +107,64 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
 
   const mix = msg.sender?.active_mix || { avatar: 'none', nametag: 'none', nameplate: 'none' };
   const avatarEffect = effectLookup.find(e => e.id === mix.avatar);
-  const nameplateFile = mix.nameplate || 'none';
 
   return (
     <motion.div 
-      initial={{ opacity: 0, x: -5 }}
-      animate={{ opacity: 1, x: 0 }}
-      className={`relative flex items-start gap-4 mb-4 p-3 rounded-2xl transition-all group overflow-hidden border border-transparent hover:border-white/5`}
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15 }}
+      className={`flex items-start gap-3 mb-3 px-2 py-1.5 rounded-xl transition-all group hover:bg-white/[0.02]`}
     >
-      {/* ── FULL BUBBLE NAMEPLATE BACKGROUND ── */}
-      {nameplateFile !== 'none' && (
-        <div className="absolute inset-0 z-0">
-          <video 
-            src={`/nameplates/${nameplateFile}`} 
-            autoPlay muted loop playsInline 
-            className="absolute inset-0 w-full h-full object-cover z-0"
-          />
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[1]" />
-        </div>
-      )}
-
-      {/* LEFT: Avatar Area */}
-      <Link to={`/profil/${msg.sender?.username}`} className="relative z-10 flex-shrink-0 mt-1 hover:scale-105 transition-transform">
+      {/* LEFT: Avatar */}
+      <Link to={`/profil/${msg.sender?.username}`} className="flex-shrink-0 mt-0.5 hover:scale-105 transition-transform">
         <AnimeAvatar 
           src={msg.sender?.avatar_url} 
           effect={avatarEffect}
-          size="w-11 h-11" 
+          size="w-10 h-10" 
           forcePlay={true}
         />
       </Link>
 
-      {/* RIGHT: Content Area */}
-      <div className="relative z-10 flex-1 min-w-0 space-y-1">
-        {/* Top: Nameplate & Timestamp */}
-        <div className="flex items-center gap-2">
+      {/* RIGHT: Content */}
+      <div className="flex-1 min-w-0">
+        {/* Nameplate + Timestamp */}
+        <div className="flex items-center gap-2 mb-1">
           <AnimeNameplate 
             username={msg.sender?.username || 'Anonim'} 
             role={msg.sender?.role} 
             mix={mix} 
           />
-          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[9px] text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
             {new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
 
-        {/* Middle: Message Body */}
-        <div className={`text-sm leading-relaxed ${isMe ? 'text-slate-100' : 'text-slate-300'} break-words font-medium`}>
-          <p>{msg.text}</p>
+        {/* Message Text */}
+        <p className={`text-sm leading-relaxed ${isMe ? 'text-slate-100' : 'text-slate-300'} break-words font-medium pl-1`}>
+          {msg.text}
+        </p>
 
-          {/* Mini Preview */}
-          {linkedEffect && (
-            <div className="mt-3 p-4 rounded-2xl bg-black/40 border border-white/5 max-w-xs shadow-2xl backdrop-blur-xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
-                  <Zap size={14} className="text-indigo-400" />
-                </div>
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">Efekt Koleksiyonu</div>
-              </div>
-              <div className="relative aspect-square flex items-center justify-center bg-black/40 rounded-xl overflow-hidden">
-                <AnimeAvatar effect={linkedEffect} size="w-32 h-32" forcePlay={true} />
-              </div>
-              <p className="mt-3 text-center text-[10px] font-black uppercase text-slate-500 tracking-widest">{linkedEffect.label}</p>
+        {/* Effect Mini Preview */}
+        {linkedEffect && (
+          <div className="mt-2 p-3 rounded-2xl bg-black/40 border border-white/5 max-w-[200px] shadow-xl backdrop-blur-xl">
+            <div className="relative aspect-square flex items-center justify-center bg-black/40 rounded-xl overflow-hidden">
+              <AnimeAvatar effect={linkedEffect} size="w-24 h-24" forcePlay={true} />
             </div>
-          )}
+            <p className="mt-2 text-center text-[9px] font-black uppercase text-slate-500 tracking-widest">{linkedEffect.label}</p>
+          </div>
+        )}
 
-          {/* Attachments */}
-          {msg.attachments?.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {msg.attachments.map((at, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all cursor-pointer">
-                  <FileText size={14} className="text-blue-400" />
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">{at.name}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Attachments */}
+        {msg.attachments?.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {msg.attachments.map((at, i) => (
+              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all cursor-pointer">
+                <FileText size={12} className="text-blue-400" />
+                <span className="text-[9px] font-bold uppercase tracking-tighter">{at.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -271,42 +253,46 @@ export default function MessagesPage() {
   const fetchConversations = async () => {
     if (!user) return;
     try {
-      // 1. Üyesi olduğun konuşmaları çek
-      const { data: memberData, error: memberErr } = await supabase
-        .from('conversations')
-        .select('*, conversation_members!inner(user_id)')
-        .eq('conversation_members.user_id', user.id);
+      // Paralel: Kendi konuşmaların + topluluk kanalları
+      const [memberRes, communityRes] = await Promise.all([
+        supabase
+          .from('conversations')
+          .select('*, conversation_members!inner(user_id)')
+          .eq('conversation_members.user_id', user.id)
+          .order('last_message_at', { ascending: false }),
+        supabase
+          .from('conversations')
+          .select('*')
+          .eq('type', 'community')
+          .order('last_message_at', { ascending: false })
+      ]);
 
-      // 2. Tüm topluluk (community) kanallarını çek (Üye olmasan da gör)
-      const { data: communityData, error: commErr } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('type', 'community');
+      if (memberRes.error || communityRes.error) throw (memberRes.error || communityRes.error);
 
-      if (memberErr || commErr) throw (memberErr || commErr);
-
-      // Verileri birleştir ve mükerrer kayıtları temizle
-      const merged = [...communityData, ...memberData];
+      // Birleştir, mükerreratı temizle, sırala
+      const merged = [...(communityRes.data || []), ...(memberRes.data || [])];
       const unique = Array.from(new Map(merged.map(c => [c.id, c])).values())
         .sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at));
 
-      // Son mesajları çek
-      const conversationsWithLastMsg = await Promise.all(unique.map(async (conv) => {
+      // Listeyi hemen göster — N+1 sorgusu yok
+      setConversations(unique.map(c => ({ ...c, lastMessage: null })));
+
+      // Arka planda son mesajları çek (non-blocking)
+      unique.forEach(async (conv) => {
         try {
           const { data: lastMsg } = await supabase
             .from('messages')
-            .select('text, created_at, sender_id')
+            .select('text, created_at')
             .eq('conversation_id', conv.id)
             .order('created_at', { ascending: false })
             .limit(1)
-            .maybeSingle(); 
-          return { ...conv, lastMessage: lastMsg };
-        } catch (e) {
-          return { ...conv, lastMessage: null };
-        }
-      }));
+            .maybeSingle();
+          if (lastMsg) {
+            setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, lastMessage: lastMsg } : c));
+          }
+        } catch { /* sessizce geç */ }
+      });
 
-      setConversations(conversationsWithLastMsg);
     } catch (err) {
       console.error('Fetch conversations error:', err);
       setConversations([]);
