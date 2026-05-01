@@ -537,6 +537,54 @@ export default function MessagesPage() {
 
               {/* Messages Area */}
               <div className="flex-1 overflow-y-auto p-6 flex flex-col custom-scrollbar">
+                
+                {/* ── WELCOME BANNER ── */}
+                <div className="mb-6 p-5 rounded-2xl border border-indigo-500/15 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 relative overflow-hidden">
+                  {/* Subtle glow */}
+                  <div className="absolute top-0 left-0 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+                  
+                  <div className="relative z-10 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-lg">👋</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-white mb-0.5">
+                        {activeChat.type === 'community' 
+                          ? `${activeChat.name || 'Topluluk'} kanalına hoş geldiniz!`
+                          : `Sohbet başladı!`
+                        }
+                      </p>
+                      <p className="text-xs text-slate-400 font-medium leading-relaxed mb-3">
+                        {activeChat.type === 'community'
+                          ? 'Bu kanalda diğer AniPeak üyeleriyle manga, anime ve daha fazlasını konuşabilirsin.'
+                          : 'Bu alan gizlidir ve yalnızca sizinle paylaşılır.'
+                        }
+                      </p>
+                      {/* Rules pills */}
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { icon: '✅', text: 'Saygılı ol' },
+                          { icon: '🚫', text: 'Spam yapma' },
+                          { icon: '📖', text: 'Konu dışı içerik paylaşma' },
+                          { icon: '🎌', text: 'Anime & manga konularına odaklan' },
+                        ].map(rule => (
+                          <span key={rule.text} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/8 text-[10px] font-bold text-slate-400">
+                            <span>{rule.icon}</span>
+                            {rule.text}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3 mb-5 opacity-30">
+                  <div className="flex-1 h-[1px] bg-white/10" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Mesajlar</span>
+                  <div className="flex-1 h-[1px] bg-white/10" />
+                </div>
+
                 <AnimatePresence mode="popLayout">
                   {messages.map((msg) => (
                     <MessageItem 
