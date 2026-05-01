@@ -229,7 +229,7 @@ export default function ProfileShowcase() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
   const [isMixModalOpen, setIsMixModalOpen] = useState(false);
-  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none' });
+  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' });
   const [previewEffect, setPreviewEffect] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumToast, setPremiumToast] = useState(false);
@@ -321,10 +321,10 @@ export default function ProfileShowcase() {
     try {
       let updates = {};
       if (bundleId === 'none') {
-        updates = { active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none' } };
+        updates = { active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' } };
       } else if (bundleId && bundleId !== 'mix') {
         const bundle = ELITE_BUNDLES.find(b => b.id === bundleId);
-        updates = { active_mix: { ...bundle.effects, aura: bundle.canvasEffect, nameplate: mixState.nameplate } };
+        updates = { active_mix: { ...bundle.effects, aura: bundle.canvasEffect, nameplate: mixState.nameplate, profile_effect: mixState.profile_effect || 'none' } };
       } else {
         updates = { active_mix: mixState };
       }
@@ -594,6 +594,25 @@ export default function ProfileShowcase() {
               
               {/* Sidebar Background Blur Effect */}
               <div className="absolute inset-0 pointer-events-none opacity-50 bg-zinc-950/20 backdrop-blur-3xl" />
+
+              {/* FULL CARD PROFILE EFFECT OVERLAY */}
+              {(() => {
+                const activePEId = isOwnProfile ? mixState.profile_effect : displayUser.active_mix?.profile_effect;
+                const previewPEId = previewEffect?.category === 'profile_effects' ? previewEffect.id : null;
+                const targetPEId = previewPEId || activePEId;
+                
+                if (targetPEId && targetPEId !== 'none') {
+                  const peData = effectsData.find(e => e.id === targetPEId);
+                  if (peData?.url) {
+                    return (
+                      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-[2rem]">
+                        <img src={peData.url} alt="Profile Effect" className="w-full h-full object-cover mix-blend-screen opacity-100" />
+                      </div>
+                    );
+                  }
+                }
+                return null;
+              })()}
 
               {/* Profile Header */}
               <div className="p-8 flex flex-col items-center text-center space-y-4 relative z-10">
@@ -908,6 +927,105 @@ export default function ProfileShowcase() {
                       </div>
                     </div>
                     */}
+
+                    {/* ── PROFİL EFEKTLERİ (YENİ) ── */}
+                    <div>
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center gap-3 text-zinc-500">
+                          <Zap size={14} />
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">PROFİL EFEKTLERİ (FULL KART)</h4>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+                        {effectsData.filter(e => e.category === 'profile_effects').map((effect, idx) => {
+                          const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium'];
+                          const hasPremiumAccess = premiumRoles.includes(currentUser?.role);
+                          const isPremiumLocked = !hasPremiumAccess && idx >= PREMIUM_FREE_COUNT;
+                          const isActive = mixState.profile_effect === effect.id || previewEffect?.id === effect.id;
+
+                          return (
+                            <motion.div
+                              key={effect.id}
+                              whileHover={{ scale: isPremiumLocked ? 1.02 : 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className={`group relative flex flex-col items-center py-4 px-3 rounded-2xl border transition-all duration-300 ease-out cursor-pointer overflow-hidden h-[260px] w-full ${
+                                isPremiumLocked
+                                  ? 'bg-zinc-900/50 border-zinc-800/50 opacity-75'
+                                  : isActive
+                                    ? 'bg-zinc-800 ring-2 ring-indigo-500 shadow-[0_0_35px_rgba(99,102,241,0.5)] border-transparent'
+                                    : 'bg-zinc-900 border-transparent hover:-translate-y-1 hover:bg-white/10 hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.6)]'
+                              }`}
+                              onMouseEnter={() => {
+                                if (!isPremiumLocked && isOwnProfile) setPreviewEffect(effect);
+                              }}
+                              onMouseLeave={() => {
+                                if (isOwnProfile) setPreviewEffect(null);
+                              }}
+                              onClick={() => {
+                                if (isPremiumLocked) {
+                                  setPremiumToast(true);
+                                  setTimeout(() => setPremiumToast(false), 3000);
+                                  return;
+                                }
+                                if (isOwnProfile) {
+                                  const newMix = { ...mixState, profile_effect: mixState.profile_effect === effect.id ? 'none' : effect.id };
+                                  setMixState(newMix);
+                                  updateProfile({ active_mix: newMix });
+                                  setPreviewEffect(null);
+                                }
+                              }}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-b from-indigo-900/40 to-zinc-900 z-0"></div>
+                              
+                              {/* Fake Profile Card Overlay Base */}
+                              <div className="relative z-10 flex flex-col items-center mt-8 space-y-2 w-full">
+                                <div className="w-14 h-14 rounded-full bg-zinc-800 border-2 border-zinc-700 flex-shrink-0 shadow-lg shadow-black/50 relative overflow-hidden">
+                                  <User className="absolute inset-0 m-auto text-zinc-600" size={24} />
+                                </div>
+                                <div className="text-center w-full mt-3">
+                                  <div className="w-20 h-3 bg-zinc-700 rounded-full mx-auto mb-1.5 shadow-sm"></div>
+                                  <div className="w-28 h-2 bg-zinc-800 rounded-full mx-auto mb-4"></div>
+                                  <div className="space-y-2 w-[85%] mx-auto opacity-50">
+                                    <div className="w-full h-1.5 bg-zinc-800 rounded-full"></div>
+                                    <div className="w-[90%] h-1.5 bg-zinc-800 rounded-full"></div>
+                                    <div className="w-[60%] h-1.5 bg-zinc-800 rounded-full"></div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* The Effect Layer */}
+                              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                                <img src={effect.url} alt={effect.label} className="w-full h-full object-cover mix-blend-screen opacity-90" />
+                              </div>
+
+                              {/* Label Area */}
+                              <div className="absolute bottom-3 left-0 right-0 z-30 text-center w-full px-2">
+                                <span className={`block text-[11px] font-black uppercase tracking-tight transition-colors truncate drop-shadow-[0_2px_2px_rgba(0,0,0,1)] ${
+                                  isActive ? 'text-white' : isPremiumLocked ? 'text-zinc-500' : 'text-zinc-300 group-hover:text-white'
+                                }`}>
+                                  {effect.label || effect.name}
+                                </span>
+                              </div>
+
+                              {isPremiumLocked && (
+                                <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-[3px] flex flex-col items-center justify-center p-4 z-40">
+                                  <Lock size={20} className="text-amber-500 mb-2 drop-shadow-md" />
+                                  <span className="text-[9px] font-black text-amber-500/80 uppercase tracking-widest text-center">ELİT KİLİT</span>
+                                </div>
+                              )}
+                              {mixState.profile_effect === effect.id && (
+                                <div className="absolute top-3 right-3 p-1.5 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 z-30 ring-2 ring-zinc-900">
+                                  <Check size={12} className="fill-current" />
+                                </div>
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="h-[1px] bg-white/5 w-full my-8" />
 
                     {/* ── DECORATION GRID (Moved to Top) ── */}
                     <div>
