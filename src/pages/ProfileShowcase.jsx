@@ -401,7 +401,7 @@ export default function ProfileShowcase() {
                 <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">
                   Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span>
                 </h2>
-                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli siber donanımları anında cephaneliğine ekle ve gücünü kanıtla.</p>
+                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş ve gününü kanıtla.</p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
@@ -469,7 +469,7 @@ export default function ProfileShowcase() {
                     <Palette className="text-purple-400" size={24} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">Siber Mix Masası</h3>
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">Efekt Karıştırıcı</h3>
                     <p className="text-sm text-slate-400">Kilidini açtığın paketlerin parçalarını birleştir</p>
                   </div>
                 </div>
@@ -808,7 +808,7 @@ export default function ProfileShowcase() {
                           <ShoppingCart size={24} />
                         </div>
                         <div>
-                          <h3 className="text-xl font-black text-white uppercase tracking-tight">Siber Market</h3>
+                          <h3 className="text-xl font-black text-white uppercase tracking-tight">AniPeak Market</h3>
                           <p className="text-zinc-500 text-xs">Elit paketlerini kuşan &amp; efektlerini seç</p>
                         </div>
                       </div>
@@ -817,7 +817,7 @@ export default function ProfileShowcase() {
                         className="px-4 py-2 rounded-xl bg-purple-600/10 border border-purple-500/20 flex items-center gap-2 hover:bg-purple-600/20 transition-all"
                       >
                         <Palette size={14} className="text-purple-400" />
-                        <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Siber Mix Masası</span>
+                        <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Efekt Karıştırıcı</span>
                       </button>
                     </div>
 
