@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ShieldAlert, Zap } from 'lucide-react';
@@ -10,59 +10,66 @@ import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import GlobalEffects from './components/GlobalEffects.jsx';
-import Home from './pages/Home.jsx';
-import ManhwaDetail from './pages/ManhwaDetail.jsx';
-import Reader from './pages/Reader.jsx';
-import Admin from './pages/Admin.jsx';
-import ProfilePage from './pages/ProfilePage.jsx';
-import ProfileShowcase from './pages/ProfileShowcase.jsx';
-import SettingsPage from './pages/SettingsPage.jsx';
-import AllSeries from './pages/AllSeries.jsx';
-import StaticPage from './pages/StaticPage.jsx';
-import Contact from './pages/Contact.jsx';
-import Suggestions from './pages/Suggestions.jsx';
-import ResetPassword from './pages/ResetPassword.jsx';
-import CommunityPage from './pages/CommunityPage.jsx';
-import EliteUpgrade from './pages/EliteUpgrade.jsx';
-import ErrorBoundary from './components/ErrorBoundary.jsx';
+import Loader from './components/Loader.jsx';
 import GlobalBundleTheme from './components/GlobalBundleTheme.jsx';
 import ScrollToTop from './components/ScrollToTop.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+
+// Lazy Loaded Pages
+const Home = lazy(() => import('./pages/Home.jsx'));
+const ManhwaDetail = lazy(() => import('./pages/ManhwaDetail.jsx'));
+const Reader = lazy(() => import('./pages/Reader.jsx'));
+const Admin = lazy(() => import('./pages/Admin.jsx'));
+const ProfileShowcase = lazy(() => import('./pages/ProfileShowcase.jsx'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
+const AllSeries = lazy(() => import('./pages/AllSeries.jsx'));
+const StaticPage = lazy(() => import('./pages/StaticPage.jsx'));
+const Contact = lazy(() => import('./pages/Contact.jsx'));
+const Suggestions = lazy(() => import('./pages/Suggestions.jsx'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
+const MessagesPage = lazy(() => import('./pages/MessagesPage.jsx'));
+const EliteUpgrade = lazy(() => import('./pages/EliteUpgrade.jsx'));
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
   const { isEditor, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <Loader />;
   return isEditor ? children : <Navigate to="/" />;
 }
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <Loader />;
   return user ? children : <Navigate to="/" />;
+}
+
+function ProfileRedirect() {
+  const { user } = useAuth();
+  return <Navigate to={`/profil/${user?.username}`} replace />;
 }
 
 function AnimatedRoutes({ onAuthOpen }) {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home onAuthOpen={onAuthOpen} />} />
-        <Route path="/all-series" element={<AllSeries />} />
-        <Route path="/manhwa/:id" element={<ManhwaDetail onAuthOpen={onAuthOpen} />} />
-        <Route path="/read/:id/:chapter" element={<Reader />} />
-        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-        <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-        <Route path="/profil/:username" element={<ProfileShowcase />} />
-        <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/iletisim" element={<Contact />} />
-        <Route path="/oneriler" element={<Suggestions />} />
-        <Route path="/topluluk" element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
-        <Route path="/citadel" element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
-        <Route path="/citadel/:category" element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
-        <Route path="/elite-upgrade" element={<EliteUpgrade />} />
-        <Route path="/:slug" element={<StaticPage />} />
-      </Routes>
+      <Suspense fallback={<Loader fullScreen={false} text="Siber Uzay Yükleniyor..." />}>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Home onAuthOpen={onAuthOpen} />} />
+          <Route path="/all-series" element={<AllSeries />} />
+          <Route path="/manhwa/:id" element={<ManhwaDetail onAuthOpen={onAuthOpen} />} />
+          <Route path="/read/:id/:chapter" element={<Reader />} />
+          <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+          <Route path="/profile" element={<PrivateRoute><ProfileRedirect /></PrivateRoute>} />
+          <Route path="/profil/:username" element={<ProfileShowcase />} />
+          <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/iletisim" element={<Contact />} />
+          <Route path="/oneriler" element={<Suggestions />} />
+          <Route path="/messages" element={<PrivateRoute><MessagesPage /></PrivateRoute>} />
+          <Route path="/elite-upgrade" element={<EliteUpgrade />} />
+          <Route path="/:slug" element={<StaticPage />} />
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 }
@@ -202,8 +209,8 @@ function AppContent() {
   // Bakım modundayken, eğer giriş yapan kişi BAŞ ADMİN DEĞİLSE ekranı kapat
   // İSTİSNA: Şifre sıfırlama sayfası bakım modundan muaf tutulur
   const isResetPage = window.location.pathname === '/reset-password';
-  const { isOkur } = useAuth();
-  const isMaintenanceBlocked = maintenanceMode && !isOwner && !isOkur && !isResetPage;
+  const { isTester } = useAuth();
+  const isMaintenanceBlocked = maintenanceMode && !isOwner && !isTester && !isResetPage;
 
   return (
     <>
@@ -219,7 +226,7 @@ function AppContent() {
               {maintenanceMode && (
                 <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-red-600 to-red-900 border-b border-red-500/50 text-white text-xs font-black py-1.5 uppercase tracking-widest shadow-lg overflow-hidden flex items-center">
                    <marquee scrollamount="8" className="w-full drop-shadow-md">
-                     🚨 SİSTEM BAKIMDA 🚨 • SADECE BAŞ ADMİN MODU AKTİF • LÜTFEN YAPTIĞINIZ DEĞİŞİKLİKLERE DİKKAT EDİNİZ • 🚨 SİSTEM BAKIMDA 🚨
+                     🚨 SİSTEM BAKIMDA 🚨 • SADECE YETKİLİ & TESTER MODU AKTİF • LÜTFEN YAPTIĞINIZ DEĞİŞİKLİKLERE DİKKAT EDİNİZ • 🚨 SİSTEM BAKIMDA 🚨
                    </marquee>
                 </div>
               )}

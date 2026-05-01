@@ -35,10 +35,15 @@ export const ADMIN_ROLES = {
     badge: 'bg-gradient-to-br from-emerald-600 to-teal-800',
     access: ['dashboard', 'content', 'chapterEditor'],
   },
-  'Okur': {
-    color: 'text-sky-400 bg-sky-500/10 border-sky-500/30',
-    badge: 'bg-gradient-to-br from-sky-400 to-blue-600',
-    access: [], // Sadece bakım modu geçişi (App.jsx üzerinden kontrol ediliyor)
+  'Tester': {
+    color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    badge: 'bg-gradient-to-br from-emerald-600 to-teal-800',
+    access: [], // Bakım modu geçişi (App.jsx)
+  },
+  'Premium': {
+    color: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+    badge: 'bg-gradient-to-br from-amber-500 to-orange-700',
+    access: [], 
   },
 };
 
@@ -707,7 +712,7 @@ function UsersPanel({ showToast }) {
                   <label className="block text-[11px] text-slate-400 mb-1.5 font-black uppercase tracking-widest">Sistem Rolü</label>
                   <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))}
                     className="w-full bg-[#0a0a14] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer">
-                    {['Kullanıcı', 'Okur', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
+                    {['Kullanıcı', 'Premium', 'Tester', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
                       <option key={r} value={r} className="bg-[#0a0a14]">{r}</option>
                     ))}
                   </select>

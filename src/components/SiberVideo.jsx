@@ -64,11 +64,16 @@ export default function SiberVideo({ src, className = '', ...props }) {
 
   if (!src) return null;
 
+  // Discord CDN Tüneli (VPN'siz erişim için)
+  const videoSrc = src.includes('cdn.discordapp.com')
+    ? `/api/proxy?url=${encodeURIComponent(src)}`
+    : src;
+
   return (
     <video
       ref={ref}
       className={className}
-      src={src}
+      src={videoSrc}
       muted
       loop
       playsInline

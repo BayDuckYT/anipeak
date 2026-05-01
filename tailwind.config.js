@@ -22,6 +22,15 @@ export default {
         'hero-glow': 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(168,85,247,0.3), transparent)',
         'card-glow': 'radial-gradient(ellipse at top, rgba(168,85,247,0.15), transparent 70%)',
       },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        }
+      },
+      animation: {
+        'marquee': 'marquee 40s linear infinite',
+      }
     },
   },
   plugins: [],

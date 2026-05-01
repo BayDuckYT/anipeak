@@ -123,15 +123,16 @@ export function AppProvider({ children }) {
     const boot = async () => {
       try {
         setLoading(true);
-        // Tüm çekirdek verileri (Seriler, Bölümler, Duyurular, Bakım Modu)
-        // aynı anda başlatarak bekleme süresini 10 saniyeden < 2.5 saniyeye düşürüyoruz.
+        // Sadece çekirdek verileri (Seriler, Duyurular, Bakım Modu) blocking olarak çekiyoruz.
+        // Bölümler (Chapters) arka planda yüklenecek, bu sayede uygulama anında açılacak.
         await Promise.all([
           fetchWithRetry(loadSeries),
-          fetchWithRetry(loadChapters),
           fetchWithRetry(loadAnnouncements),
           fetchWithRetry(loadMaintenance),
         ]);
-        // Profiller admin-only, non-blocking
+        
+        // Arka plan yüklemeleri (Non-blocking)
+        loadChapters().catch(err => console.warn('[AppCtx] Bölümler arka planda yüklenirken hata:', err.message));
         loadProfiles().catch(err => console.warn('[AppCtx] Profiller yüklenemedi:', err.message));
       } catch (err) {
         console.error("[AppContext] Bootstrap Hatası:", err);
@@ -358,6 +359,7 @@ export function AppProvider({ children }) {
 
   const value = {
     loading,
+    supabase,
     maintenanceMode,
     toggleMaintenance,
     // Series

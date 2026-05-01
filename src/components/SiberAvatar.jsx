@@ -1,104 +1,161 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * SiberAvatar - AniPeak High-Fidelity Avatar System
- * Implements the requested 3-layer precision alignment for Discord-style decorations.
+ * SiberAvatar - AniPeak High-Fidelity Avatar System (V4-ULTRA)
+ * Profesyonel Render: IntersectionObserver, Lazy Loading, Hover-Play ve Yerel Asset Desteği.
  */
 export default function SiberAvatar({ 
   src, 
   effect, 
-  size = "w-32 h-32", // Tailwind classes for size
-  className = "" 
+  size = "w-32 h-32", 
+  className = "",
+  forcePlay = false // Dışarıdan tetiklenebilir (Örn: Aktif efekt)
 }) {
-  
+  const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef(null);
+  const videoRef = useRef(null);
+
+  // Intersection Observer: Sadece ekranda görünürken yükle (Performans Kilidi)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+        // Ekranda değilse videoyu durdur
+        if (!entry.isIntersecting && videoRef.current) {
+          videoRef.current.pause();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Video Kontrolü: Sadece Hover iken VE Görünür iken oynat
+  useEffect(() => {
+    if (videoRef.current && isVisible) {
+      if (isHovered || forcePlay) {
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => { /* Auto-play intercept */ });
+        }
+      } else {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+      }
+    }
+  }, [isHovered, forcePlay, isVisible]);
+
   const renderEffect = () => {
-    const effectSrc = effect.url || effect.src || effect.image || effect.asset;
-    if (!effect || !effectSrc) return null;
+    if (!effect || !isVisible) return null;
+    const rawSrc = effect.url || effect.src || effect.image || effect.asset;
+    if (!rawSrc) return null;
 
-    // Auto-detect type if missing (Discord PNGs are usually spritesheets)
-    const type = effect.type || (effectSrc.includes('discordapp.com') ? 'spritesheet' : 'static');
+    const isVideo = rawSrc.endsWith('.webm') || effect.type === 'video';
+    
+    // Milimetrik Hizalama Stili (SİBER BALYOZ V5 - Perfect Center)
+    const effectStyle = {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '130%', // %130 Mermi Taşıma
+      height: '130%',
+      zIndex: 10,
+      pointerEvents: 'none',
+      objectFit: 'contain',
+    };
 
-    // Layer 3: Siber Çerçeve / Efekt (absolute z-10 oversized)
-    const effectClasses = "absolute -left-[10%] -top-[10%] w-[120%] h-[120%] z-10 pointer-events-none bg-transparent";
+    if (isVideo) {
+      return (
+        <video 
+          ref={videoRef}
+          src={rawSrc} 
+          muted 
+          loop 
+          playsInline
+          preload="none"
+          style={effectStyle}
+          className="max-w-none opacity-90 mix-blend-screen"
+        />
+      );
+    }
 
-    if (type === 'spritesheet') {
-      const frames = effect.steps || 24;
-      const duration = frames / (effect.fps || 12);
+    // Spritesheet Mantığı (Bayraklar ve Özel Spritesheet Efektleri)
+    const isSpritesheet = effect.category === 'flags' || effect.type === 'spritesheet';
+    
+    if (isSpritesheet) {
+      const steps = effect.steps || 30; // Bayraklar için genelde 30 step idealdir
+      const fps = effect.fps || 12;
       
       return (
-        <div className={effectClasses + " overflow-hidden bg-zinc-800/10 animate-pulse"}>
-           <div 
-            className="w-full h-full bg-no-repeat bg-top"
-            style={{
-              backgroundImage: `url(${effectSrc})`,
-              backgroundSize: '100% auto',
-              animation: `siber-spritesheet-v3 ${duration}s steps(${Math.max(1, frames - 1)}) infinite`,
-              '--frames': frames
-            }}
-            onLoad={(e) => {
-              // Note: Background images don't have onLoad, but we can assume success if no error
-              e.currentTarget.parentElement.classList.remove('animate-pulse', 'bg-zinc-800/10');
-            }}
-          />
-          {/* Hidden image to trigger cache and onLoad-like behavior if needed, 
-              but for now let's just use a timeout or trust the browser. 
-              Actually, the user wants the pulse to go away. 
-              I'll use a hidden img to detect load. */}
-          <img 
-            src={effectSrc} 
-            className="hidden" 
-            onLoad={(e) => {
-              const parent = e.currentTarget.parentElement;
-              if (parent) parent.classList.remove('animate-pulse', 'bg-zinc-800/10');
-            }}
-          />
-        </div>
+        <div 
+          style={{
+            ...effectStyle,
+            backgroundImage: `url(${rawSrc})`,
+            backgroundSize: `${steps * 100}% 100%`,
+            backgroundPosition: 'left center',
+            animation: isHovered || forcePlay 
+              ? `siber-spritesheet ${steps / fps}s steps(${steps - 1}) infinite`
+              : 'none'
+          }}
+          className="max-w-none"
+        />
       );
     }
 
-    if (type === 'video') {
-      return (
-        <div className={effectClasses + " overflow-hidden rounded-full"}>
-          <video 
-            src={effectSrc} 
-            autoPlay loop muted playsInline
-            className="w-full h-full object-cover mix-blend-screen opacity-90 scale-[1.1]"
-          />
-        </div>
-      );
-    }
-
+    // Statik / APNG / GIF - IMG Taktiği (Animasyon için en garanti yöntem)
     return (
       <img 
-        src={effectSrc} 
-        className={effectClasses + " object-contain"} 
-        alt={effect.label || effect.name || "Decoration"} 
+        src={rawSrc}
+        alt={effect.label || effect.name}
+        style={effectStyle}
+        className="max-w-none"
       />
     );
   };
 
   return (
-    // Layer 1: Ana Karargah (relative flex items-center justify-center)
-    <div className={`relative flex items-center justify-center ${size} ${className}`}>
-      
-      {/* Layer 2: Alt Katman (Kullanıcı Avatarı - absolute w-full h-full rounded-full z-0) */}
-      <div className="absolute w-full h-full rounded-full overflow-hidden z-0 bg-zinc-950/50 border border-zinc-800/50">
+    <div 
+      ref={containerRef}
+      onMouseEnter={() => setIsVisible(true) || setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative aspect-square flex-shrink-0 overflow-visible cursor-pointer grid place-items-center ${size} ${className}`}
+    >
+      {/* KATMAN 1: AVATAR */}
+      <div className="relative z-0 w-full h-full rounded-full overflow-hidden bg-zinc-950/80 border border-white/5 shadow-2xl">
         {src && (
           <img 
             src={src} 
             alt="Avatar" 
-            className="w-full h-full object-cover"
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         )}
+        {/* İç Gölge ve Derinlik */}
+        <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-full" />
       </div>
 
-      {/* Layer 3: Efekt Katmanı (z-10) */}
-      {renderEffect()}
+      {/* KATMAN 2: EFEKT (Simetrik Render) */}
+      <AnimatePresence>
+        {(isHovered || forcePlay || !effect?.url?.endsWith('.webm')) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0"
+          >
+            {renderEffect()}
+          </motion.div>
+        )}
+      </AnimatePresence>
       
-      {/* Glow Effect Support */}
-      <div className="absolute inset-0 rounded-full bg-purple-500/5 blur-xl pointer-events-none z-[-1]" />
+      {/* Arka Plan Işıltısı (Glow) */}
+      <div className="absolute inset-0 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </div>
   );
 }

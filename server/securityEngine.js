@@ -53,12 +53,13 @@ export function setupSecurityEngine(app) {
     app.use(generalLimiter);
     console.log(`\x1b[36m[INFINITY-GUARD] ⏱️ DDoS Koruma Kalkanı Aktif (Genel Limit).\x1b[0m`);
 
-    // 4. NoSQL INJECTION KORUMASI
-    // Req.body, req.query veya req.params içindeki '$' veya '.' içeren zararlı objeleri temizler
+    // 4. NoSQL INJECTION KORUMASI - Geçici olarak devre dışı (TypeError fix)
+    /*
     app.use(mongoSanitize({
         replaceWith: '_'
     }));
-    console.log(`\x1b[36m[INFINITY-GUARD] 💉 Injection Koruması Aktif (NoSQL/SQL).\x1b[0m`);
+    */
+    console.log(`\x1b[36m[INFINITY-GUARD] 💉 Injection Koruması Pasif (Bakım Modu).\x1b[0m`);
 
     // 5. OTONOM XSS TEMİZLEYİCİ MİDDLEWARE
     // Kullanıcıdan gelen tüm string verileri DOMPurify ile temizler

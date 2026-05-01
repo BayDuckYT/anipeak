@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, MessageSquare, Users
+  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -106,9 +106,6 @@ export default function Header({ onAuthOpen }) {
             <Link to="/#trendler" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.hash === '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
               <TrendingUp size={15} /> Trendler
             </Link>
-            <Link to="/topluluk" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/topluluk') ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
-              <MessageSquare size={15} /> Topluluk
-            </Link>
             <Link to="/elite-upgrade" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all ${location.pathname === '/elite-upgrade' ? 'text-red-400 bg-red-500/10 border border-red-500/30' : 'text-slate-300 hover:text-red-400 hover:bg-red-500/10'}`}>
               <Crown size={15} className="text-red-500" /> Premium
             </Link>
@@ -165,6 +162,16 @@ export default function Header({ onAuthOpen }) {
             {/* Admin */}
             <Link to="/admin" className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all">
               <Shield size={14} /> <span className="hidden lg:inline">Yönetim Paneli</span>
+            </Link>
+
+            {/* Messages - Paper Airplane */}
+            <Link 
+              to="/messages" 
+              className="relative p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
+              title="Mesajlar"
+            >
+              <SendHorizontal size={18} />
+              {/* Optional: Add unread DM count here if available */}
             </Link>
 
           {/* Notifications Bell - Always Visible */}
@@ -392,7 +399,7 @@ export default function Header({ onAuthOpen }) {
                 )}
               </div>
               <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><Compass size={16} /> Keşfet</Link>
-              <Link to="/topluluk" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><MessageSquare size={16} /> Topluluk</Link>
+              <Link to="/messages" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><SendHorizontal size={16} /> Mesajlar</Link>
               <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all"><Crown size={16} /> Premium</Link>
               <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Shield size={16} /> Yönetim Paneli</Link>
               {user ? (

@@ -117,7 +117,8 @@ export function getEffectCSS(effectType, effectId) {
  * Kullanıcının belirli bir paketi kullanıp kullanamayacağını kontrol eder
  */
 export function canUseBundle(bundleId, userRole = 'Kullanıcı', unlockedEffects = []) {
-  if (userRole === 'Baş Admin' || userRole === 'Yönetici' || userRole === 'Admin Yardımcısı') return true;
+  const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium'];
+  if (premiumRoles.includes(userRole)) return true;
   return unlockedEffects.includes(bundleId);
 }
 
@@ -126,8 +127,10 @@ export function canUseBundle(bundleId, userRole = 'Kullanıcı', unlockedEffects
  * Bu sayede Mix & Karıştır menüsünde sadece sahip olunan paketlerin parçaları görünür.
  */
 export function getUnlockedEffectParts(userRole, unlockedEffects = []) {
-  const isAdmin = userRole === 'Baş Admin' || userRole === 'Yönetici' || userRole === 'Admin Yardımcısı';
-  const availableBundles = isAdmin 
+  const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium'];
+  const hasPremiumAccess = premiumRoles.includes(userRole);
+  
+  const availableBundles = hasPremiumAccess 
     ? ELITE_BUNDLES 
     : ELITE_BUNDLES.filter(b => unlockedEffects.includes(b.id));
 

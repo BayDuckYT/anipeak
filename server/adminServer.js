@@ -184,6 +184,47 @@ app.get('/api/admin/suggestions', (req, res) => {
     }
 });
 
+// [PROXY] - Discord CDN Tüneli (VPN'siz erişim için)
+app.get('/api/proxy', async (req, res) => {
+    const targetUrl = req.query.url;
+    if (!targetUrl) return res.status(400).send('URL eksik.');
+
+    try {
+        console.log(`🔗 [PROXY] İstek: ${targetUrl.substring(0, 50)}...`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
+
+        const response = await fetch(targetUrl, {
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Referer': 'https://discord.com/'
+            }
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`Discord Hatası: ${response.status} ${response.statusText}`);
+
+        const contentType = response.headers.get('content-type');
+        res.setHeader('Content-Type', contentType);
+        
+        // 24 Saatlik Önbellek Mühürlemesi
+        res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=43200');
+
+        const buffer = await response.arrayBuffer();
+        res.send(Buffer.from(buffer));
+    } catch (err) {
+        console.error('❌ [PROXY-HATASI]:', err.message);
+        res.status(500).send('Proxy üzerinden veri çekilemedi.');
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`\n\x1b[35m%s\x1b[0m`, `⚓ ANIPEAK YÖNETİM MERKEZİ AKTİF ⚓`);
     console.log(`\x1b[36m%s\x1b[0m`, `Port: ${PORT}`);

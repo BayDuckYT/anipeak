@@ -50,6 +50,18 @@ body {
   .border-white\/8 { border-color: rgba(255,255,255,0.08); }
   .border-white\/5 { border-color: rgba(255,255,255,0.05); }
   .border-white\/3 { border-color: rgba(255,255,255,0.03); }
+  .mask-horizontal-fade {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+  .animate-spin-reverse {
+    animation: spin-reverse 1s linear infinite;
+  }
+}
+
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
 }
 
 @keyframes float {
@@ -85,6 +97,11 @@ body {
 @keyframes lightning-flash {
   0%, 90%, 100% { box-shadow: 0 0 8px 2px rgba(100,180,255,0.3); }
   92%, 96% { box-shadow: 0 0 30px 8px rgba(150,220,255,0.9), 0 0 60px 15px rgba(100,180,255,0.5); }
+}
+
+@keyframes siber-spritesheet {
+  from { background-position: 0% center; }
+  to { background-position: 100% center; }
 }
 @keyframes sailor-flash {
   0%, 100% { box-shadow: 0 0 12px 3px rgba(59,130,246,0.4), 0 0 24px 6px rgba(255,255,255,0.1); }
@@ -127,6 +144,10 @@ body {
   0%, 100% { color: #ff6b00; text-shadow: 0 0 8px rgba(255,107,0,0.6); }
   33%      { color: #ff4500; text-shadow: 0 0 12px rgba(255,69,0,0.7); }
   66%      { color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.6); }
+}
+@keyframes siber-spritesheet {
+  from { background-position: 0% center; }
+  to   { background-position: 100% center; }
 }
 
 /* ── AVATAR FRAME EFEKTLERİ ──────────────────────────────────────────────── */
