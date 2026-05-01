@@ -909,59 +909,7 @@ export default function ProfileShowcase() {
                     </div>
                     */}
 
-                    {/* --- İSİM PLAKETİ SECTION --- */}
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-3 text-zinc-500">
-                          <CreditCard size={14} />
-                          <h4 className="text-[10px] font-black uppercase tracking-widest italic">İSİM PLAKETİ MARKERİ</h4>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
-                        {/* Remove Option */}
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            const newMix = { ...mixState, nameplate: 'none' };
-                            setMixState(newMix);
-                            handleSaveEffects('mix');
-                          }}
-                          className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 flex items-center justify-center cursor-pointer transition-all ${
-                            mixState.nameplate === 'none' ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/5 bg-zinc-900/50'
-                          }`}
-                        >
-                          <div className="flex flex-col items-center gap-1">
-                            <X size={16} className="text-zinc-500" />
-                            <span className="text-[10px] font-black uppercase text-zinc-500">Kaldır</span>
-                          </div>
-                          {mixState.nameplate === 'none' && (
-                            <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center">
-                              <Check size={10} className="text-white" />
-                            </div>
-                          )}
-                        </motion.div>
-
-                        {/* Nameplate List */}
-                        {nameplatesData.map((filename) => (
-                          <NameplateItem 
-                            key={filename} 
-                            filename={filename} 
-                            isActive={mixState.nameplate === filename}
-                            onSelect={() => {
-                              const newMix = { ...mixState, nameplate: filename };
-                              setMixState(newMix);
-                              updateProfile({ active_mix: newMix });
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="h-[1px] bg-white/5 w-full my-8" />
-
-                    {/* ── DECORATION GRID ── */}
+                    {/* ── DECORATION GRID (Moved to Top) ── */}
                     <div>
                       <div className="flex items-center justify-between mb-5">
                         <div className="flex items-center gap-3 text-zinc-500">
@@ -1111,6 +1059,58 @@ export default function ProfileShowcase() {
                             </motion.div>
                           );
                         })}
+                      </div>
+                    </div>
+
+                    <div className="h-[1px] bg-white/5 w-full my-8" />
+
+                    {/* --- İSİM PLAKETİ SECTION (Moved Below) --- */}
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center gap-3 text-zinc-500">
+                          <CreditCard size={14} />
+                          <h4 className="text-[10px] font-black uppercase tracking-widest italic">İSİM PLAKETİ MARKERİ</h4>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                        {/* Remove Option */}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            const newMix = { ...mixState, nameplate: 'none' };
+                            setMixState(newMix);
+                            handleSaveEffects('mix');
+                          }}
+                          className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 flex items-center justify-center cursor-pointer transition-all ${
+                            mixState.nameplate === 'none' ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/5 bg-zinc-900/50'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center gap-1">
+                            <X size={16} className="text-zinc-500" />
+                            <span className="text-[10px] font-black uppercase text-zinc-500">Kaldır</span>
+                          </div>
+                          {mixState.nameplate === 'none' && (
+                            <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center">
+                              <Check size={10} className="text-white" />
+                            </div>
+                          )}
+                        </motion.div>
+
+                        {/* Nameplate List */}
+                        {nameplatesData.map((filename) => (
+                          <NameplateItem 
+                            key={filename} 
+                            filename={filename} 
+                            isActive={mixState.nameplate === filename}
+                            onSelect={() => {
+                              const newMix = { ...mixState, nameplate: filename };
+                              setMixState(newMix);
+                              updateProfile({ active_mix: newMix });
+                            }}
+                          />
+                        ))}
                       </div>
                     </div>
                   </div>
