@@ -7,12 +7,20 @@ import './index.css'
 const LEGACY_KEYS = ['anipeak_user', 'anipeak_maintenance', 'anipeak_history'];
 LEGACY_KEYS.forEach(key => localStorage.removeItem(key));
 
-// [KOZMİK GÜVENLİK] Global Error Fallback
+// [KOZMİK GÜVENLİK] Global Error Fallback & Chunk Load Fix
 window.addEventListener('unhandledrejection', (event) => {
   console.error('[KOZMİK SESSİZ HATA]', event.reason);
-  // Optional: Force reload if it's a critical script load failure
-  if (event.reason?.message?.includes('Load failed')) {
-    window.location.reload();
+  
+  const msg = event.reason?.message || '';
+  const isChunkError = msg.includes('Failed to fetch dynamically imported module') || 
+                       msg.includes('Importing a module script failed') || 
+                       msg.includes('Load failed');
+                       
+  if (isChunkError) {
+    // Prevent the default error overlay
+    event.preventDefault();
+    // Hard reload the page to get the latest chunk hashes from index.html
+    window.location.reload(true);
   }
 });
 

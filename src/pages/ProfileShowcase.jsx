@@ -88,6 +88,10 @@ export default function ProfileShowcase() {
   const [profileData, setProfileData] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [commentsCount, setCommentsCount] = useState(0);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveError, setSaveError] = useState(null);
   
@@ -123,6 +127,20 @@ export default function ProfileShowcase() {
             .single();
           setIsFollowing(!!followData);
         }
+
+        // Fetch Real Stats (Follows, Comments, Favorites)
+        if (data.id) {
+          const { count: fCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', data.id);
+          const { count: fwCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', data.id);
+          setFollowersCount(fCount || 0);
+          setFollowingCount(fwCount || 0);
+
+          const { count: cCount } = await supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', data.id);
+          setCommentsCount(cCount || 0);
+
+          const { count: favCount } = await supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', data.id);
+          setFavoritesCount(favCount || 0);
+        }
       } catch (err) {
         console.error('Profile fetch error:', err);
       } finally {
@@ -130,7 +148,27 @@ export default function ProfileShowcase() {
       }
     }
     fetchProfile();
-  }, [username, supabase]); // Removed currentUser dependency to prevent loop on save
+  }, [username, supabase, currentUser?.id]); 
+
+  // Real-time Follows Subscription
+  useEffect(() => {
+    if (!profileData?.id) return;
+
+    const channel = supabase.channel(`public:follows:${profileData.id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'follows' }, (payload) => {
+        if (payload.new.following_id === profileData.id) setFollowersCount(prev => prev + 1);
+        if (payload.new.follower_id === profileData.id) setFollowingCount(prev => prev + 1);
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'follows' }, (payload) => {
+        if (payload.old.following_id === profileData.id) setFollowersCount(prev => Math.max(0, prev - 1));
+        if (payload.old.follower_id === profileData.id) setFollowingCount(prev => Math.max(0, prev - 1));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profileData?.id, supabase]);
 
   const displayUser = (isOwnProfile ? (profileData || currentUser) : profileData) || {
     username: username,
@@ -162,17 +200,19 @@ export default function ProfileShowcase() {
     if (!currentUser) return;
     try {
       if (isFollowing) {
-        await supabase
+        setIsFollowing(false); // Optimistic Update
+        const { error } = await supabase
           .from('follows')
           .delete()
           .eq('follower_id', currentUser.id)
           .eq('following_id', profileData.id);
-        setIsFollowing(false);
+        if (error) setIsFollowing(true); // Revert on failure
       } else {
-        await supabase
+        setIsFollowing(true); // Optimistic Update
+        const { error } = await supabase
           .from('follows')
           .insert({ follower_id: currentUser.id, following_id: profileData.id });
-        setIsFollowing(true);
+        if (error) setIsFollowing(false); // Revert on failure
       }
     } catch (err) {
       console.error('Follow error:', err);
@@ -643,13 +683,12 @@ export default function ProfileShowcase() {
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-5 border-y border-zinc-800/50 bg-zinc-950/30">
+              <div className="grid grid-cols-4 border-y border-zinc-800/50 bg-zinc-950/30">
                 {[
-                  { label: 'TAKİPÇİ', value: displayUser.followers || 0 },
-                  { label: 'TAKİP', value: displayUser.following || 0 },
-                  { label: 'FAVORİ', value: displayUser.favorites || 0 },
-                  { label: 'TAKİP', value: 0 },
-                  { label: 'YORUM', value: displayUser.comments || 0 },
+                  { label: 'TAKİPÇİ', value: followersCount },
+                  { label: 'TAKİP', value: followingCount },
+                  { label: 'FAVORİ', value: favoritesCount },
+                  { label: 'YORUM', value: commentsCount },
                 ].map((stat, i) => (
                   <div key={i} className="py-4 flex flex-col items-center justify-center gap-0.5 border-r last:border-0 border-zinc-800/50">
                     <span className="text-xs font-black text-white">{stat.value}</span>

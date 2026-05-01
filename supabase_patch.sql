@@ -105,11 +105,35 @@ INSERT INTO messages (conversation_id, sender_id, text)
 VALUES ('00000000-0000-0000-0000-000000000000', NULL, 'AniPeak Dünyasına Hoş Geldiniz! Sohbet kanalları aktif, iyi eğlenceler uşağım! 🚀')
 ON CONFLICT DO NOTHING;
 
+-- ==========================================
+-- FOLLOWS (TAKİP) SİSTEMİ
+-- ==========================================
+CREATE TABLE IF NOT EXISTS follows (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    follower_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    following_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    UNIQUE(follower_id, following_id)
+);
+
+-- RLS
+ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Herkes takipleri görebilir" 
+ON follows FOR SELECT USING (true);
+
+CREATE POLICY "Kullanıcılar kendileri takip edebilir" 
+ON follows FOR INSERT WITH CHECK (auth.uid() = follower_id);
+
+CREATE POLICY "Kullanıcılar takipten çıkabilir" 
+ON follows FOR DELETE USING (auth.uid() = follower_id);
+
 -- REALTIME AKTİFLEŞTİRME (Supabase Dashboard'da da yapılabilir)
 -- Not: Eğer hata alırsanız Supabase Dashboard > Database > Replication kısmından aktif edin.
 ALTER PUBLICATION supabase_realtime ADD TABLE messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE conversations;
 ALTER PUBLICATION supabase_realtime ADD TABLE conversation_members;
+ALTER PUBLICATION supabase_realtime ADD TABLE follows;
 
 -- Bitti!
 SELECT 'AniPeak Manga & Eğlence Yaması başarıyla uygulandı ✅' AS result;
