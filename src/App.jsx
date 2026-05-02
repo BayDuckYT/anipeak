@@ -111,72 +111,7 @@ function MaintenanceScreen({ onAuthOpen }) {
   );
 }
 
-function ConnectionDiagnostic() {
-  const [show, setShow] = useState(false);
-  const [, setTick] = useState(0); // For forcing re-renders
-  const debugData = window.__SUPABASE_DEBUG__ || {};
-  const authErr = window.__AUTH_ERROR__;
 
-  // Update check every second
-  useEffect(() => {
-    const timer = setInterval(() => setTick(t => t + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  if (!show && !authErr) {
-    return (
-      <button 
-        onClick={() => setShow(true)}
-        className="fixed bottom-4 right-4 z-[1000] w-6 h-6 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-[10px] text-slate-500 hover:bg-white/10 transition-all shadow-lg"
-      >
-        ?
-      </button>
-    );
-  }
-
-  return (
-    <div className="fixed bottom-4 right-4 z-[1000] p-4 glass-strong border border-amber-500/30 rounded-2xl shadow-2xl max-w-[280px] text-[11px] animate-float">
-      <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
-        <span className="font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
-          <Zap size={12} /> Bağlantı Teşhisi
-        </span>
-        <button onClick={() => { setShow(false); window.__AUTH_ERROR__ = null; }} className="text-slate-500 hover:text-white">✕</button>
-      </div>
-      <div className="space-y-2 text-slate-300">
-        <div className="flex justify-between items-center text-[10px]">
-          <span className="opacity-50 uppercase tracking-tighter">Domain:</span>
-          <span className="font-mono bg-white/5 px-2 py-0.5 rounded">{debugData.domain}</span>
-        </div>
-        
-        <div className="mt-4">
-          <span className="block opacity-50 mb-1.5 uppercase tracking-tighter text-[9px]">Mevcut Durum:</span>
-          {authErr ? (
-            <div className="text-red-400 font-bold leading-tight bg-red-500/10 p-3 rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
-              ❌ Bağlantı Yok
-            </div>
-          ) : (
-            <div className="text-emerald-400 font-medium bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/20 italic">
-              ✅ Bağlantı Kararlı
-            </div>
-          )}
-        </div>
-
-        {authErr && authErr.includes('Failed to fetch') && (
-          <div className="text-[9px] text-slate-400 bg-amber-500/5 p-2.5 rounded-lg border border-amber-500/20 leading-relaxed mt-2">
-            <strong className="text-amber-500">İPUCU:</strong> Bu hata genellikle bir <strong className="text-white">AdBlocker</strong> veya <strong className="text-white">Brave Kalkanı</strong>'nın Supabase'i engellediğini gösterir.
-          </div>
-        )}
-
-        {authErr && authErr.includes('timeout') && (
-          <div className="text-[9px] text-slate-400 bg-red-500/5 p-2.5 rounded-lg border border-red-500/20 leading-relaxed mt-2">
-            <strong className="text-red-500">DİKKAT:</strong> Supabase senin IP adresini geçici olarak kısıtlamış (Rate Limit) olabilir. <br/> 
-            <strong className="text-white">ÇÖZÜM:</strong> Giriş Yap'a 15-20 dk sonra tekrar dene veya Google ile devam etmeyi denemelisin.
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 function AppContent() {
   const [authModal, setAuthModal] = useState(null);
@@ -249,8 +184,6 @@ function AppContent() {
               />
             )}
           </AnimatePresence>
-
-          <ConnectionDiagnostic />
         </div>
       </BrowserRouter>
     </>

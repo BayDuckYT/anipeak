@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
         .single();
         
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profil yükleme gecikti (Timeout)')), 10000)
+        setTimeout(() => reject(new Error('Profil yükleme gecikti (Timeout)')), 3000)
       );
 
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
@@ -282,7 +282,6 @@ export function AuthProvider({ children }) {
       } catch (err) {
         // Ağ hatası: kullanıcıyı çıkatma, sadece logla
         console.warn("[Auth] Session yüklenemedi (ağ hatası), oturum korunuyor:", err.message);
-        window.__AUTH_ERROR__ = err.message;
       } finally {
           setLoading(false);
           clearTimeout(safetyTimeout);
@@ -325,7 +324,6 @@ export function AuthProvider({ children }) {
           }
         } catch (err) {
           console.error("[Auth] State Değişim Hatası:", err);
-          window.__AUTH_ERROR__ = "Giriş işlemi tamamlanamadı. Sayfayı yenileyin.";
         } finally {
           if (mounted) setLoading(false); // Her durumda loading kapat
         }
@@ -375,14 +373,10 @@ export function AuthProvider({ children }) {
       return data;
     } catch (err) {
       console.error('[Auth] Login error:', err);
-      const message = err.message === 'Invalid login credentials' 
-        ? 'E-posta veya şifre hatalı!' 
-        : (err.message || 'Giriş yapılamadı.');
-        
-      if (typeof window !== 'undefined') {
-        window.__AUTH_ERROR__ = message;
+      if (err.message === 'Invalid login credentials') {
+        throw new Error('E-posta veya şifre hatalı!');
       }
-      throw new Error(message);
+      throw err;
     }
   };
 
