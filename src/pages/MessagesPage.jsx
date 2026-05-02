@@ -275,21 +275,21 @@ export default function MessagesPage() {
            targetUsername = p?.username || 'Kullanıcı';
         }
 
-        const { data: newConv, error: convErr } = await supabase
+        const newConvId = crypto.randomUUID();
+
+        const { error: convErr } = await supabase
           .from('conversations')
-          .insert({ name: targetUsername, type: 'dm', updated_at: null })
-          .select()
-          .single();
+          .insert({ id: newConvId, name: targetUsername, type: 'dm', updated_at: null });
 
         if (convErr) throw convErr;
 
         await supabase.from('conversation_participants').insert([
-          { conversation_id: newConv.id, user_id: user.id },
-          { conversation_id: newConv.id, user_id: targetId }
+          { conversation_id: newConvId, user_id: user.id },
+          { conversation_id: newConvId, user_id: targetId }
         ]);
 
         fetchConversations();
-        setActiveChat(newConv);
+        setActiveChat({ id: newConvId, name: targetUsername, type: 'dm' });
       } catch (err) {
         console.error('Error creating DM:', err);
       }
@@ -468,18 +468,19 @@ export default function MessagesPage() {
     const type = isGroup ? 'group' : 'dm';
 
     try {
-      // 1. Create conversation
-      const { data: conv, error: convErr } = await supabase
+      // Generate UUID locally so we don't need .select() which triggers RLS SELECT block
+      const newConvId = crypto.randomUUID();
+
+      // 1. Create conversation (no .select() to avoid RLS read error before participants exist)
+      const { error: convErr } = await supabase
         .from('conversations')
-        .insert([{ name, type }])
-        .select()
-        .single();
+        .insert([{ id: newConvId, name, type }]);
       
       if (convErr) throw convErr;
 
       // 2. Add members
       const members = [...selectedUsers, user.id].map(uid => ({
-        conversation_id: conv.id,
+        conversation_id: newConvId,
         user_id: uid
       }));
 
@@ -489,7 +490,7 @@ export default function MessagesPage() {
       setShowNewChat(false);
       setSelectedUsers([]);
       setGroupName('');
-      setActiveChat(conv);
+      setActiveChat({ id: newConvId, name, type });
       fetchConversations();
     } catch (err) {
       console.error('Create conv error:', err);
