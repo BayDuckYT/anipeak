@@ -86,29 +86,34 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
  * Resmin gerçek piksel boyutlarını ölçüp doğru steps() değerini hesaplar.
  */
 function ProfileEffectSpritesheet({ url }) {
-  const [frameCount, setFrameCount] = useState(null);
+  const [frameData, setFrameData] = useState({ count: null, direction: 'h' });
   const containerRef = useRef(null);
 
   useEffect(() => {
+    setFrameData({ count: null, direction: 'h' });
     const img = new Image();
     img.onload = () => {
-      // Yatay spritesheet: genişlik / yükseklik = kare sayısı
-      const ratio = Math.round(img.naturalWidth / img.naturalHeight);
-      const frames = ratio > 1 ? ratio : 1;
-      setFrameCount(frames);
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      if (w > h) {
+        const ratio = Math.round(w / h);
+        setFrameData({ count: ratio > 1 ? ratio : 1, direction: 'h' });
+      } else {
+        const ratio = Math.round(h / w);
+        setFrameData({ count: ratio > 1 ? ratio : 1, direction: 'v' });
+      }
     };
-    img.onerror = () => setFrameCount(1); // Fallback: statik resim
+    img.onerror = () => setFrameData({ count: 1, direction: 'h' });
     img.src = url;
   }, [url]);
 
-  // Henüz boyut tespit edilmedi veya tek karelik resim — statik göster
-  if (frameCount === null || frameCount <= 1) {
-    return <img src={url} alt="Effect" className="w-full h-full object-fill mix-blend-screen" />;
+  if (frameData.count === null || frameData.count <= 1) {
+    return <img src={url} alt="Effect" className="w-full h-full object-fill" />;
   }
 
-  // Çok kareli spritesheet = animasyonlu göster
   const fps = 12;
-  const duration = frameCount / fps;
+  const duration = frameData.count / fps;
+  const isV = frameData.direction === 'v';
 
   return (
     <div 
@@ -117,12 +122,11 @@ function ProfileEffectSpritesheet({ url }) {
         width: '100%',
         height: '100%',
         backgroundImage: `url(${url})`,
-        backgroundSize: `${frameCount * 100}% 100%`,
-        backgroundPosition: '0% center',
-        animation: `siber-spritesheet ${duration}s steps(${frameCount - 1}) infinite`,
+        backgroundSize: isV ? `100% ${frameData.count * 100}%` : `${frameData.count * 100}% 100%`,
+        backgroundPosition: 'center center',
+        animation: `${isV ? 'siber-spritesheet-vertical' : 'siber-spritesheet'} ${duration}s steps(${frameData.count - 1}) infinite`,
         backgroundRepeat: 'no-repeat',
       }}
-      className="mix-blend-screen"
     />
   );
 }
@@ -1590,7 +1594,7 @@ export default function ProfileShowcase() {
                                   }
 
                                   if (isWebp) {
-                                    return <img src={effect.url} alt={effect.label} loading="lazy" className="w-full h-full object-fill mix-blend-screen" />;
+                                    return <img src={effect.url} alt={effect.label} loading="lazy" className="w-full h-full object-fill" />;
                                   }
 
                                   if (isPng) {

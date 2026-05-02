@@ -6,46 +6,52 @@ import { motion, AnimatePresence } from 'framer-motion';
  * Resmin naturalWidth/naturalHeight oranından kare sayısını hesaplar.
  */
 function AutoSpritesheet({ src, style, isHovered, forcePlay, label }) {
-  const [frameCount, setFrameCount] = useState(null);
+  const [frameData, setFrameData] = useState({ count: null, direction: 'h' });
 
   useEffect(() => {
-    setFrameCount(null);
+    setFrameData({ count: null, direction: 'h' });
     const img = new Image();
     img.onload = () => {
-      const ratio = Math.round(img.naturalWidth / img.naturalHeight);
-      setFrameCount(ratio > 1 ? ratio : 1);
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      if (w > h) {
+        const ratio = Math.round(w / h);
+        setFrameData({ count: ratio > 1 ? ratio : 1, direction: 'h' });
+      } else {
+        const ratio = Math.round(h / w);
+        setFrameData({ count: ratio > 1 ? ratio : 1, direction: 'v' });
+      }
     };
-    img.onerror = () => setFrameCount(1);
+    img.onerror = () => setFrameData({ count: 1, direction: 'h' });
     img.src = src;
   }, [src]);
 
-  // Henüz boyut tespit edilmedi — direkt img göster (APNG ise browser oynatır)
-  if (frameCount === null || frameCount <= 1) {
+  if (frameData.count === null || frameData.count <= 1) {
     return (
       <img 
         src={src}
         alt={label || 'Effect'}
         style={style}
-        className="max-w-none mix-blend-screen"
+        className="max-w-none"
       />
     );
   }
 
-  // Çok kare = spritesheet animasyonu (her zaman oynat)
   const fps = 12;
-  const duration = frameCount / fps;
+  const duration = frameData.count / fps;
+  const isV = frameData.direction === 'v';
 
   return (
     <div 
       style={{
         ...style,
         backgroundImage: `url(${src})`,
-        backgroundSize: `${frameCount * 100}% 100%`,
-        backgroundPosition: '0% center',
+        backgroundSize: isV ? `100% ${frameData.count * 100}%` : `${frameData.count * 100}% 100%`,
+        backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
-        animation: `siber-spritesheet ${duration}s steps(${frameCount - 1}) infinite`,
+        animation: `${isV ? 'siber-spritesheet-vertical' : 'siber-spritesheet'} ${duration}s steps(${frameData.count - 1}) infinite`,
       }}
-      className="max-w-none mix-blend-screen"
+      className="max-w-none"
     />
   );
 }
@@ -55,19 +61,17 @@ export default function AnimeAvatar({
   effect, 
   size = "w-32 h-32", 
   className = "",
-  forcePlay = false // Dışarıdan tetiklenebilir (Örn: Aktif efekt)
+  forcePlay = false 
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef(null);
   const videoRef = useRef(null);
 
-  // Intersection Observer: Sadece ekranda görünürken yükle (Performans Kilidi)
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
-        // Ekranda değilse videoyu durdur
         if (!entry.isIntersecting && videoRef.current) {
           videoRef.current.pause();
         }
@@ -78,13 +82,12 @@ export default function AnimeAvatar({
     return () => observer.disconnect();
   }, []);
 
-  // Video Kontrolü: Sadece Hover iken VE Görünür iken oynat
   useEffect(() => {
     if (videoRef.current && isVisible) {
       if (isHovered || forcePlay) {
         const playPromise = videoRef.current.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => { /* Auto-play intercept */ });
+          playPromise.catch(() => {});
         }
       } else {
         videoRef.current.pause();
@@ -100,7 +103,6 @@ export default function AnimeAvatar({
 
     const isVideo = rawSrc.endsWith('.webm') || effect.type === 'video';
     
-    // Milimetrik Hizalama Stili (Perfect Center)
     const effectStyle = {
       position: 'absolute',
       top: '50%',
@@ -128,7 +130,6 @@ export default function AnimeAvatar({
       );
     }
 
-    // Spritesheet / PNG Efekt Mantığı
     const urlLower = rawSrc.toLowerCase();
     const isPng = urlLower.split('?')[0].endsWith('.png');
     const isWebp = urlLower.endsWith('.webp');
@@ -137,26 +138,24 @@ export default function AnimeAvatar({
       effect.category === 'decorations' ||
       effect.type === 'spritesheet' || 
       rawSrc.includes('/effects/') || 
-      rawSrc.includes('/avatar-efekts/');
+      rawSrc.includes('/avatar-efekts/') ||
+      rawSrc.includes('/decorations/'); // Added missing path
     
-    // WebP animated — tarayıcı native oynatır, spritesheet gereksiz
     if (isWebp) {
       return (
         <img 
           src={rawSrc}
           alt={effect.label || effect.name}
           style={effectStyle}
-          className="max-w-none mix-blend-screen"
+          className="max-w-none"
         />
       );
     }
 
     if (isPng && isSpritesheet) {
-      // Oto-tespit bileşenini kullan
       return <AutoSpritesheet src={rawSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
     }
 
-    // Statik / APNG / GIF - IMG Taktiği (Animasyon için en garanti yöntem)
     return (
       <img 
         src={rawSrc}
