@@ -54,7 +54,7 @@ function AnimatedRoutes({ onAuthOpen }) {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
-      <Suspense fallback={<Loader fullScreen={false} text="Siber Uzay Yükleniyor..." />}>
+      <Suspense fallback={<Loader fullScreen={false} text="Sayfa Yükleniyor..." />}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home onAuthOpen={onAuthOpen} />} />
           <Route path="/all-series" element={<AllSeries />} />
@@ -206,7 +206,7 @@ function AppContent() {
     return () => window.removeEventListener('open-auth', handleOpenAuth);
   }, []);
   
-  if (loading) return <Loader fullScreen text="Siber Donanma Hazırlanıyor..." />;
+  if (loading) return <Loader fullScreen text="Sayfa Yükleniyor..." />;
 
   // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
   const isResetPage = window.location.pathname === '/reset-password';

@@ -1,55 +1,87 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Zap } from 'lucide-react';
 
-export default function Loader({ text = "Yükleniyor...", fullScreen = true }) {
+export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = true }) {
   const content = (
-    <div className={`flex flex-col items-center justify-center gap-6 p-10 ${!fullScreen ? 'min-h-[60vh] w-full' : ''}`}>
-      <div className="relative w-20 h-20">
-        {/* Outer Glow */}
-        <div className="absolute inset-0 bg-purple-500/20 blur-2xl rounded-full animate-pulse" />
-        
-        {/* Main Spinner */}
-        <div className="w-full h-full border-4 border-white/5 border-t-purple-500 rounded-full animate-spin shadow-[0_0_20px_rgba(168,85,247,0.4)]" />
-        
-        {/* Inner Spinner (Counter-clockwise) */}
-        <div className="absolute inset-2 border-4 border-white/5 border-b-blue-400 rounded-full animate-spin-reverse opacity-80" />
+    <div className="flex flex-col items-center justify-center gap-8 relative">
+      {/* Heartbeat Pulse Container */}
+      <div className="relative w-24 h-24 flex items-center justify-center">
+        {/* Animated Rings (Pulse Effect) */}
+        {[1, 2, 3].map((i) => (
+          <motion.div
+            key={i}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ 
+              scale: [0.8, 1.8],
+              opacity: [0.5, 0]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 0.6,
+              ease: "easeOut"
+            }}
+            className="absolute inset-0 border border-purple-500/30 rounded-full"
+          />
+        ))}
+
+        {/* Central Core (The Zap) */}
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            filter: [
+              "drop-shadow(0 0 10px rgba(168,85,247,0.4))",
+              "drop-shadow(0 0 25px rgba(168,85,247,0.8))",
+              "drop-shadow(0 0 10px rgba(168,85,247,0.4))"
+            ]
+          }}
+          transition={{
+            duration: 0.8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="text-purple-500 relative z-10"
+        >
+          <Zap size={40} fill="currentColor" strokeWidth={1} />
+        </motion.div>
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-        className="flex flex-col items-center gap-2"
-      >
-        <span className="text-white font-black text-xs uppercase tracking-[0.4em] drop-shadow-md">
+      {/* Text with Heartbeat rhythm */}
+      <div className="flex flex-col items-center gap-3">
+        <motion.span 
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 1.6, repeat: Infinity }}
+          className="text-white font-black text-[10px] uppercase tracking-[0.5em] text-center"
+        >
           {text}
-        </span>
-        <div className="flex gap-1">
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              animate={{ 
-                scale: [1, 1.5, 1],
-                opacity: [0.3, 1, 0.3]
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                delay: i * 0.2
-              }}
-              className="w-1 h-1 bg-purple-500 rounded-full"
-            />
-          ))}
+        </motion.span>
+        
+        {/* Progress Line */}
+        <div className="w-32 h-[1px] bg-white/5 relative overflow-hidden">
+          <motion.div 
+            animate={{ x: [-128, 128] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-purple-500 to-transparent"
+          />
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 
-  if (!fullScreen) return content;
+  if (!fullScreen) {
+    return (
+      <div className="w-full flex items-center justify-center p-20">
+        {content}
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] bg-[#050507] flex items-center justify-center">
-      {content}
+      <div className="relative">
+        {content}
+      </div>
     </div>
   );
 }

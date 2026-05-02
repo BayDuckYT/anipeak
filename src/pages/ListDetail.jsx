@@ -239,7 +239,7 @@ export default function ListDetail() {
     showToast('Bağlantı kopyalandı! 🚀');
   };
 
-  if (loading) return <Loader text="Kadim Koleksiyon Yükleniyor..." />;
+  if (loading) return <Loader text="Sayfa Yükleniyor..." />;
   
   if (!list) return (
     <div className="min-h-screen bg-[#050507] flex flex-col items-center justify-center p-6 text-center">

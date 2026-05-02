@@ -26,7 +26,10 @@ export function AuthProvider({ children }) {
       return cached ? JSON.parse(cached) : null;
     } catch { return null; }
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    // [HIZLI YÜKLEME] Eğer cache varsa loading'i false başlatarak UI'ı anında göster
+    return !localStorage.getItem('anipeak_user_cache');
+  });
   const [readingHistory, setReadingHistory] = useState([]);
   const [notifications, setNotifications]   = useState([]);
   const [unreadCount,   setUnreadCount]     = useState(0);
@@ -254,13 +257,13 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    // Safety Timeout: force loading=false after 2.5s so UI always shows
+    // Safety Timeout: force loading=false after 1s so UI always shows (Optimized)
     const safetyTimeout = setTimeout(() => {
       if (mounted) {
-        console.warn("[Auth] Zaman aşımı — UI zorla açılıyor");
+        console.warn("[Auth] Siber Limit Aşımı — UI zorla açılıyor");
         setLoading(false);
       }
-    }, 2500);
+    }, 1000);
 
     const init = async () => {
       try {
