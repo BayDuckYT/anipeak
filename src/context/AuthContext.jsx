@@ -284,22 +284,17 @@ export function AuthProvider({ children }) {
         console.warn("[Auth] Session yüklenemedi (ağ hatası), oturum korunuyor:", err.message);
         window.__AUTH_ERROR__ = err.message;
       } finally {
-        if (mounted) {
-          // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil
+          setLoading(false);
+          clearTimeout(safetyTimeout);
+
+          // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil (Background check)
           const cachedId = localStorage.getItem('anipeak_last_user_id');
-          const currentSession = (await supabase.auth.getSession()).data.session;
-          
-          if (currentSession?.user && cachedId !== currentSession.user.id) {
+          if (session?.user && cachedId !== session.user.id) {
             console.warn("[Auth] Önbellek uyumsuzluğu tespit edildi, temizleniyor...");
             localStorage.removeItem('anipeak_user_cache');
             localStorage.removeItem('anipeak_last_user_id');
-            // Profil tekrar çekilsin
-            await fetchProfile(currentSession.user);
+            await fetchProfile(session.user);
           }
-
-          setLoading(false);
-          clearTimeout(safetyTimeout);
-        }
       }
     };
 

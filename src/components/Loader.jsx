@@ -4,9 +4,9 @@ import { Zap } from 'lucide-react';
 
 export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = true }) {
   const content = (
-    <div className="flex flex-col items-center justify-center gap-8 relative">
+    <div className="flex flex-col items-center justify-center gap-8 relative gpu-accelerated">
       {/* Heartbeat Pulse Container */}
-      <div className="relative w-24 h-24 flex items-center justify-center">
+      <div className="relative w-24 h-24 flex items-center justify-center will-change-transform">
         {/* Animated Rings (Pulse Effect) */}
         {[1, 2, 3].map((i) => (
           <motion.div
@@ -71,7 +71,7 @@ export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = tru
 
   if (!fullScreen) {
     return (
-      <div className="w-full flex items-center justify-center p-20">
+      <div className="fixed inset-0 z-[50] bg-[#050507]/80 backdrop-blur-sm flex items-center justify-center">
         {content}
       </div>
     );
