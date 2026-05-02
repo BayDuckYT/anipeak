@@ -82,16 +82,22 @@ export default function ListDetail() {
       console.log("Supabase'den Gelen Derin Liste İçeriği (JOIN):", items);
       setListItems(items || []);
 
-      // Fetch Likes
-      const { data: likes, error: likesErr } = await supabase
-        .from('custom_list_likes')
-        .select('*')
-        .eq('list_id', listId);
-      
-      if (likesErr) throw likesErr;
-      const safeLikes = likes || [];
-      setLikesCount(safeLikes.length);
-      setIsLiked(currentUser ? safeLikes.some(l => l.user_id === currentUser.id) : false);
+      // Fetch Likes (Try/Catch ile izole edildi, DB tablosu yoksa patlamasın)
+      try {
+        const { data: likes, error: likesErr } = await supabase
+          .from('custom_list_likes')
+          .select('*')
+          .eq('list_id', listId);
+        
+        if (likesErr) throw likesErr;
+        const safeLikes = likes || [];
+        setLikesCount(safeLikes.length);
+        setIsLiked(currentUser ? safeLikes.some(l => l.user_id === currentUser.id) : false);
+      } catch (likesErr) {
+        console.warn("Beğeniler çekilirken hata (tablo eksik olabilir):", likesErr);
+        setLikesCount(0);
+        setIsLiked(false);
+      }
 
     } catch (err) {
       console.error("Fetch list error:", err);
@@ -116,8 +122,11 @@ export default function ListDetail() {
       // Eğer JOIN başarılıysa veri item.series içinde, değilse fallback olarak global series'den bak
       const s = item.series || series?.find(ser => String(ser.id) === String(item.series_id));
       if (s && s.rating) {
-        totalScore += parseFloat(s.rating);
-        validCount++;
+        const ratingVal = parseFloat(s.rating);
+        if (!isNaN(ratingVal) && ratingVal > 0) {
+          totalScore += ratingVal;
+          validCount++;
+        }
       }
     });
 

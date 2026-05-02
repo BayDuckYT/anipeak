@@ -455,6 +455,7 @@ export default function MessagesPage() {
       console.error('Send error:', err);
       // Hata durumunda mesajı kaldır
       setMessages(prev => prev.filter(m => m.id !== tempId));
+      alert("Mesaj gönderilemedi! Lütfen tekrar deneyin.");
     }
   };
 
@@ -492,6 +493,7 @@ export default function MessagesPage() {
       fetchConversations();
     } catch (err) {
       console.error('Create conv error:', err);
+      alert("Sohbet başlatılamadı! Lütfen tekrar deneyin.");
     }
   };
 
@@ -773,7 +775,7 @@ export default function MessagesPage() {
                   {/* User List */}
                   <div className="max-h-[250px] overflow-y-auto space-y-2 custom-scrollbar pr-2">
                     {registeredUsers
-                      .filter(u => u.id !== user?.id && following.includes(u.id) && u.username?.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .filter(u => u.id !== user?.id && u.username?.toLowerCase().includes(searchQuery.toLowerCase()))
                       .map(u => {
                         const isSelected = selectedUsers.includes(u.id);
                         return (
