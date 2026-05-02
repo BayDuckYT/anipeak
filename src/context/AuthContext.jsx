@@ -40,18 +40,11 @@ export function AuthProvider({ children }) {
     if (!authUser) { setUser(null); return; }
 
     try {
-      // PROFIL ÇEKME İŞLEMİNE 5 SN TIMEOUT EKLENDİ (DAHA GÜVENLİ)
-      const profilePromise = supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', authUser.id)
         .single();
-        
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profil yükleme gecikti (Timeout)')), 3000)
-      );
-
-      const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
 
       if (error && error.code !== 'PGRST116') {
         console.warn('[Auth] Profil çekme uyarısı:', error.message);
@@ -257,22 +250,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    // Safety Timeout: force loading=false after 1s so UI always shows (Optimized)
-    const safetyTimeout = setTimeout(() => {
-      if (mounted) {
-        console.warn("[Auth] Siber Limit Aşımı — UI zorla açılıyor");
-        setLoading(false);
-      }
-    }, 1000);
-
     const init = async () => {
       try {
-        // 8 saniye içinde session gelmezse ağ hatası say, kullanıcıyı çıkarma
-        const sessionPromise = supabase.auth.getSession();
-        const timeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('getSession timeout')), 8000)
-        );
-        const { data: { session }, error } = await Promise.race([sessionPromise, timeout]);
+        const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) throw error;
         if (mounted && session?.user) {
@@ -284,7 +264,6 @@ export function AuthProvider({ children }) {
         console.warn("[Auth] Session yüklenemedi (ağ hatası), oturum korunuyor:", err.message);
       } finally {
           setLoading(false);
-          clearTimeout(safetyTimeout);
 
           // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil (Background check)
           const cachedId = localStorage.getItem('anipeak_last_user_id');
@@ -336,7 +315,6 @@ export function AuthProvider({ children }) {
 
     return () => {
       mounted = false;
-      clearTimeout(safetyTimeout);
       if (subscription) subscription.unsubscribe();
       if (profileChannelRef.current) {
         supabase.removeChannel(profileChannelRef.current);

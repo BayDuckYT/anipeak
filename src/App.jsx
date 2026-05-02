@@ -145,7 +145,8 @@ function AppContent() {
 
   // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
   const isResetPage = window.location.pathname === '/reset-password';
-  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isResetPage;
+  const isAdminEmail = user?.email === 'murathanozel134@gmail.com';
+  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isResetPage && !isAdminEmail;
 
   return (
     <>
