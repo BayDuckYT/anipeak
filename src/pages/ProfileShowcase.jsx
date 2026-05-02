@@ -849,8 +849,10 @@ export default function ProfileShowcase() {
                 if (targetPEId && targetPEId !== 'none') {
                   const peData = effectsData.find(e => e.id === targetPEId);
                   if (peData?.url) {
-                    const isVideo = peData.url.toLowerCase().endsWith('.webm');
-                    const isPng = peData.url.toLowerCase().split('?')[0].endsWith('.png');
+                    const urlLower = peData.url.toLowerCase();
+                    const isVideo = urlLower.endsWith('.webm');
+                    const isWebp = urlLower.endsWith('.webp');
+                    const isPng = urlLower.split('?')[0].endsWith('.png');
 
                     return (
                       <motion.div 
@@ -861,6 +863,8 @@ export default function ProfileShowcase() {
                       >
                         {isVideo ? (
                           <video src={peData.url} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-90 mix-blend-screen scale-110" />
+                        ) : isWebp ? (
+                          <img src={peData.url} alt="Profile Effect" loading="eager" className="w-full h-full object-cover opacity-90 mix-blend-screen scale-110" />
                         ) : isPng ? (
                           <ProfileEffectSpritesheet url={peData.url} />
                         ) : (
@@ -1580,11 +1584,17 @@ export default function ProfileShowcase() {
                               {/* The Effect Layer */}
                               <div className="effect-overlay">
                                 {(() => {
-                                  const isVideo = effect.url.toLowerCase().endsWith('.webm');
-                                  const isPng = effect.url.toLowerCase().split('?')[0].endsWith('.png');
+                                  const urlLower = effect.url.toLowerCase();
+                                  const isVideo = urlLower.endsWith('.webm');
+                                  const isWebp = urlLower.endsWith('.webp');
+                                  const isPng = urlLower.split('?')[0].endsWith('.png');
 
                                   if (isVideo) {
                                     return <video src={effect.url} autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen" />;
+                                  }
+
+                                  if (isWebp) {
+                                    return <img src={effect.url} alt={effect.label} loading="lazy" className="w-full h-full object-cover mix-blend-screen" />;
                                   }
 
                                   if (isPng) {

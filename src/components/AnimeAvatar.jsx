@@ -129,7 +129,9 @@ export default function AnimeAvatar({
     }
 
     // Spritesheet / PNG Efekt Mantığı
-    const isPng = rawSrc.toLowerCase().split('?')[0].endsWith('.png');
+    const urlLower = rawSrc.toLowerCase();
+    const isPng = urlLower.split('?')[0].endsWith('.png');
+    const isWebp = urlLower.endsWith('.webp');
     const isSpritesheet = 
       effect.category === 'flags' || 
       effect.category === 'decorations' ||
@@ -137,6 +139,18 @@ export default function AnimeAvatar({
       rawSrc.includes('/effects/') || 
       rawSrc.includes('/avatar-efekts/');
     
+    // WebP animated — tarayıcı native oynatır, spritesheet gereksiz
+    if (isWebp) {
+      return (
+        <img 
+          src={rawSrc}
+          alt={effect.label || effect.name}
+          style={effectStyle}
+          className="max-w-none mix-blend-screen"
+        />
+      );
+    }
+
     if (isPng && isSpritesheet) {
       // Oto-tespit bileşenini kullan
       return <AutoSpritesheet src={rawSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
