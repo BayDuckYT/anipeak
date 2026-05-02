@@ -244,7 +244,7 @@ export default function MessagesPage() {
     init();
 
     // SUPABASE REALTIME & PRESENCE
-    const channel = supabase.channel('anipeak-global-presence', {
+    const channel = supabase.channel('anipeak-global-sync', {
       config: { presence: { key: user.id } }
     });
 
@@ -256,10 +256,29 @@ export default function MessagesPage() {
         setOnlineUsers(online);
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-        if (activeChatRef.current && payload.new.conversation_id === activeChatRef.current.id) {
-          fetchMessages(activeChatRef.current.id);
-        }
+        const newMsg = payload.new;
+        
+        // 1. Sol paneli (konuşmaları) tazele
         fetchConversations();
+
+        // 2. Eğer açık olan sohbetin mesajıysa ekrana fırlat
+        if (activeChatRef.current && newMsg.conversation_id === activeChatRef.current.id) {
+          // Eğer bu mesajı biz atmadıysak (başkası attıysa) ekle
+          // (Bizim attıklarımız zaten Optimistic Update ile ekleniyor)
+          if (newMsg.sender_id !== user.id) {
+            const enrichedMsg = {
+              ...newMsg,
+              sender: newMsg.sender_id === activeChatRef.current.user1_id 
+                ? activeChatRef.current.user1 
+                : activeChatRef.current.user2
+            };
+            setMessages(prev => {
+              // Mükerrer kaydı önle
+              if (prev.find(m => m.id === newMsg.id)) return prev;
+              return [...prev, enrichedMsg];
+            });
+          }
+        }
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'conversations' }, () => {
         fetchConversations();

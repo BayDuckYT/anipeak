@@ -146,20 +146,16 @@ function ConnectionDiagnostic() {
           <span className="opacity-50 uppercase tracking-tighter">Domain:</span>
           <span className="font-mono bg-white/5 px-2 py-0.5 rounded">{debugData.domain}</span>
         </div>
-        <div className="flex justify-between items-center text-[10px]">
-          <span className="opacity-50 uppercase tracking-tighter">Sunucu:</span>
-          <span className="font-mono text-blue-400 bg-blue-500/5 px-2 py-0.5 rounded">{debugData.url}</span>
-        </div>
         
         <div className="mt-4">
           <span className="block opacity-50 mb-1.5 uppercase tracking-tighter text-[9px]">Mevcut Durum:</span>
-          {authErr && !authErr.includes('stole it') ? (
+          {authErr ? (
             <div className="text-red-400 font-bold leading-tight bg-red-500/10 p-3 rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
-              ❌ {authErr}
+              ❌ Bağlantı Yok
             </div>
           ) : (
             <div className="text-emerald-400 font-medium bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/20 italic">
-              ✅ Bağlantı Kararlı (Sorun Yok)
+              ✅ Bağlantı Kararlı
             </div>
           )}
         </div>
@@ -184,7 +180,7 @@ function ConnectionDiagnostic() {
 function AppContent() {
   const [authModal, setAuthModal] = useState(null);
   const { maintenanceMode } = useApp();
-  const { user, isOwner } = useAuth();
+  const { user, loading, isAdmin, isTester } = useAuth();
 
   // ── Global Stability Listeners ──────────────────────────────────────
   useEffect(() => {
@@ -209,11 +205,11 @@ function AppContent() {
     return () => window.removeEventListener('open-auth', handleOpenAuth);
   }, []);
   
-  // Bakım modundayken, eğer giriş yapan kişi BAŞ ADMİN DEĞİLSE ekranı kapat
-  // İSTİSNA: Şifre sıfırlama sayfası bakım modundan muaf tutulur
+  if (loading) return <Loader fullScreen text="Siber Donanma Hazırlanıyor..." />;
+
+  // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
   const isResetPage = window.location.pathname === '/reset-password';
-  const { isTester } = useAuth();
-  const isMaintenanceBlocked = maintenanceMode && !isOwner && !isTester && !isResetPage;
+  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isResetPage;
 
   return (
     <>
