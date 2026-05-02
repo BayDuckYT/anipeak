@@ -25,6 +25,29 @@ import { useApp } from '../context/AppContext.jsx';
 import { supabase } from '../lib/supabaseClient';
 import AnimeAvatar from '../components/AnimeAvatar.jsx';
 
+import CryptoJS from 'crypto-js';
+
+// --- ENCRYPTION ZIRHI (WhatsApp Mantığı) ---
+const SECRET_KEY = 'anipeak-siber-karargah-guvenlik-anahtari';
+
+const encryptMsg = (text) => {
+  try {
+    return CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
+  } catch (e) { return text; }
+};
+
+const decryptMsg = (text) => {
+  if (!text) return '';
+  try {
+    const bytes = CryptoJS.AES.decrypt(text, SECRET_KEY);
+    const originalText = bytes.toString(CryptoJS.enc.Utf8);
+    return originalText || text;
+  } catch (e) {
+    return text;
+  }
+};
+
+
 // --- SUB-COMPONENT: Message Item ---
 import { Link, useSearchParams } from 'react-router-dom';
 
@@ -128,21 +151,29 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
       {/* RIGHT: Content */}
       <div className="flex-1 min-w-0">
         {/* Nameplate + Timestamp */}
-        <div className="flex items-center gap-2 mb-1">
-          <AnimeNameplate 
-            username={msg.sender?.username || 'Anonim'} 
-            role={msg.sender?.role} 
-            mix={mix} 
-          />
+        <div className={`flex items-center gap-2 mb-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+          <div className="bg-white/5 px-2 py-0.5 rounded-md border border-white/5 backdrop-blur-md">
+            <AnimeNameplate 
+              username={msg.sender?.username || 'Anonim'} 
+              role={msg.sender?.role} 
+              mix={mix} 
+            />
+          </div>
           <span className="text-[9px] text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
             {new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
 
-        {/* Message Text */}
-        <p className={`text-sm leading-relaxed ${isMe ? 'text-slate-100' : 'text-slate-300'} break-words font-medium pl-1`}>
-          {msg.content}
-        </p>
+        {/* Message Text Bubble */}
+        <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+          <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed font-medium break-words shadow-lg ${
+            isMe 
+              ? 'bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-tr-none border border-white/10' 
+              : 'bg-zinc-800/80 text-slate-100 rounded-tl-none border border-white/5 backdrop-blur-sm'
+          }`}>
+            {decryptMsg(msg.content)}
+          </div>
+        </div>
 
         {/* Effect Mini Preview */}
         {linkedEffect && (
@@ -200,31 +231,52 @@ export default function MessagesPage() {
     } catch { return []; }
   }, []);
 
-  // --- DATA FETCHING ---
+  const [onlineUsers, setOnlineUsers] = useState({});
+
+  // --- DATA FETCHING & REALTIME ---
   useEffect(() => {
     if (!user) return;
-    fetchConversations();
-    fetchFollowing();
     
-    // Real-time conversations subscription (Sidebar update için)
-    const convSub = supabase.channel('conversations-global')
+    const init = async () => {
+      await Promise.all([fetchConversations(), fetchFollowing()]);
+      if (userIdFromUrl || usernameFromUrl) handleAutoStartChat();
+    };
+    init();
+
+    // SUPABASE REALTIME & PRESENCE
+    const channel = supabase.channel('anipeak-global-presence', {
+      config: { presence: { key: user.id } }
+    });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const online = {};
+        Object.keys(state).forEach(key => { online[key] = true; });
+        setOnlineUsers(online);
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        if (activeChatRef.current && payload.new.conversation_id === activeChatRef.current.id) {
+          fetchMessages(activeChatRef.current.id);
+        }
+        fetchConversations();
+      })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'conversations' }, () => {
         fetchConversations();
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'conversations' }, () => {
-        fetchConversations();
-      })
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ online_at: new Date().toISOString() });
+        }
+      });
 
-    return () => { supabase.removeChannel(convSub); };
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  // Handle auto-starting a chat from URL param
+  const activeChatRef = useRef(null);
   useEffect(() => {
-    if (user && (userIdFromUrl || usernameFromUrl) && !loading) {
-      handleAutoStartChat();
-    }
-  }, [user, userIdFromUrl, usernameFromUrl, loading, conversations]);
+    activeChatRef.current = activeChat;
+  }, [activeChat]);
 
   const handleAutoStartChat = async () => {
     let targetId = userIdFromUrl;
@@ -232,64 +284,44 @@ export default function MessagesPage() {
 
     // If only username is provided, fetch user_id first
     if (!targetId && usernameFromUrl) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id, username')
-        .eq('username', usernameFromUrl)
-        .single();
-      if (profile) {
-        targetId = profile.id;
-        targetUsername = profile.username;
-      }
+      const { data: profile } = await supabase.from('profiles').select('id').eq('username', usernameFromUrl).single();
+      if (profile) targetId = profile.id;
     }
 
     if (!targetId) return;
 
-    // 1. Check if a DM with this user already exists (even if it's a ghost chat)
-    // Önce local listede (aktif olanlarda) ara
     let chat = conversations.find(c => 
-      c.type === 'dm' && 
-      c.members?.some(m => m.user_id === targetId)
+      (c.user1_id === targetId && c.user2_id === user.id) ||
+      (c.user2_id === targetId && c.user1_id === user.id)
     );
-
-    if (!chat) {
-      // Eğer local'de yoksa (hayalet olabilir), DB'de ara
-      const { data: dbChat } = await supabase
-        .from('conversations')
-        .select('*, members:conversation_participants(user_id)')
-        .eq('type', 'dm')
-        .eq('conversation_participants.user_id', user.id)
-        .order('created_at', { ascending: false });
-        
-      // Manuel filtreleme (Çünkü Supabase nested filter bazen zorlayabiliyor)
-      chat = dbChat?.find(c => c.members?.some(m => m.user_id === targetId));
-    }
-
+    
     if (chat) {
       setActiveChat(chat);
     } else {
-      // 2. Create new DM (Ghost state by default as last_message_at is NULL in our logic)
       try {
-        if (!targetUsername) {
-           const { data: p } = await supabase.from('profiles').select('username').eq('id', targetId).single();
-           targetUsername = p?.username || 'Kullanıcı';
-        }
-
         const newConvId = crypto.randomUUID();
+        const [u1, u2] = [user.id, targetId].sort();
 
-        const { error: convErr } = await supabase
+        const { data: newChat, error: convErr } = await supabase
           .from('conversations')
-          .insert({ id: newConvId, name: targetUsername, type: 'dm', updated_at: null });
+          .insert({ 
+            id: newConvId, 
+            user1_id: u1, 
+            user2_id: u2, 
+            updated_at: new Date().toISOString() 
+          })
+          .select(`
+            *,
+            user1:profiles!user1_id(id, username, avatar_url, role, active_mix),
+            user2:profiles!user2_id(id, username, avatar_url, role, active_mix)
+          `)
+          .single();
 
+        console.log("Auto-Start Sohbet ID:", newChat?.id);
         if (convErr) throw convErr;
 
-        await supabase.from('conversation_participants').insert([
-          { conversation_id: newConvId, user_id: user.id },
-          { conversation_id: newConvId, user_id: targetId }
-        ]);
-
+        setActiveChat(newChat);
         fetchConversations();
-        setActiveChat({ id: newConvId, name: targetUsername, type: 'dm' });
       } catch (err) {
         console.error('Error creating DM:', err);
       }
@@ -306,36 +338,8 @@ export default function MessagesPage() {
   };
 
   useEffect(() => {
-    if (activeChat) {
-      fetchMessages(activeChat.id);
-      const msgSub = supabase.channel(`messages-${activeChat.id}`)
-        .on('postgres_changes', { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'messages',
-          filter: `conversation_id=eq.${activeChat.id}`
-        }, async (payload) => {
-          // Eğer mesaj zaten listemizde yoksa (optimistic update değilse) ekle
-          setMessages(prev => {
-            const exists = prev.find(m => m.id === payload.new.id);
-            if (exists) return prev;
-            return [...prev, payload.new];
-          });
-          
-          // Profil bilgilerini arka planda çekip güncelle
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('username, avatar_url, role, active_mix')
-            .eq('id', payload.new.sender_id)
-            .single();
-          
-          setMessages(prev => prev.map(m => m.id === payload.new.id ? { ...m, sender: profile } : m));
-        })
-        .subscribe();
-      return () => { supabase.removeChannel(msgSub); };
-    } else {
-      setMessages([]);
-    }
+    if (activeChat) fetchMessages(activeChat.id);
+    else setMessages([]);
   }, [activeChat]);
 
   useEffect(() => {
@@ -345,68 +349,48 @@ export default function MessagesPage() {
   const fetchConversations = async () => {
     if (!user) return;
     try {
-      // Paralel: Kendi konuşmaların + topluluk kanalları
-      const [memberRes, communityRes] = await Promise.all([
-        supabase
-          .from('conversations')
-          .select('*, members:conversation_participants(user_id)')
-          .eq('conversation_participants.user_id', user.id)
-          .not('updated_at', 'is', null) // KURAL: Hayalet mesajlaşma engeli
-          .order('updated_at', { ascending: false }),
-        supabase
-          .from('conversations')
-          .select('*, members:conversation_participants(user_id)')
-          .eq('type', 'community')
-          .order('updated_at', { ascending: false })
-      ]);
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          user1:profiles!user1_id(id, username, avatar_url, role, active_mix),
+          user2:profiles!user2_id(id, username, avatar_url, role, active_mix)
+        `)
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+        .order('updated_at', { ascending: false });
 
-      if (memberRes.error || communityRes.error) throw (memberRes.error || communityRes.error);
-
-      // Birleştir, mükerreratı temizle, sırala
-      const merged = [...(communityRes.data || []), ...(memberRes.data || [])];
-      const unique = Array.from(new Map(merged.map(c => [c.id, c])).values())
-        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-
-      // Listeyi hemen göster — N+1 sorgusu yok
-      setConversations(unique.map(c => ({ ...c, lastMessage: null })));
-
-      // Arka planda son mesajları çek (non-blocking)
-      unique.forEach(async (conv) => {
-        try {
-          const { data: lastMsg } = await supabase
-            .from('messages')
-            .select('content, created_at')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          if (lastMsg) {
-            setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, lastMessage: lastMsg } : c));
-          }
-        } catch { /* sessizce geç */ }
-      });
-
+      if (error) throw error;
+      setConversations(data || []);
     } catch (err) {
-      console.error('Fetch conversations error:', err);
-      setConversations([]);
+      console.error('Fetch error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchMessages = async (convId) => {
+    if (!activeChat) return;
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*, sender:profiles(username, avatar_url, role, active_mix)')
+        .select('*')
         .eq('conversation_id', convId)
-        .order('created_at', { ascending: true })
-        .limit(100); 
-      if (!error) setMessages(data);
-    } catch (err) { console.error('Fetch messages error:', err); }
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Profil bilgilerini activeChat'ten alarak N+1 sorgu sorununu ve join hatalarını önle
+      const enriched = (data || []).map(m => ({
+        ...m,
+        sender: m.sender_id === activeChat.user1_id ? activeChat.user1 : activeChat.user2
+      }));
+
+      setMessages(enriched);
+    } catch (err) {
+      console.error('Mesaj çekme hatası:', err);
+    }
   };
 
-  // --- ACTIONS ---
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputText.trim() || !activeChat || !user) return;
@@ -414,20 +398,15 @@ export default function MessagesPage() {
     const text = inputText;
     setInputText('');
 
-    // Optimistic Update: Mesajı anında ekrana bas
+    // OPTIMISTIC UPDATE: Beklemeden ekrana bas
     const tempId = 'temp-' + Date.now();
     const tempMsg = {
       id: tempId,
       conversation_id: activeChat.id,
       sender_id: user.id,
-      content: text,
+      content: encryptMsg(text),
       created_at: new Date().toISOString(),
-      sender: {
-        username: user.username || 'Ben',
-        avatar_url: user.avatar_url,
-        role: user.role || 'Kullanıcı',
-        active_mix: user.active_mix
-      }
+      sender: user
     };
     setMessages(prev => [...prev, tempMsg]);
 
@@ -435,73 +414,93 @@ export default function MessagesPage() {
       const { data, error } = await supabase
         .from('messages')
         .insert([{
-        conversation_id: activeChat.id,
-        sender_id: user.id,
-        content: text
-      }])
+          conversation_id: activeChat.id,
+          sender_id: user.id,
+          content: encryptMsg(text)
+        }])
         .select()
         .single();
+      
       if (error) throw error;
 
-      // Gerçek ID ile mesajı güncelle
-      setMessages(prev => prev.map(m => m.id === tempId ? { ...data, sender: tempMsg.sender } : m));
+      // Gerçek ID ile güncelle
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...data, sender: user } : m));
 
-      // Update last_message and updated_at
+      // Trigger zaten last_message'ı güncelliyor ama manuel updated_at iteleyelim
       await supabase.from('conversations').update({ 
-        last_message: text,
         updated_at: new Date().toISOString() 
       }).eq('id', activeChat.id);
     } catch (err) {
-      console.error('Send error:', err);
-      // Hata durumunda mesajı kaldır
       setMessages(prev => prev.filter(m => m.id !== tempId));
-      alert("Mesaj gönderilemedi! Lütfen tekrar deneyin.");
+      console.error('Send error:', err);
+      alert("Mesaj gönderilemedi!");
     }
   };
 
   const startNewConversation = async () => {
     if (selectedUsers.length === 0) return;
+    const targetId = selectedUsers[0];
     
-    // Group check
-    const isGroup = selectedUsers.length > 1;
-    const name = isGroup ? groupName || 'Yeni Grup' : null;
-    const type = isGroup ? 'group' : 'dm';
+    console.log("Sohbet Başlat butonuna tıklandı. Seçilen Kullanıcı:", targetId);
 
     try {
-      // Generate UUID locally so we don't need .select() which triggers RLS SELECT block
+      // 1. Önce veritabanında bu iki kişi arasında oda var mı bak
+      const [u1, u2] = [user.id, targetId].sort();
+      
+      const { data: existingChat, error: searchError } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          user1:profiles!user1_id(id, username, avatar_url, role, active_mix),
+          user2:profiles!user2_id(id, username, avatar_url, role, active_mix)
+        `)
+        .eq('user1_id', u1)
+        .eq('user2_id', u2)
+        .maybeSingle();
+
+      if (searchError) throw searchError;
+
+      if (existingChat) {
+        console.log("Mevcut oda veritabanında bulundu. Oda ID:", existingChat.id);
+        setActiveChat(existingChat);
+        setShowNewChat(false);
+        setSelectedUsers([]);
+        return;
+      }
+
+      // 2. Oda yoksa yeni oluştur
+      console.log("Oda bulunamadı, yeni oda oluşturuluyor...");
       const newConvId = crypto.randomUUID();
 
-      // 1. Create conversation (no .select() to avoid RLS read error before participants exist)
-      const { error: convErr } = await supabase
+      const { data: newChat, error: insertError } = await supabase
         .from('conversations')
-        .insert([{ id: newConvId, name, type }]);
-      
-      if (convErr) throw convErr;
+        .insert({ id: newConvId, user1_id: u1, user2_id: u2 })
+        .select(`
+          *,
+          user1:profiles!user1_id(id, username, avatar_url, role, active_mix),
+          user2:profiles!user2_id(id, username, avatar_url, role, active_mix)
+        `)
+        .single();
 
-      // 2. Add members
-      const members = [...selectedUsers, user.id].map(uid => ({
-        conversation_id: newConvId,
-        user_id: uid
-      }));
+      if (insertError) {
+        console.error("Supabase INSERT Hatası:", insertError);
+        throw insertError;
+      }
 
-      const { error: memErr } = await supabase.from('conversation_participants').insert(members);
-      if (memErr) throw memErr;
+      console.log("Yeni oda başarıyla oluşturuldu. Oda ID:", newChat.id);
 
+      setActiveChat(newChat);
       setShowNewChat(false);
       setSelectedUsers([]);
-      setGroupName('');
-      setActiveChat({ id: newConvId, name, type });
       fetchConversations();
     } catch (err) {
-      console.error('Create conv error:', err);
-      alert("Sohbet başlatılamadı! Lütfen tekrar deneyin.");
+      console.error("Sohbet Başlatma İşlemi Başarısız:", err);
+      alert("Sohbet başlatılamadı: " + (err.message || "Bilinmeyen hata."));
     }
   };
 
   const filteredConversations = conversations.filter(c => {
-    if (activeTab === 'community') return c.type === 'community';
-    if (activeTab === 'groups') return c.type === 'group';
-    if (activeTab === 'dm') return c.type === 'dm';
+    if (activeTab === 'dm') return true; // Bu versiyonda hepsi DM odaklı
     return false;
   });
 
@@ -565,74 +564,106 @@ export default function MessagesPage() {
           {/* Conversation List */}
           <div className="flex-1 overflow-y-auto px-3 pb-6 space-y-1 custom-scrollbar">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-20">
-                <div className="w-12 h-12 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Mesajlar Yükleniyor...</span>
+              <div className="space-y-2 p-2">
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="h-20 rounded-2xl bg-white/5 animate-pulse flex items-center p-4 gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-24 bg-white/10 rounded" />
+                      <div className="h-2 w-40 bg-white/5 rounded" />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ) : filteredConversations.length > 0 ? (
-              filteredConversations.map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => setActiveChat(chat)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group relative overflow-hidden ${
-                    activeChat?.id === chat.id 
-                      ? 'bg-indigo-600/10 border border-indigo-500/30' 
-                      : 'hover:bg-white/5 border border-transparent'
-                  }`}
-                >
-                  <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 flex items-center justify-center">
-                      {chat.type === 'community' ? <Globe className="text-indigo-400" /> : chat.type === 'group' ? <Users className="text-blue-400" /> : <User className="text-slate-400" />}
+            ) : conversations.length > 0 ? (
+              conversations.map((chat) => {
+                const partner = chat.user1_id === user.id ? chat.user2 : chat.user1;
+                return (
+                  <button
+                    key={chat.id}
+                    onClick={() => setActiveChat(chat)}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group relative overflow-hidden ${
+                      activeChat?.id === chat.id 
+                        ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/10 border border-indigo-500/40 shadow-[0_0_20px_rgba(99,102,241,0.1)]' 
+                        : 'hover:bg-white/5 border border-transparent'
+                    }`}
+                  >
+                <div className="relative flex-shrink-0">
+                      <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 flex items-center justify-center">
+                        <img src={partner?.avatar_url || '/default-avatar.png'} className="w-full h-full object-cover" />
+                      </div>
+                      <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#0B0E14] ${
+                        onlineUsers[partner?.id] ? 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-zinc-600'
+                      }`} />
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-0 text-left relative z-10">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <h4 className="text-sm font-black truncate text-slate-100 group-hover:text-white">{chat.name || 'Özel Mesaj'}</h4>
-                      <span className="text-[9px] text-slate-600 font-bold uppercase">
-                        {chat.updated_at ? new Date(chat.updated_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}
-                      </span>
+                    <div className="flex-1 min-w-0 text-left relative z-10">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <h4 className="text-sm font-black truncate text-slate-100 group-hover:text-white">
+                          {partner?.username || 'Bilinmeyen'}
+                        </h4>
+                        <span className="text-[9px] text-slate-600 font-bold uppercase">
+                          {new Date(chat.updated_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-[10px] truncate text-slate-500 font-medium tracking-tight italic">
+                        {chat.last_message ? (
+                          <>
+                            {chat.last_sender_id === user.id && <span className="text-indigo-400/80 not-italic mr-1">Sen:</span>}
+                            {decryptMsg(chat.last_message)}
+                          </>
+                        ) : 'Sohbet başladı...'}
+                      </p>
                     </div>
-                    <p className="text-[10px] truncate text-slate-500 font-medium tracking-tight">
-                      {chat.type === 'community' 
-                        ? 'Hoş geldiniz' 
-                        : (chat.lastMessage?.content || 'Henüz mesaj yok...')}
-                    </p>
-                  </div>
-                </button>
-              ))
+                  </button>
+                );
+              })
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center opacity-30">
-                <AlertCircle size={32} className="mb-3" />
-                <p className="text-xs font-bold uppercase tracking-widest">Veri Bulunamadı</p>
+              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shadow-[0_0_30px_rgba(99,102,241,0.1)]">
+                   <Zap size={32} className="text-indigo-400 animate-pulse" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-black uppercase tracking-widest text-indigo-300">Mesaj Kutusu Boş</p>
+                  <p className="text-[10px] text-slate-500 font-bold max-w-[200px]">Henüz kimseyle iletişime geçmedin.</p>
+                </div>
               </div>
             )}
           </div>
         </aside>
 
         {/* MAIN CHAT WINDOW */}
-        <main className={`flex-1 flex flex-col relative bg-zinc-950/40 backdrop-blur-sm ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
+        <main className={`flex-1 flex flex-col relative bg-[#0B0E14]/40 backdrop-blur-md ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none" />
           {activeChat ? (
             <>
               {/* Header */}
               <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl sticky top-0 z-20">
                 <div className="flex items-center gap-4">
-                  <button onClick={() => setActiveChat(null)} className="md:hidden p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
-                    <ChevronLeft size={24} />
-                  </button>
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center">
-                    {activeChat.type === 'community' ? <Globe className="text-indigo-400" /> : activeChat.type === 'group' ? <Users className="text-blue-400" /> : <User className="text-slate-400" />}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-lg font-black truncate tracking-tighter uppercase italic">{activeChat.name || 'Özel Sohbet'}</h3>
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                      <span className="text-[9px] text-indigo-400 font-black uppercase tracking-widest italic">Canlı Sohbet</span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const partner = activeChat.user1_id === user.id ? activeChat.user2 : activeChat.user1;
+                    return (
+                      <>
+                        <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden">
+                           <img src={partner?.avatar_url || '/default-avatar.png'} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-black truncate tracking-tighter uppercase italic text-indigo-100">
+                            {partner?.username || 'Siber Üye'}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-1.5 h-1.5 rounded-full ${onlineUsers[partner?.id] ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}`} />
+                            <span className="text-[9px] font-black uppercase tracking-widest italic text-slate-500">
+                               {onlineUsers[partner?.id] ? 'Aktif' : 'Çevrimdışı'}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all"><Info size={18} /></button>
-                  <button className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all"><MoreVertical size={18} /></button>
+                  <button className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><Info size={18} /></button>
+                  <button className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><MoreVertical size={18} /></button>
                 </div>
               </div>
 
@@ -689,6 +720,7 @@ export default function MessagesPage() {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder="Bir mesaj yaz uşağım..."
+                    autoFocus
                     className="flex-1 bg-transparent border-none text-white text-sm font-bold focus:ring-0 outline-none placeholder:text-slate-700"
                   />
                   <div className="flex items-center gap-1 pr-1">
