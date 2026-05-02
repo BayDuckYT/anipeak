@@ -4,71 +4,13 @@
  */
 
 // ── ELITE PAKET TANIMLARI ───────────────────────────────────────────────
-export const ELITE_BUNDLES = [
-  {
-    id: 'itadori',
-    name: 'Yuji Itadori',
-    anime: 'Jujutsu Kaisen',
-    icon: '🔥',
-    color: '#f97316', // Turuncu
-    price: 3000,
-    effects: {
-      nametag: 'cursed-fire',
-      avatar: 'itadori-aura',
-      comment: 'itadori-cursed'
-    },
-    canvasEffect: 'black-flash'
-  },
-  {
-    id: 'jinwoo',
-    name: 'Sung Jin Woo',
-    anime: 'Solo Leveling',
-    icon: '🌑',
-    color: '#7c3aed', // Mor
-    price: 3000,
-    effects: {
-      nametag: 'monarch-shadows',
-      avatar: 'jinwoo-aura',
-      comment: 'jinwoo-shadow'
-    },
-    canvasEffect: 'shadow-arise'
-  },
-  {
-    id: 'mahoraga',
-    name: 'Dahi General Mahoraga',
-    anime: 'Jujutsu Kaisen',
-    icon: '☸️',
-    color: '#f59e0b', // Altın
-    price: 3000,
-    effects: {
-      nametag: 'diviner-general',
-      avatar: 'mahoraga-aura',
-      comment: 'mahoraga-dharma'
-    },
-    canvasEffect: 'dharma-wheel'
-  }
-];
+export const ELITE_BUNDLES = [];
 
 // ── CSS EŞLEŞTİRMELERİ ─────────────────────────────────────────────
 const CSS_MAP = {
-  avatar: {
-    'none': '',
-    'itadori-aura': 'avatar-effect-itadori-aura',
-    'jinwoo-aura': 'avatar-effect-jinwoo-aura',
-    'mahoraga-aura': 'avatar-effect-mahoraga-aura'
-  },
-  comment: {
-    'none': '',
-    'itadori-cursed': 'comment-effect-itadori-cursed',
-    'jinwoo-shadow': 'comment-effect-jinwoo-shadow',
-    'mahoraga-dharma': 'comment-effect-mahoraga-dharma'
-  },
-  nametag: {
-    'none': '',
-    'cursed-fire': 'nametag-effect-cursed-fire',
-    'monarch-shadows': 'nametag-effect-monarch-shadows',
-    'diviner-general': 'nametag-effect-diviner-general'
-  }
+  avatar: { 'none': '' },
+  comment: { 'none': '' },
+  nametag: { 'none': '' }
 };
 
 /**
