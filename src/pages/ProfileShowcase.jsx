@@ -121,9 +121,8 @@ function ProfileEffectSpritesheet({ url }) {
         backgroundPosition: '0% center',
         animation: `siber-spritesheet ${duration}s steps(${frameCount - 1}) infinite`,
         backgroundRepeat: 'no-repeat',
-        transform: 'scale(1.1)', // Slight overflow to prevent edge gaps
       }}
-      className="mix-blend-screen scale-110"
+      className="mix-blend-screen"
     />
   );
 }
@@ -859,16 +858,16 @@ export default function ProfileShowcase() {
                         key={targetPEId}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="absolute -inset-10 z-20 pointer-events-none"
+                        className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-[2rem]"
                       >
                         {isVideo ? (
-                          <video src={peData.url} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-90 mix-blend-screen scale-110" />
+                          <video src={peData.url} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-90 mix-blend-screen" />
                         ) : isWebp ? (
-                          <img src={peData.url} alt="Profile Effect" loading="eager" className="w-full h-full object-cover opacity-90 mix-blend-screen scale-110" />
+                          <img src={peData.url} alt="Profile Effect" loading="eager" className="w-full h-full object-cover opacity-90 mix-blend-screen" />
                         ) : isPng ? (
                           <ProfileEffectSpritesheet url={peData.url} />
                         ) : (
-                          <img src={peData.url} alt="Profile Effect" className="w-full h-full object-cover opacity-90 mix-blend-screen scale-110" />
+                          <img src={peData.url} alt="Profile Effect" className="w-full h-full object-cover opacity-90 mix-blend-screen" />
                         )}
                       </motion.div>
                     );
