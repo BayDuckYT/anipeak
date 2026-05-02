@@ -453,7 +453,6 @@ export default function ProfileShowcase() {
     return 'none';
   });
 
-  const isSukuna = selectedBundle === 'sukuna' || (selectedBundle === 'mix' && mixState.aura === 'blood-rain');
   const isGojo = selectedBundle === 'gojo' || (selectedBundle === 'mix' && mixState.aura === 'void-particles');
 
   const canvasRef = useRef(null);

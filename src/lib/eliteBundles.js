@@ -20,20 +20,6 @@ export const ELITE_BUNDLES = [
     canvasEffect: 'void-particles' // Profil banner'ı için canvas animasyon ID'si
   },
   {
-    id: 'sukuna',
-    name: 'Ryomen Sukuna',
-    anime: 'Jujutsu Kaisen',
-    icon: '🔴',
-    color: '#dc2626', // Kan Kırmızısı
-    price: 3000,
-    effects: {
-      nametag: 'malevolent-shrine',
-      avatar: 'sukuna-aura',
-      comment: 'sukuna-blood'
-    },
-    canvasEffect: 'blood-rain'
-  },
-  {
     id: 'itadori',
     name: 'Yuji Itadori',
     anime: 'Jujutsu Kaisen',
@@ -82,7 +68,6 @@ const CSS_MAP = {
   avatar: {
     'none': '',
     'gojo-aura': 'avatar-effect-gojo-aura',
-    'sukuna-aura': 'avatar-effect-sukuna-aura',
     'itadori-aura': 'avatar-effect-itadori-aura',
     'jinwoo-aura': 'avatar-effect-jinwoo-aura',
     'mahoraga-aura': 'avatar-effect-mahoraga-aura'
@@ -90,7 +75,6 @@ const CSS_MAP = {
   comment: {
     'none': '',
     'gojo-void': 'comment-effect-gojo-void',
-    'sukuna-blood': 'comment-effect-sukuna-blood',
     'itadori-cursed': 'comment-effect-itadori-cursed',
     'jinwoo-shadow': 'comment-effect-jinwoo-shadow',
     'mahoraga-dharma': 'comment-effect-mahoraga-dharma'
@@ -98,7 +82,6 @@ const CSS_MAP = {
   nametag: {
     'none': '',
     'unlimited-void': 'nametag-effect-unlimited-void',
-    'malevolent-shrine': 'nametag-effect-malevolent-shrine',
     'cursed-fire': 'nametag-effect-cursed-fire',
     'monarch-shadows': 'nametag-effect-monarch-shadows',
     'diviner-general': 'nametag-effect-diviner-general'
