@@ -12,6 +12,7 @@ import AuthModal from './components/AuthModal.jsx';
 import GlobalEffects from './components/GlobalEffects.jsx';
 import Loader from './components/Loader.jsx';
 import GlobalBundleTheme from './components/GlobalBundleTheme.jsx';
+// ANIPEAK_SİBER_GÜNCELLEME_V2_1735
 import ScrollToTop from './components/ScrollToTop.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
