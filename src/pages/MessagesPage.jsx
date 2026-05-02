@@ -232,6 +232,7 @@ export default function MessagesPage() {
   }, []);
 
   const [onlineUsers, setOnlineUsers] = useState({});
+  const messagesContainerRef = useRef(null);
 
   // --- DATA FETCHING & REALTIME ---
   useEffect(() => {
@@ -362,7 +363,12 @@ export default function MessagesPage() {
   }, [activeChat]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   }, [messages]);
 
   const fetchConversations = async () => {
@@ -687,7 +693,10 @@ export default function MessagesPage() {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-6 flex flex-col custom-scrollbar">
+              <div 
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto p-6 flex flex-col custom-scrollbar"
+              >
                 
                 {/* ── WELCOME BANNER ── */}
                 <div className="mb-6 p-4 rounded-2xl border border-indigo-500/15 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 relative overflow-hidden">
