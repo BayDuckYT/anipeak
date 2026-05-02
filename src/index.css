@@ -1647,7 +1647,7 @@ body {
 .effect-card-full > .effect-overlay > div {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
 }
 
 /* Label at bottom of full card */
