@@ -16,35 +16,70 @@ import LiveChatPanel from '../components/LiveChatPanel.jsx';
 
 function ReaderImage({ src, alt, idx, chapter }) {
   const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [imgSrc, setImgSrc] = useState(src);
+
+  useEffect(() => {
+    setImgSrc(src);
+    setError(false);
+    setRetryCount(0);
+  }, [src]);
+
+  const handleError = () => {
+    if (retryCount < 2) {
+      // Try again with a cache buster
+      const separator = src.includes('?') ? '&' : '?';
+      const buster = `cb=${Date.now()}_${idx}`;
+      setImgSrc(`${src}${separator}${buster}`);
+      setRetryCount(prev => prev + 1);
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
 
   if (error) {
     return (
-      <div className="w-full aspect-[2/3] bg-white/5 border border-white/10 flex flex-col items-center justify-center p-10 text-center">
-        <Sun size={48} className="text-red-500/50 mb-4" />
-        <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Resim Yüklenemedi</p>
-        <p className="text-slate-600 text-xs mt-2 font-mono">Index: {idx + 1} | Cosmic Error</p>
+      <div className="w-full aspect-[2/3] bg-white/5 border border-white/10 flex flex-col items-center justify-center p-10 text-center group">
+        <div className="relative mb-4">
+          <Sun size={48} className="text-red-500/50 animate-pulse" />
+          <Bug size={20} className="absolute -bottom-1 -right-1 text-red-400" />
+        </div>
+        <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-1">Bağlantı Kesildi</p>
+        <p className="text-slate-600 text-[10px] mb-6 font-mono">Index: {idx + 1} | Siber Sinyal Zayıf</p>
+        <button 
+          onClick={() => {
+            setError(false);
+            setRetryCount(0);
+            setImgSrc(`${src}${src.includes('?') ? '&' : '?' }retry=${Date.now()}`);
+          }}
+          className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 hover:border-purple-500/50 transition-all uppercase tracking-widest"
+        >
+          Resmi Yeniden Yükle
+        </button>
       </div>
     );
   }
 
-  // Ensure src is valid
-  const imageSrc = src?.startsWith('data:') ? src : src;
-
   return (
-    <motion.img
-      src={imageSrc}
-      alt={alt}
-      onError={() => setError(true)}
-      loading={idx < 3 ? 'eager' : 'lazy'}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.5 }}
-      className="w-full block select-none pointer-events-none"
-      onContextMenu={(e) => e.preventDefault()}
-      onDragStart={(e) => e.preventDefault()}
-      style={{ display: 'block', lineHeight: 0 }}
-    />
+    <div className="relative w-full">
+      <motion.img
+        src={imgSrc}
+        alt={alt}
+        onError={handleError}
+        loading={idx < 3 ? 'eager' : 'lazy'}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '200px' }}
+        transition={{ duration: 0.4 }}
+        className="w-full block select-none pointer-events-none transition-opacity duration-300"
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
+        style={{ display: 'block', minHeight: '100px' }}
+      />
+      {/* Loading Placeholder (Skeleton) */}
+      <div className="absolute inset-0 bg-white/2 -z-10 animate-pulse" />
+    </div>
   );
 }
 
