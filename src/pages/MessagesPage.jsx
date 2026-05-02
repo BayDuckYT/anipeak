@@ -18,7 +18,9 @@ import {
   Globe,
   Star,
   FileText,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft,
+  Send
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -364,10 +366,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -662,17 +661,29 @@ export default function MessagesPage() {
           {activeChat ? (
             <>
               {/* Header */}
-              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl sticky top-0 z-20">
-                <div className="flex items-center gap-4">
+              <div className="p-4 md:p-6 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl sticky top-0 z-20">
+                <div className="flex items-center gap-3 md:gap-4">
+                  {/* Mobile Back Button */}
+                  <button 
+                    onClick={() => setActiveChat(null)}
+                    className="md:hidden p-2 -ml-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-all"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+
                   {(() => {
                     const partner = activeChat.user1_id === user.id ? activeChat.user2 : activeChat.user1;
                     return (
                       <>
-                        <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden">
-                           <img src={partner?.avatar_url || '/default-avatar.png'} className="w-full h-full object-cover" />
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                           <img 
+                             src={partner?.avatar_url || '/default-avatar.png'} 
+                             className="w-full h-full object-cover" 
+                             loading="lazy"
+                           />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="text-lg font-black truncate tracking-tighter uppercase italic text-indigo-100">
+                          <h3 className="text-sm md:text-lg font-black truncate tracking-tighter uppercase italic text-indigo-100">
                             {partner?.username || 'Siber Üye'}
                           </h3>
                           <div className="flex items-center gap-2">
