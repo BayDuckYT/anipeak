@@ -103,7 +103,7 @@ function ProfileEffectSpritesheet({ url }) {
 
   // Henüz boyut tespit edilmedi veya tek karelik resim — statik göster
   if (frameCount === null || frameCount <= 1) {
-    return <img src={url} alt="Effect" className="w-full h-full object-cover mix-blend-screen" />;
+    return <img src={url} alt="Effect" className="w-full h-full object-fill mix-blend-screen" />;
   }
 
   // Çok kareli spritesheet = animasyonlu göster
@@ -861,13 +861,13 @@ export default function ProfileShowcase() {
                         className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-[2rem]"
                       >
                         {isVideo ? (
-                          <video src={peData.url} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-90 mix-blend-screen" />
+                          <video src={peData.url} autoPlay muted loop playsInline className="w-full h-full object-fill opacity-90 mix-blend-screen" />
                         ) : isWebp ? (
-                          <img src={peData.url} alt="Profile Effect" loading="eager" className="w-full h-full object-cover opacity-90 mix-blend-screen" />
+                          <img src={peData.url} alt="Profile Effect" loading="eager" className="w-full h-full object-fill opacity-90 mix-blend-screen" />
                         ) : isPng ? (
                           <ProfileEffectSpritesheet url={peData.url} />
                         ) : (
-                          <img src={peData.url} alt="Profile Effect" className="w-full h-full object-cover opacity-90 mix-blend-screen" />
+                          <img src={peData.url} alt="Profile Effect" className="w-full h-full object-fill opacity-90 mix-blend-screen" />
                         )}
                       </motion.div>
                     );
@@ -1589,11 +1589,11 @@ export default function ProfileShowcase() {
                                   const isPng = urlLower.split('?')[0].endsWith('.png');
 
                                   if (isVideo) {
-                                    return <video src={effect.url} autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen" />;
+                                    return <video src={effect.url} autoPlay muted loop playsInline className="w-full h-full object-fill mix-blend-screen" />;
                                   }
 
                                   if (isWebp) {
-                                    return <img src={effect.url} alt={effect.label} loading="lazy" className="w-full h-full object-cover mix-blend-screen" />;
+                                    return <img src={effect.url} alt={effect.label} loading="lazy" className="w-full h-full object-fill mix-blend-screen" />;
                                   }
 
                                   if (isPng) {
@@ -1604,7 +1604,7 @@ export default function ProfileShowcase() {
                                     <img 
                                       src={effect.url} 
                                       alt={effect.label} 
-                                      className="w-full h-full object-cover mix-blend-screen" 
+                                      className="w-full h-full object-fill mix-blend-screen" 
                                     />
                                   );
                                 })()}
