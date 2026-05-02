@@ -68,17 +68,19 @@ function ReaderImage({ src, alt, idx, chapter }) {
         alt={alt}
         onError={handleError}
         loading={idx < 3 ? 'eager' : 'lazy'}
-        initial={{ opacity: 0 }}
+        initial={{ opacity: idx < 3 ? 1 : 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '200px' }}
-        transition={{ duration: 0.4 }}
-        className="w-full block select-none pointer-events-none transition-opacity duration-300"
+        viewport={{ once: true, margin: '400px' }}
+        transition={{ duration: 0.3 }}
+        className="w-full block select-none pointer-events-none transition-opacity duration-300 bg-[#050507]"
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
-        style={{ display: 'block', minHeight: '100px' }}
+        style={{ display: 'block', minHeight: '300px' }}
       />
-      {/* Loading Placeholder (Skeleton) */}
-      <div className="absolute inset-0 bg-white/2 -z-10 animate-pulse" />
+      {/* Loading Placeholder (Skeleton) - More visible */}
+      <div className="absolute inset-0 bg-white/[0.03] -z-10 animate-pulse flex items-center justify-center">
+         <BookOpen size={24} className="text-white/5" />
+      </div>
     </div>
   );
 }
@@ -354,30 +356,36 @@ export default function Reader() {
       >
         <div className="flex flex-col">
           {(() => {
-            const currentCh = contextChapters?.find(c => parseFloat(c.number) === parseFloat(chapter));
-            if (!currentCh && contextChapters?.length > 0) {
-              console.warn(`[READER] Bölüm bulunamadı! Aranan: ${chapter}, Mevcutlar:`, contextChapters.map(c => c.number));
-            }
-            if (currentCh && (!currentCh.pages || currentCh.pages.length === 0)) {
-              console.warn(`[READER] Bölüm bulundu ama sayfalar boş!`, currentCh);
+            const currentCh = contextChapters?.find(c => {
+              const n1 = parseFloat(String(c.number));
+              const n2 = parseFloat(String(chapter));
+              return n1 === n2;
+            });
+
+            if (!currentCh) {
+              if (contextChapters?.length > 0) {
+                console.warn(`[READER] Bölüm bulunamadı! Aranan: ${chapter}, Mevcutlar:`, contextChapters.map(c => c.number));
+              }
+              return null;
             }
 
-            return currentCh?.pages?.map((p, idx) => (
-              <ReaderImage key={idx} src={p} alt={`Page ${idx + 1}`} idx={idx} chapter={chapter} />
+            if (!currentCh.pages || currentCh.pages.length === 0) {
+              return (
+                <div className="py-40 text-center px-6">
+                   <Sun size={64} className="text-slate-800 mx-auto mb-6" />
+                   <h2 className="text-2xl font-black text-white mb-2">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
+                   <p className="text-slate-500 max-w-sm mx-auto">Henüz sayfalar yüklenmemiş veya kozmik bir hata oluşmuş.</p>
+                   <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-8 text-purple-400 font-bold hover:text-purple-300">
+                      <ArrowLeft size={16} /> Seri Detayına Dön
+                   </Link>
+                </div>
+              );
+            }
+
+            return currentCh.pages.map((p, idx) => (
+              <ReaderImage key={`${chapter}-${idx}`} src={p} alt={`Page ${idx + 1}`} idx={idx} chapter={chapter} />
             ));
           })()}
-
-          {/* If no pages */}
-          {(!contextChapters?.find(c => parseFloat(c.number) === parseFloat(chapter))?.pages || contextChapters?.find(c => parseFloat(c.number) === parseFloat(chapter))?.pages?.length === 0) && (
-            <div className="py-40 text-center px-6">
-               <Sun size={64} className="text-slate-800 mx-auto mb-6" />
-               <h2 className="text-2xl font-black text-white mb-2">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
-               <p className="text-slate-500 max-w-sm mx-auto">Henüz sayfalar yüklenmemiş veya kozmik bir hata oluşmuş.</p>
-               <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-8 text-purple-400 font-bold hover:text-purple-300">
-                  <ArrowLeft size={16} /> Seri Detayına Dön
-               </Link>
-            </div>
-          )}
         </div>
 
         {/* Visibility Pivot for XP reward */}
