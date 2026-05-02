@@ -6,20 +6,6 @@
 // ── ELITE PAKET TANIMLARI ───────────────────────────────────────────────
 export const ELITE_BUNDLES = [
   {
-    id: 'gojo',
-    name: 'Satoru Gojo',
-    anime: 'Jujutsu Kaisen',
-    icon: '🔵',
-    color: '#3b82f6', // Mavi
-    price: 3000,
-    effects: {
-      nametag: 'unlimited-void',
-      avatar: 'gojo-aura',
-      comment: 'gojo-void'
-    },
-    canvasEffect: 'void-particles' // Profil banner'ı için canvas animasyon ID'si
-  },
-  {
     id: 'itadori',
     name: 'Yuji Itadori',
     anime: 'Jujutsu Kaisen',
@@ -67,21 +53,18 @@ export const ELITE_BUNDLES = [
 const CSS_MAP = {
   avatar: {
     'none': '',
-    'gojo-aura': 'avatar-effect-gojo-aura',
     'itadori-aura': 'avatar-effect-itadori-aura',
     'jinwoo-aura': 'avatar-effect-jinwoo-aura',
     'mahoraga-aura': 'avatar-effect-mahoraga-aura'
   },
   comment: {
     'none': '',
-    'gojo-void': 'comment-effect-gojo-void',
     'itadori-cursed': 'comment-effect-itadori-cursed',
     'jinwoo-shadow': 'comment-effect-jinwoo-shadow',
     'mahoraga-dharma': 'comment-effect-mahoraga-dharma'
   },
   nametag: {
     'none': '',
-    'unlimited-void': 'nametag-effect-unlimited-void',
     'cursed-fire': 'nametag-effect-cursed-fire',
     'monarch-shadows': 'nametag-effect-monarch-shadows',
     'diviner-general': 'nametag-effect-diviner-general'

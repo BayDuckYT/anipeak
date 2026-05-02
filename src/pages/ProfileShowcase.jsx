@@ -453,8 +453,6 @@ export default function ProfileShowcase() {
     return 'none';
   });
 
-  const isGojo = selectedBundle === 'gojo' || (selectedBundle === 'mix' && mixState.aura === 'void-particles');
-
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
 
