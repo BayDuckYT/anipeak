@@ -74,7 +74,7 @@ export default function ListDetail() {
       // Fetch Items with Deep Join
       const { data: items, error: itemsErr } = await supabase
         .from('custom_list_items')
-        .select('*, series(*)') // Bu JOIN çalışması için supabase_patch.sql'deki FK'yı çalıştırmış olmalısın uşağım!
+        .select('*, series(*)')
         .eq('list_id', listId)
         .order('added_at', { ascending: false });
       
@@ -167,31 +167,31 @@ export default function ListDetail() {
   };
 
   const handleAddSeries = async (sId) => {
+    const eklenecekVeri = { list_id: listId, series_id: String(sId) };
+    console.log("Eklenen Veri:", eklenecekVeri);
+
     try {
-      const { error } = await supabase
+      const { data: inserted, error } = await supabase
         .from('custom_list_items')
-        .insert({ list_id: listId, series_id: String(sId) });
+        .insert(eklenecekVeri)
+        .select('*, series(*)')
+        .single();
       
       if (error) {
         if (error.code === '23505') showToast('Bu seri zaten mühürlenmiş!');
+        else {
+          console.error("Insert Error:", error);
+          showToast('Ekleme hatası uşağım!');
+        }
         return;
       }
 
-      const { data: newItems, error: fetchErr } = await supabase
-        .from('custom_list_items')
-        .select('*, series(*)')
-        .eq('list_id', listId)
-        .order('added_at', { ascending: false });
-      
-      if (fetchErr) {
-        console.error("Yenileme Hatası:", fetchErr);
-      } else {
-        console.log("Güncel Liste İçeriği:", newItems);
-        setListItems(newItems || []);
+      if (inserted) {
+        console.log("Mermi Hedefe Ulaştı (Optimistic):", inserted);
+        setListItems(prev => [inserted, ...prev]);
+        setShowAddModal(false);
+        showToast('Seri listeye mühürlendi!');
       }
-
-      setShowAddModal(false);
-      showToast('Seri listeye mühürlendi!');
     } catch (err) {
       console.error("Ekleme Hatası:", err);
       showToast('Ekleme başarısız uşağım!');
@@ -404,10 +404,7 @@ export default function ListDetail() {
               </div>
            </div>
 
-           {/* DEBUG: Veriyi ekrana kusma uşağım! */}
-           <pre className="text-[10px] text-zinc-600 bg-black/40 p-4 rounded-3xl mb-8 overflow-auto max-h-40 custom-scrollbar border border-white/5">
-             {JSON.stringify(listItems, null, 2)}
-           </pre>
+
 
            <div className="w-full overflow-x-auto custom-scrollbar">
               <table className="w-full border-separate border-spacing-y-4">

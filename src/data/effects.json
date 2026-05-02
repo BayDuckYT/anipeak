@@ -132,13 +132,7 @@
     "category": "profile_effects",
     "emoji": ""
   },
-  {
-    "id": "custom_sukuna",
-    "url": "/effects/sukuna.webp",
-    "label": "sukuna",
-    "category": "profile_effects",
-    "emoji": ""
-  },
+
   {
     "id": "custom_tembel_köpekmek",
     "url": "/effects/Tembel Köpekmek.webp",
@@ -167,19 +161,27 @@
     "category": "profile_effects",
     "emoji": ""
   },
-  {
-    "id": "custom_akuma",
-    "url": "/effects/akuma.webp",
-    "label": "akuma",
-    "category": "profile_effects",
-    "emoji": ""
-  },
+
   {
     "id": "custom_terazi",
     "url": "/effects/terazi.webp",
     "label": "terazi",
     "category": "profile_effects",
     "emoji": ""
+  },
+  {
+    "id": "custom_gojo",
+    "url": "/effects/gojo.png",
+    "label": "Gojo Satoru",
+    "category": "profile_effects",
+    "emoji": "♾️"
+  },
+  {
+    "id": "custom_bakugo",
+    "url": "/effects/bakugo.png",
+    "label": "Bakugo Katsuki",
+    "category": "profile_effects",
+    "emoji": "💥"
   },
   {
     "id": "1352687418418921532",
@@ -194,6 +196,34 @@
     "label": "Phoenix",
     "category": "decorations",
     "emoji": "<:custom_emoji:1352687448228106302>"
+  },
+  {
+    "id": "decoration_spiderweb",
+    "url": "/assets/decorations/spiderweb.png",
+    "label": "Spiderweb",
+    "category": "decorations",
+    "emoji": "🕸️"
+  },
+  {
+    "id": "decoration_venom",
+    "url": "/assets/decorations/venomweb.png",
+    "label": "Venom",
+    "category": "decorations",
+    "emoji": "🕷️"
+  },
+  {
+    "id": "decoration_kanat",
+    "url": "/assets/decorations/kanat.png",
+    "label": "Kanat",
+    "category": "decorations",
+    "emoji": "🪽"
+  },
+  {
+    "id": "decoration_itadori",
+    "url": "/assets/decorations/itadori.png",
+    "label": "Itadori",
+    "category": "decorations",
+    "emoji": "👊"
   },
   {
     "id": "1352687476317093888",
@@ -237,13 +267,7 @@
     "category": "decorations",
     "emoji": "<:custom_emoji:1352687727283273788>"
   },
-  {
-    "id": "1352687750910054440",
-    "url": "/assets/decorations/Akuma.png",
-    "label": "Akuma",
-    "category": "decorations",
-    "emoji": "<:custom_emoji:1352687750910054440>"
-  },
+
   {
     "id": "1352687779103903754",
     "url": "/avatar-efekts/1352687779103903754.png",
