@@ -250,6 +250,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
+    // Safety Timeout: 5 saniye içinde hiçbir veri gelmezse zorla aç (Siyah ekran kalmasın diye)
+    const safetyTimeout = setTimeout(() => {
+      if (mounted) {
+        console.warn("[Auth] Siber Limit Aşımı — UI zorla açılıyor (Safety)");
+        setLoading(false);
+      }
+    }, 5000);
+
     const init = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -264,6 +272,7 @@ export function AuthProvider({ children }) {
         console.warn("[Auth] Session yüklenemedi (ağ hatası), oturum korunuyor:", err.message);
       } finally {
           setLoading(false);
+          clearTimeout(safetyTimeout);
 
           // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil (Background check)
           const cachedId = localStorage.getItem('anipeak_last_user_id');
@@ -315,6 +324,7 @@ export function AuthProvider({ children }) {
 
     return () => {
       mounted = false;
+      clearTimeout(safetyTimeout);
       if (subscription) subscription.unsubscribe();
       if (profileChannelRef.current) {
         supabase.removeChannel(profileChannelRef.current);

@@ -19,7 +19,10 @@ export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = tru
           animate={{ rotate: 360 }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0 rounded-full border-t-2 border-l-2 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-          style={{ maskImage: 'conic-gradient(from 0deg, black, transparent 60%)' }}
+          style={{ 
+            maskImage: 'conic-gradient(from 0deg, black, transparent 60%)',
+            WebkitMaskImage: 'conic-gradient(from 0deg, black, transparent 60%)' 
+          }}
         />
 
         {/* Pulsing Core Zap */}
