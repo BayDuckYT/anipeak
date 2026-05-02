@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, User, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import EliteBadge from './EliteBadge';
+import AnimeAvatar from './AnimeAvatar';
+import effectsData from '../data/effects.json';
 
 // Mock messages for simulation
 const MOCK_MESSAGES = [
@@ -33,6 +35,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
       text: inputText,
       isElite: user?.is_elite || false,
       avatar_url: user?.avatar_url || null,
+      active_decoration: user?.active_decoration || 'none',
       time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -70,11 +73,15 @@ export default function LiveChatPanel({ isOpen, onClose }) {
               const isMe = user && (msg.user === user.username || msg.user === 'Misafir');
               return (
               <div key={msg.id} className={`flex ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex-shrink-0 flex items-center justify-center border border-white/5">
-                  {msg.avatar_url ? (
-                    <img src={msg.avatar_url} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[10px] font-bold text-white">{msg.user?.charAt(0).toUpperCase()}</span>
+                <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center border border-white/5 relative">
+                  <AnimeAvatar 
+                    src={msg.avatar_url || null} 
+                    effect={msg.active_decoration && msg.active_decoration !== 'none' ? effectsData.find(e => e.id === msg.active_decoration) : null}
+                    size="w-8 h-8"
+                    forcePlay={true}
+                  />
+                  {!msg.avatar_url && !msg.active_decoration && (
+                    <span className="absolute z-10 text-[10px] font-bold text-white pointer-events-none">{msg.user?.charAt(0).toUpperCase()}</span>
                   )}
                 </div>
                 

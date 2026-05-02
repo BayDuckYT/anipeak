@@ -26,7 +26,7 @@ import { supabase } from '../lib/supabaseClient';
 import AnimeAvatar from '../components/AnimeAvatar.jsx';
 
 // --- SUB-COMPONENT: Message Item ---
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 // --- SUB-COMPONENT: Anime Nameplate (Discord Style) ---
 const AnimeNameplate = ({ username, role, mix }) => {
@@ -141,7 +141,7 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
 
         {/* Message Text */}
         <p className={`text-sm leading-relaxed ${isMe ? 'text-slate-100' : 'text-slate-300'} break-words font-medium pl-1`}>
-          {msg.text}
+          {msg.content}
         </p>
 
         {/* Effect Mini Preview */}
@@ -174,9 +174,14 @@ export default function MessagesPage() {
   const { user } = useAuth();
   const { registeredUsers } = useApp();
   const [activeTab, setActiveTab] = useState('dm'); // 'dm', 'group', 'community', 'friends'
+  const [searchParams] = useSearchParams();
+  const userIdFromUrl = searchParams.get('user_id');
+  const usernameFromUrl = searchParams.get('user');
+
   const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [following, setFollowing] = useState([]);
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -199,6 +204,7 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!user) return;
     fetchConversations();
+    fetchFollowing();
     
     // Real-time conversations subscription (Sidebar update için)
     const convSub = supabase.channel('conversations-global')
@@ -212,6 +218,92 @@ export default function MessagesPage() {
 
     return () => { supabase.removeChannel(convSub); };
   }, [user]);
+
+  // Handle auto-starting a chat from URL param
+  useEffect(() => {
+    if (user && (userIdFromUrl || usernameFromUrl) && !loading) {
+      handleAutoStartChat();
+    }
+  }, [user, userIdFromUrl, usernameFromUrl, loading, conversations]);
+
+  const handleAutoStartChat = async () => {
+    let targetId = userIdFromUrl;
+    let targetUsername = '';
+
+    // If only username is provided, fetch user_id first
+    if (!targetId && usernameFromUrl) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .eq('username', usernameFromUrl)
+        .single();
+      if (profile) {
+        targetId = profile.id;
+        targetUsername = profile.username;
+      }
+    }
+
+    if (!targetId) return;
+
+    // 1. Check if a DM with this user already exists (even if it's a ghost chat)
+    // Önce local listede (aktif olanlarda) ara
+    let chat = conversations.find(c => 
+      c.type === 'dm' && 
+      c.members?.some(m => m.user_id === targetId)
+    );
+
+    if (!chat) {
+      // Eğer local'de yoksa (hayalet olabilir), DB'de ara
+      const { data: dbChat } = await supabase
+        .from('conversations')
+        .select('*, members:conversation_participants(user_id)')
+        .eq('type', 'dm')
+        .eq('conversation_participants.user_id', user.id)
+        .order('created_at', { ascending: false });
+        
+      // Manuel filtreleme (Çünkü Supabase nested filter bazen zorlayabiliyor)
+      chat = dbChat?.find(c => c.members?.some(m => m.user_id === targetId));
+    }
+
+    if (chat) {
+      setActiveChat(chat);
+    } else {
+      // 2. Create new DM (Ghost state by default as last_message_at is NULL in our logic)
+      try {
+        if (!targetUsername) {
+           const { data: p } = await supabase.from('profiles').select('username').eq('id', targetId).single();
+           targetUsername = p?.username || 'Kullanıcı';
+        }
+
+        const { data: newConv, error: convErr } = await supabase
+          .from('conversations')
+          .insert({ name: targetUsername, type: 'dm', updated_at: null })
+          .select()
+          .single();
+
+        if (convErr) throw convErr;
+
+        await supabase.from('conversation_participants').insert([
+          { conversation_id: newConv.id, user_id: user.id },
+          { conversation_id: newConv.id, user_id: targetId }
+        ]);
+
+        fetchConversations();
+        setActiveChat(newConv);
+      } catch (err) {
+        console.error('Error creating DM:', err);
+      }
+    }
+  };
+
+  const fetchFollowing = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id);
+    if (data) setFollowing(data.map(f => f.following_id));
+  };
 
   useEffect(() => {
     if (activeChat) {
@@ -257,14 +349,15 @@ export default function MessagesPage() {
       const [memberRes, communityRes] = await Promise.all([
         supabase
           .from('conversations')
-          .select('*, conversation_members!inner(user_id)')
-          .eq('conversation_members.user_id', user.id)
-          .order('last_message_at', { ascending: false }),
+          .select('*, members:conversation_participants(user_id)')
+          .eq('conversation_participants.user_id', user.id)
+          .not('updated_at', 'is', null) // KURAL: Hayalet mesajlaşma engeli
+          .order('updated_at', { ascending: false }),
         supabase
           .from('conversations')
-          .select('*')
+          .select('*, members:conversation_participants(user_id)')
           .eq('type', 'community')
-          .order('last_message_at', { ascending: false })
+          .order('updated_at', { ascending: false })
       ]);
 
       if (memberRes.error || communityRes.error) throw (memberRes.error || communityRes.error);
@@ -272,7 +365,7 @@ export default function MessagesPage() {
       // Birleştir, mükerreratı temizle, sırala
       const merged = [...(communityRes.data || []), ...(memberRes.data || [])];
       const unique = Array.from(new Map(merged.map(c => [c.id, c])).values())
-        .sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at));
+        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
       // Listeyi hemen göster — N+1 sorgusu yok
       setConversations(unique.map(c => ({ ...c, lastMessage: null })));
@@ -282,7 +375,7 @@ export default function MessagesPage() {
         try {
           const { data: lastMsg } = await supabase
             .from('messages')
-            .select('text, created_at')
+            .select('content, created_at')
             .eq('conversation_id', conv.id)
             .order('created_at', { ascending: false })
             .limit(1)
@@ -327,7 +420,7 @@ export default function MessagesPage() {
       id: tempId,
       conversation_id: activeChat.id,
       sender_id: user.id,
-      text: text,
+      content: text,
       created_at: new Date().toISOString(),
       sender: {
         username: user.username || 'Ben',
@@ -344,7 +437,7 @@ export default function MessagesPage() {
         .insert([{
         conversation_id: activeChat.id,
         sender_id: user.id,
-        text
+        content: text
       }])
         .select()
         .single();
@@ -353,8 +446,11 @@ export default function MessagesPage() {
       // Gerçek ID ile mesajı güncelle
       setMessages(prev => prev.map(m => m.id === tempId ? { ...data, sender: tempMsg.sender } : m));
 
-      // Update last_message_at
-      await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', activeChat.id);
+      // Update last_message and updated_at
+      await supabase.from('conversations').update({ 
+        last_message: text,
+        updated_at: new Date().toISOString() 
+      }).eq('id', activeChat.id);
     } catch (err) {
       console.error('Send error:', err);
       // Hata durumunda mesajı kaldır
@@ -386,7 +482,7 @@ export default function MessagesPage() {
         user_id: uid
       }));
 
-      const { error: memErr } = await supabase.from('conversation_members').insert(members);
+      const { error: memErr } = await supabase.from('conversation_participants').insert(members);
       if (memErr) throw memErr;
 
       setShowNewChat(false);
@@ -490,13 +586,13 @@ export default function MessagesPage() {
                     <div className="flex items-center justify-between mb-0.5">
                       <h4 className="text-sm font-black truncate text-slate-100 group-hover:text-white">{chat.name || 'Özel Mesaj'}</h4>
                       <span className="text-[9px] text-slate-600 font-bold uppercase">
-                        {chat.last_message_at ? new Date(chat.last_message_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                        {chat.updated_at ? new Date(chat.updated_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </span>
                     </div>
                     <p className="text-[10px] truncate text-slate-500 font-medium tracking-tight">
                       {chat.type === 'community' 
                         ? 'Hoş geldiniz' 
-                        : (chat.lastMessage?.text || 'Henüz mesaj yok...')}
+                        : (chat.lastMessage?.content || 'Henüz mesaj yok...')}
                     </p>
                   </div>
                 </button>
@@ -677,7 +773,7 @@ export default function MessagesPage() {
                   {/* User List */}
                   <div className="max-h-[250px] overflow-y-auto space-y-2 custom-scrollbar pr-2">
                     {registeredUsers
-                      .filter(u => u.id !== user?.id && u.username?.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .filter(u => u.id !== user?.id && following.includes(u.id) && u.username?.toLowerCase().includes(searchQuery.toLowerCase()))
                       .map(u => {
                         const isSelected = selectedUsers.includes(u.id);
                         return (

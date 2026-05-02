@@ -69,20 +69,45 @@ export function renderCanvasEffect(ctx, canvas, effectType, particlesRef) {
     });
   } 
   else if (effectType === 'blood-rain') {
-    // Sukuna - Aşağıdan Yukarı Harlayan Kıvılcımlar (Malevolent Fire)
+    // Sukuna - Malevolent Shrine (Ağaç Görünümlü Tapınak) ve Harlayan Kıvılcımlar
+    const centerX = width / 2;
+    const bottomY = height;
+
+    // Tapınak Silhouette (Basit ama etkileyici bir yapı)
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(centerX - 60, bottomY);
+    ctx.quadraticCurveTo(centerX - 50, bottomY - 100, centerX - 100, bottomY - 120); // Sol çatı
+    ctx.lineTo(centerX, bottomY - 180); // Tepe
+    ctx.lineTo(centerX + 100, bottomY - 120); // Sağ çatı
+    ctx.quadraticCurveTo(centerX + 50, bottomY - 100, centerX + 60, bottomY);
+    ctx.fillStyle = 'rgba(20, 10, 10, 0.9)';
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = '#dc2626';
+    ctx.fill();
+
+    // Tapınak Gözleri/Işıkları
+    ctx.beginPath();
+    ctx.arc(centerX - 20, bottomY - 130, 4, 0, Math.PI * 2);
+    ctx.arc(centerX + 20, bottomY - 130, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff0000';
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#ff0000';
+    ctx.fill();
+    ctx.restore();
+
     particles.forEach(p => {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = Math.random() > 0.5 ? '#dc2626' : '#f97316'; // Kan kırmızısı ve ateş turuncusu
+      ctx.fillStyle = Math.random() > 0.5 ? '#dc2626' : '#f97316'; 
       ctx.shadowBlur = p.size * 4;
       ctx.shadowColor = '#dc2626';
       ctx.fill();
       
-      // Aşağıdan yukarıya doğru hızla fırla
       p.y -= (Math.random() * 4 + 3);
       p.x += Math.sin(p.life / 10) * 2;
       p.life++;
-      p.size *= 0.98; // Yukarı çıktıkça küçül (küle dönüş)
+      p.size *= 0.98; 
       
       if (p.y < 0 || p.size < 0.5) {
         p.y = height + 10;

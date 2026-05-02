@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams, Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -23,6 +23,7 @@ import {
   Eye,
   EyeOff,
   Palette,
+  Tv,
   Image as ImageIcon,
   User,
   Filter,
@@ -32,7 +33,17 @@ import {
   Play,
   Lock,
   X,
-  CreditCard
+  CreditCard,
+  Check,
+  AlertCircle,
+  Upload,
+  Minus,
+  ShoppingCart,
+  Package,
+  Crown,
+  Sparkles,
+  ChevronRight,
+  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -45,7 +56,7 @@ import { getEffectCSS, canUseBundle, getUnlockedEffectParts, ELITE_BUNDLES } fro
 import { renderCanvasEffect } from '../lib/canvasEffects';
 import SiberVideo from '../components/SiberVideo';
 import { usePerformance } from '../context/PerformanceContext';
-import { Check, Upload, Minus, ShoppingCart, Package, Crown, Sparkles, ChevronRight, ArrowRight } from 'lucide-react';
+import { fetchMALList } from '../lib/malService';
 
 // Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -67,6 +78,55 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
     });
   } catch (err) { throw err; }
 };
+
+
+/**
+ * ProfileEffectSpritesheet — Otomatik kare sayısı tespiti.
+ * Discord tarzı spritesheet'ler yatay şeritlerdir: width / height = kare sayısı.
+ * Resmin gerçek piksel boyutlarını ölçüp doğru steps() değerini hesaplar.
+ */
+function ProfileEffectSpritesheet({ url }) {
+  const [frameCount, setFrameCount] = useState(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      // Yatay spritesheet: genişlik / yükseklik = kare sayısı
+      const ratio = Math.round(img.naturalWidth / img.naturalHeight);
+      const frames = ratio > 1 ? ratio : 1;
+      setFrameCount(frames);
+    };
+    img.onerror = () => setFrameCount(1); // Fallback: statik resim
+    img.src = url;
+  }, [url]);
+
+  // Henüz boyut tespit edilmedi veya tek karelik resim — statik göster
+  if (frameCount === null || frameCount <= 1) {
+    return <img src={url} alt="Effect" className="w-full h-full object-cover mix-blend-screen" />;
+  }
+
+  // Çok kareli spritesheet = animasyonlu göster
+  const fps = 12;
+  const duration = frameCount / fps;
+
+  return (
+    <div 
+      ref={containerRef}
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundImage: `url(${url})`,
+        backgroundSize: `${frameCount * 100}% 100%`,
+        backgroundPosition: '0% center',
+        animation: `siber-spritesheet ${duration}s steps(${frameCount - 1}) infinite`,
+        backgroundRepeat: 'no-repeat',
+        transform: 'scale(1.1)', // Slight overflow to prevent edge gaps
+      }}
+      className="mix-blend-screen scale-110"
+    />
+  );
+}
 
 const PREMIUM_FREE_COUNT = 10;
 
@@ -94,6 +154,25 @@ export default function ProfileShowcase() {
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [malError, setMalError] = useState(null);
+  const [showCreateListModal, setShowCreateListModal] = useState(false);
+  const [listLikes, setListLikes] = useState({}); // { listId: { count: 0, isLiked: false } }
+  const [newListName, setNewListName] = useState('');
+  const [newListDesc, setNewListDesc] = useState('');
+  const [isListCreating, setIsListCreating] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
+  
+  // SOCIAL & RPG STATES
+  const [readHistory, setReadHistory] = useState([]);
+  const [customLists, setCustomLists] = useState([]);
+  const [userAchievements, setUserAchievements] = useState([]);
+  const [malList, setMalList] = useState([]);
+  const [malLoading, setMalLoading] = useState(false);
   
   const { updateProfile, readingHistory } = useAuth();
   const { supabase } = useApp();
@@ -119,27 +198,22 @@ export default function ProfileShowcase() {
         
         // Check if following
         if (currentUser && currentUser.id !== data.id) {
-          const { data: followData } = await supabase
+          const { data: followData, error: followErr } = await supabase
             .from('follows')
             .select('*')
             .eq('follower_id', currentUser.id)
             .eq('following_id', data.id)
-            .single();
-          setIsFollowing(!!followData);
+            .maybeSingle();
+            
+          if (!followErr) {
+            setIsFollowing(!!followData);
+          }
         }
 
         // Fetch Real Stats (Follows, Comments, Favorites)
         if (data.id) {
-          const { count: fCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', data.id);
-          const { count: fwCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', data.id);
-          setFollowersCount(fCount || 0);
-          setFollowingCount(fwCount || 0);
-
-          const { count: cCount } = await supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', data.id);
-          setCommentsCount(cCount || 0);
-
-          const { count: favCount } = await supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', data.id);
-          setFavoritesCount(favCount || 0);
+          fetchCounts(data.id);
+          fetchSocialData(data.id, data.mal_username);
         }
       } catch (err) {
         console.error('Profile fetch error:', err);
@@ -150,18 +224,123 @@ export default function ProfileShowcase() {
     fetchProfile();
   }, [username, supabase, currentUser?.id]); 
 
+  const fetchCounts = async (userId) => {
+    const { count: fCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId);
+    const { count: fwCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId);
+    setFollowersCount(fCount || 0);
+    setFollowingCount(fwCount || 0);
+
+    const { count: cCount } = await supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', userId);
+    setCommentsCount(cCount || 0);
+
+    const { count: favCount } = await supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', userId);
+    setFavoritesCount(favCount || 0);
+  };
+
+  const fetchSocialData = async (userId, malUsername) => {
+    // 1. Reading History
+    const { data: rhData } = await supabase
+      .from('reading_history')
+      .select('*, series(title, cover, description)')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    setReadHistory(rhData || []);
+
+    // 2. Custom Lists
+    const { data: clData } = await supabase
+      .from('custom_lists')
+      .select('*, custom_list_items(series_id, series(title, cover))')
+      .eq('user_id', userId);
+    setCustomLists(clData || []);
+
+    // 3. Achievements
+    const { data: achData } = await supabase
+      .from('user_achievements')
+      .select('*, achievements(*)')
+      .eq('user_id', userId);
+    setUserAchievements(achData || []);
+
+    // 4. MAL List (if provided)
+    if (malUsername) {
+      setMalLoading(true);
+      setMalError(null);
+      try {
+        const data = await fetchMALList(malUsername, 'animelist'); // Try anime first
+        setMalList(data || []);
+        if (!data || data.length === 0) {
+          // If anime is empty, try manga
+          const mData = await fetchMALList(malUsername, 'mangalist');
+          setMalList(mData || []);
+        }
+      } catch (err) {
+        console.error("Fetch social error:", err);
+        setMalError(err.message || "MAL verisi alınamadı.");
+      } finally {
+        setMalLoading(false);
+      }
+    }
+  };
+
+  const handleCreateList = async (e) => {
+    if (e) e.preventDefault();
+    if (!newListName.trim()) return;
+    setIsListCreating(true);
+    try {
+      const { data, error } = await supabase
+        .from('custom_lists')
+        .insert({
+          user_id: currentUser.id,
+          name: newListName,
+          description: newListDesc,
+          is_public: true
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.log("Supabase Kayıt Hatası [custom_lists]:", error);
+        throw error;
+      }
+      
+      setCustomLists(prev => [data, ...prev]);
+      setShowCreateListModal(false);
+      setNewListName('');
+      setNewListDesc('');
+      
+      // Anında ışınlanıyoruz uşağım!
+      navigate(`/${currentUser.username}/liste/${data.id}`);
+    } catch (err) {
+      console.error("Create list error:", err);
+      showToast("Liste oluşturulamadı uşağım! Konsolu kontrol et.");
+    } finally {
+      setIsListCreating(false);
+    }
+  };
+
+  const handleDeleteList = async (listId) => {
+    if (!confirm('Bu listeyi ebediyen silmek istediğine emin misin uşağım?')) return;
+    try {
+      await supabase.from('custom_lists').delete().eq('id', listId);
+      setCustomLists(prev => prev.filter(l => l.id !== listId));
+    } catch (err) {
+      console.error("Delete list error:", err);
+    }
+  };
+
+
+
   // Real-time Follows Subscription
   useEffect(() => {
     if (!profileData?.id) return;
 
-    const channel = supabase.channel(`public:follows:${profileData.id}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'follows' }, (payload) => {
-        if (payload.new.following_id === profileData.id) setFollowersCount(prev => prev + 1);
-        if (payload.new.follower_id === profileData.id) setFollowingCount(prev => prev + 1);
-      })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'follows' }, (payload) => {
-        if (payload.old.following_id === profileData.id) setFollowersCount(prev => Math.max(0, prev - 1));
-        if (payload.old.follower_id === profileData.id) setFollowingCount(prev => Math.max(0, prev - 1));
+    const channel = supabase.channel(`profile-stats-${profileData.id}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'follows' 
+      }, (payload) => {
+        // Eğer bu profili ilgilendiren bir takip değişikliği varsa sayıları tazele
+        fetchCounts(profileData.id);
       })
       .subscribe();
 
@@ -181,6 +360,7 @@ export default function ProfileShowcase() {
     followers: 0,
     following: 0,
     active_decoration: 'none',
+    active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' },
   };
 
   const activeEffectObj = useMemo(() => {
@@ -189,8 +369,21 @@ export default function ProfileShowcase() {
 
   const handleSaveLinks = async (newLinks) => {
     try {
-      await updateProfile({ links: newLinks });
+      const malLink = newLinks.find(l => l.platform === 'myanimelist');
+      const updates = { links: newLinks };
+      if (malLink) updates.mal_username = malLink.value;
+      
+      await updateProfile(updates);
       setUserLinks(newLinks);
+      
+      if (isOwnProfile) {
+        setProfileData(prev => ({ ...prev, ...updates }));
+      }
+      
+      // If MAL changed, re-fetch social data
+      if (malLink && malLink.value) {
+        fetchSocialData(currentUser.id, malLink.value);
+      }
     } catch (err) {
       console.error('Links save error:', err);
     }
@@ -200,23 +393,38 @@ export default function ProfileShowcase() {
     if (!currentUser) return;
     try {
       if (isFollowing) {
-        setIsFollowing(false); // Optimistic Update
+        setIsFollowing(false);
         const { error } = await supabase
           .from('follows')
           .delete()
           .eq('follower_id', currentUser.id)
           .eq('following_id', profileData.id);
-        if (error) setIsFollowing(true); // Revert on failure
+        if (error) {
+          console.error('Unfollow error details:', error.message, error.details, error.hint);
+          setIsFollowing(true);
+        } else {
+          fetchCounts(profileData.id);
+        }
       } else {
-        setIsFollowing(true); // Optimistic Update
+        setIsFollowing(true);
         const { error } = await supabase
           .from('follows')
           .insert({ follower_id: currentUser.id, following_id: profileData.id });
-        if (error) setIsFollowing(false); // Revert on failure
+        if (error) {
+          console.error('Follow error details:', error.message, error.details, error.hint);
+          setIsFollowing(false);
+        } else {
+          fetchCounts(profileData.id);
+        }
       }
     } catch (err) {
-      console.error('Follow error:', err);
+      console.error('Follow error handle:', err);
     }
+  };
+
+  const handleStartChat = () => {
+    if (!profileData?.username) return;
+    navigate(`/messages?user=${profileData.username}`);
   };
   
   // Dashboard Specific State
@@ -296,16 +504,17 @@ export default function ProfileShowcase() {
   displayUser.active_decoration = activeDecoration;
   
   const tabs = isOwnProfile ? [
-    { id: 'history', label: 'Okuduklarım', icon: History },
+    { id: 'okunanlar', label: 'Okuduklarım', icon: History },
+    { id: 'listeler', label: 'Listeler', icon: BookOpen },
+    { id: 'mal', label: 'MAL Listem', icon: Tv },
+    { id: 'basarimlar', label: 'Başarımlar', icon: Award },
     { id: 'customize', label: 'Market', icon: ShoppingCart },
     { id: 'settings', label: 'Ayarlar', icon: SettingsIcon, link: '/settings' },
-    { id: 'notifications', label: 'Bildirimler', icon: Bell },
-    { id: 'listeler', label: 'Listeler', icon: BookOpen },
-    { id: 'basarimlar', label: 'Başarımlar', icon: Award },
   ] : [
+    { id: 'okunanlar', label: 'Okudukları', icon: History },
     { id: 'listeler', label: 'Listeler', icon: BookOpen },
+    { id: 'mal', label: 'MAL Listesi', icon: Tv },
     { id: 'basarimlar', label: 'Başarımlar', icon: Award },
-    { id: 'etkinlik', label: 'Etkinlik', icon: History },
   ];
 
   // Helper for History
@@ -334,9 +543,33 @@ export default function ProfileShowcase() {
 
   // --- SUB-COMPONENT: Nameplate Item ---
   const NameplateItem = ({ filename, isActive, onSelect }) => {
+    const videoRef = useRef(null);
+    const containerRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => setIsVisible(entry.isIntersecting),
+        { threshold: 0.1 }
+      );
+      if (containerRef.current) observer.observe(containerRef.current);
+      return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+      if (videoRef.current && isVisible) {
+        if (isActive || isHovered) {
+          videoRef.current.play().catch(() => {});
+        } else {
+          videoRef.current.pause();
+        }
+      }
+    }, [isActive, isHovered, isVisible]);
+
     return (
       <motion.div
+        ref={containerRef}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onMouseEnter={() => setIsHovered(true)}
@@ -348,16 +581,24 @@ export default function ProfileShowcase() {
             : 'border-white/5 hover:border-white/20 bg-zinc-900/50'
         }`}
       >
-        <video 
-          src={`/nameplates/${filename}`} 
-          autoPlay={isActive || isHovered} 
-          muted loop 
-          playsInline
-          className={`w-full h-full object-cover transition-opacity duration-300 ${isActive || isHovered ? 'opacity-100' : 'opacity-40'}`}
-        />
+        {isVisible ? (
+          <video 
+            ref={videoRef}
+            src={`/nameplates/${filename}`} 
+            muted loop 
+            playsInline
+            onError={(e) => {
+              console.warn("Nameplate load error:", filename);
+              e.target.style.display = 'none';
+            }}
+            className={`w-full h-full object-cover transition-opacity duration-500 ${isActive || isHovered ? 'opacity-100' : 'opacity-40'}`}
+          />
+        ) : (
+          <div className="w-full h-full bg-zinc-900/50 animate-pulse" />
+        )}
         
         {isActive && (
-          <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center pointer-events-none">
             <div className="bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-md shadow-xl flex items-center gap-1">
               <Check size={10} /> KUŞANILDI
             </div>
@@ -385,6 +626,7 @@ export default function ProfileShowcase() {
       case 'instagram': return <Instagram size={14} className="text-pink-500" />;
       case 'twitter': return <Twitter size={14} className="text-blue-400" />;
       case 'github': return <Github size={14} className="text-white" />;
+      case 'myanimelist': return <Tv size={14} className="text-blue-500" />;
       default: return <LinkIcon size={14} className="text-zinc-500" />;
     }
   };
@@ -397,6 +639,7 @@ export default function ProfileShowcase() {
       case 'youtube': return `https://youtube.com/@${link.value}`;
       case 'github': return `https://github.com/${link.value}`;
       case 'discord': return `https://discord.com/users/${link.value}`;
+      case 'myanimelist': return `https://myanimelist.net/profile/${link.value}`;
       default: return '#';
     }
   };
@@ -410,7 +653,7 @@ export default function ProfileShowcase() {
           <ConnectedAccountsModal 
             isOpen={showLinksModal} 
             onClose={() => setShowLinksModal(false)} 
-            onSave={setUserLinks}
+            onSave={handleSaveLinks}
             initialLinks={userLinks}
           />
         )}
@@ -502,12 +745,12 @@ export default function ProfileShowcase() {
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl bg-[#151921] border border-zinc-800 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+              className="relative w-full max-w-4xl bg-[#151921] border border-zinc-800 rounded-[2.5rem] p-10 md:p-16 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/30">
-                    <Palette className="text-purple-400" size={24} />
+              <div className="flex items-center justify-between mb-12">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/30">
+                    <Palette className="text-purple-400" size={32} />
                   </div>
                   <div>
                     <h3 className="text-2xl font-black text-white uppercase tracking-tight">Efekt Karıştırıcı</h3>
@@ -591,24 +834,39 @@ export default function ProfileShowcase() {
           
           {/* LEFT SIDEBAR: User Info */}
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6 relative z-10">
-          <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-[2rem] overflow-hidden shadow-2xl relative">
+            <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-[2rem] overflow-hidden shadow-2xl relative">
               
               {/* Sidebar Background Blur Effect */}
               <div className="absolute inset-0 pointer-events-none opacity-50 bg-zinc-950/20 backdrop-blur-3xl" />
 
               {/* FULL CARD PROFILE EFFECT OVERLAY */}
               {(() => {
-                const activePEId = isOwnProfile ? mixState.profile_effect : displayUser.active_mix?.profile_effect;
+                const visitorMix = displayUser.active_mix || {};
+                const activePEId = isOwnProfile ? mixState.profile_effect : visitorMix.profile_effect;
                 const previewPEId = previewEffect?.category === 'profile_effects' ? previewEffect.id : null;
                 const targetPEId = previewPEId || activePEId;
                 
                 if (targetPEId && targetPEId !== 'none') {
                   const peData = effectsData.find(e => e.id === targetPEId);
                   if (peData?.url) {
+                    const isVideo = peData.url.toLowerCase().endsWith('.webm');
+                    const isPng = peData.url.toLowerCase().split('?')[0].endsWith('.png');
+
                     return (
-                      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-[2rem]">
-                        <img src={peData.url} alt="Profile Effect" className="w-full h-full object-cover mix-blend-screen opacity-100" />
-                      </div>
+                      <motion.div 
+                        key={targetPEId}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute -inset-10 z-20 pointer-events-none"
+                      >
+                        {isVideo ? (
+                          <video src={peData.url} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-90 mix-blend-screen scale-110" />
+                        ) : isPng ? (
+                          <ProfileEffectSpritesheet url={peData.url} />
+                        ) : (
+                          <img src={peData.url} alt="Profile Effect" className="w-full h-full object-cover opacity-90 mix-blend-screen scale-110" />
+                        )}
+                      </motion.div>
                     );
                   }
                 }
@@ -616,39 +874,62 @@ export default function ProfileShowcase() {
               })()}
 
               {/* Profile Header */}
-              <div className="p-8 flex flex-col items-center text-center space-y-4 relative z-10">
-                <AnimeAvatar 
-                  src={displayUser.avatar_url} 
-                  effect={(previewEffect?.category !== 'profile_effects' ? previewEffect : null) || activeEffectObj} 
-                  size="w-32 h-32" 
-                  forcePlay={true}
-                />
+              <div className="p-8 flex flex-col items-center text-center space-y-12 relative z-10">
+                <div className="relative group">
+                  <AnimeAvatar 
+                    src={displayUser.avatar_url} 
+                    effect={(previewEffect?.category !== 'profile_effects' ? previewEffect : null) || activeEffectObj} 
+                    size="w-32 h-32" 
+                    forcePlay={true}
+                  />
+                </div>
 
-                <div className="relative w-full aspect-[3/1] flex flex-col items-center justify-center overflow-hidden rounded-2xl group border border-white/5 shadow-xl">
+                <div className="relative w-[calc(100%+4rem)] -mx-8 h-[110px] flex flex-col items-center justify-center overflow-hidden border-y border-white/5 bg-[#0B0E14] shadow-xl group">
                   {/* --- NAMEPLATE VIDEO BACKGROUND --- */}
                   {(isOwnProfile ? mixState.nameplate : (displayUser.active_mix?.nameplate || 'none')) !== 'none' && (
                     <div className="absolute inset-0 z-0">
                       <video 
                         src={`/nameplates/${isOwnProfile ? mixState.nameplate : displayUser.active_mix.nameplate}`} 
                         autoPlay muted loop playsInline 
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover opacity-100"
                       />
-                      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
                     </div>
                   )}
 
-                  <div className="relative z-10 text-center w-full px-2">
-                    <h2 className={`text-xl font-black tracking-tighter flex items-center justify-center gap-1.5 ${
+                  <div className="relative z-10 w-full px-12 flex flex-col items-center gap-1">
+                    {/* USERNAME */}
+                    <h2 className={`text-xl md:text-2xl font-black tracking-tighter drop-shadow-[0_2px_10px_rgba(0,0,0,1)] text-center leading-none ${
                       (isOwnProfile ? mixState.nametag : (displayUser.active_mix?.nametag || 'none')) !== 'none' 
                         ? `nametag-effect-${isOwnProfile ? mixState.nametag : displayUser.active_mix.nametag}` 
-                        : 'text-white'
+                        : (displayUser.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : (displayUser.rank === 'Ulusal Seviye Avcı' || displayUser.premium) ? 'rank-glow-gold' : 'text-white')
                     }`}>
-                      <span className="truncate max-w-[140px]">{displayUser.username}</span>
-                      <span className="text-[7px] font-black bg-white/10 px-1 py-0.5 rounded text-zinc-400 border border-white/5 shadow-sm shrink-0">SV.{displayUser.level || 1}</span>
+                      <span className="truncate max-w-[240px] block">{displayUser.username}</span>
                     </h2>
-                    <p className="text-zinc-500 text-[7px] font-bold tracking-[0.15em] uppercase mt-0.5 opacity-50 truncate">anipeak.com/profil/{displayUser.username}</p>
+
+                    {/* RANK CAPSULE */}
+                    <div className="px-5 py-0.5 rounded-full bg-black/90 backdrop-blur-md border border-white/10">
+                       <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.2em] block">
+                         {displayUser.rank || 'ÇAYLAK OKUR'}
+                       </span>
+                    </div>
+                    
+                    {/* XP Progress Bar */}
+                    <div className="w-full max-w-[180px] space-y-1">
+                       <div className="w-full h-[1px] bg-white/10 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(displayUser.xp % 1000) / 10}%` }}
+                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                          />
+                       </div>
+                       <div className="flex justify-between items-center px-1 font-black uppercase text-[8px] text-zinc-400 tracking-widest">
+                          <span>SEVİYE {Math.floor((displayUser.xp || 0) / 1000) + 1}</span>
+                          <span>{displayUser.xp || 0} XP</span>
+                       </div>
+                    </div>
                   </div>
                 </div>
+
 
                 <p className="text-zinc-400 text-xs italic font-medium">
                   "{displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}"
@@ -667,7 +948,10 @@ export default function ProfileShowcase() {
                       {isFollowing ? <Minus size={14} /> : <UserPlus size={14} />}
                       {isFollowing ? 'Takipten Çık' : 'Takip Et'}
                     </button>
-                    <button className="p-3 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:text-white transition-all">
+                    <button 
+                      onClick={handleStartChat}
+                      className="p-3 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:text-white transition-all"
+                    >
                       <Mail size={16} />
                     </button>
                   </div>
@@ -703,14 +987,14 @@ export default function ProfileShowcase() {
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-4 border-y border-zinc-800/50 bg-zinc-950/30">
+              <div className="profile-stats-grid">
                 {[
                   { label: 'TAKİPÇİ', value: followersCount },
                   { label: 'TAKİP', value: followingCount },
                   { label: 'FAVORİ', value: favoritesCount },
                   { label: 'YORUM', value: commentsCount },
                 ].map((stat, i) => (
-                  <div key={i} className="py-4 flex flex-col items-center justify-center gap-0.5 border-r last:border-0 border-zinc-800/50">
+                  <div key={i}>
                     <span className="text-xs font-black text-white">{stat.value}</span>
                     <span className="text-[7px] font-black text-zinc-500 uppercase tracking-tighter">{stat.label}</span>
                   </div>
@@ -782,7 +1066,6 @@ export default function ProfileShowcase() {
               </div>
             </div>
           </aside>
-
           {/* RIGHT CONTENT: Tabs & Sections */}
           <main className="flex-1 min-w-0 space-y-6">
             
@@ -824,7 +1107,7 @@ export default function ProfileShowcase() {
                 exit={{ opacity: 0, y: -10 }}
                 className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-[2.5rem] p-8 min-h-[600px]"
               >
-                {activeTab === 'history' && (
+                {activeTab === 'okunanlar' && (
                   <div className="space-y-8">
                     <div className="flex items-center gap-4">
                       <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-400">
@@ -835,24 +1118,304 @@ export default function ProfileShowcase() {
                         <p className="text-zinc-500 text-xs">Kaldığın yerden devam et uşağım!</p>
                       </div>
                     </div>
+
+                    {readHistory.length > 0 && (
+                      <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-purple-500/30 flex flex-col sm:flex-row items-center gap-6 mb-10 shadow-2xl shadow-purple-500/10">
+                         <div className="w-24 h-36 rounded-2xl overflow-hidden flex-shrink-0 shadow-2xl">
+                            <img src={readHistory[0].series?.cover} className="w-full h-full object-cover" />
+                         </div>
+                         <div className="flex-1 text-center sm:text-left">
+                            <h4 className="text-xl font-black text-white uppercase tracking-tight mb-1">{readHistory[0].series?.title}</h4>
+                            <p className="text-purple-400 font-bold uppercase tracking-widest text-xs">En son {readHistory[0].last_read_chapter}. Bölümde kaldın uşağım!</p>
+                            <Link 
+                              to={`/read/${readHistory[0].series_id}/${readHistory[0].last_read_chapter}`}
+                              className="inline-flex items-center gap-2 mt-4 px-8 py-3 rounded-2xl bg-purple-600 text-white font-black uppercase tracking-widest text-xs hover:bg-purple-500 transition-all shadow-xl shadow-purple-600/30"
+                            >
+                               OKUMAYA DEVAM ET <ArrowRight size={16} />
+                            </Link>
+                         </div>
+                      </div>
+                    )}
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {historyData.length > 0 ? historyData.map((h, i) => (
+                      {readHistory.length > 0 ? readHistory.map((h, i) => (
                         <div key={i} className="flex gap-4 p-4 rounded-2xl bg-zinc-900 border border-zinc-800/50 hover:border-purple-500/30 transition-all group">
                           <div className="w-20 h-28 rounded-xl overflow-hidden flex-shrink-0">
-                            <img src={h.series.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                            <img src={h.series?.cover} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                           </div>
                           <div className="flex-1 flex flex-col justify-center">
-                            <h4 className="text-sm font-black text-white line-clamp-1">{h.series.title}</h4>
-                            <p className="text-[10px] text-purple-400 font-bold uppercase mt-1">Bölüm {h.lastChapter}</p>
-                            <p className="text-[9px] text-zinc-600 mt-2">{new Date(h.updatedAt).toLocaleDateString('tr-TR')}</p>
+                            <h4 className="text-sm font-black text-white line-clamp-1">{h.series?.title}</h4>
+                            <p className="text-[10px] text-purple-400 font-bold uppercase mt-1">Bölüm {h.last_read_chapter}</p>
+                            <p className="text-[9px] text-zinc-600 mt-2">{new Date(h.updated_at).toLocaleDateString('tr-TR')}</p>
                           </div>
-                          <button className="self-center p-3 rounded-xl bg-purple-600/10 text-purple-400 hover:bg-purple-600 hover:text-white transition-all">
+                          <Link to={`/read/${h.series_id}/${h.last_read_chapter}`} className="self-center p-3 rounded-xl bg-purple-600/10 text-purple-400 hover:bg-purple-600 hover:text-white transition-all">
                             <Play size={16} fill="currentColor" />
-                          </button>
+                          </Link>
                         </div>
                       )) : (
                         <p className="text-zinc-500 text-sm italic col-span-full py-10 text-center">Henüz bir okuma geçmişi mühürlenmemiş.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'mal' && (
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400">
+                        <Tv size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-white uppercase tracking-tight">MyAnimeList Listesi</h3>
+                        <p className="text-zinc-500 text-xs">{displayUser.username} kullanıcısının MAL verileri.</p>
+                      </div>
+                    </div>
+
+                    {!displayUser.mal_username ? (
+                      <div className="p-10 rounded-[2.5rem] bg-zinc-900/50 border border-dashed border-zinc-800 flex flex-col items-center text-center space-y-6">
+                        <div className="p-5 rounded-full bg-blue-500/10 text-blue-400">
+                          <Tv size={40} />
+                        </div>
+                        <div className="space-y-2">
+                          <h4 className="text-xl font-black text-white uppercase tracking-tight">MAL Hesabın Bağlı Değil</h4>
+                          <p className="text-zinc-500 text-sm max-w-md">MyAnimeList hesabını bağlayarak anime listeni burada sergileyebilir ve arkadaşlarının ne izlediğini görmesini sağlayabilirsin.</p>
+                        </div>
+                        <div className="flex gap-4">
+                          <button 
+                            onClick={() => setShowLinksModal(true)}
+                            className="px-8 py-3 rounded-2xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20"
+                          >
+                            HESABI BAĞLA
+                          </button>
+                        </div>
+                      </div>
+                    ) : malLoading ? (
+                      <div className="flex flex-col items-center justify-center py-20 gap-6">
+                        <div className="relative">
+                          <div className="w-16 h-16 border-4 border-blue-500/10 border-t-blue-500 rounded-full animate-spin" />
+                          <Tv className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500/50" size={20} />
+                        </div>
+                        <div className="text-center space-y-2">
+                           <p className="text-blue-400 text-xs font-black uppercase tracking-widest">MAL Verileri Mühürleniyor...</p>
+                           <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-tight">Kullanıcı: {displayUser.mal_username}</p>
+                        </div>
+                      </div>
+                    ) : malError || (displayUser.mal_username && malList.length === 0) ? (
+                      <div className="p-10 rounded-[2.5rem] bg-zinc-900/30 border border-dashed border-zinc-800/50 flex flex-col items-center text-center space-y-6">
+                        <div className="p-5 rounded-full bg-red-500/5 text-red-500/40">
+                          <AlertCircle size={40} />
+                        </div>
+                        <div className="space-y-2">
+                          <h4 className="text-lg font-black text-white uppercase tracking-tight">Liste Boş</h4>
+                          <p className="text-zinc-500 text-xs max-w-xs leading-relaxed">
+                            {malError || "Lütfen MyAnimeList hesabınızdan içerik ekleyin veya listenizin herkese açık olduğundan emin olun."}
+                          </p>
+                        </div>
+                        <button 
+                           onClick={() => fetchSocialData(displayUser.id, displayUser.mal_username)}
+                           className="px-6 py-2 rounded-xl bg-zinc-800 text-zinc-300 text-[10px] font-black uppercase hover:bg-zinc-700 transition-all"
+                        >
+                           Yeniden Dene
+                        </button>
+                      </div>
+                    ) : malList.length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {malList.map((item, i) => (
+                          <div key={i} className="group relative aspect-[2/3] rounded-2xl overflow-hidden border border-white/5 bg-zinc-900 shadow-xl">
+                            <img src={item.anime?.images?.jpg?.image_url || item.manga?.images?.jpg?.image_url} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-3">
+                              <p className="text-[9px] font-black text-white line-clamp-2 uppercase leading-tight tracking-tighter">
+                                {item.anime?.title || item.manga?.title}
+                              </p>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-[8px] text-blue-400 font-bold uppercase">{item.status || 'İzliyor'}</span>
+                                <span className="text-[8px] text-amber-500 font-bold">★ {item.score || '-'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
+                        <Tv size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
+                        <p className="text-zinc-500 text-sm italic font-medium">Bu kullanıcı henüz MyAnimeList hesabını bağlamamış.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'basarimlar' && (
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400">
+                        <Award size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-white uppercase tracking-tight">Kozmik Başarımlar</h3>
+                        <p className="text-zinc-500 text-xs">Mühürlediğin tüm zaferler burada sergilenir.</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {userAchievements.length > 0 ? userAchievements.map((ua, i) => (
+                        <div key={i} className="flex items-center gap-4 p-4 rounded-3xl bg-zinc-900 border border-amber-500/20 shadow-lg shadow-amber-500/5 group hover:border-amber-500/40 transition-all">
+                          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <Star size={28} fill="currentColor" className="opacity-80" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-black text-white uppercase tracking-tight">{ua.achievements?.title}</h4>
+                            <p className="text-[9px] text-zinc-500 font-medium leading-tight mt-0.5">{ua.achievements?.description}</p>
+                            <span className="inline-block mt-2 text-[8px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">+{ua.achievements?.xp_reward} XP</span>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="col-span-full text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
+                          <Award size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
+                          <p className="text-zinc-500 text-sm italic font-medium">Henüz bir başarım mühürlenmemiş. Okumaya devam et!</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'listeler' && (
+                  <div className="space-y-8">
+                    {/* ── CREATE LIST MODAL ── */}
+                    <AnimatePresence>
+                      {showCreateListModal && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                          <motion.div 
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            onClick={() => setShowCreateListModal(false)}
+                            className="absolute inset-0 bg-black/90 backdrop-blur-md" 
+                          />
+                          <motion.div 
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-lg bg-[#0D1117] border border-white/10 rounded-[3rem] p-10 shadow-2xl overflow-hidden"
+                          >
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50" />
+                            
+                            <div className="flex items-center justify-between mb-8">
+                              <div>
+                                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Yeni Liste Oluştur</h3>
+                                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Özel koleksiyonunu mühürle</p>
+                              </div>
+                              <button onClick={() => setShowCreateListModal(false)} className="p-3 rounded-2xl bg-white/5 text-zinc-500 hover:text-white transition-all">
+                                <X size={24} />
+                              </button>
+                            </div>
+
+                            <form onSubmit={handleCreateList} className="space-y-6">
+                              <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Liste Adı</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="Örn: Favori Seinen Serilerim" 
+                                  autoFocus
+                                  value={newListName}
+                                  onChange={e => setNewListName(e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm text-white focus:border-indigo-500/50 outline-none transition-all"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Açıklama (Opsiyonel)</label>
+                                <textarea 
+                                  placeholder="Bu liste hakkında kısa bir bilgi..." 
+                                  rows={3}
+                                  value={newListDesc}
+                                  onChange={e => setNewListDesc(e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm text-white focus:border-indigo-500/50 outline-none transition-all resize-none"
+                                />
+                              </div>
+
+                              <button 
+                                type="submit"
+                                disabled={isListCreating || !newListName.trim()}
+                                className="w-full py-5 rounded-[2rem] bg-indigo-600 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/30 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
+                              >
+                                {isListCreating ? 'MÜHÜRLENİYOR...' : 'LİSTEYİ OLUŞTUR'}
+                              </button>
+                            </form>
+                          </motion.div>
+                        </div>
+                      )}
+                    </AnimatePresence>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-400">
+                          <BookOpen size={24} />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-black text-white uppercase tracking-tight">Özel Listeler</h3>
+                          <p className="text-zinc-500 text-xs">{displayUser.username} tarafından küratörlüğü yapılmış koleksiyonlar.</p>
+                        </div>
+                      </div>
+                      {isOwnProfile && (
+                        <button 
+                          onClick={() => setShowCreateListModal(true)}
+                          className="px-6 py-3 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all flex items-center gap-2"
+                        >
+                          <Plus size={16} /> Yeni Liste Oluştur
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {customLists?.length > 0 ? customLists?.map((list, i) => (
+                        <div 
+                          key={i} 
+                          onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
+                          className="group glass border border-white/5 rounded-[2.5rem] p-8 bg-zinc-900/40 hover:border-indigo-500/30 transition-all cursor-pointer relative overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-all" />
+                          
+                          <div className="flex justify-between items-start mb-6">
+                             <div>
+                                <h4 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{list.name}</h4>
+                                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">{list.custom_list_items?.length || 0} SERİ KOLEKSİYONU</p>
+                             </div>
+                             {isOwnProfile && (
+                               <button 
+                                 onClick={(e) => { e.stopPropagation(); handleDeleteList(list.id); }}
+                                 className="p-3 rounded-2xl bg-white/5 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                               >
+                                 <Minus size={18} />
+                               </button>
+                             )}
+                          </div>
+
+                          <div className="flex -space-x-4">
+                            {list.custom_list_items?.slice(0, 5).map((item, idx) => {
+                              const s = series?.find(ser => String(ser.id) === String(item.series_id));
+                              return (
+                                <div key={idx} className="w-14 h-20 rounded-xl border-2 border-zinc-900 overflow-hidden bg-zinc-800 shadow-2xl transform transition-transform group-hover:-translate-y-2" style={{ transitionDelay: `${idx * 50}ms` }}>
+                                  <img src={s?.cover || '/placeholder.png'} className="w-full h-full object-cover" />
+                                </div>
+                              );
+                            })}
+                            {(list.custom_list_items?.length || 0) > 5 && (
+                              <div className="w-14 h-20 rounded-xl border-2 border-zinc-900 bg-zinc-950 flex items-center justify-center text-xs font-black text-indigo-400 shadow-2xl group-hover:-translate-y-2">
+                                +{list.custom_list_items.length - 5}
+                              </div>
+                            )}
+                            {(!list.custom_list_items || list.custom_list_items.length === 0) && (
+                              <div className="w-full h-20 rounded-2xl border-2 border-dashed border-white/5 flex items-center justify-center text-[10px] font-black text-zinc-700 uppercase tracking-widest">
+                                Mühürlenmiş Seri Yok
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="mt-8 flex items-center gap-2 text-zinc-500 text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
+                             İçeriği Gör <Plus size={12} className="rotate-45" />
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="col-span-full text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
+                          <BookOpen size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
+                          <p className="text-zinc-500 text-sm italic font-medium">Henüz bir özel liste oluşturulmamış. Lütfen listeler kısmında 'Yeni Liste Oluştur' butonuna basarak liste ekleyebilirsiniz!</p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -938,7 +1501,26 @@ export default function ProfileShowcase() {
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+                      <div className="market-grid">
+                        {/* None Option */}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`effect-card-full group border transition-all duration-300 ease-out flex flex-col items-center justify-center p-8 text-center ${
+                            mixState.profile_effect === 'none' ? 'bg-zinc-800 ring-2 ring-indigo-500 border-transparent' : 'bg-zinc-900 border-zinc-800'
+                          }`}
+                          onClick={() => {
+                            const newMix = { ...mixState, profile_effect: 'none' };
+                            setMixState(newMix);
+                            updateProfile({ active_mix: newMix });
+                          }}
+                        >
+                          <div className="p-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-600 mb-3">
+                            <X size={24} />
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest text-zinc-500">HİÇ BİRİ</span>
+                        </motion.div>
+
                         {effectsData.filter(e => e.category === 'profile_effects').map((effect, idx) => {
                           const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium'];
                           const hasPremiumAccess = premiumRoles.includes(currentUser?.role);
@@ -950,7 +1532,7 @@ export default function ProfileShowcase() {
                               key={effect.id}
                               whileHover={{ scale: isPremiumLocked ? 1.02 : 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className={`group relative flex flex-col items-center py-4 px-3 rounded-2xl border transition-all duration-300 ease-out cursor-pointer overflow-hidden h-[260px] w-full ${
+                              className={`effect-card-full group border transition-all duration-300 ease-out ${
                                 isPremiumLocked
                                   ? 'bg-zinc-900/50 border-zinc-800/50 opacity-75'
                                   : isActive
@@ -996,12 +1578,31 @@ export default function ProfileShowcase() {
                               </div>
 
                               {/* The Effect Layer */}
-                              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                                <img src={effect.url} alt={effect.label} className="w-full h-full object-cover mix-blend-screen opacity-90" />
+                              <div className="effect-overlay">
+                                {(() => {
+                                  const isVideo = effect.url.toLowerCase().endsWith('.webm');
+                                  const isPng = effect.url.toLowerCase().split('?')[0].endsWith('.png');
+
+                                  if (isVideo) {
+                                    return <video src={effect.url} autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen" />;
+                                  }
+
+                                  if (isPng) {
+                                    return <ProfileEffectSpritesheet url={effect.url} />;
+                                  }
+
+                                  return (
+                                    <img 
+                                      src={effect.url} 
+                                      alt={effect.label} 
+                                      className="w-full h-full object-cover mix-blend-screen" 
+                                    />
+                                  );
+                                })()}
                               </div>
 
                               {/* Label Area */}
-                              <div className="absolute bottom-3 left-0 right-0 z-30 text-center w-full px-2">
+                              <div className="effect-label">
                                 <span className={`block text-[11px] font-black uppercase tracking-tight transition-colors truncate drop-shadow-[0_2px_2px_rgba(0,0,0,1)] ${
                                   isActive ? 'text-white' : isPremiumLocked ? 'text-zinc-500' : 'text-zinc-300 group-hover:text-white'
                                 }`}>
@@ -1103,7 +1704,26 @@ export default function ProfileShowcase() {
                         </motion.div>
                       )}
 
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-5">
+                      <div className="market-grid">
+                        {/* None Option */}
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`effect-card-deco group border transition-all duration-300 ease-out flex flex-col items-center justify-center p-6 text-center ${
+                            activeDecoration === 'none' && !previewEffect ? 'bg-zinc-800 ring-2 ring-indigo-500 border-transparent' : 'bg-zinc-900 border-zinc-800'
+                          }`}
+                          onClick={() => {
+                            setPreviewEffect(null);
+                            setActiveDecoration('none');
+                            updateProfile({ active_decoration: 'none' });
+                          }}
+                        >
+                          <div className="p-3 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-600 mb-2">
+                            <X size={20} />
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">HİÇ BİRİ</span>
+                        </motion.div>
+
                         {filteredDecorations.map((effect, idx) => {
                           const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium'];
                           const hasPremiumAccess = premiumRoles.includes(currentUser?.role);
@@ -1115,7 +1735,7 @@ export default function ProfileShowcase() {
                               key={effect.id}
                               whileHover={{ scale: isPremiumLocked ? 1.02 : 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className={`group relative flex flex-col items-center justify-center py-6 px-2 rounded-2xl border transition-all duration-300 ease-out cursor-pointer ${
+                              className={`effect-card-deco group border transition-all duration-300 ease-out ${
                                 isPremiumLocked
                                   ? 'bg-zinc-900/50 border-zinc-800/50 opacity-75'
                                   : isActive
@@ -1148,8 +1768,8 @@ export default function ProfileShowcase() {
                                 )}
                               </div>
 
-                              {/* Label */}
-                              <div className="text-center w-full overflow-hidden">
+                              {/* Label Area */}
+                              <div className="effect-label">
                                 <span className={`block text-[10px] font-black uppercase tracking-tight transition-colors truncate ${
                                   isActive ? 'text-white' : isPremiumLocked ? 'text-zinc-600' : 'text-zinc-400 group-hover:text-zinc-200'
                                 }`}>
@@ -1296,73 +1916,31 @@ export default function ProfileShowcase() {
                   </div>
                 )}
 
-                {activeTab === 'listeler' && (
-                  <div className="space-y-12">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-400">
-                          <BookOpen size={24} />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black text-white uppercase tracking-tight">Anime Listeleri (0)</h3>
-                          <p className="text-zinc-500 text-xs">Özel anime koleksiyonları</p>
-                        </div>
-                      </div>
-                      <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 text-[10px] font-black uppercase hover:bg-zinc-700 transition-all">
-                        <Plus size={14} /> Yeni Liste
-                      </button>
-                    </div>
 
-                    <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
-                       <div className="p-6 rounded-full bg-zinc-950/50 text-zinc-800">
-                         <BookOpen size={48} />
-                       </div>
-                       <div className="space-y-1">
-                         <p className="text-zinc-500 text-sm font-medium">Henüz bir listen yok. İlk listeni oluştur!</p>
-                       </div>
-                       <button className="px-8 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-black uppercase shadow-lg shadow-purple-500/20 hover:scale-105 transition-all">
-                         Liste Oluştur
-                       </button>
-                    </div>
-
-                    <div className="pt-12 border-t border-zinc-800/50">
-                       <div className="flex items-center justify-between mb-8">
-                         <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400">
-                               <img src="https://myanimelist.net/favicon.ico" className="w-6 h-6 grayscale brightness-200" />
-                            </div>
-                            <div>
-                               <h3 className="text-sm font-black text-white uppercase tracking-tight">MyAnimeList</h3>
-                               <p className="text-zinc-500 text-[10px] font-bold">Bağlı değil</p>
-                            </div>
-                         </div>
-                         <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 text-[10px] font-black uppercase hover:bg-zinc-700 transition-all">
-                           MAL Bağla
-                         </button>
-                       </div>
-                       <p className="text-center text-zinc-500 text-xs font-medium">
-                         MAL hesabını bağlayarak anime listeni buraya aktarabilirsin.
-                       </p>
-                    </div>
-                  </div>
-                )}
-
-                {(activeTab === 'basarimlar' || activeTab === 'etkinlik') && (
-                   <div className="flex flex-col items-center justify-center py-40 text-center space-y-4">
-                      <div className="p-4 rounded-full bg-zinc-950 text-zinc-800">
-                        {activeTab === 'basarimlar' ? <Award size={48} /> : <History size={48} />}
-                      </div>
-                      <p className="text-zinc-500 text-sm font-medium">Bu bölüme ait bir veri bulunamadı.</p>
-                   </div>
-                )}
 
               </motion.div>
             </AnimatePresence>
 
           </main>
         </div>
-
       </div>
+
+      <AnimatePresence>
+         {toast && (
+           <motion.div 
+             initial={{ opacity: 0, y: 50, scale: 0.9 }}
+             animate={{ opacity: 1, y: 0, scale: 1 }}
+             exit={{ opacity: 0, y: 20, scale: 0.9 }}
+             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-600/40 flex items-center gap-4 border border-indigo-400/30"
+           >
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                 <Sparkles size={18} />
+              </div>
+              <span className="text-xs font-black uppercase tracking-widest">{toast}</span>
+           </motion.div>
+         )}
+      </AnimatePresence>
+
     </div>
   );
 }
@@ -1374,6 +1952,7 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
     { id: 'youtube', label: 'YouTube', icon: Youtube },
     { id: 'instagram', label: 'Instagram', icon: Instagram },
     { id: 'twitter', label: 'Twitter / X', icon: Twitter },
+    { id: 'myanimelist', label: 'MyAnimeList', icon: Tv },
     { id: 'reddit', label: 'Reddit', icon: LinkIcon },
     { id: 'tiktok', label: 'TikTok', icon: Zap },
     { id: 'github', label: 'GitHub', icon: Github },
@@ -1473,7 +2052,7 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
           </button>
           <button 
             onClick={() => {
-              handleSaveLinks(links.filter(l => l.platform && l.value));
+              onSave(links.filter(l => l.platform && l.value));
               onClose();
             }}
             className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-black uppercase shadow-lg shadow-purple-500/40 hover:scale-105 active:scale-95 transition-all"

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Eye, BookOpen, ArrowLeft, Heart, Bookmark,
   Clock, CheckCircle, Play, ChevronRight, Calendar, User,
-  Flame, Lock, Sparkles, Search, SortAsc, Star
+  Flame, Lock, Sparkles, Search, SortAsc, Star, ListPlus, Plus, X, Trash2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -40,6 +40,11 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const [liked, setLiked]             = useState(false);
   const [search, setSearch]           = useState('');
   const [sortDesc, setSortDesc]       = useState(true); // newest first
+  const [showListModal, setShowListModal] = useState(false);
+  const [userLists, setUserLists] = useState([]);
+  const [listLoading, setListLoading] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const [showCreateInput, setShowCreateInput] = useState(false);
 
   const history         = readingHistory?.find((h) => h.manhwaId === manhwa?.id);
   const continueChapter = history?.lastChapter;
@@ -95,6 +100,70 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const handleReadChapter = (chNum) => {
     navigate(`/read/${manhwa.id}/${chNum}`);
   };
+
+  const fetchUserLists = async () => {
+    if (!user?.id) return;
+    setListLoading(true);
+    try {
+      const { data } = await supabase
+        .from('custom_lists')
+        .select('*, custom_list_items(series_id)')
+        .eq('user_id', user.id);
+      setUserLists(data || []);
+    } catch (err) {
+      console.error("Fetch lists error:", err);
+    } finally {
+      setListLoading(false);
+    }
+  };
+
+  const handleAddToList = async (listId) => {
+    try {
+      const { error } = await supabase
+        .from('custom_list_items')
+        .insert({
+          list_id: listId,
+          series_id: manhwa.id
+        });
+      
+      if (error) throw error;
+      
+      // Update local state
+      setUserLists(prev => prev.map(l => 
+        l.id === listId 
+          ? { ...l, custom_list_items: [...(l.custom_list_items || []), { series_id: manhwa.id }] }
+          : l
+      ));
+    } catch (err) {
+      console.error("Add to list error:", err);
+      alert("Bu seri zaten listede olabilir!");
+    }
+  };
+
+  const handleCreateList = async () => {
+    if (!newListName.trim()) return;
+    try {
+      const { data, error } = await supabase
+        .from('custom_lists')
+        .insert({
+          user_id: user.id,
+          name: newListName.trim()
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      setUserLists(prev => [...prev, { ...data, custom_list_items: [] }]);
+      setNewListName('');
+      setShowCreateInput(false);
+    } catch (err) {
+      console.error("Create list error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (showListModal) fetchUserLists();
+  }, [showListModal]);
 
   if (!manhwa) return null;
 
@@ -196,6 +265,13 @@ export default function ManhwaDetail({ onAuthOpen }) {
 
                 <div className="flex gap-2">
                   <button
+                    onClick={() => user ? setShowListModal(true) : onAuthOpen('login')}
+                    className="flex items-center gap-2 px-6 py-4 rounded-2xl glass border border-white/10 text-slate-400 hover:text-white hover:border-purple-500/50 transition-all group"
+                  >
+                    <ListPlus size={20} className="group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Listeye Ekle</span>
+                  </button>
+                  <button
                     onClick={() => user ? setBookmarked(!bookmarked) : onAuthOpen('login')}
                     className={`p-4 rounded-2xl border transition-all ${bookmarked ? 'bg-purple-600 text-white border-purple-500 shadow-neon-purple' : 'glass border-white/10 text-slate-400 hover:text-white'}`}
                   >
@@ -289,6 +365,81 @@ export default function ManhwaDetail({ onAuthOpen }) {
            <CommentSystem seriesId={manhwa.id} />
         </div>
       </div>
+
+      {/* ── ADD TO LIST MODAL ── */}
+      <AnimatePresence>
+        {showListModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowListModal(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md" 
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-[#0D1117] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-black text-white uppercase tracking-tight">Listeye Ekle</h3>
+                <button onClick={() => setShowListModal(false)} className="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-all">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-3 mb-8 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
+                {listLoading ? (
+                  <div className="py-10 text-center text-slate-500 text-xs font-bold uppercase animate-pulse">Listeler Yükleniyor...</div>
+                ) : userLists.length > 0 ? (
+                  userLists.map(list => {
+                    const isInList = list.custom_list_items?.some(i => String(i.series_id) === String(manhwa.id));
+                    return (
+                      <button
+                        key={list.id}
+                        disabled={isInList}
+                        onClick={() => handleAddToList(list.id)}
+                        className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                          isInList 
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 cursor-default' 
+                            : 'bg-white/5 border-white/5 text-slate-400 hover:border-purple-500/50 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        <span className="text-sm font-bold">{list.name}</span>
+                        {isInList ? <CheckCircle size={18} /> : <Plus size={18} />}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="py-10 text-center text-slate-600 text-xs italic">Henüz bir listen yok.</div>
+                )}
+              </div>
+
+              {showCreateInput ? (
+                <div className="space-y-4">
+                  <input 
+                    type="text" 
+                    placeholder="Liste Adı..." 
+                    autoFocus
+                    value={newListName}
+                    onChange={e => setNewListName(e.target.value)}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm text-white focus:border-purple-500 outline-none"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowCreateInput(false)} className="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 text-xs font-black uppercase">İptal</button>
+                    <button onClick={handleCreateList} className="flex-1 py-3 rounded-xl bg-purple-600 text-white text-xs font-black uppercase">Oluştur</button>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setShowCreateInput(true)}
+                  className="w-full py-4 border border-dashed border-white/10 rounded-2xl text-[10px] font-black uppercase text-slate-500 hover:text-white hover:border-white/30 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus size={14} /> Yeni Liste Oluştur
+                </button>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.main>
   );
 }

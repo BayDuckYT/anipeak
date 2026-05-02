@@ -11,10 +11,18 @@ const AppContext = createContext(null);
 export function AppProvider({ children }) {
   const [loading,         setLoading]         = useState(true);
   const [series,          setSeries]          = useState(() => {
-    try { const cached = localStorage.getItem('anipeak_series_cache'); return cached ? JSON.parse(cached) : []; } catch { return []; }
+    try { 
+      const cached = localStorage.getItem('anipeak_series_cache'); 
+      const parsed = cached ? JSON.parse(cached) : null;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
   });
   const [chapters,        setChapters]        = useState(() => {
-    try { const cached = localStorage.getItem('anipeak_chapters_cache'); return cached ? JSON.parse(cached) : {}; } catch { return {}; }
+    try { 
+      const cached = localStorage.getItem('anipeak_chapters_cache'); 
+      const parsed = cached ? JSON.parse(cached) : null;
+      return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch { return {}; }
   });
   const [announcements,   setAnnouncements]   = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
@@ -198,7 +206,7 @@ export function AppProvider({ children }) {
     }
 
     if (data) {
-      const target = series.find(s => String(s.id) === String(seriesId));
+      const target = series?.find(s => String(s.id) === String(seriesId));
       await supabase.from('announcements').insert([{
         type: 'chapter',
         text: `🔥 ${target?.title || 'Seri'}'nin ${number}. Bölümü Yayında!`,
@@ -253,12 +261,12 @@ export function AppProvider({ children }) {
   }, []);
 
   const toggleTrend = useCallback(async (id) => {
-    const target = series.find(s => s.id === id);
+    const target = series?.find(s => s.id === id);
     if (target) await supabase.from('series').update({ is_trending: !target.is_trending }).eq('id', id);
   }, [series]);
 
   const toggleStatus = useCallback(async (id) => {
-    const target = series.find(s => s.id === id);
+    const target = series?.find(s => s.id === id);
     if (target) {
       const next = target.status === 'Devam Ediyor' ? 'Tamamlandı' : 'Devam Ediyor';
       await supabase.from('series').update({ status: next }).eq('id', id);

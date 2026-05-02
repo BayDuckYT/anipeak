@@ -2,9 +2,54 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * AnimeAvatar - AniPeak High-Fidelity Avatar System (V4-ULTRA)
- * Profesyonel Render: IntersectionObserver, Lazy Loading, Hover-Play ve Yerel Asset Desteği.
+ * AutoSpritesheet — Otomatik kare tespitli spritesheet animatörü.
+ * Resmin naturalWidth/naturalHeight oranından kare sayısını hesaplar.
  */
+function AutoSpritesheet({ src, style, isHovered, forcePlay, label }) {
+  const [frameCount, setFrameCount] = useState(null);
+
+  useEffect(() => {
+    setFrameCount(null);
+    const img = new Image();
+    img.onload = () => {
+      const ratio = Math.round(img.naturalWidth / img.naturalHeight);
+      setFrameCount(ratio > 1 ? ratio : 1);
+    };
+    img.onerror = () => setFrameCount(1);
+    img.src = src;
+  }, [src]);
+
+  // Henüz boyut tespit edilmedi — direkt img göster (APNG ise browser oynatır)
+  if (frameCount === null || frameCount <= 1) {
+    return (
+      <img 
+        src={src}
+        alt={label || 'Effect'}
+        style={style}
+        className="max-w-none mix-blend-screen"
+      />
+    );
+  }
+
+  // Çok kare = spritesheet animasyonu (her zaman oynat)
+  const fps = 12;
+  const duration = frameCount / fps;
+
+  return (
+    <div 
+      style={{
+        ...style,
+        backgroundImage: `url(${src})`,
+        backgroundSize: `${frameCount * 100}% 100%`,
+        backgroundPosition: '0% center',
+        backgroundRepeat: 'no-repeat',
+        animation: `siber-spritesheet ${duration}s steps(${frameCount - 1}) infinite`,
+      }}
+      className="max-w-none mix-blend-screen"
+    />
+  );
+}
+
 export default function AnimeAvatar({ 
   src, 
   effect, 
@@ -83,27 +128,18 @@ export default function AnimeAvatar({
       );
     }
 
-    // Spritesheet Mantığı (Bayraklar ve Özel Spritesheet Efektleri)
-    const isSpritesheet = effect.category === 'flags' || effect.type === 'spritesheet';
+    // Spritesheet / PNG Efekt Mantığı
+    const isPng = rawSrc.toLowerCase().split('?')[0].endsWith('.png');
+    const isSpritesheet = 
+      effect.category === 'flags' || 
+      effect.category === 'decorations' ||
+      effect.type === 'spritesheet' || 
+      rawSrc.includes('/effects/') || 
+      rawSrc.includes('/avatar-efekts/');
     
-    if (isSpritesheet) {
-      const steps = effect.steps || 30; // Bayraklar için genelde 30 step idealdir
-      const fps = effect.fps || 12;
-      
-      return (
-        <div 
-          style={{
-            ...effectStyle,
-            backgroundImage: `url(${rawSrc})`,
-            backgroundSize: `${steps * 100}% 100%`,
-            backgroundPosition: 'left center',
-            animation: isHovered || forcePlay 
-              ? `siber-spritesheet ${steps / fps}s steps(${steps - 1}) infinite`
-              : 'none'
-          }}
-          className="max-w-none"
-        />
-      );
+    if (isPng && isSpritesheet) {
+      // Oto-tespit bileşenini kullan
+      return <AutoSpritesheet src={rawSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
     }
 
     // Statik / APNG / GIF - IMG Taktiği (Animasyon için en garanti yöntem)

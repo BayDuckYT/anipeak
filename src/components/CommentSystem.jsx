@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabaseClient';
 import { getEffectCSS } from '../lib/eliteBundles';
+import AnimeAvatar from './AnimeAvatar';
+import effectsData from '../data/effects.json';
 
 export default function CommentSystem({ seriesId, chapterNum }) {
   const { user, updateXP } = useAuth();
@@ -19,7 +21,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
   const fetchComments = async () => {
     let query = supabase
       .from('comments')
-      .select('*')
+      .select('*, profiles(active_decoration, rank, premium)')
       .eq('series_id', seriesId)
       .order('created_at', { ascending: false });
     
@@ -178,18 +180,26 @@ export default function CommentSystem({ seriesId, chapterNum }) {
               className={`glass border border-white/5 rounded-2xl p-4 bg-white/[0.01] group relative ${getEffectCSS('comment', comment.comment_effect)}`}
             >
               <div className="flex gap-3">
-                <div className={`w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 font-black text-sm overflow-hidden flex-shrink-0 ${getEffectCSS('avatar', comment.avatar_effect)}`}>
-                  {comment.avatar_url ? (
-                    <img src={comment.avatar_url} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    comment.username?.charAt(0).toUpperCase()
-                  )}
+                <div className={`w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 font-black text-sm relative ${getEffectCSS('avatar', comment.avatar_effect)}`}>
+                  <AnimeAvatar 
+                    src={comment.avatar_url || null} 
+                    effect={comment.profiles?.active_decoration && comment.profiles.active_decoration !== 'none' ? effectsData.find(e => e.id === comment.profiles.active_decoration) : null}
+                    size="w-9 h-9"
+                    forcePlay={true}
+                  />
+                  {!comment.avatar_url && <span className="absolute z-10 pointer-events-none">{comment.username?.charAt(0).toUpperCase()}</span>}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                       <span className={`text-white font-black text-sm italic tracking-tighter truncate ${getEffectCSS('nametag', comment.nametag_effect)}`}>{comment.username}</span>
+                     <div className="flex items-center gap-2 overflow-hidden">
+                       <span className={`font-black text-sm italic tracking-tighter truncate ${
+                         comment.profiles?.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 
+                         (comment.profiles?.rank === 'Ulusal Seviye Avcı' || comment.profiles?.premium) ? 'rank-glow-gold' : 'text-white'
+                       } ${getEffectCSS('nametag', comment.nametag_effect)}`}>{comment.username}</span>
+                       <span className="text-[8px] text-slate-500 font-bold uppercase tracking-tight opacity-70 hidden sm:inline">
+                         {comment.profiles?.rank || 'Çaylak Okur'}
+                       </span>
                        {comment.chapter_num && (
                          <span className="flex-shrink-0 text-[8px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 font-black uppercase">
                            B{comment.chapter_num}

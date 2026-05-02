@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
+import AnimeAvatar from './AnimeAvatar.jsx';
+import effectsData from '../data/effects.json';
 
 export default function Header({ onAuthOpen }) {
   const [scrolled, setScrolled] = useState(false);
@@ -71,6 +73,11 @@ export default function Header({ onAuthOpen }) {
   };
 
   const avatarLetter = user?.username?.[0]?.toUpperCase() || 'U';
+  
+  // Bulunabilen aktif efekti getir
+  const userEffect = user?.active_decoration && user.active_decoration !== 'none' 
+    ? effectsData.find(e => e.id === user.active_decoration) 
+    : null;
 
   return (
     <motion.header
@@ -245,15 +252,20 @@ export default function Header({ onAuthOpen }) {
                   onClick={() => setProfileOpen(!profileOpen)}
                   className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition-all"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple overflow-hidden">
-                    {user.avatar_url ? (
-                      <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      avatarLetter
-                    )}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple relative">
+                    <AnimeAvatar 
+                      src={user.avatar_url || null} 
+                      effect={userEffect}
+                      size="w-8 h-8"
+                      forcePlay={true}
+                    />
+                    {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-white text-xs font-semibold leading-tight">{user.username}</p>
+                    <p className={`text-xs font-semibold leading-tight ${
+                      user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 
+                      (user.rank === 'Ulusal Seviye Avcı' || user.premium) ? 'rank-glow-gold' : 'text-white'
+                    }`}>{user.username}</p>
                   </div>
                   <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -269,19 +281,24 @@ export default function Header({ onAuthOpen }) {
                       {/* User info header */}
                       <div className="px-4 py-3 border-b border-white/8 bg-gradient-to-r from-purple-500/10 to-blue-500/10">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-purple-500/20 overflow-hidden">
-                            {user.avatar_url ? (
-                              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              avatarLetter
-                            )}
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-purple-500/20 relative">
+                            <AnimeAvatar 
+                              src={user.avatar_url || null} 
+                              effect={userEffect}
+                              size="w-10 h-10"
+                              forcePlay={true}
+                            />
+                            {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-white text-sm font-black truncate uppercase tracking-tight">{user.username}</p>
+                            <p className={`text-sm font-black truncate uppercase tracking-tight ${
+                              user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 
+                              (user.rank === 'Ulusal Seviye Avcı' || user.premium) ? 'rank-glow-gold' : 'text-white'
+                            }`}>{user.username}</p>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                               <span className="text-[9px] font-black uppercase text-purple-400 tracking-widest">
-                                 YENİ ÜYE
-                               </span>
+                             <span className="text-[9px] font-black uppercase text-purple-400 tracking-widest">
+                               {user.rank}
+                             </span>
                                <span className="w-1 h-1 rounded-full bg-slate-700" />
                                <span className="text-[9px] font-bold text-slate-500 uppercase">XP: {user.xp || 0}</span>
                             </div>

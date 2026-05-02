@@ -29,6 +29,7 @@ const Suggestions = lazy(() => import('./pages/Suggestions.jsx'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
 const MessagesPage = lazy(() => import('./pages/MessagesPage.jsx'));
 const EliteUpgrade = lazy(() => import('./pages/EliteUpgrade.jsx'));
+const ListDetail = lazy(() => import('./pages/ListDetail.jsx'));
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
@@ -61,12 +62,14 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfileRedirect /></PrivateRoute>} />
           <Route path="/profil/:username" element={<ProfileShowcase />} />
+          <Route path="/@:username" element={<ProfileShowcase />} />
           <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/oneriler" element={<Suggestions />} />
           <Route path="/messages" element={<PrivateRoute><MessagesPage /></PrivateRoute>} />
           <Route path="/elite-upgrade" element={<EliteUpgrade />} />
+          <Route path="/:username/liste/:listId" element={<ListDetail />} />
           <Route path="/:slug" element={<StaticPage />} />
         </Routes>
       </Suspense>

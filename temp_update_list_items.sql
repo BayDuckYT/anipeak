@@ -1,0 +1,3 @@
+ALTER TABLE custom_list_items ADD COLUMN IF NOT EXISTS read_chapters INTEGER DEFAULT 0;
+ALTER TABLE custom_list_items ADD COLUMN IF NOT EXISTS user_score INTEGER DEFAULT 0;
+ALTER TABLE custom_list_items ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'Okuyor';

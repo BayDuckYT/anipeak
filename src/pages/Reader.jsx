@@ -51,7 +51,7 @@ function ReaderImage({ src, alt, idx, chapter }) {
 export default function Reader() {
   const { id, chapter: chapterParam } = useParams();
   const navigate = useNavigate();
-  const { user, addToHistory, updateXP } = useAuth();
+  const { user, addToHistory, updateXP, updateReadingProgress } = useAuth();
   const { series, getChapters } = useApp();
   const imageRefs = useRef([]);
   
@@ -89,7 +89,10 @@ export default function Reader() {
   // Update history & stats when chapter changes
   useEffect(() => {
     if (manhwa?.id) {
-      if (user) addToHistory(manhwa.id, chapter);
+      if (user) {
+        addToHistory(manhwa.id, chapter);
+        updateReadingProgress(manhwa.id, chapter);
+      }
       // Increment reads_num (Global view count)
       const incrementReads = async () => {
         try {
@@ -104,7 +107,7 @@ export default function Reader() {
       };
       incrementReads();
     }
-  }, [chapter, manhwa?.id, user, addToHistory]);
+  }, [chapter, manhwa?.id, user, addToHistory, updateReadingProgress]);
 
   // Sync state if URL changes externally
   useEffect(() => {

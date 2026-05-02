@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldAlert, Zap, Crown, Check, ArrowRight, Palette, CircleSlash, Box, Image as ImageIcon, Star, Sparkles, MessageSquare } from 'lucide-react';
+import { ShieldAlert, Zap, Crown, Check, ArrowRight, Palette, CircleSlash, Box, Image as ImageIcon, Star, Sparkles, MessageSquare, Tag, Layout } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AnimeAvatar from '../components/AnimeAvatar';
 import effectsData from '../data/effects.json';
+import nameplatesData from '../data/nameplates.json';
+import { ELITE_BUNDLES } from '../lib/eliteBundles';
 
 export default function EliteUpgrade() {
   const { user, upgradeToElite } = useAuth();
@@ -160,17 +162,29 @@ export default function EliteUpgrade() {
               Devasa <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">Cephanelik</span>
             </h2>
             <p className="text-slate-400 text-base max-w-xl mx-auto">
-              Sadece Premium üyelere özel {effectsData.length}+ içerik anında envanterinde.
+              Sadece Premium üyelere özel {effectsData.length + nameplatesData.length + (ELITE_BUNDLES.length * 2)}+ içerik anında envanterinde.
             </p>
           </div>
 
           {/* İstatistikler */}
-          <div className="flex flex-wrap justify-center gap-8 md:gap-20 mb-20 px-4">
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 mb-20 px-4 max-w-5xl mx-auto">
+            <div className="text-center flex flex-col items-center">
+              <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                {nameplatesData.length}
+              </span>
+              <span className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-1.5"><Tag size={14} className="text-cyan-400"/> İsim Plakası</span>
+            </div>
             <div className="text-center flex flex-col items-center">
               <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
                 {effectsData.filter(e => e.category === 'decorations').length}
               </span>
-              <span className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-1.5"><ImageIcon size={14} className="text-purple-400"/> Profil Efekti</span>
+              <span className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-1.5"><ImageIcon size={14} className="text-purple-400"/> Avatar Efekti</span>
+            </div>
+            <div className="text-center flex flex-col items-center">
+              <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                {effectsData.filter(e => e.category === 'profile_effects').length}
+              </span>
+              <span className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-1.5"><Layout size={14} className="text-indigo-400"/> Profil Efekti</span>
             </div>
             <div className="text-center flex flex-col items-center">
               <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
@@ -179,11 +193,11 @@ export default function EliteUpgrade() {
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-1.5"><Palette size={14} className="text-blue-400"/> Ülke Bayrağı</span>
             </div>
             <div className="text-center flex flex-col items-center">
-              <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">5</span>
+              <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{ELITE_BUNDLES.length}</span>
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-1.5"><Zap size={14} className="text-amber-400"/> İsim Stili</span>
             </div>
             <div className="text-center flex flex-col items-center">
-              <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">5</span>
+              <span className="text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{ELITE_BUNDLES.length}</span>
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-1.5"><Box size={14} className="text-emerald-400"/> Yorum Kutusu</span>
             </div>
           </div>

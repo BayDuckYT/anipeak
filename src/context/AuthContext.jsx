@@ -3,6 +3,20 @@ import { supabase } from '../lib/supabaseClient';
 
 const AuthContext = createContext(null);
 
+/**
+ * XP bazlı rütbe hesaplama
+ */
+export function calculateRank(xp) {
+  if (xp >= 100000) return 'Manga Hükümdarı';
+  if (xp >= 50000) return 'Ulusal Seviye Avcı';
+  if (xp >= 25000) return 'Üstün Baskıncı';
+  if (xp >= 10000) return 'Lonca Üyesi';
+  if (xp >= 5000) return 'Elit Avcı';
+  if (xp >= 2000) return 'Üstün Savaşçı';
+  if (xp >= 500) return 'Manga Gezgini';
+  return 'Çaylak Okur';
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     // [GÜVENLİ ÖNBELLEK] Sadece aktif session varsa ve veri tutarlıysa yükle
@@ -58,6 +72,10 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
+        rank:            calculateRank(data?.xp ?? 0),
+        mal_username:    data?.mal_username || null,
+        badges:          data?.badges || [],
+        active_decoration: data?.active_decoration || 'none',
         is_elite:        data?.is_elite || isSystemOwner || userRole === 'Baş Admin' || userRole === 'Yönetici' || false,
       };
 
@@ -183,13 +201,41 @@ export function AuthProvider({ children }) {
     if (!user?.id) return;
     
     const newXP = (Number(user.xp) || 0) + amount;
+    const newRank = calculateRank(newXP);
+
     const { error } = await supabase
       .from('profiles')
-      .update({ xp: newXP })
+      .update({ xp: newXP, rank: newRank })
       .eq('id', user.id);
     
-    if (error) console.error('[XP] Güncelleme hatası:', error);
+    if (error) {
+      console.error('[XP] Güncelleme hatası:', error);
+    } else {
+      setUser(prev => ({ ...prev, xp: newXP, rank: newRank }));
+    }
   }, [user]);
+
+  const updateReadingProgress = useCallback(async (seriesId, chapterNum) => {
+    if (!user?.id) return;
+    
+    try {
+      const { error: histError } = await supabase
+        .from('reading_history')
+        .upsert({
+          user_id: user.id,
+          series_id: seriesId,
+          last_read_chapter: chapterNum,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id, series_id' });
+        
+      if (histError) throw histError;
+
+      // Her bölüm okuma 10 XP verir
+      updateXP(10);
+    } catch (err) {
+      console.error('[Auth] Reading progress update error:', err);
+    }
+  }, [user, updateXP]);
 
   const markAllRead = useCallback(async () => {
     if (!user?.id) return;
@@ -517,6 +563,7 @@ export function AuthProvider({ children }) {
     sendNotification,
     markAllRead,
     updateXP,
+    updateReadingProgress,
     calculateTitle,
     resetPassword,
     updatePassword,
