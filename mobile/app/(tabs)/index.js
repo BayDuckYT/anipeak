@@ -1,12 +1,49 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { theme } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Zap, Crown, Flame } from 'lucide-react-native';
+import { supabase } from '../../lib/supabase';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
 export default function Home() {
+  const [trending, setTrending] = useState([]);
+  const [latest, setLatest] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      // Trend olanları çek (beğeniye göre veya rastgele ilk 5)
+      const { data: trendData } = await supabase.from('series').select('*').limit(5);
+      // Son güncellenen bölümleri çek
+      const { data: latestData } = await supabase
+        .from('chapters')
+        .select('*, series:series_id(title, cover)')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      setTrending(trendData || []);
+      setLatest(latestData || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color={theme.colors.primary} />
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -29,17 +66,21 @@ export default function Home() {
             <TouchableOpacity><Text style={styles.seeAll}>Tümünü Gör</Text></TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.trendingList}>
-            {[1, 2, 3].map((i) => (
-              <TouchableOpacity key={i} style={styles.trendingCard}>
+            {trending.map((item) => (
+              <TouchableOpacity 
+                key={item.id} 
+                style={styles.trendingCard}
+                onPress={() => router.push(`/manga/${item.id}`)}
+              >
                 <Image 
-                  source={{ uri: `https://picsum.photos/seed/${i}/400/600` }} 
+                  source={{ uri: item.cover }} 
                   style={styles.trendingImage} 
                 />
                 <View style={styles.cardOverlay}>
-                  <Text style={styles.cardTitle} numberOfLines={2}>Siber Şövalye: Bölüm 42</Text>
+                  <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
                   <View style={styles.tag}>
                     <Zap size={12} color="#fff" />
-                    <Text style={styles.tagText}>Yeni</Text>
+                    <Text style={styles.tagText}>Trend</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -50,16 +91,20 @@ export default function Home() {
         {/* Latest Updates */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Son Güncellemeler</Text>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <TouchableOpacity key={i} style={styles.updateCard}>
+          {latest.map((ch) => (
+            <TouchableOpacity 
+              key={ch.id} 
+              style={styles.updateCard}
+              onPress={() => router.push(`/manga/${ch.series_id}`)}
+            >
               <Image 
-                source={{ uri: `https://picsum.photos/seed/u${i}/200/200` }} 
+                source={{ uri: ch.series?.cover }} 
                 style={styles.updateImage} 
               />
               <View style={styles.updateInfo}>
-                <Text style={styles.updateTitle} numberOfLines={1}>Solo Leveling: Ragnarok</Text>
-                <Text style={styles.updateChapter}>Bölüm {100 + i}</Text>
-                <Text style={styles.updateTime}>2 saat önce</Text>
+                <Text style={styles.updateTitle} numberOfLines={1}>{ch.series?.title}</Text>
+                <Text style={styles.updateChapter}>Bölüm {ch.number}</Text>
+                <Text style={styles.updateTime}>Yeni</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -75,6 +120,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
