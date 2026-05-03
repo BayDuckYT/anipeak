@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar
+  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -21,7 +21,7 @@ export default function Header({ onAuthOpen }) {
   const [notifOpen, setNotifOpen] = useState(false);
 
   const { user, logout, notifications, markAllRead, unreadCount, calculateTitle } = useAuth();
-  const { series } = useApp();
+  const { series, plans } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const profileRef = useRef(null);
@@ -78,6 +78,30 @@ export default function Header({ onAuthOpen }) {
   const userEffect = user?.active_decoration && user.active_decoration !== 'none' 
     ? effectsData.find(e => e.id === user.active_decoration) 
     : null;
+    
+  // Aktif plan ikonunu getir
+  const activePlan = user?.is_elite && user.active_plan_id 
+    ? plans.find(p => p.id === user.active_plan_id) 
+    : null;
+
+  const getPlanIcon = (plan) => {
+    if (!plan) return <Crown size={15} className="text-red-500" />;
+    const props = { size: 15, className: `text-${plan.color || 'red'}-500` };
+    switch (plan.icon) {
+      case 'Zap': return <Zap {...props} />;
+      case 'Crown': return <Crown {...props} />;
+      case 'Ghost': return <Ghost size={15} className="text-purple-400" />;
+      case 'Star': return <Star {...props} />;
+      default: return <Crown {...props} />;
+    }
+  };
+
+  const handlePremiumClick = (e) => {
+    if (user?.is_elite) {
+      e.preventDefault();
+      alert('Premium üyeliğiniz zaten aktif! Sınırsız gücün tadını çıkarın. 🔥');
+    }
+  };
 
   return (
     <motion.header
@@ -119,8 +143,16 @@ export default function Header({ onAuthOpen }) {
             >
               <Calendar size={15} className="text-indigo-400" /> Takvim
             </Link>
-            <Link to="/elite-upgrade" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all ${location.pathname === '/elite-upgrade' ? 'text-red-400 bg-red-500/10 border border-red-500/30' : 'text-slate-300 hover:text-red-400 hover:bg-red-500/10'}`}>
-              <Crown size={15} className="text-red-500" /> Premium
+            <Link 
+              to="/elite-upgrade" 
+              onClick={handlePremiumClick}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all ${
+                location.pathname === '/elite-upgrade' 
+                  ? (activePlan ? `text-${activePlan.color}-400 bg-${activePlan.color}-500/10 border border-${activePlan.color}-500/30` : 'text-red-400 bg-red-500/10 border border-red-500/30')
+                  : 'text-slate-300 hover:text-red-400 hover:bg-red-500/10'
+              }`}
+            >
+              {getPlanIcon(activePlan)} {activePlan ? activePlan.name : 'Premium'}
             </Link>
           </nav>
 

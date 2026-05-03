@@ -31,7 +31,7 @@ export default function EliteUpgrade() {
       window.dispatchEvent(event);
       return;
     }
-    const success = await upgradeToElite();
+    const success = await upgradeToElite(plan.id);
     if (success) {
       alert(`Tebrikler! ${plan.name} paketine geçiş yaptın. Sınırsız güce eriştin.`);
       navigate('/profile');

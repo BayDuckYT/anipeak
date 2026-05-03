@@ -138,6 +138,7 @@ export function AuthProvider({ children }) {
         badges:          data?.badges || [],
         active_decoration: data?.active_decoration || 'none',
         is_elite:        data?.is_elite || isSystemOwner || userRole === 'Baş Admin' || userRole === 'Yönetici' || false,
+        active_plan_id:  data?.active_plan_id || null,
       };
 
       setUser(merged);
@@ -554,14 +555,15 @@ export function AuthProvider({ children }) {
   };
 
   // ── Elite System (Placeholder) ────────────────────────────────────────
-  const upgradeToElite = useCallback(async () => {
+  const upgradeToElite = useCallback(async (planId) => {
     if (!user?.id) return false;
     try {
-      // NOTE: Backend dev will link this to real payment/stripe logic
-      // For now, we simulate success and update the local state/DB
       const { error } = await supabase
         .from('profiles')
-        .update({ is_elite: true })
+        .update({ 
+          is_elite: true,
+          active_plan_id: planId 
+        })
         .eq('id', user.id);
         
       if (error) {
@@ -570,7 +572,7 @@ export function AuthProvider({ children }) {
       }
       
       setUser(prev => {
-        const next = { ...prev, is_elite: true };
+        const next = { ...prev, is_elite: true, active_plan_id: planId };
         localStorage.setItem('anipeak_user_cache', JSON.stringify(next));
         return next;
       });

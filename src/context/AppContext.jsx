@@ -29,6 +29,7 @@ export function AppProvider({ children }) {
   const [maintenanceMode, setMaintenanceMode] = useState(() => {
     try { return localStorage.getItem('anipeak_maintenance_mode') === 'true'; } catch { return false; }
   });
+  const [plans,           setPlans]           = useState([]);
 
   const loadSeries = useCallback(async () => {
     const { data, error } = await supabase
@@ -110,6 +111,14 @@ export function AppProvider({ children }) {
     }
   }, []);
 
+  const loadPlans = useCallback(async () => {
+    const { data } = await supabase
+      .from('pricing_plans')
+      .select('*')
+      .order('price', { ascending: true });
+    if (data) setPlans(data);
+  }, []);
+
   // ── Bootstrap all data (sequential to avoid exhausting Supabase free tier connection pool) ────
   useEffect(() => {
     const fetchWithRetry = async (fn, retries = 2, delayMs = 800) => {
@@ -137,6 +146,7 @@ export function AppProvider({ children }) {
           fetchWithRetry(loadSeries),
           fetchWithRetry(loadAnnouncements),
           fetchWithRetry(loadMaintenance),
+          fetchWithRetry(loadPlans),
         ]);
         
         // Arka plan yüklemeleri (Non-blocking)
@@ -162,6 +172,8 @@ export function AppProvider({ children }) {
         () => loadAnnouncements())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' },
         () => loadProfiles())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pricing_plans' },
+        () => loadPlans())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'site_config' },
         (payload) => {
           if (payload.new?.key === 'maintenance') {
@@ -420,6 +432,9 @@ export function AppProvider({ children }) {
     registeredUsers,
     updateProfile,
     deleteProfile,
+    // Plans
+    plans,
+    loadPlans
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
