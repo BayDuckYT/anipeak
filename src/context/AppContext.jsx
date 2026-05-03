@@ -253,11 +253,35 @@ export function AppProvider({ children }) {
   }, []);
 
   const updateSeries = useCallback(async (id, updates) => {
-    await supabase.from('series').update(updates).eq('id', id);
+    const { error } = await supabase.from('series').update(updates).eq('id', id);
+    if (error) {
+      console.error('[AppContext] Seri Güncellenemedi:', error);
+      throw error;
+    }
   }, []);
 
   const deleteSeries = useCallback(async (id) => {
-    await supabase.from('series').delete().eq('id', id);
+    const { error } = await supabase.from('series').delete().eq('id', id);
+    if (error) {
+      console.error('[AppContext] Seri Silinemedi:', error);
+      throw error;
+    }
+  }, []);
+
+  const deleteAllTrash = useCallback(async () => {
+    const { error } = await supabase.from('series').delete().eq('is_deleted', true);
+    if (error) {
+      console.error('[AppContext] Çöp Kutusu Temizlenemedi:', error);
+      throw error;
+    }
+  }, []);
+
+  const restoreAllTrash = useCallback(async () => {
+    const { error } = await supabase.from('series').update({ is_deleted: false }).eq('is_deleted', true);
+    if (error) {
+      console.error('[AppContext] Çöp Kutusu Geri Yüklenemedi:', error);
+      throw error;
+    }
   }, []);
 
   const toggleTrend = useCallback(async (id) => {

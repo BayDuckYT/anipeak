@@ -1,0 +1,18 @@
+{
+  "name": "anipeak-infinity-guard",
+  "version": "1.0.0",
+  "description": "AniPeak Infinity-Guard — Moderation & Protection Bot",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": ["discord", "bot", "moderation", "anipeak"],
+  "author": "AniPeak Global",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.5.0"
+  }
+}

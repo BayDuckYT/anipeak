@@ -1,0 +1,43 @@
+============================================================
+🌌 ANIPEAK GLOBAL — STRATEJİK EKOSİSTEM VE SUNUM DOSYASI 🌌
+============================================================
+
+1. BİZ KİMİZ VE NEYİ HEDEFLİYORUZ?
+------------------------------------------------------------
+AniPeak, Türkiye'nin ve dünyanın en gelişmiş siber-manga topluluğudur. 
+Hedefimiz; okurlara sadece içerik sunmak değil, onlara dijital bir 
+kimlik ve RPG tadında bir topluluk deneyimi yaşatmaktır.
+
+2. RAKİPLERDEN FARKIMIZ (NEDEN BİZ?)
+------------------------------------------------------------
+* OYUNLAŞTIRMA (GAMIFICATION): 100+ Kozmik Başarım ve 1-100 seviye 
+  arası rütbe sistemi. Okurlar okudukça seviye atlar ve madalya kazanır.
+* SİBER-AVATAR MOTORU: Avatar dekorasyonları, efektler ve hareketli 
+  çerçevelerle eşsiz bir profil özelleştirme kabiliyeti.
+* DİSCORD SENKRONİZASYONU: Web sitesi ve Discord rütbeleri tamamen 
+  entegredir. "Manga Hükümdarı" olanın rütbesi her yerde parlar!
+* TEKNİK ÜSTÜNLÜK: "Siber Kalkan" (Cyber-Shield) teknolojisi ile 
+  bozuk resimleri otomatik onaran, mermi gibi hızlı bir okuyucu.
+
+3. TEKNİK ÖZELLİKLERİMİZ
+------------------------------------------------------------
+* Altyapı: React, Vite, Supabase (PostgreSQL), Framer Motion.
+* Güvenlik: Infinity-Guard bot ekosistemi ile 7/24 denetim.
+* Entegrasyon: MyAnimeList (MAL) verilerini tek tuşla içe aktarma.
+* Performans: Saniyeler içinde yüklenen sayfalar ve modern tasarım.
+
+4. GELECEK VİZYONU (2026)
+------------------------------------------------------------
+* AniPeak Studio'nun kuruluşu ve yerli çizerlere destek.
+* Global pazar (İngilizce/İspanyolca) operasyonlarının başlaması.
+* Kendi özgün "Siber-Manga" serilerimizin yayınlanması.
+
+5. TOPLANTI İÇİN KRİTİK NOTLAR (PITCH)
+------------------------------------------------------------
+* "Diğer siteler kütüphane, biz ise siber bir savaş alanıyız."
+* "Kullanıcılarımız sadece okumuyor, bu evrenin bir parçası oluyor."
+* "Teknolojimiz hata kabul etmez, her sayfa siber kalkanla korunur."
+
+============================================================
+MÜHÜR BASILDI: ANIPEAK GLOBAL LTD. — GELECEĞİ OKUYUN!
+============================================================

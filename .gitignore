@@ -19,6 +19,10 @@ scraper/assets_repo/
 videos/
 temp_cover_*
 
+# Discord Bots (Sensitive Tokens)
+discord-bots/*/.env
+discord-bots/*/node_modules
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

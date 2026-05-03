@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal
+  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -112,6 +112,12 @@ export default function Header({ onAuthOpen }) {
             </Link>
             <Link to="/#trendler" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.hash === '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
               <TrendingUp size={15} /> Trendler
+            </Link>
+            <Link 
+              to="/takvim"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase"
+            >
+              <Calendar size={15} className="text-indigo-400" /> Takvim
             </Link>
             <Link to="/elite-upgrade" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all ${location.pathname === '/elite-upgrade' ? 'text-red-400 bg-red-500/10 border border-red-500/30' : 'text-slate-300 hover:text-red-400 hover:bg-red-500/10'}`}>
               <Crown size={15} className="text-red-500" /> Premium
@@ -342,6 +348,14 @@ export default function Header({ onAuthOpen }) {
                           <Settings size={15} className="text-emerald-400 group-hover:scale-110 transition-transform" />
                           Ayarlar
                         </Link>
+                        <Link
+                          to="/achievements"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                        >
+                          <Award size={15} className="text-amber-400 group-hover:scale-110 transition-transform" />
+                          Başarımlar
+                        </Link>
                       </div>
 
                       <div className="p-1.5 border-t border-white/8">
@@ -419,6 +433,14 @@ export default function Header({ onAuthOpen }) {
               <Link to="/messages" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><SendHorizontal size={16} /> Mesajlar</Link>
               <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all"><Crown size={16} /> Premium</Link>
               <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Shield size={16} /> Yönetim Paneli</Link>
+              <Link to="/achievements" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Award size={16} /> Başarımlar</Link>
+              <Link 
+                to="/takvim"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase"
+              >
+                <Calendar size={16} /> Yayın Takvimi
+              </Link>
               {user ? (
                 <>
                   <Link to="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 transition-all"><Library size={16} /> Okuduklarım</Link>

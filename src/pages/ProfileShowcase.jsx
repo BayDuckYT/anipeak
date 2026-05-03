@@ -45,7 +45,7 @@ import {
   ChevronRight,
   ArrowRight,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth, getLevelInfo } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import AnimeAvatar from '../components/AnimeAvatar.jsx';
 import effectsData from '../data/effects.json';
@@ -352,18 +352,65 @@ export default function ProfileShowcase() {
     };
   }, [profileData?.id, supabase]);
 
-  const displayUser = (isOwnProfile ? (profileData || currentUser) : profileData) || {
+  const rawUser = (isOwnProfile ? (profileData || currentUser) : profileData) || {
     username: username,
     role: 'Üye',
     bio: 'Profil yükleniyor...',
     avatar_url: null,
     xp: 0,
-    level: 1,
     joinDate: '...',
     followers: 0,
     following: 0,
     active_decoration: 'none',
     active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' },
+  };
+
+  const levelInfo = getLevelInfo(rawUser.xp || 0);
+  const displayUser = { ...rawUser, ...levelInfo };
+
+  // --- Verification Logic ---
+  const [verifCode, setVerifCode] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generateDiscordCode = async () => {
+    if (!currentUser?.id) return;
+    setIsGenerating(true);
+    
+    try {
+      const code = `AP-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+      const { error } = await supabase
+        .from('verification_codes')
+        .upsert({
+          user_id: currentUser.id,
+          code: code,
+          expires_at: expiresAt
+        }, { onConflict: 'user_id' });
+
+      if (error) throw error;
+
+      setVerifCode(code);
+      setTimeLeft(600); // 10 minutes
+    } catch (err) {
+      console.error('[Verification] Kod üretme hatası:', err);
+      alert('Kod üretilirken bir hata oluştu. Veritabanı tablosu (verification_codes) eksik olabilir.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
   const activeEffectObj = useMemo(() => {
@@ -922,12 +969,12 @@ export default function ProfileShowcase() {
                        <div className="w-full h-[1px] bg-white/10 rounded-full overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
-                            animate={{ width: `${(displayUser.xp % 1000) / 10}%` }}
+                            animate={{ width: `${displayUser.progress}%` }}
                             className="h-full bg-gradient-to-r from-blue-500 to-indigo-500"
                           />
                        </div>
                        <div className="flex justify-between items-center px-1 font-black uppercase text-[8px] text-zinc-400 tracking-widest">
-                          <span>SEVİYE {Math.floor((displayUser.xp || 0) / 1000) + 1}</span>
+                          <span>{displayUser.fullLabel}</span>
                           <span>{displayUser.xp || 0} XP</span>
                        </div>
                     </div>
@@ -1011,9 +1058,55 @@ export default function ProfileShowcase() {
                   <Calendar size={14} /> {displayUser.joinDate || '29 Nis 2026'} Tarihinden Beri Üye
                 </div>
 
-                {/* Social Links */}
-                <div className="space-y-3">
-                  <h3 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">BAĞLANTILAR</h3>
+                {/* Social Links & Discord Sync */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">BAĞLANTILAR</h3>
+                    {isOwnProfile && displayUser.discord_id && (
+                      <span className="text-[8px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Check size={8} /> DISCORD MÜHÜRLÜ
+                      </span>
+                    )}
+                  </div>
+
+                  {isOwnProfile && !displayUser.discord_id && (
+                    <div className="p-4 rounded-2xl bg-indigo-600/5 border border-indigo-500/20 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/20">
+                          <Shield size={16} />
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] font-black text-white uppercase tracking-tight">Discord Mührü</h4>
+                          <p className="text-[8px] text-zinc-500 font-bold uppercase">XP ve Rütbe Senkronizasyonu</p>
+                        </div>
+                      </div>
+
+                      {!verifCode ? (
+                        <button 
+                          onClick={generateDiscordCode}
+                          disabled={isGenerating}
+                          className="w-full py-2.5 rounded-xl bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest hover:bg-indigo-500 transition-all disabled:opacity-50"
+                        >
+                          {isGenerating ? 'MÜHÜR ÜRETİLİYOR...' : 'HESABI BAĞLA'}
+                        </button>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 bg-black/40 border border-white/10 rounded-lg py-2 px-3 text-center">
+                              <span className="text-xs font-black text-indigo-400 tracking-widest uppercase">{verifCode}</span>
+                            </div>
+                            <div className="bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-center min-w-[50px]">
+                              <span className="text-[10px] font-black text-zinc-400">{formatTime(timeLeft)}</span>
+                            </div>
+                          </div>
+                          <p className="text-[8px] text-zinc-500 text-center font-medium italic">
+                            Discord'da <code className="text-indigo-400 bg-indigo-400/10 px-1 rounded">/bagla {verifCode}</code> komutunu kullan uşağım!
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex flex-col gap-2">
                     {userLinks.map((link, idx) => (
                       <a 
@@ -1041,13 +1134,13 @@ export default function ProfileShowcase() {
                 {/* XP Progress */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
-                    <span className="text-zinc-500">SEVİYE {displayUser.level || 1}</span>
-                    <span className="text-zinc-400">{displayUser.xp || 0} / 100 XP</span>
+                    <span className="text-zinc-500">{displayUser.fullLabel}</span>
+                    <span className="text-zinc-400">{displayUser.level === 100 ? 'MAX LEVEL' : `${displayUser.xpInLevel} / ${displayUser.xpForNext} XP`}</span>
                   </div>
                   <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden border border-zinc-800/50">
                     <motion.div 
                       initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(displayUser.xp || 0, 100)}%` }}
+                      animate={{ width: `${displayUser.progress}%` }}
                       className="h-full bg-gradient-to-r from-purple-600 to-blue-500" 
                     />
                   </div>
@@ -1055,17 +1148,22 @@ export default function ProfileShowcase() {
 
                 {/* Achievements Preview */}
                 <div className="space-y-3">
-                   <div className="flex items-center justify-between">
-                     <h3 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">BAŞARIMLAR</h3>
-                     <span className="text-[9px] font-black text-zinc-500">0/50</span>
-                   </div>
-                   <div className="grid grid-cols-5 gap-2">
-                     {[...Array(5)].map((_, i) => (
-                       <div key={i} className="aspect-square rounded-lg bg-zinc-950/50 border border-zinc-800/50 flex items-center justify-center text-zinc-800">
-                         <Award size={14} />
-                       </div>
-                     ))}
-                   </div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">BAŞARIMLAR</h3>
+                      <span className="text-[9px] font-black text-zinc-500">{userAchievements?.length || 0}/100</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2">
+                      {userAchievements?.slice(0, 5).map((ua, i) => (
+                        <div key={i} title={ua.achievements?.name} className="aspect-square rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                          <Award size={14} />
+                        </div>
+                      ))}
+                      {[...Array(Math.max(0, 5 - (userAchievements?.length || 0)))].map((_, i) => (
+                        <div key={i} className="aspect-square rounded-lg bg-zinc-950/50 border border-zinc-800/50 flex items-center justify-center text-zinc-800">
+                          <Lock size={12} />
+                        </div>
+                      ))}
+                    </div>
                 </div>
               </div>
             </div>
@@ -1248,39 +1346,6 @@ export default function ProfileShowcase() {
                   </div>
                 )}
 
-                {activeTab === 'basarimlar' && (
-                  <div className="space-y-8">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400">
-                        <Award size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-black text-white uppercase tracking-tight">Kozmik Başarımlar</h3>
-                        <p className="text-zinc-500 text-xs">Mühürlediğin tüm zaferler burada sergilenir.</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {userAchievements.length > 0 ? userAchievements.map((ua, i) => (
-                        <div key={i} className="flex items-center gap-4 p-4 rounded-3xl bg-zinc-900 border border-amber-500/20 shadow-lg shadow-amber-500/5 group hover:border-amber-500/40 transition-all">
-                          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <Star size={28} fill="currentColor" className="opacity-80" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-black text-white uppercase tracking-tight">{ua.achievements?.title}</h4>
-                            <p className="text-[9px] text-zinc-500 font-medium leading-tight mt-0.5">{ua.achievements?.description}</p>
-                            <span className="inline-block mt-2 text-[8px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">+{ua.achievements?.xp_reward} XP</span>
-                          </div>
-                        </div>
-                      )) : (
-                        <div className="col-span-full text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
-                          <Award size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
-                          <p className="text-zinc-500 text-sm italic font-medium">Henüz bir başarım mühürlenmemiş. Okumaya devam et!</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
 
                 {activeTab === 'listeler' && (
                   <div className="space-y-8">
@@ -1425,7 +1490,62 @@ export default function ProfileShowcase() {
                   </div>
                 )}
 
-                {activeTab === 'customize' && (
+                 {activeTab === 'basarimlar' && (
+                   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-4">
+                         <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400">
+                           <Award size={24} />
+                         </div>
+                         <div>
+                           <h3 className="text-xl font-black text-white uppercase tracking-tight">Kozmik Başarımlar</h3>
+                           <p className="text-zinc-500 text-xs">Mühürlenmiş zaferler ve efsanevi görevler</p>
+                         </div>
+                       </div>
+                       <Link to="/achievements" className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:border-white/20 hover:text-white transition-all">
+                         Tümünü Gör
+                       </Link>
+                     </div>
+
+                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                       {userAchievements.length > 0 ? userAchievements.map((ua) => (
+                         <motion.div
+                           key={ua.id}
+                           whileHover={{ y: -5 }}
+                           className="group relative p-5 rounded-3xl bg-zinc-900 border border-zinc-800 hover:border-purple-500/50 transition-all text-center"
+                         >
+                           <div className="mb-4 relative">
+                             <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform">
+                               <Award size={24} />
+                             </div>
+                             <div className="absolute -top-1 -right-1 p-1 bg-amber-500 rounded-full shadow-lg">
+                               <Sparkles size={10} className="text-zinc-950" />
+                             </div>
+                           </div>
+                           <h4 className="text-xs font-black text-white uppercase tracking-tight line-clamp-1">{ua.achievements?.name}</h4>
+                           <p className="text-[9px] font-bold text-zinc-500 mt-1 uppercase tracking-widest">
+                             {new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}
+                           </p>
+                           
+                           {/* Hover Hint */}
+                           <div className="absolute inset-0 p-4 opacity-0 group-hover:opacity-100 bg-zinc-950/90 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center text-center transition-all">
+                             <p className="text-[9px] font-bold text-white uppercase leading-tight">{ua.achievements?.description}</p>
+                           </div>
+                         </motion.div>
+                       )) : (
+                         <div className="col-span-full py-20 text-center bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
+                           <Lock size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
+                           <p className="text-zinc-500 text-sm italic font-medium">Henüz mühürlenmiş bir başarım yok uşağım!</p>
+                           <Link to="/achievements" className="inline-flex items-center gap-2 mt-6 text-purple-400 font-bold hover:text-purple-300 transition-colors">
+                             Yolculuğa Başla <ChevronRight size={16} />
+                           </Link>
+                         </div>
+                       )}
+                     </div>
+                   </div>
+                 )}
+
+                 {activeTab === 'customize' && (
                   <div className="space-y-10">
                     {/* ── HEADER ── */}
                     <div className="flex items-center justify-between">

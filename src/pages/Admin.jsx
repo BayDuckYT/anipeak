@@ -5,11 +5,11 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { supabase } from '../lib/supabaseClient';
 import {
-  LayoutDashboard, BookOpen, PlusCircle, Users, Settings,
+  LayoutDashboard, BookOpen, PlusCircle, Users, Settings, Zap,
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
   Crown, Check, X, Search, Image as ImageIcon, Activity,
   UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell,
-  CheckCircle2, AlertCircle, Clock, FileText, Mail
+  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
 
@@ -18,17 +18,17 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'plans', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'plans', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
     badge: 'bg-gradient-to-br from-blue-600 to-cyan-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'suggestions', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'schedule', 'suggestions', 'trash'],
   },
   'Editör': {
     color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
@@ -49,17 +49,19 @@ export const ADMIN_ROLES = {
 
 const ALL_NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'content', label: 'Seri Envanteri', icon: BookOpen },
+  { id: 'content', label: 'Seriler', icon: BookOpen },
   { id: 'chapterEditor', label: 'Bölüm Editörü', icon: Layers },
   { id: 'add', label: 'Hızlı Ekle', icon: PlusCircle },
-  { id: 'suggestions', label: 'Kullanıcı Önerileri', icon: FileText },
+  { id: 'suggestions', label: 'Öneriler', icon: FileText },
   { id: 'announcements', label: 'Duyuru Yönetimi', icon: Bell },
-  { id: 'users', label: 'Kullanıcı Yönetimi', icon: UserCheck },
-  { id: 'tickets', label: 'Bilet Hattı (Hata)', icon: ShieldAlert },
+  { id: 'schedule', label: 'Yayın Takvimi', icon: Calendar },
+  { id: 'plans', label: 'Üyelik Paketleri', icon: CreditCard },
+  { id: 'users', label: 'Kullanıcılar', icon: UserCheck },
+  { id: 'tickets', label: 'Destek Talepleri', icon: ShieldAlert },
   { id: 'pages', label: 'Sayfa Yönetimi', icon: FileText },
-  { id: 'messages', label: 'Gelen Mesajlar', icon: Mail },
+  { id: 'messages', label: 'Mesajlar', icon: Mail },
   { id: 'settings', label: 'Genel Ayarlar', icon: Settings },
-  { id: 'trash', label: 'Geri Dönüşüm', icon: Trash2 },
+  { id: 'trash', label: 'Çöp Kutusu', icon: Trash2 },
 ];
 
 // ImgBB Key Pool (Mühürlendi!)
@@ -68,7 +70,7 @@ const IMGBB_KEYS = [
   '61aac4bb998738d36994eb94bec61b3d',
   'c8aa007b2512bd5b4a97925acf9212a8'
 ];
-console.log("[SYSTEM] ImgBB Anahtarları Namluda (Hardcoded):", IMGBB_KEYS.length);
+console.log("[SYSTEM] ImgBB Anahtarları Hazır (Hardcoded):", IMGBB_KEYS.length);
 let currentKeyIndex = 0;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -91,6 +93,144 @@ function MetricCard({ icon: Icon, label, value, color, glow, change }) {
       </div>
       <div className="text-2xl font-black text-white mb-1">{value}</div>
       <div className="text-xs text-slate-500 font-medium">{label}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Plan Manager
+// ─────────────────────────────────────────────────────────────────────────────
+function PlanManager({ showToast }) {
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '', duration: '', price: 0, features: '', is_popular: false, icon: 'Zap', color: 'cyan'
+  });
+
+  const fetchPlans = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('pricing_plans').select('*').order('price', { ascending: true });
+    setPlans(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchPlans(); }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const payload = {
+      ...formData,
+      features: formData.features.split(',').map(f => f.trim()).filter(f => f)
+    };
+
+    if (editingId) {
+      const { error } = await supabase.from('pricing_plans').update(payload).eq('id', editingId);
+      if (!error) { showToast('Paket güncellendi!', 'success'); reset(); fetchPlans(); }
+    } else {
+      const { error } = await supabase.from('pricing_plans').insert([payload]);
+      if (!error) { showToast('Yeni paket eklendi!', 'success'); reset(); fetchPlans(); }
+    }
+  };
+
+  const reset = () => {
+    setEditingId(null);
+    setFormData({ name: '', duration: '', price: 0, features: '', is_popular: false, icon: 'Zap', color: 'cyan' });
+  };
+
+  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-purple-500 transition-all';
+
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1 glass border border-white/8 rounded-[2rem] p-8">
+          <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+            {editingId ? <Edit3 className="text-amber-400" size={20} /> : <PlusCircle className="text-indigo-400" size={20} />}
+            {editingId ? 'Paketi Düzenle' : 'Yeni Paket Ekle'}
+          </h3>
+          <form onSubmit={handleSave} className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Paket Adı</label>
+              <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={inputCls} placeholder="ANIPEAK PRO" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Süre</label>
+                <input type="text" required value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} className={inputCls} placeholder="30 GÜN, 1 YIL vb." />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Fiyat (₺)</label>
+                <input type="number" required value={formData.price} onChange={e => setFormData({...formData, price: parseInt(e.target.value)})} className={inputCls} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Özellikler (Virgülle ayır)</label>
+              <textarea value={formData.features} onChange={e => setFormData({...formData, features: e.target.value})} className={inputCls + ' h-24 resize-none'} placeholder="Reklamsız Deneyim, Rozet vb." />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+               <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">İkon</label>
+                  <select value={formData.icon} onChange={e => setFormData({...formData, icon: e.target.value})} className={inputCls}>
+                    <option value="Zap">Şimşek (Zap)</option>
+                    <option value="Crown">Taç (Crown)</option>
+                    <option value="Ghost">Hayalet (Ghost)</option>
+                    <option value="Star">Yıldız (Star)</option>
+                  </select>
+               </div>
+               <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Renk</label>
+                  <select value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} className={inputCls}>
+                    <option value="cyan">Turkuaz</option>
+                    <option value="amber">Altın</option>
+                    <option value="purple">Mor</option>
+                    <option value="rose">Kırmızı</option>
+                  </select>
+               </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+               <input type="checkbox" id="is_popular" checked={formData.is_popular} onChange={e => setFormData({...formData, is_popular: e.target.checked})} className="w-4 h-4 rounded border-white/20 bg-transparent text-purple-600 focus:ring-0" />
+               <label htmlFor="is_popular" className="text-xs font-bold text-slate-300">En Popüler Etiketi</label>
+            </div>
+            <div className="flex gap-3">
+              <button type="button" onClick={reset} className="flex-1 py-3 bg-white/5 border border-white/10 text-white font-black rounded-xl text-xs">İPTAL</button>
+              <button type="submit" className="flex-[2] py-3 bg-indigo-600 text-white font-black rounded-xl text-xs hover:bg-indigo-500 transition-all uppercase tracking-widest">
+                {editingId ? 'GÜNCELLE' : 'EKLE'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="lg:col-span-2 space-y-4">
+          {plans.map(plan => (
+            <div key={plan.id} className="glass border border-white/8 rounded-3xl p-6 flex items-center justify-between group">
+              <div className="flex items-center gap-6">
+                <div className={`w-12 h-12 rounded-2xl bg-${plan.color}-500/10 border border-${plan.color}-500/20 flex items-center justify-center text-${plan.color}-400`}>
+                  {plan.icon === 'Zap' && <Zap size={24} />}
+                  {plan.icon === 'Crown' && <Crown size={24} />}
+                  {plan.icon === 'Ghost' && <Ghost size={24} />}
+                  {plan.icon === 'Star' && <Star size={24} />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-3">
+                    <h4 className="text-lg font-black text-white">{plan.name}</h4>
+                    {plan.is_popular && <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[8px] font-black uppercase border border-amber-500/30">EN POPÜLER</span>}
+                  </div>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">{plan.duration} • ₺{plan.price}</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => { setEditingId(plan.id); setFormData({...plan, features: plan.features.join(', ')}); }} className="p-3 text-amber-400 hover:bg-amber-400/10 rounded-xl transition-all">
+                  <Edit3 size={18} />
+                </button>
+                <button onClick={async () => { if (window.confirm('Bu paketi silmek istediğine emin misin?')) { await supabase.from('pricing_plans').delete().eq('id', plan.id); fetchPlans(); showToast('Paket silindi.', 'error'); } }} className="p-3 text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))}
+          {plans.length === 0 && <div className="py-20 text-center text-slate-600 font-bold italic">Henüz paket eklenmemiş uşağım.</div>}
+        </div>
+      </div>
     </div>
   );
 }
@@ -796,6 +936,281 @@ function SuggestionsPanel() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-component: Page Management (CMS)
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Schedule Manager (Yayın Takvimi)
+// ─────────────────────────────────────────────────────────────────────────────
+function ScheduleManager({ showToast }) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const { sortedSeries } = useApp(); // Get existing series for auto-fill
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    series_name: '',
+    release_day: 1,
+    release_time: '00:00',
+    poster_url: '',
+    chapter_info: '',
+    category: 'Manga',
+    rating: 0,
+    is_new_series: true
+  });
+
+  const fetchSchedule = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('publishing_schedule').select('*').order('release_day', { ascending: true }).order('release_time', { ascending: true });
+    setItems(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchSchedule(); }, []);
+
+  const handleAddOrUpdate = async (e) => {
+    e.preventDefault();
+    if (editingId) {
+      const { error } = await supabase.from('publishing_schedule').update(formData).eq('id', editingId);
+      if (!error) {
+        showToast('Yayın başarıyla güncellendi!', 'success');
+        resetForm();
+        fetchSchedule();
+      } else showToast('Hata: ' + error.message, 'error');
+    } else {
+      const { error } = await supabase.from('publishing_schedule').insert([formData]);
+      if (!error) {
+        showToast('Takvime yeni yayın mühürlendi!', 'success');
+        resetForm();
+        fetchSchedule();
+      } else showToast('Hata: ' + error.message, 'error');
+    }
+  };
+
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setFormData({
+      series_name: item.series_name,
+      release_day: item.release_day,
+      release_time: item.release_time,
+      poster_url: item.poster_url,
+      chapter_info: item.chapter_info,
+      category: item.category,
+      rating: item.rating,
+      is_new_series: item.is_new_series ?? true
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({ series_name: '', release_day: 1, release_time: '00:00', poster_url: '', chapter_info: '', category: 'Manga', rating: 0, is_new_series: true });
+    setSearchTerm('');
+  };
+
+  const selectSeries = (s) => {
+    setFormData({
+      ...formData,
+      series_name: s.title,
+      poster_url: s.cover,
+      rating: s.rating,
+      category: (Array.isArray(s.genre) ? s.genre[0] : s.genre) || 'Manga',
+      is_new_series: false
+    });
+    setSearchTerm(s.title);
+    setShowSearch(false);
+  };
+
+  const filteredSeries = sortedSeries.filter(s => 
+    s.title.toLowerCase().includes(searchTerm.toLowerCase())
+  ).slice(0, 5);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Bu yayını takvimden silmek istediğine emin misin uşağım?')) return;
+    const { error } = await supabase.from('publishing_schedule').delete().eq('id', id);
+    if (!error) {
+      showToast('Yayın takvimden silindi.', 'error');
+      fetchSchedule();
+    }
+  };
+
+  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none transition-all';
+
+  return (
+    <div className="space-y-8 pb-20">
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Form */}
+        <div className="glass border border-white/8 rounded-[2rem] p-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl pointer-events-none" />
+          <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+            {editingId ? <Edit3 className="text-amber-400" size={20} /> : <PlusCircle className="text-indigo-400" size={20} />} 
+            {editingId ? 'Yayını Düzenle' : 'Yayın Ekle'}
+          </h3>
+          
+          {/* Quick Search */}
+          {!editingId && (
+            <div className="relative mb-6">
+              <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 ml-1">Mevcut Serilerden Hızlı Ekle</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                <input 
+                  type="text" 
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setShowSearch(true); }}
+                  placeholder="Seri ismini yazmaya başla..."
+                  className={inputCls + ' pl-10'}
+                />
+              </div>
+              <AnimatePresence>
+                {showSearch && searchTerm && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute z-50 left-0 right-0 mt-2 bg-[#0a0a14] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                  >
+                    {filteredSeries.map(s => (
+                      <button 
+                        key={s.id}
+                        type="button"
+                        onClick={() => selectSeries(s)}
+                        className="w-full p-3 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
+                      >
+                        <img src={s.cover} className="w-8 h-10 rounded object-cover" />
+                        <div className="text-left">
+                          <p className="text-xs font-bold text-white">{s.title}</p>
+                          <p className="text-[10px] text-zinc-500">{s.author}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
+          <form onSubmit={handleAddOrUpdate} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Seri Adı (Görünen)</label>
+                <input type="text" required value={formData.series_name} onChange={e => setFormData({...formData, series_name: e.target.value})} className={inputCls} placeholder="Berserk, One Piece vb." />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Yayın Günü</label>
+                <select value={formData.release_day} onChange={e => setFormData({...formData, release_day: parseInt(e.target.value)})} className={inputCls}>
+                  <option value={1} className="bg-[#0a0a14]">Pazartesi</option>
+                  <option value={2} className="bg-[#0a0a14]">Salı</option>
+                  <option value={3} className="bg-[#0a0a14]">Çarşamba</option>
+                  <option value={4} className="bg-[#0a0a14]">Perşembe</option>
+                  <option value={5} className="bg-[#0a0a14]">Cuma</option>
+                  <option value={6} className="bg-[#0a0a14]">Cumartesi</option>
+                  <option value={0} className="bg-[#0a0a14]">Pazar</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Yayın Saati</label>
+                <input type="time" required value={formData.release_time} onChange={e => setFormData({...formData, release_time: e.target.value})} className={inputCls} />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Poster URL</label>
+                <input type="url" value={formData.poster_url} onChange={e => setFormData({...formData, poster_url: e.target.value})} className={inputCls} placeholder="https://..." />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Bölüm Bilgisi</label>
+                <input type="text" value={formData.chapter_info} onChange={e => setFormData({...formData, chapter_info: e.target.value})} className={inputCls} placeholder="Yeni Bölüm, S1 B3 vb." />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Kategori</label>
+                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className={inputCls}>
+                  <option value="Manga" className="bg-[#0a0a14]">Manga</option>
+                  <option value="Manhwa" className="bg-[#0a0a14]">Manhwa</option>
+                  <option value="Webtoon" className="bg-[#0a0a14]">Webtoon</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <button type="button" onClick={resetForm} className="flex-1 py-4 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">
+                TEMİZLE
+              </button>
+              <button type="submit" className={`flex-[2] py-4 ${editingId ? 'bg-amber-600 hover:bg-amber-500 shadow-neon-amber' : 'bg-indigo-600 hover:bg-indigo-500 shadow-neon-indigo'} text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2`}>
+                {editingId ? <Save size={18} /> : <Check size={18} />} {editingId ? 'GÜNCELLE' : 'TAKVİME EKLE'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Live Preview / Summary */}
+        <div className="glass border border-white/8 rounded-[2rem] p-8 flex flex-col">
+          <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+            <Eye className="text-emerald-400" size={20} /> Önizleme
+          </h3>
+          <div className="flex-1 flex flex-col justify-center items-center text-center p-6 border-2 border-dashed border-white/5 rounded-3xl">
+            {formData.series_name ? (
+              <div className="w-full max-w-xs glass bg-zinc-900/40 border border-indigo-500/30 rounded-3xl p-5">
+                <img src={formData.poster_url || '/placeholder.png'} className="w-20 h-28 mx-auto rounded-xl object-cover mb-4 shadow-2xl" />
+                <h4 className="text-white font-black truncate">{formData.series_name}</h4>
+                <p className="text-indigo-400 text-xs font-black mt-1">{formData.release_time} - {formData.category}</p>
+                <p className="text-zinc-500 text-[10px] font-bold mt-2 uppercase">{formData.chapter_info || 'Bölüm bilgisi yok'}</p>
+              </div>
+            ) : (
+              <p className="text-zinc-600 font-bold italic text-sm">Yayın ekledikçe burada canlanacak...</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* List */}
+      <div className="glass border border-white/8 rounded-[2rem] overflow-hidden">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="bg-white/3 border-b border-white/8">
+              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Seri</th>
+              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Zaman</th>
+              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</th>
+              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(item => (
+              <tr key={item.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <img src={item.poster_url} className="w-8 h-10 rounded shadow-lg object-cover" />
+                    <div>
+                      <p className="text-sm font-black text-white">{item.series_name}</p>
+                      <p className="text-[10px] text-zinc-500 font-bold">{item.chapter_info}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase">
+                    {['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'][item.release_day]} {item.release_time.slice(0, 5)}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase">{item.category}</span>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => handleEdit(item)} className="p-2 text-amber-400 hover:bg-amber-400/10 rounded-lg transition-all">
+                      <Edit3 size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {items.length === 0 && (
+              <tr><td colSpan={4} className="py-12 text-center text-zinc-600 font-bold italic">Takvim şu an boş uşağım.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function PageManagement({ showToast }) {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -948,7 +1363,7 @@ export default function Admin() {
   const {
     series, loading: appLoading, chapters, announcements, registeredUsers,
     updateSeries, deleteSeries, toggleTrend, toggleStatus,
-    maintenanceMode, toggleMaintenance,
+    maintenanceMode, toggleMaintenance, deleteAllTrash, restoreAllTrash
   } = useApp();
 
   // ── ALL useState at top level — Rule of Hooks compliant ──────────────
@@ -1185,7 +1600,15 @@ export default function Admin() {
                             {confirmDelSeries === s.id ? (
                               <>
                                 <button onClick={() => setConfirmDelSeries(null)} className="p-2 text-slate-400 hover:bg-white/10 rounded-lg"><X size={16} /></button>
-                                <button onClick={async () => { await updateSeries(s.id, { is_deleted: true }); setConfirmDelSeries(null); showToast('Çöp kutusuna taşındı', 'error'); }}
+                                <button onClick={async () => { 
+                                  try {
+                                    await updateSeries(s.id, { is_deleted: true }); 
+                                    setConfirmDelSeries(null); 
+                                    showToast('Çöp kutusuna taşındı', 'error'); 
+                                  } catch (err) {
+                                    showToast('Silme hatası: Yetkiniz olmayabilir (RLS)', 'error');
+                                  }
+                                }}
                                   className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg bg-red-500/10 border border-red-500/30 font-bold text-xs flex items-center gap-1">
                                   ONAYLA <Check size={14} />
                                 </button>
@@ -1220,6 +1643,30 @@ export default function Admin() {
           <div className="glass border border-white/8 rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-white/8 bg-red-900/10 flex items-center gap-4 justify-between">
               <h3 className="text-red-400 font-bold text-lg flex items-center gap-2"><Trash2 size={20} /> Çöp Kutusu</h3>
+              {deletedSeries.length > 0 && (
+                <div className="flex gap-2">
+                  <button onClick={async () => {
+                    if (window.confirm('Tüm çöpteki serileri geri yüklemek istiyor musunuz?')) {
+                      try {
+                        await restoreAllTrash();
+                        showToast('Tüm seriler geri yüklendi', 'success');
+                      } catch (err) { showToast('Hata: RLS Engeli', 'error'); }
+                    }
+                  }} className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition-all flex items-center gap-2">
+                    <RefreshCw size={14} /> HEPSİNİ GERİ YÜKLE
+                  </button>
+                  <button onClick={async () => {
+                    if (window.confirm('TÜM ÇÖP KUTUSUNU KALICI OLARAK TEMİZLEMEK İSTİYOR MUSUNUZ? BU İŞLEM GERİ ALINAMAZ!')) {
+                      try {
+                        await deleteAllTrash();
+                        showToast('Çöp kutusu tamamen boşaltıldı', 'error');
+                      } catch (err) { showToast('Hata: RLS Engeli', 'error'); }
+                    }
+                  }} className="px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold hover:bg-red-500/20 transition-all flex items-center gap-2">
+                    <Trash size={14} /> HEPSİNİ SİL
+                  </button>
+                </div>
+              )}
             </div>
             {deletedSeries.length > 0 ? (
               <table className="w-full text-sm">
@@ -1262,6 +1709,8 @@ export default function Admin() {
         {safeActiveNav === 'messages' && <InboxPanel showToast={showToast} />}
         {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
         {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
+        {safeActiveNav === 'schedule' && <ScheduleManager showToast={showToast} />}
+        {safeActiveNav === 'plans' && <PlanManager showToast={showToast} />}
         {safeActiveNav === 'suggestions' && <SuggestionsPanel />}
 
         {/* Universe Settings */}
@@ -1293,7 +1742,7 @@ export default function Admin() {
                       <Activity size={14} /> <span className="text-[11px] font-black uppercase tracking-widest">Sistem Durumu</span>
                     </div>
                     <p className="text-2xl font-black text-white">YÜKSEK</p>
-                    <p className="text-[10px] text-slate-500 mt-1">Tüm kozmik kanallar açık.</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Tüm sistem kanalları açık.</p>
                   </div>
                   <div className="p-4 bg-white/3 border border-white/8 rounded-2xl">
                     <div className="flex items-center gap-2 text-purple-400 mb-2">
@@ -1307,7 +1756,7 @@ export default function Admin() {
                 {/* Dangerous Actions */}
                 <div className="pt-6 border-t border-white/8">
                   <p className="text-[11px] font-black text-red-400 uppercase tracking-widest mb-4">Kritik İşlemler</p>
-                  <button onClick={() => { if (window.confirm('Tüm önbelleği temizlemek istiyor musunuz?')) showToast('Kozmik önbellek temizlendi.', 'success'); }}
+                  <button onClick={() => { if (window.confirm('Tüm önbelleği temizlemek istiyor musunuz?')) showToast('Sistem önbelleği temizlendi.', 'success'); }}
                     className="px-6 py-2.5 bg-red-600/10 border border-red-500/20 text-red-500 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition-all">
                     Önbelleği Boşalt
                   </button>

@@ -31,6 +31,8 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
 const MessagesPage = lazy(() => import('./pages/MessagesPage.jsx'));
 const EliteUpgrade = lazy(() => import('./pages/EliteUpgrade.jsx'));
 const ListDetail = lazy(() => import('./pages/ListDetail.jsx'));
+const Achievements = lazy(() => import('./pages/Achievements.jsx'));
+const SchedulePage = lazy(() => import('./pages/SchedulePage.jsx'));
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
@@ -70,6 +72,8 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/oneriler" element={<Suggestions />} />
           <Route path="/messages" element={<PrivateRoute><MessagesPage /></PrivateRoute>} />
           <Route path="/elite-upgrade" element={<EliteUpgrade />} />
+          <Route path="/achievements" element={<Achievements />} />
+          <Route path="/takvim" element={<SchedulePage />} />
           <Route path="/:username/liste/:listId" element={<ListDetail />} />
           <Route path="/:slug" element={<StaticPage />} />
         </Routes>
@@ -140,6 +144,43 @@ function AppContent() {
     window.addEventListener('open-auth', handleOpenAuth);
     return () => window.removeEventListener('open-auth', handleOpenAuth);
   }, []);
+
+  // ── DevTools & Right-Click Security (Anti-Inspect) ──────────────────
+  useEffect(() => {
+    // SADECE YETKİLİLER (Admin, Editor, Tester) İNCELEME YAPABİLİR
+    if (isAdmin || isTester) return;
+
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const handleKeyDown = (e) => {
+      // F12
+      if (e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+      if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+U (View Source)
+      if (e.ctrlKey && e.keyCode === 85) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    window.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAdmin, isTester]);
   
   if (loading) return <Loader fullScreen text="Sayfa Yükleniyor..." />;
 

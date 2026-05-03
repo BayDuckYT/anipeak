@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Trophy, CheckCircle2 } from 'lucide-react';
+import { Star, Award, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 
@@ -70,7 +70,7 @@ export default function ChapterRating({ seriesId, chapterNum }) {
   return (
     <div className="glass border border-white/10 rounded-3xl p-8 my-10 max-w-2xl mx-auto overflow-hidden relative">
       <div className="absolute top-0 right-0 p-8 opacity-5">
-        <Trophy size={120} className="text-purple-500" />
+        <Award size={120} className="text-purple-500" />
       </div>
 
       <div className="relative z-10 text-center">

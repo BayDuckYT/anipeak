@@ -1,20 +1,78 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { trackActivity } from '../lib/achievementService';
 
 const AuthContext = createContext(null);
 
 /**
  * XP bazlı rütbe hesaplama
  */
+/**
+ * Yeni Kademeli Seviye ve Rütbe Hesaplama (AniPeak V4)
+ */
+export function getLevelInfo(xp) {
+  let level, rank, xpInLevel, xpForNext;
+  const val = Number(xp) || 0;
+
+  if (val < 500) {
+    level = Math.floor(val / 50) + 1;
+    rank = 'Çaylak Okur';
+    xpInLevel = val % 50;
+    xpForNext = 50;
+  } else if (val < 2000) {
+    level = 11 + Math.floor((val - 500) / 100);
+    rank = 'Manga Gezgini';
+    xpInLevel = (val - 500) % 100;
+    xpForNext = 100;
+  } else if (val < 5000) {
+    level = 26 + Math.floor((val - 2000) / 200);
+    rank = 'Üstün Savaşçı';
+    xpInLevel = (val - 2000) % 200;
+    xpForNext = 200;
+  } else if (val < 10000) {
+    level = 41 + Math.floor((val - 5000) / 333);
+    rank = 'Elit Avcı';
+    xpInLevel = (val - 5000) % 333;
+    xpForNext = 333;
+  } else if (val < 25000) {
+    level = 56 + Math.floor((val - 10000) / 1000);
+    rank = 'Lonca Üyesi';
+    xpInLevel = (val - 10000) % 1000;
+    xpForNext = 1000;
+  } else if (val < 50000) {
+    level = 71 + Math.floor((val - 25000) / 1666);
+    rank = 'Üstün Baskıncı';
+    xpInLevel = (val - 25000) % 1666;
+    xpForNext = 1666;
+  } else if (val < 100000) {
+    level = 86 + Math.floor((val - 50000) / 3333);
+    rank = 'Ulusal Seviye Avcı';
+    xpInLevel = (val - 50000) % 3333;
+    xpForNext = 3333;
+  } else {
+    level = 100;
+    rank = 'Manga Hükümdarı';
+    xpInLevel = 1;
+    xpForNext = 1;
+  }
+
+  // Güvenlik kontrolleri
+  if (level > 100) level = 100;
+  if (level === 100) rank = 'Manga Hükümdarı';
+
+  return { 
+    level, 
+    rank, 
+    xpInLevel, 
+    xpForNext, 
+    progress: level === 100 ? 100 : (xpInLevel / xpForNext) * 100,
+    fullLabel: `Lv. ${level} ${rank}`
+  };
+}
+
+// Geriye uyumluluk için eski fonksiyonu güncelle
 export function calculateRank(xp) {
-  if (xp >= 100000) return 'Manga Hükümdarı';
-  if (xp >= 50000) return 'Ulusal Seviye Avcı';
-  if (xp >= 25000) return 'Üstün Baskıncı';
-  if (xp >= 10000) return 'Lonca Üyesi';
-  if (xp >= 5000) return 'Elit Avcı';
-  if (xp >= 2000) return 'Üstün Savaşçı';
-  if (xp >= 500) return 'Manga Gezgini';
-  return 'Çaylak Okur';
+  return getLevelInfo(xp).rank;
 }
 
 export function AuthProvider({ children }) {
@@ -75,7 +133,7 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
-        rank:            calculateRank(data?.xp ?? 0),
+        ...getLevelInfo(data?.xp ?? 0),
         mal_username:    data?.mal_username || null,
         badges:          data?.badges || [],
         active_decoration: data?.active_decoration || 'none',
@@ -214,7 +272,14 @@ export function AuthProvider({ children }) {
     if (error) {
       console.error('[XP] Güncelleme hatası:', error);
     } else {
-      setUser(prev => ({ ...prev, xp: newXP, rank: newRank }));
+      const info = getLevelInfo(newXP);
+      setUser(prev => ({ 
+        ...prev, 
+        xp: newXP, 
+        ...info
+      }));
+      // Başarım kontrolü (Seviye bazlı)
+      trackActivity(user.id, 'level_up');
     }
   }, [user]);
 
@@ -235,6 +300,12 @@ export function AuthProvider({ children }) {
 
       // Her bölüm okuma 10 XP verir
       updateXP(10);
+      
+      // Başarım takibi
+      trackActivity(user.id, 'read_chapter', 1, { 
+        seriesId, 
+        genres: [] // Gelecekte buraya serinin türleri eklenebilir
+      });
     } catch (err) {
       console.error('[Auth] Reading progress update error:', err);
     }
