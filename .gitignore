@@ -15,6 +15,7 @@ dist-ssr
 *.local
 
 # Assets (Large Files)
+assets_repo/
 scraper/assets_repo/
 videos/
 temp_cover_*
