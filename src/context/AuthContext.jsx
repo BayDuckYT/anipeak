@@ -337,13 +337,15 @@ export function AuthProvider({ children }) {
     }, 1000);
 
     const init = async () => {
+      let session = null;
       try {
         // 8 saniye içinde session gelmezse ağ hatası say, kullanıcıyı çıkarma
         const sessionPromise = supabase.auth.getSession();
         const timeout = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('getSession timeout')), 8000)
         );
-        const { data: { session }, error } = await Promise.race([sessionPromise, timeout]);
+        const { data: { session: fetchedSession }, error } = await Promise.race([sessionPromise, timeout]);
+        session = fetchedSession;
 
         if (error) throw error;
         if (mounted && session?.user) {
@@ -354,6 +356,7 @@ export function AuthProvider({ children }) {
         // Ağ hatası: kullanıcıyı çıkatma, sadece logla
         console.warn("[Auth] Session yüklenemedi (ağ hatası), oturum korunuyor:", err.message);
       } finally {
+        if (mounted) {
           setLoading(false);
           clearTimeout(safetyTimeout);
 
@@ -365,6 +368,7 @@ export function AuthProvider({ children }) {
             localStorage.removeItem('anipeak_last_user_id');
             await fetchProfile(session.user);
           }
+        }
       }
     };
 
