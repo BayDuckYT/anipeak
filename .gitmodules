@@ -1,0 +1,3 @@
+[submodule "assets_repo"]
+	path = assets_repo
+	url = https://github.com/murathanozel48-prog/anipeak-manga-assets.git
