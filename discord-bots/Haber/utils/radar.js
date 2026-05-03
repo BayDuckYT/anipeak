@@ -15,12 +15,8 @@ export function startRadar(client) {
   const supabase = createClient(supabaseUrl, supabaseKey);
   console.log('[Haber Sistemi] 📡 Supabase bağlantısı kuruluyor...');
 
+  // Realtime bağlantısını kur
   const globalChannel = supabase.channel('anipeak-global');
-
-  // TÜM ETKİNLİKLERİ HAM OLARAK LOGLA (Debug için)
-  globalChannel.on('*', (payload) => {
-    console.log('[Haber Sistemi] 📥 YENİ VERİ GELDİ:', payload.event, payload.table);
-  });
 
   globalChannel.on(
     'postgres_changes',

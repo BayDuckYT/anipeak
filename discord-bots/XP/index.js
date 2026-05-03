@@ -177,9 +177,13 @@ async function bootWithRetry(attempt = 1) {
           async (payload) => {
             const { new: newData, old: oldData } = payload;
             
-            // Sadece XP değiştiğinde işlem yap
-            if (newData.xp !== oldData.xp) {
-              console.log(`[XP] Anlık değişim: ${newData.username} (${newData.xp} XP)`);
+            // Supabase Realtime 'oldData' check (Replica Identity Full logic)
+            // Eğer oldData yoksa veya xp alanı gelmemişse, karşılaştırma yapamayız.
+            const newXp = Number(newData.xp);
+            const oldXp = oldData ? Number(oldData.xp) : null;
+
+            if (oldXp !== null && newXp !== oldXp) {
+              console.log(`[XP] Anlık değişim: ${newData.username} (${oldXp} -> ${newXp} XP)`);
               await syncUserToDiscord(client, newData);
             }
           }
