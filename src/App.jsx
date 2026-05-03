@@ -190,6 +190,16 @@ function AppContent() {
 
   return (
     <>
+      <AnimatePresence>
+        {authModal && (
+          <AuthModal
+            key="auth-modal"
+            mode={authModal}
+            onClose={() => setAuthModal(null)}
+          />
+        )}
+      </AnimatePresence>
+
       <BrowserRouter>
         <ScrollToTop />
         <GlobalEffects />
@@ -215,16 +225,6 @@ function AppContent() {
               </div>
             </>
           )}
-
-          <AnimatePresence>
-            {authModal && (
-              <AuthModal
-                key="auth-modal"
-                mode={authModal}
-                onClose={() => setAuthModal(null)}
-              />
-            )}
-          </AnimatePresence>
         </div>
       </BrowserRouter>
     </>

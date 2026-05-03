@@ -88,21 +88,19 @@ export default function AuthModal({ mode, onClose }) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ isolation: 'isolate' }}
     >
-      <motion.div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/90 backdrop-blur-md" 
+        onClick={onClose}
+      />
 
-      <motion.div
-        initial={{ scale: 0.85, opacity: 0, y: 30 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.85, opacity: 0, y: 30 }}
-        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-        className="relative w-full max-w-md glass-strong rounded-2xl p-8 shadow-2xl border border-purple-500/20 overflow-hidden"
+      {/* Modal Content */}
+      <div
+        className="relative z-[10000] w-full max-w-md bg-[#0f172a] border border-purple-500/30 rounded-2xl p-8 shadow-[0_0_50px_rgba(168,85,247,0.3)]"
       >
           {/* Glows */}
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
@@ -142,13 +140,8 @@ export default function AuthModal({ mode, onClose }) {
           </div>
 
           {/* Success / Confirm Email state */}
-          <AnimatePresence>
-            {(success || tab === 'confirm_email') && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-8"
-              >
+          {(success || tab === 'confirm_email') && (
+            <div className="text-center py-8">
                 <CheckCircle size={48} className="text-emerald-400 mx-auto mb-3" />
                 <p className="text-white font-bold text-lg">
                   {tab === 'forgot' ? 'Mail Gönderildi! 📧' : 
@@ -168,21 +161,14 @@ export default function AuthModal({ mode, onClose }) {
                     Giriş Sayfasına Dön
                   </button>
                 )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+            </div>
+          )}
 
           {!success && tab !== 'confirm_email' && (
-            <AnimatePresence mode="wait">
-              <motion.form
-                key={tab}
-                initial={{ opacity: 0, x: tab === 'login' ? -20 : 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                onSubmit={handleSubmit}
-                className="space-y-4"
-              >
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4"
+            >
                 {tab === 'register' && (
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Kullanıcı Adı</label>
@@ -323,10 +309,9 @@ export default function AuthModal({ mode, onClose }) {
                     </button>
                   </>
                 )}
-              </motion.form>
-            </AnimatePresence>
+            </form>
           )}
-      </motion.div>
-    </motion.div>
+        </div>
+    </div>
   );
 }
