@@ -10,7 +10,7 @@ const AuthContext = createContext(null);
 /**
  * Yeni Kademeli Seviye ve Rütbe Hesaplama (AniPeak V4)
  */
-export function getLevelInfo(xp) {
+export function getLevelInfo(xp, is_elite = false) {
   let level, rank, xpInLevel, xpForNext;
   const val = Number(xp) || 0;
 
@@ -59,6 +59,11 @@ export function getLevelInfo(xp) {
   // Güvenlik kontrolleri
   if (level > 100) level = 100;
   if (level === 100) rank = 'Manga Hükümdarı';
+
+  // [ELITE MODIFIER]
+  if (is_elite && rank !== 'Manga Hükümdarı') {
+    rank = `Elite ${rank}`;
+  }
 
   return { 
     level, 
@@ -118,6 +123,9 @@ export function AuthProvider({ children }) {
       // [YÖNETİCİ YETKİSİ] Güvenli Admin kontrolü
       const isSystemOwner = authUser?.email === 'murathanozel134@gmail.com';
       const userRole = data?.role || (isSystemOwner ? 'Baş Admin' : 'Kullanıcı');
+      
+      // Adminler otomatik olarak Elite sayılır
+      const is_elite = data?.is_elite || isSystemOwner || ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör'].includes(userRole);
 
       const merged = {
         ...authUser,
@@ -133,11 +141,11 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
-        ...getLevelInfo(data?.xp ?? 0),
+        ...getLevelInfo(data?.xp ?? 0, is_elite),
         mal_username:    data?.mal_username || null,
         badges:          data?.badges || [],
         active_decoration: data?.active_decoration || 'none',
-        is_elite:        data?.is_elite || isSystemOwner || userRole === 'Baş Admin' || userRole === 'Yönetici' || false,
+        is_elite,
         active_plan_id:  data?.active_plan_id || null,
       };
 
@@ -273,7 +281,7 @@ export function AuthProvider({ children }) {
     if (error) {
       console.error('[XP] Güncelleme hatası:', error);
     } else {
-      const info = getLevelInfo(newXP);
+      const info = getLevelInfo(newXP, user.is_elite);
       setUser(prev => ({ 
         ...prev, 
         xp: newXP, 
@@ -572,7 +580,8 @@ export function AuthProvider({ children }) {
       }
       
       setUser(prev => {
-        const next = { ...prev, is_elite: true, active_plan_id: planId };
+        const info = getLevelInfo(prev.xp, true);
+        const next = { ...prev, ...info, is_elite: true, active_plan_id: planId };
         localStorage.setItem('anipeak_user_cache', JSON.stringify(next));
         return next;
       });
