@@ -88,23 +88,22 @@ export default function AuthModal({ mode, onClose }) {
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
-      >
-        <motion.div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <motion.div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-        <motion.div
-          initial={{ scale: 0.85, opacity: 0, y: 30 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.85, opacity: 0, y: 30 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-          className="relative w-full max-w-md glass-strong rounded-2xl p-8 shadow-2xl border border-purple-500/20 overflow-hidden"
-        >
+      <motion.div
+        initial={{ scale: 0.85, opacity: 0, y: 30 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.85, opacity: 0, y: 30 }}
+        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+        className="relative w-full max-w-md glass-strong rounded-2xl p-8 shadow-2xl border border-purple-500/20 overflow-hidden"
+      >
           {/* Glows */}
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
@@ -327,8 +326,7 @@ export default function AuthModal({ mode, onClose }) {
               </motion.form>
             </AnimatePresence>
           )}
-        </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </motion.div>
   );
 }
