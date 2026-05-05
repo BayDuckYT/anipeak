@@ -1,22 +1,42 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
-import { Calendar, Clock, Star, Tv, ChevronRight, History, Zap, Shield, Sparkles } from 'lucide-react';
-
-const DAYS = [
-  { id: 1, name: 'Pazartesi', short: 'PZT' },
-  { id: 2, name: 'Salı', short: 'SAL' },
-  { id: 3, name: 'Çarşamba', short: 'ÇAR' },
-  { id: 4, name: 'Perşembe', short: 'PER' },
-  { id: 5, name: 'Cuma', short: 'CUM' },
-  { id: 6, name: 'Cumartesi', short: 'CMT' },
-  { id: 0, name: 'Pazar', short: 'PAZ' }
-];
+import { Star, Bell, BellRing, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function SchedulePage() {
   const [schedule, setSchedule] = useState([]);
-  const [selectedDay, setSelectedDay] = useState(new Date().getDay());
   const [loading, setLoading] = useState(true);
+
+  // Weekly Calendar State
+  const getLocalDateString = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const getStartOfWeek = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Pazartesi başlangıç
+    return new Date(d.setDate(diff));
+  };
+
+  const [weekStart, setWeekStart] = useState(getStartOfWeek(new Date()));
+  const [selectedDateStr, setSelectedDateStr] = useState(getLocalDateString(new Date()));
+
+  const handlePrevWeek = () => {
+    const newDate = new Date(weekStart);
+    newDate.setDate(newDate.getDate() - 7);
+    setWeekStart(newDate);
+  };
+
+  const handleNextWeek = () => {
+    const newDate = new Date(weekStart);
+    newDate.setDate(newDate.getDate() + 7);
+    setWeekStart(newDate);
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,205 +55,191 @@ export default function SchedulePage() {
   }, []);
 
   const dailyPrograms = useMemo(() => {
-    return schedule.filter(item => item.release_day === selectedDay);
-  }, [schedule, selectedDay]);
+    return schedule.filter(item => item.release_date === selectedDateStr);
+  }, [schedule, selectedDateStr]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050507] flex items-center justify-center">
+      <div className="min-h-screen pt-24 pb-20 flex items-center justify-center">
         <div className="relative">
-          <div className="w-20 h-20 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-          <Zap className="absolute inset-0 m-auto text-indigo-400 animate-pulse" size={30} />
+          <div className="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+          <Zap className="absolute inset-0 m-auto text-purple-400 animate-pulse" size={24} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050507] pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Cyber Background Effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.15),transparent_50%)]" />
-        <div className="absolute bottom-0 left-0 w-full h-[500px] bg-[linear-gradient(to_top,#050507,transparent)]" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <main className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Header Section (Banner style) */}
+      <div className="relative w-full rounded-3xl overflow-hidden glass border border-white/8 mb-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-purple-900/30" />
+        <div className="absolute right-0 top-0 h-full w-1/2 bg-[url('/yayinarkaplan.jpeg')] bg-cover bg-center opacity-40 mix-blend-screen" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />
+        
+        <div className="relative z-10 p-8 sm:p-12">
+          <div className="max-w-xl">
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight uppercase mb-3">
+              YAYIN PROGRAMI
+            </h1>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Yeni bölümlerin ne zaman yayınlanacağını buradan takip edebilirsin. AniPeak mühürlü serileri anında okumak için bildirimleri açmayı unutma!
+            </p>
+          </div>
+        </div>
+
+        {/* Days Tabs (Functional Weekly Calendar) */}
+        <div className="relative z-10 border-t border-white/10 p-4 sm:px-8">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button onClick={handlePrevWeek} className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="flex gap-2 sm:gap-3 overflow-x-auto no-scrollbar custom-scrollbar flex-1 pb-2 sm:pb-0">
+              {[0, 1, 2, 3, 4, 5, 6].map((offset) => {
+                const dayDate = new Date(weekStart);
+                dayDate.setDate(dayDate.getDate() + offset);
+                
+                const dayDateStr = getLocalDateString(dayDate);
+                const isActive = selectedDateStr === dayDateStr;
+                
+                const dayNameShort = dayDate.toLocaleDateString('tr-TR', { weekday: 'short' });
+                const dayNumber = dayDate.getDate();
+                const monthName = dayDate.toLocaleDateString('tr-TR', { month: 'short' });
+                
+                return (
+                  <button
+                    key={offset}
+                    onClick={() => setSelectedDateStr(dayDateStr)}
+                    className={`flex flex-col items-center justify-center px-4 sm:px-6 py-2 sm:py-3 rounded-2xl min-w-[70px] sm:min-w-[90px] transition-all whitespace-nowrap flex-1 ${
+                      isActive 
+                      ? 'bg-purple-600 text-white shadow-neon-purple border border-purple-500/50 scale-[1.02]' 
+                      : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10'
+                    }`}
+                  >
+                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-1 opacity-80">{dayNameShort}</span>
+                    <span className={`text-xl sm:text-2xl font-black ${isActive ? 'text-white' : 'text-slate-200'}`}>{dayNumber}</span>
+                    <span className="text-[9px] sm:text-[10px] uppercase font-bold opacity-60 mt-0.5">{monthName}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button onClick={handleNextWeek} className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header Section */}
-        <div className="text-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-indigo-500/30 mb-6"
-          >
-            <Sparkles size={14} className="text-indigo-400 animate-pulse" />
-            <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">AniPeak Global Yayın Ağı</span>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-6xl md:text-8xl font-black text-white mb-6 tracking-tighter"
-          >
-            YAYIN <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-500 to-blue-500">PROGRAMI</span>
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-zinc-500 font-medium max-w-2xl mx-auto text-lg leading-relaxed"
-          >
-            Mühürlenmiş serilerin haftalık yayın takvimi. Cyber-Shield korumasıyla her bölüm tam vaktinde sistemimizde yerini alır.
-          </motion.p>
+      {/* Schedule Table List */}
+      <div className="glass border border-white/8 rounded-3xl overflow-hidden mb-8">
+        {/* Table Header */}
+        <div className="grid grid-cols-[80px_1fr_120px_100px_40px] sm:grid-cols-[100px_1fr_150px_120px_50px] items-center px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">SAAT</span>
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">SERİ</span>
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider hidden sm:block">BÖLÜM</span>
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider text-right sm:text-left">DURUM</span>
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider text-center"></span>
         </div>
 
-        {/* Futuristic Day Selector */}
-        <div className="flex flex-wrap justify-center gap-4 mb-20">
-          {DAYS.map((day, idx) => {
-            const isActive = selectedDay === day.id;
-            const dayCount = schedule.filter(s => s.release_day === day.id).length;
-
-            return (
-              <motion.button
-                key={day.id}
-                onClick={() => setSelectedDay(day.id)}
-                whileHover={{ y: -5, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`relative px-8 py-5 rounded-3xl border transition-all duration-500 group overflow-hidden ${
-                  isActive 
-                  ? 'bg-gradient-to-br from-indigo-600 to-blue-600 border-indigo-400/50 shadow-[0_20px_50px_rgba(79,70,229,0.3)] scale-110' 
-                  : 'bg-zinc-900/40 border-white/5 hover:border-white/10 hover:bg-zinc-900/60'
-                }`}
-              >
-                {isActive && (
-                  <motion.div 
-                    layoutId="activeGlow"
-                    className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50" 
-                  />
-                )}
-                <span className={`block text-lg font-black uppercase tracking-widest ${isActive ? 'text-white' : 'text-zinc-500 group-hover:text-white transition-colors'}`}>
-                  {day.name}
-                </span>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-700'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-indigo-100' : 'text-zinc-600'}`}>
-                    {dayCount} İçerik
-                  </span>
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Table Body */}
+        <div className="divide-y divide-white/5">
           <AnimatePresence mode="wait">
             {dailyPrograms.length > 0 ? dailyPrograms.map((item, idx) => (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ delay: idx * 0.1 }}
-                whileHover={{ y: -10 }}
-                className="group relative h-[450px] rounded-[2.5rem] overflow-hidden glass-strong border border-white/5 hover:border-indigo-500/30 transition-all duration-500"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ delay: idx * 0.05 }}
+                className="grid grid-cols-[80px_1fr_120px_100px_40px] sm:grid-cols-[100px_1fr_150px_120px_50px] items-center px-6 py-4 hover:bg-white/[0.02] transition-colors group"
               >
-                {/* Poster Background */}
-                <img 
-                  src={item.poster_url || '/placeholder.png'} 
-                  className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/40 to-transparent" />
-                
-                {/* Floating Time Badge */}
-                <div className="absolute top-6 left-6 px-4 py-2 rounded-2xl bg-indigo-600/90 backdrop-blur-md border border-white/10 shadow-2xl">
-                  <div className="flex items-center gap-2">
-                    <Clock size={14} className="text-white" />
-                    <span className="text-sm font-black text-white">{item.release_time.slice(0, 5)}</span>
+                {/* Time */}
+                <div className="text-slate-300 font-black text-sm sm:text-base">
+                  {item.release_time?.slice(0, 5) || '00:00'}
+                </div>
+
+                {/* Series Info */}
+                <div className="flex items-center gap-4">
+                  <img src={item.poster_url} alt={item.series_name} className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg object-cover border border-white/10 group-hover:scale-105 transition-transform" 
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/64x96?text='; }} />
+                  <div className="min-w-0">
+                    <h3 className="text-white font-bold text-sm sm:text-base truncate group-hover:text-purple-400 transition-colors">
+                      {item.series_name}
+                    </h3>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <Star size={12} className="text-amber-400 fill-amber-400" />
+                      <span className="text-amber-400 text-xs font-black">{item.rating || '9.0'}</span>
+                    </div>
+                    {/* Mobile section for chapter/status info */}
+                    <div className="sm:hidden mt-2 flex flex-col gap-1">
+                       <span className="text-slate-300 text-xs font-semibold">{item.chapter_info}</span>
+                       {item.chapter_info === 'Yeni Seri' && (
+                         <span className="px-2 py-0.5 w-fit rounded-md bg-purple-500/20 text-purple-400 text-[9px] font-black uppercase border border-purple-500/30">
+                           Yeni Seri
+                         </span>
+                       )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Rating Badge */}
-                <div className="absolute top-6 right-6 px-3 py-2 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10">
-                  <div className="flex items-center gap-1.5 text-amber-500">
-                    <Star size={14} fill="currentColor" />
-                    <span className="text-xs font-black text-white">{item.rating || '0.0'}</span>
-                  </div>
-                </div>
-
-                {/* Content Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest border border-indigo-500/30">
-                      {item.category}
+                {/* Chapter Info (Desktop) */}
+                <div className="hidden sm:flex flex-col gap-1">
+                  <span className="text-slate-300 text-sm font-semibold">{item.chapter_info}</span>
+                  {item.chapter_info === 'Yeni Seri' && (
+                    <span className="px-2 py-0.5 w-fit rounded-md bg-purple-500/20 text-purple-400 text-[10px] font-black uppercase border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                      Yeni Seri 🎉
                     </span>
-                    {item.is_new_series ? (
-                      <span className="px-3 py-1 rounded-lg bg-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest border border-red-500/30 animate-pulse">
-                        YENİ SERİ
-                      </span>
-                    ) : (
-                      <span className="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest border border-emerald-500/30">
-                        YENİ BÖLÜM
-                      </span>
-                    )}
-                  </div>
-                  
-                  <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight group-hover:text-indigo-400 transition-colors">
-                    {item.series_name}
-                  </h3>
-                  <p className="text-zinc-400 text-sm font-bold uppercase tracking-widest mb-6">
-                    {item.chapter_info}
-                  </p>
-
-                  {!item.is_new_series && (
-                    <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] group-hover:bg-indigo-600 group-hover:border-indigo-400 transition-all duration-300 flex items-center justify-center gap-2">
-                      SERİYİ İNCELE <ChevronRight size={16} />
-                    </button>
                   )}
+                </div>
+
+                {/* Status */}
+                <div className="text-right sm:text-left">
+                  {item.chapter_info === 'Yeni Seri' ? (
+                     <span className="text-emerald-400 text-xs font-bold">Yakında</span>
+                  ) : (
+                     <span className="text-purple-400 text-xs font-bold">Yayınlanacak</span>
+                  )}
+                </div>
+
+                {/* Notification Bell */}
+                <div className="flex justify-center">
+                  <button className="text-slate-500 hover:text-white hover:scale-110 transition-all">
+                    <Bell size={18} />
+                  </button>
                 </div>
               </motion.div>
             )) : (
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="col-span-full py-32 flex flex-col items-center justify-center glass border border-dashed border-white/10 rounded-[3rem]"
+                className="py-20 text-center"
               >
-                <div className="w-24 h-24 rounded-full bg-zinc-900 flex items-center justify-center mb-8 border border-white/5">
-                  <History size={40} className="text-zinc-700 opacity-50" />
-                </div>
-                <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Kozmik Boşluk</h3>
-                <p className="text-zinc-500 font-medium text-center max-w-sm px-6">
-                  Bu gün için henüz bir yayın mühürlenmemiş. Diğer günleri kontrol edebilir veya admin onayını bekleyebilirsin.
-                </p>
+                <Bell size={40} className="text-slate-700 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-white mb-2">Bu gün için yayın yok</h3>
+                <p className="text-slate-500 text-sm">Diğer günleri kontrol edebilirsin.</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        {/* Stats / Info Footer */}
-        <div className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { icon: Zap, label: 'Gecikme', value: '< 2ms', color: 'text-indigo-400' },
-            { icon: Shield, label: 'Güvenlik', value: 'Cyber-Shield', color: 'text-emerald-400' },
-            { icon: Tv, label: 'Kapasite', value: '99.9% Uptime', color: 'text-blue-400' }
-          ].map((stat, i) => (
-            <div key={i} className="glass border border-white/5 rounded-3xl p-8 flex items-center gap-6 group hover:border-white/10 transition-all">
-              <div className={`p-4 rounded-2xl bg-white/5 ${stat.color}`}>
-                <stat.icon size={24} />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">{stat.label}</p>
-                <p className="text-xl font-black text-white uppercase">{stat.value}</p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
-    </div>
+
+      {/* Notification CTA Bottom */}
+      <div className="glass border border-purple-500/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30 flex-shrink-0">
+            <BellRing size={20} className="text-purple-400" />
+          </div>
+          <div>
+            <h3 className="text-white font-bold">Bildirimleri aç, yeni bölümleri kaçırma!</h3>
+            <p className="text-slate-400 text-xs mt-1">Yeni bölümler yayınlandığında anında haberdar olmak için bildirimleri açabilirsin.</p>
+          </div>
+        </div>
+        <button className="px-6 py-2.5 rounded-xl bg-purple-600 text-white font-bold text-sm shadow-neon-purple hover:bg-purple-500 transition-colors whitespace-nowrap">
+          Bildirimleri Aç
+        </button>
+      </div>
+
+    </main>
   );
 }

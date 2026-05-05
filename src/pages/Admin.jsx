@@ -98,6 +98,196 @@ function MetricCard({ icon: Icon, label, value, color, glow, change }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Schedule Manager
+// ─────────────────────────────────────────────────────────────────────────────
+function ScheduleManager({ showToast }) {
+  const { sortedSeries } = useApp();
+  const [schedules, setSchedules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    release_date: new Date().toISOString().split('T')[0],
+    release_time: '10:00',
+    series_id: '',
+    series_name: '',
+    poster_url: '',
+    chapter_info: '',
+    is_new_series: false
+  });
+
+  const fetchSchedules = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('publishing_schedule').select('*').order('release_date', { ascending: true }).order('release_time', { ascending: true });
+    setSchedules(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchSchedules(); }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    
+    let finalSeriesName = '';
+    let finalPosterUrl = '';
+    let finalCategory = 'Aksiyon';
+    let finalRating = '9.0';
+    
+    if (formData.is_new_series) {
+      if (!formData.series_name) {
+        showToast('Lütfen seri adı girin', 'error');
+        return;
+      }
+      finalSeriesName = formData.series_name;
+      finalPosterUrl = formData.poster_url || 'https://via.placeholder.com/200x300?text=Yeni+Seri';
+    } else {
+      if (!formData.series_id) { showToast('Lütfen bir seri seçin', 'error'); return; }
+      const series = sortedSeries.find(s => s.id === parseInt(formData.series_id));
+      if (!series) return;
+      finalSeriesName = series.title;
+      finalPosterUrl = series.cover;
+      finalCategory = series.genre || 'Aksiyon';
+      finalRating = series.rating || '9.0';
+    }
+
+    const payload = {
+      release_date: formData.release_date,
+      release_time: formData.release_time,
+      series_name: finalSeriesName,
+      poster_url: finalPosterUrl,
+      rating: finalRating,
+      chapter_info: formData.chapter_info || (formData.is_new_series ? 'Yeni Seri' : 'Bölüm 1'),
+      category: finalCategory,
+      release_day: 0 // Dummy value for old DB constraint
+    };
+
+    const { error } = await supabase.from('publishing_schedule').insert([payload]);
+    if (!error) { 
+      showToast('Takvime eklendi!', 'success'); 
+      setFormData(prev => ({ ...prev, series_id: '', series_name: '', poster_url: '', chapter_info: '', is_new_series: false }));
+      fetchSchedules(); 
+    } else {
+      showToast('Ekleme hatası: ' + error.message, 'error');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Bu programı silmek istediğinize emin misiniz?')) {
+      const { error } = await supabase.from('publishing_schedule').delete().eq('id', id);
+      if (!error) {
+        showToast('Programdan kaldırıldı', 'success');
+        fetchSchedules();
+      }
+    }
+  };
+
+  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-purple-500 transition-all';
+
+  // Benzersiz tarihleri gruplamak için
+  const uniqueDates = [...new Set(schedules.map(s => s.release_date))].sort();
+
+  return (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Ekleme Formu */}
+        <div className="lg:col-span-1 glass border border-white/8 rounded-[2rem] p-8">
+          <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+            <Calendar className="text-indigo-400" size={20} />
+            Programa Ekle
+          </h3>
+          <form onSubmit={handleSave} className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Tarih</label>
+              <input type="date" required value={formData.release_date} onChange={e => setFormData({...formData, release_date: e.target.value})} className={inputCls} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Saat</label>
+              <input type="time" required value={formData.release_time} onChange={e => setFormData({...formData, release_time: e.target.value})} className={inputCls} />
+            </div>
+            {!formData.is_new_series ? (
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Seri Seçimi</label>
+                <select required={!formData.is_new_series} value={formData.series_id} onChange={e => setFormData({...formData, series_id: e.target.value})} className={inputCls}>
+                  <option value="" className="bg-[#0a0a14] text-white">-- Seri Seçin --</option>
+                  {sortedSeries.map(s => <option key={s.id} value={s.id} className="bg-[#0a0a14] text-white">{s.title}</option>)}
+                </select>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Seri Adı</label>
+                  <input type="text" required={formData.is_new_series} value={formData.series_name} onChange={e => setFormData({...formData, series_name: e.target.value})} className={inputCls} placeholder="Yeni Seri Adı" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Kapak Görseli URL</label>
+                  <input type="url" value={formData.poster_url} onChange={e => setFormData({...formData, poster_url: e.target.value})} className={inputCls} placeholder="https://..." />
+                </div>
+              </>
+            )}
+            <div>
+              <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Bölüm / Not</label>
+              <input type="text" value={formData.chapter_info} onChange={e => setFormData({...formData, chapter_info: e.target.value})} className={inputCls} placeholder="Örn: Bölüm 45" />
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+               <input type="checkbox" id="is_new_series" checked={formData.is_new_series} onChange={e => setFormData({...formData, is_new_series: e.target.checked})} className="w-4 h-4 rounded border-white/20 bg-transparent text-purple-600 focus:ring-0" />
+               <label htmlFor="is_new_series" className="text-xs font-bold text-slate-300">Bu bir "Yeni Seri" duyurusu</label>
+            </div>
+            <button type="submit" className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl text-xs hover:bg-indigo-500 transition-all uppercase tracking-widest">
+              PROGRAMA EKLE
+            </button>
+          </form>
+        </div>
+
+        {/* Listeleme */}
+        <div className="lg:col-span-2 glass border border-white/8 rounded-[2rem] p-8 overflow-hidden">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-black text-white flex items-center gap-2">
+              <Clock className="text-emerald-400" size={20} /> Haftalık Takvim
+            </h3>
+            <button onClick={fetchSchedules} className="p-2 text-slate-400 hover:text-white rounded-lg transition-all"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></button>
+          </div>
+          
+          <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {uniqueDates.map((dateStr) => {
+              const daySchedules = schedules.filter(s => s.release_date === dateStr);
+              const dateObj = new Date(dateStr);
+              const displayDate = dateObj.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+              
+              return (
+                <div key={dateStr} className="bg-black/20 rounded-2xl p-4 border border-white/5">
+                  <h4 className="text-sm font-black text-indigo-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">{displayDate}</h4>
+                  <div className="space-y-2">
+                    {daySchedules.map(item => (
+                      <div key={item.id} className="flex items-center justify-between bg-white/5 hover:bg-white/10 rounded-xl p-3 transition-colors group">
+                        <div className="flex items-center gap-4">
+                          <span className="text-white font-black text-sm bg-black/40 px-2 py-1 rounded-md">{item.release_time?.slice(0, 5)}</span>
+                          <img src={item.poster_url} className="w-8 h-12 object-cover rounded-md border border-white/10" alt="" />
+                          <div>
+                            <p className="text-white font-bold text-sm">{item.series_name}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-slate-400 text-xs">{item.chapter_info}</span>
+                              {item.chapter_info === 'Yeni Seri' && <span className="text-[9px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded font-black uppercase">Yeni Seri</span>}
+                            </div>
+                          </div>
+                        </div>
+                        <button onClick={() => handleDelete(item.id)} className="p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 rounded-lg">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {schedules.length === 0 && !loading && (
+              <div className="text-center py-10 text-slate-500 italic">Takvim tamamen boş.</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Sub-component: Plan Manager
 // ─────────────────────────────────────────────────────────────────────────────
 function PlanManager({ showToast }) {
@@ -936,280 +1126,6 @@ function SuggestionsPanel() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-component: Page Management (CMS)
 // ─────────────────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────────────────
-// Sub-component: Schedule Manager (Yayın Takvimi)
-// ─────────────────────────────────────────────────────────────────────────────
-function ScheduleManager({ showToast }) {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null);
-  const { sortedSeries } = useApp(); // Get existing series for auto-fill
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    series_name: '',
-    release_day: 1,
-    release_time: '00:00',
-    poster_url: '',
-    chapter_info: '',
-    category: 'Manga',
-    rating: 0,
-    is_new_series: true
-  });
-
-  const fetchSchedule = async () => {
-    setLoading(true);
-    const { data } = await supabase.from('publishing_schedule').select('*').order('release_day', { ascending: true }).order('release_time', { ascending: true });
-    setItems(data || []);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchSchedule(); }, []);
-
-  const handleAddOrUpdate = async (e) => {
-    e.preventDefault();
-    if (editingId) {
-      const { error } = await supabase.from('publishing_schedule').update(formData).eq('id', editingId);
-      if (!error) {
-        showToast('Yayın başarıyla güncellendi!', 'success');
-        resetForm();
-        fetchSchedule();
-      } else showToast('Hata: ' + error.message, 'error');
-    } else {
-      const { error } = await supabase.from('publishing_schedule').insert([formData]);
-      if (!error) {
-        showToast('Takvime yeni yayın mühürlendi!', 'success');
-        resetForm();
-        fetchSchedule();
-      } else showToast('Hata: ' + error.message, 'error');
-    }
-  };
-
-  const handleEdit = (item) => {
-    setEditingId(item.id);
-    setFormData({
-      series_name: item.series_name,
-      release_day: item.release_day,
-      release_time: item.release_time,
-      poster_url: item.poster_url,
-      chapter_info: item.chapter_info,
-      category: item.category,
-      rating: item.rating,
-      is_new_series: item.is_new_series ?? true
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const resetForm = () => {
-    setEditingId(null);
-    setFormData({ series_name: '', release_day: 1, release_time: '00:00', poster_url: '', chapter_info: '', category: 'Manga', rating: 0, is_new_series: true });
-    setSearchTerm('');
-  };
-
-  const selectSeries = (s) => {
-    setFormData({
-      ...formData,
-      series_name: s.title,
-      poster_url: s.cover,
-      rating: s.rating,
-      category: (Array.isArray(s.genre) ? s.genre[0] : s.genre) || 'Manga',
-      is_new_series: false
-    });
-    setSearchTerm(s.title);
-    setShowSearch(false);
-  };
-
-  const filteredSeries = sortedSeries.filter(s => 
-    s.title.toLowerCase().includes(searchTerm.toLowerCase())
-  ).slice(0, 5);
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Bu yayını takvimden silmek istediğine emin misin uşağım?')) return;
-    const { error } = await supabase.from('publishing_schedule').delete().eq('id', id);
-    if (!error) {
-      showToast('Yayın takvimden silindi.', 'error');
-      fetchSchedule();
-    }
-  };
-
-  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none transition-all';
-
-  return (
-    <div className="space-y-8 pb-20">
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Form */}
-        <div className="glass border border-white/8 rounded-[2rem] p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl pointer-events-none" />
-          <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
-            {editingId ? <Edit3 className="text-amber-400" size={20} /> : <PlusCircle className="text-indigo-400" size={20} />} 
-            {editingId ? 'Yayını Düzenle' : 'Yayın Ekle'}
-          </h3>
-          
-          {/* Quick Search */}
-          {!editingId && (
-            <div className="relative mb-6">
-              <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 ml-1">Mevcut Serilerden Hızlı Ekle</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                <input 
-                  type="text" 
-                  value={searchTerm}
-                  onChange={(e) => { setSearchTerm(e.target.value); setShowSearch(true); }}
-                  placeholder="Seri ismini yazmaya başla..."
-                  className={inputCls + ' pl-10'}
-                />
-              </div>
-              <AnimatePresence>
-                {showSearch && searchTerm && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute z-50 left-0 right-0 mt-2 bg-[#0a0a14] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-                  >
-                    {filteredSeries.map(s => (
-                      <button 
-                        key={s.id}
-                        type="button"
-                        onClick={() => selectSeries(s)}
-                        className="w-full p-3 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
-                      >
-                        <img src={s.cover} className="w-8 h-10 rounded object-cover" />
-                        <div className="text-left">
-                          <p className="text-xs font-bold text-white">{s.title}</p>
-                          <p className="text-[10px] text-zinc-500">{s.author}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-
-          <form onSubmit={handleAddOrUpdate} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Seri Adı (Görünen)</label>
-                <input type="text" required value={formData.series_name} onChange={e => setFormData({...formData, series_name: e.target.value})} className={inputCls} placeholder="Berserk, One Piece vb." />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Yayın Günü</label>
-                <select value={formData.release_day} onChange={e => setFormData({...formData, release_day: parseInt(e.target.value)})} className={inputCls}>
-                  <option value={1} className="bg-[#0a0a14]">Pazartesi</option>
-                  <option value={2} className="bg-[#0a0a14]">Salı</option>
-                  <option value={3} className="bg-[#0a0a14]">Çarşamba</option>
-                  <option value={4} className="bg-[#0a0a14]">Perşembe</option>
-                  <option value={5} className="bg-[#0a0a14]">Cuma</option>
-                  <option value={6} className="bg-[#0a0a14]">Cumartesi</option>
-                  <option value={0} className="bg-[#0a0a14]">Pazar</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Yayın Saati</label>
-                <input type="time" required value={formData.release_time} onChange={e => setFormData({...formData, release_time: e.target.value})} className={inputCls} />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Poster URL</label>
-                <input type="url" value={formData.poster_url} onChange={e => setFormData({...formData, poster_url: e.target.value})} className={inputCls} placeholder="https://..." />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Bölüm Bilgisi</label>
-                <input type="text" value={formData.chapter_info} onChange={e => setFormData({...formData, chapter_info: e.target.value})} className={inputCls} placeholder="Yeni Bölüm, S1 B3 vb." />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Kategori</label>
-                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className={inputCls}>
-                  <option value="Manga" className="bg-[#0a0a14]">Manga</option>
-                  <option value="Manhwa" className="bg-[#0a0a14]">Manhwa</option>
-                  <option value="Webtoon" className="bg-[#0a0a14]">Webtoon</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 mt-4">
-              <button type="button" onClick={resetForm} className="flex-1 py-4 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">
-                TEMİZLE
-              </button>
-              <button type="submit" className={`flex-[2] py-4 ${editingId ? 'bg-amber-600 hover:bg-amber-500 shadow-neon-amber' : 'bg-indigo-600 hover:bg-indigo-500 shadow-neon-indigo'} text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2`}>
-                {editingId ? <Save size={18} /> : <Check size={18} />} {editingId ? 'GÜNCELLE' : 'TAKVİME EKLE'}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Live Preview / Summary */}
-        <div className="glass border border-white/8 rounded-[2rem] p-8 flex flex-col">
-          <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
-            <Eye className="text-emerald-400" size={20} /> Önizleme
-          </h3>
-          <div className="flex-1 flex flex-col justify-center items-center text-center p-6 border-2 border-dashed border-white/5 rounded-3xl">
-            {formData.series_name ? (
-              <div className="w-full max-w-xs glass bg-zinc-900/40 border border-indigo-500/30 rounded-3xl p-5">
-                <img src={formData.poster_url || '/placeholder.png'} className="w-20 h-28 mx-auto rounded-xl object-cover mb-4 shadow-2xl" />
-                <h4 className="text-white font-black truncate">{formData.series_name}</h4>
-                <p className="text-indigo-400 text-xs font-black mt-1">{formData.release_time} - {formData.category}</p>
-                <p className="text-zinc-500 text-[10px] font-bold mt-2 uppercase">{formData.chapter_info || 'Bölüm bilgisi yok'}</p>
-              </div>
-            ) : (
-              <p className="text-zinc-600 font-bold italic text-sm">Yayın ekledikçe burada canlanacak...</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* List */}
-      <div className="glass border border-white/8 rounded-[2rem] overflow-hidden">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-white/3 border-b border-white/8">
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Seri</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Zaman</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</th>
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">İşlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map(item => (
-              <tr key={item.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <img src={item.poster_url} className="w-8 h-10 rounded shadow-lg object-cover" />
-                    <div>
-                      <p className="text-sm font-black text-white">{item.series_name}</p>
-                      <p className="text-[10px] text-zinc-500 font-bold">{item.chapter_info}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase">
-                    {['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'][item.release_day]} {item.release_time.slice(0, 5)}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-[10px] font-black text-zinc-400 uppercase">{item.category}</span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button onClick={() => handleEdit(item)} className="p-2 text-amber-400 hover:bg-amber-400/10 rounded-lg transition-all">
-                      <Edit3 size={16} />
-                    </button>
-                    <button onClick={() => handleDelete(item.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {items.length === 0 && (
-              <tr><td colSpan={4} className="py-12 text-center text-zinc-600 font-bold italic">Takvim şu an boş uşağım.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
 
 function PageManagement({ showToast }) {
   const [pages, setPages] = useState([]);
@@ -1637,6 +1553,7 @@ export default function Admin() {
             </div>
           </div>
         )}
+
 
         {/* Trash */}
         {safeActiveNav === 'trash' && (
