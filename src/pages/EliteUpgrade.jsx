@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Crown, Check, ArrowRight, Zap, Star, Shield, 
   Monitor, Clock, Gift, Layout, Download, Sparkles,
-  Palette, MessageSquare, Tag, Flame
+  Palette, MessageSquare, Tag, Flame, Box, ZapOff,
+  Users, Trophy, Rocket, Ghost
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -26,43 +27,39 @@ export default function EliteUpgrade() {
     window.scrollTo(0, 0);
     const fetchPlans = async () => {
       const { data } = await supabase.from('pricing_plans').select('*').order('price', { ascending: true });
-      if (data && data.length > 0) {
-        setPlans(data);
-      } else {
-        // Fallback to match Photo 2
-        setPlans([
-          {
-            id: 'basic',
-            name: 'BASIC',
-            price: 19.99,
-            duration: 'aylık',
-            color: 'slate',
-            icon: 'Zap',
-            features: ['Reklamsız okuma', 'Sınırsız bölüm erişimi', 'Temel okuma deneyimi', 'Favori listesi', 'Özel profil özelleştirme']
-          },
-          {
-            id: 'premium',
-            name: 'PREMIUM',
-            price: 39.99,
-            old_price: 49.99,
-            duration: 'aylık',
-            color: 'purple',
-            is_popular: true,
-            icon: 'Crown',
-            features: ['Reklamsız okuma', 'Sınırsız bölüm erişimi', 'Erken erişim (Yeni bölümler)', 'Özel içerikler & bölümler', 'Premium profil özelleştirme', 'HD & Full HD kalite', 'İndirme & çevrimdışı okuma', '7/24 öncelikli destek']
-          },
-          {
-            id: 'ultimate',
-            name: 'ULTIMATE',
-            price: 79.99,
-            old_price: 99.99,
-            duration: 'aylık',
-            color: 'amber',
-            icon: 'Flame',
-            features: ['Premium planın tüm özellikleri +', 'VIP rozet & özel simge', 'Özel okuma efektleri', 'Animasyonlu profil çerçeveleri', 'Özel tema ve arayüz', 'Sınırsız bulut kaydı', 'Özel topluluk ayrıcalıkları', 'Beta özelliklere erken erişim']
-          }
-        ]);
-      }
+      
+      // We will use the user's specific text/prices for the UI
+      const customPlans = [
+        {
+          id: 'pro',
+          name: 'ANIPEAK PRO',
+          price: 75.00,
+          duration: 'aylık',
+          color: 'cyan',
+          icon: 'Trophy',
+          features: ['Reklamsız Deneyim', 'PRO Rozeti', 'Özel Discord Rolü', 'Sohbette Parlama', 'Temel Okuma Ayrıcalıkları']
+        },
+        {
+          id: 'shadow',
+          name: 'HÜKÜMDAR GÖLGESİ',
+          price: 699.00,
+          duration: 'aylık',
+          color: 'purple',
+          icon: 'Ghost',
+          features: ['Özel Profil Çerçeveleri', 'GÖLGE Rozeti', 'Erken Erişim Hakları', 'Özel Aura Efektleri', 'Discord Premium Kanal']
+        },
+        {
+          id: 'ruler',
+          name: 'HÜKÜMDAR',
+          price: 999.00,
+          duration: 'aylık',
+          color: 'amber',
+          is_popular: true,
+          icon: 'Crown',
+          features: ['Tüm Efektler ÜCRETSİZ', 'HÜKÜMDAR Mührü', 'Öncelikli Destek', 'Kozmik İsim Plakası', 'Tüm Gelecek Güncellemeler']
+        }
+      ];
+      setPlans(customPlans);
       setLoading(false);
     };
     fetchPlans();
@@ -81,7 +78,7 @@ export default function EliteUpgrade() {
   };
 
   const heroIcons = [
-    { icon: <Zap size={16} />, label: "Reklamsız Deneyim" },
+    { icon: <ZapOff size={16} />, label: "Reklamsız Deneyim" },
     { icon: <Clock size={16} />, label: "Erken Erişim" },
     { icon: <Gift size={16} />, label: "Özel İçerikler" },
     { icon: <Star size={16} />, label: "Premium Profil Simgeleri" },
@@ -89,95 +86,183 @@ export default function EliteUpgrade() {
     { icon: <Shield size={16} />, label: "7/24 Destek" },
   ];
 
-  const showcaseFrames = effectsData.filter(e => e.category === 'decorations').slice(0, 6);
+  // For the infinite marquee, use all decorations
+  const allDecorations = effectsData.filter(e => e.category === 'decorations');
+  const marqueeList = [...allDecorations, ...allDecorations]; // Double for seamless loop
 
   return (
     <div className="min-h-screen bg-[#050508] pt-20 pb-32 relative overflow-hidden font-sans selection:bg-purple-500/30">
       
-      {/* Background Decor */}
+      {/* ── BACKGROUND DECOR ── */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[150px]" />
+        <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-purple-600/5 rounded-full blur-[180px]" />
+        <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[180px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         
-        {/* ── HERO SECTION (Matching Photo 2) ── */}
-        <section className="relative flex flex-col md:flex-row items-center justify-between py-16 md:py-24 gap-12">
+        {/* ── 1. HERO SECTION ── */}
+        <section className="relative flex flex-col md:flex-row items-center justify-between py-16 md:py-28 gap-12">
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex-1 space-y-8 text-center md:text-left"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 font-bold text-xs uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 font-bold text-xs uppercase tracking-widest backdrop-blur-md">
                <Crown size={14} /> ANIPEAK PREMIUM
             </div>
-            <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tighter">
+            <h1 className="text-6xl md:text-8xl font-black text-white leading-[1.0] tracking-tighter">
               SINIRSIZ OKU. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">EFSANE OL.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-500 animate-gradient-x">EFSANE OL.</span>
             </h1>
-            <p className="text-lg text-slate-400 max-w-xl font-medium leading-relaxed">
+            <p className="text-xl text-slate-400 max-w-xl font-medium leading-relaxed">
               Reklamsız okuma, özel içerikler, eşsiz avantajlar ve benzersiz özelleştirme seçenekleri seni bekliyor.
             </p>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-lg">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-lg">
               {heroIcons.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-purple-400">
+                <div key={idx} className="flex items-center gap-3 group">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
                     {item.icon}
                   </div>
-                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-tight">{item.label}</span>
+                  <span className="text-[12px] font-black text-slate-300 uppercase tracking-tight leading-tight">{item.label}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 pt-6 justify-center md:justify-start">
+            <div className="flex flex-wrap items-center gap-5 pt-8 justify-center md:justify-start">
               <button 
-                onClick={() => document.getElementById('plans').scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase tracking-widest shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:scale-105 transition-all flex items-center gap-2"
+                onClick={() => document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })}
+                className="px-10 py-5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase tracking-widest shadow-[0_0_50px_rgba(147,51,234,0.4)] hover:scale-105 transition-all flex items-center gap-3"
               >
-                <Crown size={18} /> Premium'a Geç
+                <Crown size={20} /> Premium'a Geç
               </button>
-              <button className="px-8 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all">
-                Tüm Özellikleri İncele
+              <button className="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all backdrop-blur-md">
+                Özellikleri Keşfet
               </button>
             </div>
           </motion.div>
 
           <motion.div 
-            initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 1 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
             className="flex-1 relative"
           >
-             <div className="absolute inset-0 bg-purple-500/20 blur-[120px] rounded-full scale-75 animate-pulse" />
-             <img src={heroChar} className="w-full max-w-[550px] relative z-10 drop-shadow-[0_0_100px_rgba(147,51,234,0.4)]" alt="Premium Hero" />
+             <div className="absolute inset-0 bg-purple-600/30 blur-[150px] rounded-full scale-75 animate-pulse" />
+             <img src={heroChar} className="w-full max-w-[600px] relative z-10 drop-shadow-[0_0_120px_rgba(147,51,234,0.5)] transform hover:scale-105 transition-transform duration-700" alt="Premium Hero" />
           </motion.div>
         </section>
 
-        {/* ── PLANLARIMIZ SECTION (Matching Photo 2) ── */}
-        <section id="plans" className="py-24">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
-            <div>
-              <div className="flex items-center gap-2 text-indigo-400 font-black text-xs uppercase tracking-[0.3em] mb-2">
-                <Layout size={14} /> Üyelik Paketleri
+        {/* ── 2. DEVASA CEPHANELİK (Infinite Marquee) ── */}
+        <section className="py-24 border-y border-white/5 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent">
+          <div className="text-center mb-20 px-4">
+            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter mb-4 uppercase">
+              DEVASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">CEPHANELİK</span>
+            </h2>
+            <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-[11px]">
+              Sadece Premium üyelere özel {effectsData.length + nameplatesData.length}+ içerik anında envanterinde.
+            </p>
+          </div>
+
+          {/* Stats Bar */}
+          <div className="flex flex-wrap justify-center gap-12 md:gap-24 mb-24 px-4">
+            {[
+              { val: nameplatesData.length, label: "İSİM PLAKASI" },
+              { val: effectsData.filter(e => e.category === 'decorations').length, label: "AVATAR EFEKTİ" },
+              { val: effectsData.filter(e => e.category === 'profile_effects').length, label: "PROFİL EFEKTİ" },
+              { val: effectsData.filter(e => e.category === 'flags').length, label: "ÜLKE BAYRAĞI" }
+            ].map((stat, i) => (
+              <div key={i} className="text-center group">
+                <span className="block text-6xl md:text-7xl font-black text-white mb-2 transition-all group-hover:text-purple-400 group-hover:scale-110">{stat.val}</span>
+                <span className="text-[12px] font-black text-slate-500 uppercase tracking-[0.3em] group-hover:text-slate-400">{stat.label}</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">PLANLARIMIZ</h2>
-              <p className="text-slate-500 font-medium mt-2">Sana en uygun planı seç ve ayrıcalıkları keşfet!</p>
+            ))}
+          </div>
+
+          {/* Avatar Infinite Marquee */}
+          <div className="relative w-full overflow-hidden py-10">
+            <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-[#050508] to-transparent z-10" />
+            <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-[#050508] to-transparent z-10" />
+            
+            <div className="flex w-max animate-marquee-slower hover:[animation-play-state:paused]">
+               {marqueeList.map((frame, i) => (
+                 <div 
+                   key={`${frame.id}-${i}`}
+                   className="w-44 h-60 flex-shrink-0 flex flex-col items-center justify-between p-7 mx-4 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-md transition-all duration-500 hover:bg-white/[0.08] hover:border-purple-500/30 group"
+                 >
+                   <div className="relative w-24 h-24 flex items-center justify-center">
+                      <div className="absolute w-20 h-20 rounded-full bg-black/60 border border-white/5 shadow-inner group-hover:scale-110 transition-transform duration-500" />
+                      <AnimeAvatar src={null} effect={frame} size="w-20 h-20" className="z-10 group-hover:scale-125 transition-transform duration-700" />
+                   </div>
+                   <div className="text-center w-full">
+                     <span className="block text-[11px] font-black text-white uppercase tracking-tight mb-3 truncate opacity-80">{frame.label}</span>
+                     <div className="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                        <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">PREMIUM</span>
+                     </div>
+                   </div>
+                 </div>
+               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 3. PREMIUM ÖZELLİKLER SECTION ── */}
+        <section className="py-24">
+           <div className="flex items-center gap-3 mb-16 justify-center md:justify-start">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20">
+                <Crown size={20} />
+              </div>
+              <h3 className="text-3xl font-black text-white uppercase tracking-tighter">PREMIUM ÖZELLİKLER</h3>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+             {[
+               { icon: <Palette size={24} className="text-purple-400" />, title: "ÖZEL PROFİL ÖZELLEŞTİRME", desc: "Profilini eşsiz kıl! Çerçeveler, unvanlar, efektler ve daha fazlası." },
+               { icon: <Sparkles size={24} className="text-blue-400" />, title: "OKUMA EFEKTLERİ", desc: "Okuma deneyimini özelleştir! Sayfa geçiş efektleri ve animasyonlar." },
+               { icon: <Layout size={24} className="text-indigo-400" />, title: "ÖZEL TEMALAR", desc: "Kendi tarzını yansıt! Arayüz temaları ile platformu sana göre şekillendir." },
+               { icon: <Flame size={24} className="text-amber-500" />, title: "ERKEN ERİŞİM", desc: "Yeni bölümlere herkesten önce sen ulaş! Popüler serilerin tadını çıkar." },
+               { icon: <Download size={24} className="text-emerald-400" />, title: "İNDİR & OKU", desc: "İnternet olmadan da oku! Bölümleri indir, dilediğin yerde kesintisiz oku." }
+             ].map((feature, i) => (
+               <motion.div 
+                 key={i} 
+                 whileHover={{ y: -10 }}
+                 className="p-8 rounded-[2.5rem] bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 hover:border-white/20 transition-all group"
+               >
+                 <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-white/10 transition-all border border-white/5">
+                   {feature.icon}
+                 </div>
+                 <h4 className="text-sm font-black text-white mb-3 uppercase tracking-tight leading-tight">{feature.title}</h4>
+                 <p className="text-[11px] text-slate-500 font-bold leading-relaxed">{feature.desc}</p>
+               </motion.div>
+             ))}
+           </div>
+        </section>
+
+        {/* ── 4. PLANLARIMIZ SECTION (Cooler & Bottom) ── */}
+        <section id="plans-section" className="py-24 border-t border-white/5 bg-gradient-to-b from-transparent to-purple-900/5">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
+            <div>
+              <div className="flex items-center gap-2 text-indigo-400 font-black text-xs uppercase tracking-[0.4em] mb-3">
+                <Box size={14} /> Üyelik Paketleri
+              </div>
+              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none">PLANLARIMIZ</h2>
+              <p className="text-slate-500 font-bold mt-4 tracking-wide">Sana en uygun rütbeyi seç ve ayrıcalıkları keşfet!</p>
             </div>
 
-            <div className="flex items-center gap-6 p-2 bg-white/5 border border-white/10 rounded-2xl">
+            <div className="flex items-center gap-6 p-2.5 bg-black/40 border border-white/10 rounded-3xl backdrop-blur-3xl">
                <button 
                  onClick={() => setIsYearly(false)}
-                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${!isYearly ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-500'}`}
+                 className={`px-6 py-3 rounded-2xl text-[11px] font-black transition-all tracking-widest ${!isYearly ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}
                >
                  AYLIK ÖDEME
                </button>
                <button 
                  onClick={() => setIsYearly(true)}
-                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${isYearly ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-500'}`}
+                 className={`px-6 py-3 rounded-2xl text-[11px] font-black transition-all flex items-center gap-2 tracking-widest ${isYearly ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}
                >
-                 YILLIK ÖDEME <span className="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-md text-[9px]">%20 İNDİRİM</span>
+                 YILLIK ÖDEME <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase">%20 İNDİRİM</span>
                </button>
             </div>
           </div>
@@ -186,142 +271,98 @@ export default function EliteUpgrade() {
             {plans.map((plan, idx) => (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className={`relative p-8 rounded-[2.5rem] flex flex-col border transition-all duration-500 group ${
+                transition={{ delay: idx * 0.15 }}
+                className={`relative p-10 rounded-[3.5rem] flex flex-col border-2 transition-all duration-700 group hover:y-[-10px] ${
                   plan.is_popular 
-                  ? 'bg-gradient-to-b from-purple-900/20 to-black border-purple-500/40 scale-105 z-20 shadow-[0_0_60px_rgba(168,85,247,0.15)]' 
-                  : 'bg-white/3 border-white/10 z-10'
+                  ? 'bg-gradient-to-br from-purple-900/40 via-black to-indigo-900/40 border-purple-500/50 scale-105 z-20 shadow-[0_40px_80px_rgba(168,85,247,0.2)]' 
+                  : 'bg-zinc-950/80 border-white/10 z-10 hover:border-white/20'
                 }`}
               >
                 {plan.is_popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1.5 bg-purple-600 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-lg z-30">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-8 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-black text-[10px] uppercase tracking-[0.3em] rounded-full shadow-2xl z-30 ring-4 ring-[#050508]">
                     ★ EN POPÜLER
                   </div>
                 )}
 
-                <div className="mb-8">
-                   <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tighter flex items-center gap-3">
-                     {plan.name} {plan.id === 'basic' && <span className="bg-white/10 text-slate-400 px-2 py-0.5 rounded text-[10px]">Temel</span>}
-                     {plan.id === 'ultimate' && <span className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-[10px]">En İyi Deneyim</span>}
+                <div className="mb-10">
+                   <h3 className={`text-2xl font-black mb-6 uppercase tracking-tighter flex items-center gap-3 ${
+                     plan.color === 'cyan' ? 'text-cyan-400' :
+                     plan.color === 'purple' ? 'text-purple-400' :
+                     'text-amber-400'
+                   }`}>
+                     {plan.name}
                    </h3>
-                   <div className="flex items-baseline gap-1">
-                     <span className="text-4xl font-black text-white">₺{isYearly ? (plan.price * 10).toFixed(2) : plan.price.toFixed(2)}</span>
-                     <span className="text-slate-500 text-sm font-bold">/{isYearly ? 'yıllık' : 'aylık'}</span>
-                     {plan.old_price && (
-                       <span className="ml-2 text-slate-600 line-through text-sm">₺{isYearly ? (plan.old_price * 10).toFixed(2) : plan.old_price.toFixed(2)}</span>
-                     )}
+                   <div className="flex items-baseline gap-2">
+                     <span className="text-5xl font-black text-white tracking-tighter">₺{isYearly ? (plan.price * 10).toFixed(0) : plan.price.toFixed(0)}</span>
+                     <span className="text-slate-500 text-sm font-black uppercase tracking-widest">/{isYearly ? 'yıllık' : 'aylık'}</span>
                    </div>
                 </div>
 
-                <div className="space-y-4 mb-10 flex-1">
+                <div className="space-y-5 mb-12 flex-1">
                   {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <Check size={14} className={plan.is_popular ? 'text-purple-400 mt-1' : 'text-slate-500 mt-1'} />
-                      <span className="text-slate-300 text-sm font-medium leading-tight">{feature}</span>
+                    <div key={i} className="flex items-start gap-4 group/item">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 border ${
+                        plan.is_popular ? 'bg-purple-500/20 border-purple-500/40' : 'bg-white/5 border-white/10'
+                      }`}>
+                        <Check size={10} className={plan.is_popular ? 'text-purple-400' : 'text-slate-500'} />
+                      </div>
+                      <span className="text-slate-300 text-[13px] font-bold tracking-tight group-hover/item:text-white transition-colors">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 <button 
                   onClick={() => handleUpgrade(plan)}
-                  className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                  className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] transition-all duration-500 relative overflow-hidden ${
                     plan.is_popular 
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02]' 
+                    ? 'bg-white text-black shadow-2xl hover:scale-[1.05] active:scale-95' 
                     : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
                   }`}
                 >
-                  {plan.id === 'premium' ? "Premium'a Geç" : "Planı Seç"}
+                  <span className="relative z-10">PLANI SEÇ</span>
+                  {plan.is_popular && <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-indigo-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />}
                 </button>
               </motion.div>
             ))}
           </div>
         </section>
 
-        {/* ── DEVASA CEPHANELİK (Matching Photo 1) ── */}
-        <section className="py-24 border-t border-white/5">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl md:text-7xl font-black text-white tracking-[1.2] mb-4 uppercase">
-              DEVASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">CEPHANELİK</span>
-            </h2>
-            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">
-              Sadece Premium üyelere özel {effectsData.length + nameplatesData.length}+ içerik anında envanterinde.
-            </p>
-          </div>
-
-          {/* Stats Bar */}
-          <div className="flex flex-wrap justify-center gap-12 md:gap-24 mb-24">
-            {[
-              { val: 50, label: "İSİM PLAKASI" },
-              { val: 198, label: "AVATAR EFEKTİ" },
-              { val: 26, label: "PROFİL EFEKTİ" },
-              { val: 22, label: "ÜLKE BAYRAĞI" }
-            ].map((stat, i) => (
-              <div key={i} className="text-center group">
-                <span className="block text-5xl md:text-6xl font-black text-white mb-2 transition-transform group-hover:scale-110">{stat.val}</span>
-                <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">{stat.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Avatar Effects Grid (Matching Photo 1 Cards) */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
-            {showcaseFrames.map((frame, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="group relative flex flex-col items-center justify-between p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/8 backdrop-blur-sm hover:bg-white/[0.04] hover:border-white/20 transition-all overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                
-                <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
-                   <div className="absolute w-20 h-20 rounded-full bg-black/60 border border-white/5 group-hover:scale-105 transition-transform" />
-                   <AnimeAvatar src={null} effect={frame} size="w-20 h-20" className="z-10 group-hover:scale-110 transition-transform duration-500" />
-                </div>
-
-                <div className="text-center relative z-10 w-full">
-                  <span className="block text-[11px] font-black text-white uppercase tracking-tight mb-3 truncate">{frame.label}</span>
-                  <div className="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                     <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">PREMIUM</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── PREMIUM ÖZELLİKLER SECTION (Photo 2 Bottom) ── */}
-        <section className="py-24 border-t border-white/5">
-           <div className="flex items-center gap-3 mb-12">
-              <Crown className="text-amber-400" />
-              <h3 className="text-2xl font-black text-white uppercase tracking-tighter">PREMIUM ÖZELLİKLER</h3>
+        {/* ── FOOTER TRUST ── */}
+        <div className="flex flex-col items-center justify-center gap-6 py-24 border-t border-white/5">
+           <div className="flex items-center gap-8 opacity-20 hover:opacity-100 transition-all duration-700">
+             <Trophy size={32} className="text-white" />
+             <div className="w-px h-8 bg-white/20" />
+             <Rocket size={32} className="text-white" />
+             <div className="w-px h-8 bg-white/20" />
+             <Users size={32} className="text-white" />
            </div>
-
-           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-             {[
-               { icon: <Palette className="text-purple-400" />, title: "ÖZEL PROFİL ÖZELLEŞTİRME", desc: "Profilini eşsiz kıl! Çerçeveler, unvanlar, efektler ve daha fazlası." },
-               { icon: <Sparkles className="text-blue-400" />, title: "OKUMA EFEKTLERİ", desc: "Okuma deneyimini özelleştir! Sayfa geçiş efektleri ve animasyonlar." },
-               { icon: <Layout className="text-indigo-400" />, title: "ÖZEL TEMALAR", desc: "Kendi tarzını yansıt! Arayüz temaları ile platformu sana göre şekillendir." },
-               { icon: <Flame className="text-amber-500" />, title: "ERKEN ERİŞİM", desc: "Yeni bölümlere herkesten önce sen ulaş! Popüler serilerin tadını çıkar." },
-               { icon: <Download className="text-emerald-400" />, title: "İNDİR & OKU", desc: "İnternet olmadan da oku! Bölümleri indir, dilediğin yerde kesintisiz oku." }
-             ].map((feature, i) => (
-               <div key={i} className="p-6 rounded-3xl bg-white/3 border border-white/8 hover:border-white/15 transition-all group">
-                 <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                   {feature.icon}
-                 </div>
-                 <h4 className="text-[11px] font-black text-white mb-2 uppercase tracking-tight">{feature.title}</h4>
-                 <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{feature.desc}</p>
-               </div>
-             ))}
-           </div>
-        </section>
+           <p className="text-[11px] font-black text-slate-700 uppercase tracking-[0.5em]">Güvenli Siber Ödeme Altyapısı</p>
+        </div>
 
       </div>
+
+      {/* Global Marquee Styles */}
+      <style>{`
+        @keyframes marquee-slower {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-slower {
+          animation: marquee-slower 120s linear infinite;
+        }
+        @keyframes gradient-x {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradient-x 5s ease infinite;
+        }
+      `}</style>
     </div>
   );
 }
