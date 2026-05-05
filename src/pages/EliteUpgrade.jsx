@@ -43,18 +43,21 @@ export default function EliteUpgrade() {
           id: 'shadow',
           name: 'HÜKÜMDAR GÖLGESİ',
           price: 699.00,
-          duration: 'aylık',
+          duration: 'yıllık',
           color: 'purple',
           icon: 'Ghost',
+          is_yearly_only: true,
+          savings: '₺201 İNDİRİM',
           features: ['Özel Profil Çerçeveleri', 'GÖLGE Rozeti', 'Erken Erişim Hakları', 'Özel Aura Efektleri', 'Discord Premium Kanal']
         },
         {
           id: 'ruler',
           name: 'HÜKÜMDAR',
           price: 999.00,
-          duration: 'aylık',
+          duration: 'ömür boyu',
           color: 'amber',
           is_popular: true,
+          is_lifetime: true,
           icon: 'Crown',
           features: ['Tüm Efektler ÜCRETSİZ', 'HÜKÜMDAR Mührü', 'Öncelikli Destek', 'Kozmik İsim Plakası', 'Tüm Gelecek Güncellemeler']
         }
@@ -288,16 +291,32 @@ export default function EliteUpgrade() {
                 )}
 
                 <div className="mb-10">
-                   <h3 className={`text-2xl font-black mb-6 uppercase tracking-tighter flex items-center gap-3 ${
+                   <h3 className={`text-2xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3 ${
                      plan.color === 'cyan' ? 'text-cyan-400' :
                      plan.color === 'purple' ? 'text-purple-400' :
                      'text-amber-400'
                    }`}>
                      {plan.name}
                    </h3>
+                   
+                   {/* Savings Badge for Shadow Plan */}
+                   {plan.savings && (
+                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 mb-4 animate-bounce-subtle">
+                        <Sparkles size={10} className="text-emerald-400" />
+                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{plan.savings}</span>
+                     </div>
+                   )}
+
                    <div className="flex items-baseline gap-2">
-                     <span className="text-5xl font-black text-white tracking-tighter">₺{isYearly ? (plan.price * 10).toFixed(0) : plan.price.toFixed(0)}</span>
-                     <span className="text-slate-500 text-sm font-black uppercase tracking-widest">/{isYearly ? 'yıllık' : 'aylık'}</span>
+                     <span className="text-5xl font-black text-white tracking-tighter">
+                       ₺{plan.is_lifetime || plan.is_yearly_only 
+                         ? plan.price.toFixed(0) 
+                         : (isYearly ? (plan.price * 10).toFixed(0) : plan.price.toFixed(0))
+                       }
+                     </span>
+                     <span className="text-slate-500 text-sm font-black uppercase tracking-widest">
+                       /{plan.is_lifetime ? 'ÖMÜR BOYU' : (plan.is_yearly_only ? 'YILLIK' : (isYearly ? 'yıllık' : 'aylık'))}
+                     </span>
                    </div>
                 </div>
 
@@ -361,6 +380,13 @@ export default function EliteUpgrade() {
         .animate-gradient-x {
           background-size: 200% 200%;
           animation: gradient-x 5s ease infinite;
+        }
+        @keyframes bounce-subtle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+        }
+        .animate-bounce-subtle {
+          animation: bounce-subtle 2s ease-in-out infinite;
         }
       `}</style>
     </div>
