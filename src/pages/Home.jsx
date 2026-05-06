@@ -35,8 +35,8 @@ import { useApp } from '../context/AppContext.jsx';
 function TrendingCard({ item, rank, getChapters }) {
   const chapterCount = getChapters(item.id).length;
   return (
-    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[160px] sm:w-[180px]">
-      <div className="relative rounded-2xl overflow-hidden border border-white/8 transition-all duration-300 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.2)]">
+    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[160px] sm:w-[180px] hover-lift portal-transition">
+      <div className="relative rounded-2xl overflow-hidden border border-white/8 transition-all duration-300 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.2)] energy-pulse">
         {/* Rank number */}
         <div className="absolute top-2 left-2 z-20">
           <span className={`text-3xl font-black italic drop-shadow-lg ${
@@ -55,7 +55,7 @@ function TrendingCard({ item, rank, getChapters }) {
           </div>
         </div>
         <div className="p-2.5 bg-[#0a0a0c]">
-          <h3 className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
+          <h3 className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors read-invitation">{item.title}</h3>
         </div>
       </div>
     </Link>
@@ -212,7 +212,7 @@ export default function Home({ onAuthOpen }) {
     : '';
 
   return (
-    <main className="min-h-screen" id="home-top">
+    <main className="min-h-screen portal-transition" id="home-top">
 
       {/* ══════════════ HERO SECTION ══════════════ */}
       {featuredItem && (
@@ -232,35 +232,35 @@ export default function Home({ onAuthOpen }) {
             <div className="max-w-xl">
               {/* Badge */}
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-4">
-                <Flame size={12} className="text-orange-400" />
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-4 backdrop-blur-md">
+                <Flame size={12} className="text-orange-400 animate-pulse" />
                 <span className="text-[11px] text-purple-300 font-bold uppercase tracking-wider">Öne Çıkan</span>
               </motion.div>
 
               {/* Title */}
               <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-[1.1] mb-3"
-                style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+                className="text-4xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-[1.1] mb-3 drop-shadow-2xl"
+                style={{ textShadow: '0 4px 30px rgba(168,85,247,0.3)' }}>
                 {featuredItem.title}
               </motion.h1>
 
               {/* Meta info */}
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
                 className="flex items-center gap-3 text-sm text-slate-300 mb-3 flex-wrap">
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-lg border border-white/5 backdrop-blur-sm">
                   <Star size={14} className="text-amber-400 fill-amber-400" /> {featuredItem.rating}
                 </span>
                 <span className="text-slate-600">•</span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-lg border border-white/5 backdrop-blur-sm">
                   <BookOpen size={14} className="text-purple-400" /> {featuredChapterCount} Bölüm
                 </span>
                 <span className="text-slate-600">•</span>
-                <span className="text-slate-400">{featuredGenres}</span>
+                <span className="text-slate-400 italic">{featuredGenres}</span>
               </motion.div>
 
               {/* Description */}
               <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-                className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2 max-w-md">
+                className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2 max-w-md bg-black/20 backdrop-blur-[2px] rounded-lg">
                 {featuredItem.description || `${featuredItem.title} serisini keşfet. Efsanevi bir hikaye seni bekliyor.`}
               </motion.p>
 
@@ -268,17 +268,18 @@ export default function Home({ onAuthOpen }) {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                 className="flex items-center gap-3">
                 <Link to={`/manhwa/${featuredItem.id}`}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple">
+                  className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple energy-pulse hover:scale-105">
                   <Play size={16} className="fill-white" /> Oku Şimdi
                 </Link>
                 <button
                   onClick={() => { if (!user) { onAuthOpen('login'); } }}
-                  className="flex items-center gap-2 px-5 py-3 rounded-xl glass border border-white/15 text-white font-semibold text-sm hover:border-purple-500/40 hover:bg-purple-500/10 transition-all">
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl glass border border-white/15 text-white font-semibold text-sm hover:border-purple-500/40 hover:bg-purple-500/10 transition-all energy-pulse">
                   <Plus size={16} /> Listeye Ekle
                 </button>
               </motion.div>
             </div>
           </div>
+
         </section>
       )}
 
@@ -296,7 +297,7 @@ export default function Home({ onAuthOpen }) {
                   <Flame size={20} className="text-orange-400" />
                   <h2 className="text-xl font-black text-white uppercase tracking-tight">Trending Now</h2>
                 </div>
-                <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors">
+                <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors read-invitation">
                   Tümünü Gör <ChevronRight size={14} />
                 </Link>
               </div>

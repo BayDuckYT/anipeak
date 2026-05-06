@@ -109,7 +109,7 @@ export default function AuthModal({ mode, onClose }) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
         transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-        className="relative z-[1001] w-full max-w-md bg-[#0f172a] glass-strong rounded-2xl p-8 shadow-2xl border border-purple-500/20 overflow-hidden"
+        className="relative z-[1001] w-full max-w-md bg-[#0f172a] glass-strong rounded-2xl p-6 sm:p-8 shadow-2xl border border-purple-500/20 overflow-y-auto max-h-[90vh] no-scrollbar"
       >
           {/* Glows */}
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />

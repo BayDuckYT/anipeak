@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme & Performance Overrides ── */
+.amoled-mode {
+  background-color: #000000 !important;
+}
+.amoled-mode .bg-[#050507],
+.amoled-mode .bg-[#0B0E14],
+.amoled-mode .bg-zinc-900/30 {
+  background-color: #000000 !important;
+}
+.amoled-mode .glass, 
+.amoled-mode .glass-strong {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.no-animations *, 
+.no-animations *::before, 
+.no-animations *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
@@ -183,10 +205,6 @@ body {
   0%, 100% { color: #ff6b00; text-shadow: 0 0 8px rgba(255,107,0,0.6); }
   33%      { color: #ff4500; text-shadow: 0 0 12px rgba(255,69,0,0.7); }
   66%      { color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.6); }
-}
-@keyframes siber-spritesheet {
-  from { background-position: 0% center; }
-  to   { background-position: 100% center; }
 }
 
 /* ── AVATAR FRAME EFEKTLERİ ──────────────────────────────────────────────── */
@@ -513,25 +531,136 @@ body {
   text-align: center;
 }
 
-.profile-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid rgba(63,63,70,0.5);
-  border-bottom: 1px solid rgba(63,63,70,0.5);
-  background: rgba(9,9,11,0.3);
+/* ── PREMIUM INTERACTIVE EFFECTS ────────────────────────────────────────── */
+
+/* Energy Glow Pulse - Energy waves flowing from inside on hover */
+.energy-pulse {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.profile-stats-grid > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 1rem 0;
-  text-align: center;
-  border-right: 1px solid rgba(63,63,70,0.5);
+.energy-pulse::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: all 0.6s ease-out;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.profile-stats-grid > div:last-child {
-  border-right: none;
+.energy-pulse:hover::before {
+  width: 300%;
+  height: 300%;
+  opacity: 1;
+  animation: pulse-wave 2s infinite;
 }
+
+@keyframes pulse-wave {
+  0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+/* Cyber Portal Transition - Smooth entrance like a digital opening */
+.portal-transition {
+  animation: portal-open 0.8s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes portal-open {
+  0% { 
+    transform: scale(0.92) translateY(30px); 
+    opacity: 0; 
+    filter: blur(15px) brightness(2) hue-rotate(90deg); 
+  }
+  100% { 
+    transform: scale(1) translateY(0); 
+    opacity: 1; 
+    filter: blur(0) brightness(1) hue-rotate(0deg); 
+  }
+}
+
+/* Dynamic Cyber Border - Breathing border glow */
+.cyber-border-v2 {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.cyber-border-v2:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Text Invitation - Call to action for reading */
+.read-invitation {
+  position: relative;
+  display: inline-block;
+}
+
+.read-invitation::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #a855f7, #3b82f6);
+  transition: width 0.3s ease;
+}
+
+.read-invitation:hover::after {
+  width: 100%;
+}
+
+/* ── MOBILE OPTIMIZATIONS ── */
+@media (max-width: 640px) {
+  .portal-transition {
+    animation-duration: 0.6s;
+  }
+  
+  /* Prevent horizontal scroll from large shadows/glows */
+  body {
+    overflow-x: hidden;
+    position: relative;
+  }
+  
+  /* Improved touch targets */
+  button, a {
+    min-height: 32px;
+  }
+  
+  /* Compact headers for mobile */
+  h1 { font-size: 2.25rem !important; line-height: 1.2 !important; }
+  h2 { font-size: 1.5rem !important; }
+  
+  /* Scroll padding for better UX */
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    scroll-padding: 1rem;
+  }
+}
+
+/* ── SAFE AREA INSETS ── */
+.safe-p-top { padding-top: env(safe-area-inset-top); }
+.safe-p-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Vibrancy Utilities */
+.vibrant-glow {
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.4));
+}
+
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+

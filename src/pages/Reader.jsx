@@ -230,20 +230,19 @@ export default function Reader() {
             className="fixed top-16 left-0 right-0 z-[500] glass border-b border-white/10 px-4 py-3 flex items-center justify-between shadow-lg shadow-black/50"
           >
             {/* Left */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 to={`/manhwa/${manhwa.id}`}
-                className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm"
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-white transition-colors text-sm bg-white/5"
               >
                 <ArrowLeft size={16} />
-                <span className="hidden sm:inline">Geri</span>
               </Link>
-              <div className="w-px h-5 bg-white/10" />
-              <div>
-                <p className="text-white font-semibold text-sm leading-tight line-clamp-1 max-w-[180px] sm:max-w-xs">
+              <div className="w-px h-5 bg-white/10 hidden xs:block" />
+              <div className="min-w-0">
+                <p className="text-white font-bold text-xs sm:text-sm leading-tight truncate max-w-[120px] xs:max-w-[180px] sm:max-w-xs">
                   {manhwa.title}
                 </p>
-                <p className="text-slate-500 text-xs text-uppercase font-black tracking-widest">Bölüm {chapter}</p>
+                <p className="text-purple-400 text-[9px] sm:text-xs text-uppercase font-black tracking-widest">Bölüm {chapter}</p>
               </div>
             </div>
 

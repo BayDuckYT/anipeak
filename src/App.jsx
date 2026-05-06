@@ -206,7 +206,7 @@ function AppContent() {
                    </marquee>
                 </div>
               )}
-              <div className={maintenanceMode ? "pt-7" : ""}>
+              <div className={(maintenanceMode ? "pt-7 " : "") + "portal-transition"}>
                  <Header onAuthOpen={(mode) => setAuthModal(mode)} />
                  <ErrorBoundary mini>
                    <AnimatedRoutes onAuthOpen={(mode) => setAuthModal(mode)} />

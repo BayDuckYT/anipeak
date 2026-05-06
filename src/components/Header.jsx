@@ -116,7 +116,7 @@ export default function Header({ onAuthOpen }) {
         <div className="flex items-center justify-between h-16 gap-3">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 group flex-shrink-0 energy-pulse px-2 py-1 rounded-xl">
             <div className="relative">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-neon-purple group-hover:scale-105 transition-transform">
                 <BookOpen size={18} className="text-white" />
@@ -129,24 +129,25 @@ export default function Header({ onAuthOpen }) {
             </span>
           </Link>
 
+
           {/* Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/' && location.hash !== '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
+            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all read-invitation ${location.pathname === '/' && location.hash !== '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
               <Compass size={15} /> Keşfet
             </Link>
-            <Link to="/#trendler" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.hash === '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
+            <Link to="/#trendler" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all read-invitation ${location.hash === '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
               <TrendingUp size={15} /> Trendler
             </Link>
             <Link 
               to="/takvim"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase read-invitation"
             >
               <Calendar size={15} className="text-indigo-400" /> Takvim
             </Link>
             <Link 
               to="/elite-upgrade" 
               onClick={handlePremiumClick}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all energy-pulse ${
                 location.pathname === '/elite-upgrade' 
                   ? (activePlan ? `text-${activePlan.color}-400 bg-${activePlan.color}-500/10 border border-${activePlan.color}-500/30` : 'text-red-400 bg-red-500/10 border border-red-500/30')
                   : 'text-slate-300 hover:text-red-400 hover:bg-red-500/10'
@@ -155,6 +156,7 @@ export default function Header({ onAuthOpen }) {
               {getPlanIcon(activePlan)} {activePlan ? activePlan.name : 'Premium'}
             </Link>
           </nav>
+
 
           {/* Search bar (inline) */}
           <div className="hidden md:flex flex-1 max-w-xs relative">
@@ -408,16 +410,17 @@ export default function Header({ onAuthOpen }) {
             <>
               <button
                 onClick={() => onAuthOpen('login')}
-                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all energy-pulse"
               >
                 <LogIn size={15} /> Giriş
               </button>
               <button
                 onClick={() => onAuthOpen('register')}
-                className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple"
+                className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple energy-pulse"
               >
                 <UserPlus size={15} /> Kayıt Ol
               </button>
+
             </>
           )}
 

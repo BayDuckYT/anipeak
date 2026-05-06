@@ -106,57 +106,58 @@ export default function EliteUpgrade() {
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         
         {/* ── 1. HERO SECTION ── */}
-        <section className="relative flex flex-col md:flex-row items-center justify-between py-16 md:py-28 gap-12">
+        <section className="relative flex flex-col md:flex-row items-center justify-between py-10 md:py-28 gap-8 md:gap-12">
           <motion.div 
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex-1 space-y-8 text-center md:text-left"
+            className="flex-1 space-y-6 md:space-y-8 text-center md:text-left"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 font-bold text-xs uppercase tracking-widest backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 font-bold text-[10px] md:text-xs uppercase tracking-widest backdrop-blur-md">
                <Crown size={14} /> ANIPEAK PREMIUM
             </div>
-            <h1 className="text-6xl md:text-8xl font-black text-white leading-[1.0] tracking-tighter">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-white leading-[1.1] md:leading-[1.0] tracking-tighter">
               SINIRSIZ OKU. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-500 animate-gradient-x">EFSANE OL.</span>
             </h1>
-            <p className="text-xl text-slate-400 max-w-xl font-medium leading-relaxed">
+            <p className="text-base md:text-xl text-slate-400 max-w-xl font-medium leading-relaxed px-4 md:px-0">
               Reklamsız okuma, özel içerikler, eşsiz avantajlar ve benzersiz özelleştirme seçenekleri seni bekliyor.
             </p>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-lg">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-lg mx-auto md:mx-0">
               {heroIcons.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3 group">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                <div key={idx} className="flex items-center gap-2 md:gap-3 group">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform flex-shrink-0">
                     {item.icon}
                   </div>
-                  <span className="text-[12px] font-black text-slate-300 uppercase tracking-tight leading-tight">{item.label}</span>
+                  <span className="text-[10px] md:text-[12px] font-black text-slate-300 uppercase tracking-tight leading-tight text-left">{item.label}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-5 pt-8 justify-center md:justify-start">
+            <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 justify-center md:justify-start">
               <button 
                 onClick={() => document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })}
-                className="px-10 py-5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase tracking-widest shadow-[0_0_50px_rgba(147,51,234,0.4)] hover:scale-105 transition-all flex items-center gap-3"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase tracking-widest shadow-[0_0_30px_rgba(147,51,234,0.3)] hover:scale-105 transition-all flex items-center justify-center gap-3 text-xs md:text-sm"
               >
                 <Crown size={20} /> Premium'a Geç
               </button>
-              <button className="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all backdrop-blur-md">
-                Özellikleri Keşfet
+              <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all backdrop-blur-md text-xs md:text-sm">
+                Keşfet
               </button>
             </div>
           </motion.div>
 
           <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="flex-1 relative"
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="flex-1 relative w-full max-w-[400px] md:max-w-none"
           >
-             <div className="absolute inset-0 bg-purple-600/30 blur-[150px] rounded-full scale-75 animate-pulse" />
-             <img src={heroChar} className="w-full max-w-[600px] relative z-10 drop-shadow-[0_0_120px_rgba(147,51,234,0.5)] transform hover:scale-105 transition-transform duration-700" alt="Premium Hero" />
+             <div className="absolute inset-0 bg-purple-600/20 blur-[100px] rounded-full scale-75 animate-pulse" />
+             <img src={heroChar} className="w-full relative z-10 drop-shadow-[0_0_80px_rgba(147,51,234,0.3)]" alt="Premium Hero" />
           </motion.div>
         </section>
+
 
         {/* ── 2. DEVASA CEPHANELİK (Infinite Marquee) ── */}
         <section className="py-24 border-y border-white/5 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent">
@@ -245,42 +246,25 @@ export default function EliteUpgrade() {
 
         {/* ── 4. PLANLARIMIZ SECTION (Cooler & Bottom) ── */}
         <section id="plans-section" className="py-24 border-t border-white/5 bg-gradient-to-b from-transparent to-purple-900/5">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
-            <div>
-              <div className="flex items-center gap-2 text-indigo-400 font-black text-xs uppercase tracking-[0.4em] mb-3">
-                <Box size={14} /> Üyelik Paketleri
-              </div>
-              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none">PLANLARIMIZ</h2>
-              <p className="text-slate-500 font-bold mt-4 tracking-wide">Sana en uygun rütbeyi seç ve ayrıcalıkları keşfet!</p>
+          <div className="flex flex-col items-center justify-center mb-20 text-center">
+            <div className="flex items-center gap-2 text-indigo-400 font-black text-xs uppercase tracking-[0.4em] mb-3">
+              <Box size={14} /> Üyelik Paketleri
             </div>
-
-            <div className="flex items-center gap-6 p-2.5 bg-black/40 border border-white/10 rounded-3xl backdrop-blur-3xl">
-               <button 
-                 onClick={() => setIsYearly(false)}
-                 className={`px-6 py-3 rounded-2xl text-[11px] font-black transition-all tracking-widest ${!isYearly ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}
-               >
-                 AYLIK ÖDEME
-               </button>
-               <button 
-                 onClick={() => setIsYearly(true)}
-                 className={`px-6 py-3 rounded-2xl text-[11px] font-black transition-all flex items-center gap-2 tracking-widest ${isYearly ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}
-               >
-                 YILLIK ÖDEME <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase">%20 İNDİRİM</span>
-               </button>
-            </div>
+            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none">PREMIUM PLANLAR</h2>
+            <p className="text-slate-500 font-bold mt-4 tracking-wide max-w-lg">Sana en uygun rütbeyi seç ve siber dünyanın ayrıcalıklarını keşfet!</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 lg:gap-8">
             {plans.map((plan, idx) => (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.15 }}
-                className={`relative p-10 rounded-[3.5rem] flex flex-col border-2 transition-all duration-700 group hover:y-[-10px] ${
+                className={`relative p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] flex flex-col border-2 transition-all duration-700 group ${
                   plan.is_popular 
-                  ? 'bg-gradient-to-br from-purple-900/40 via-black to-indigo-900/40 border-purple-500/50 scale-105 z-20 shadow-[0_40px_80px_rgba(168,85,247,0.2)]' 
+                  ? 'bg-gradient-to-br from-purple-900/40 via-black to-indigo-900/40 border-purple-500/50 md:scale-105 z-20 shadow-[0_40px_80px_rgba(168,85,247,0.2)]' 
                   : 'bg-zinc-950/80 border-white/10 z-10 hover:border-white/20'
                 }`}
               >
@@ -290,8 +274,8 @@ export default function EliteUpgrade() {
                   </div>
                 )}
 
-                <div className="mb-10">
-                   <h3 className={`text-2xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3 ${
+                <div className="mb-8 md:mb-10">
+                   <h3 className={`text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3 ${
                      plan.color === 'cyan' ? 'text-cyan-400' :
                      plan.color === 'purple' ? 'text-purple-400' :
                      'text-amber-400'
@@ -299,7 +283,6 @@ export default function EliteUpgrade() {
                      {plan.name}
                    </h3>
                    
-                   {/* Savings Badge for Shadow Plan */}
                    {plan.savings && (
                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 mb-4 animate-bounce-subtle">
                         <Sparkles size={10} className="text-emerald-400" />
@@ -308,14 +291,11 @@ export default function EliteUpgrade() {
                    )}
 
                    <div className="flex items-baseline gap-2">
-                     <span className="text-5xl font-black text-white tracking-tighter">
-                       ₺{plan.is_lifetime || plan.is_yearly_only 
-                         ? plan.price.toFixed(0) 
-                         : (isYearly ? (plan.price * 10).toFixed(0) : plan.price.toFixed(0))
-                       }
+                     <span className="text-4xl md:text-5xl font-black text-white tracking-tighter">
+                       ₺{plan.price.toFixed(0)}
                      </span>
-                     <span className="text-slate-500 text-sm font-black uppercase tracking-widest">
-                       /{plan.is_lifetime ? 'ÖMÜR BOYU' : (plan.is_yearly_only ? 'YILLIK' : (isYearly ? 'yıllık' : 'aylık'))}
+                     <span className="text-slate-500 text-[10px] md:text-sm font-black uppercase tracking-widest">
+                       /{plan.duration}
                      </span>
                    </div>
                 </div>
@@ -351,6 +331,7 @@ export default function EliteUpgrade() {
 
         {/* ── FOOTER TRUST ── */}
         <div className="flex flex-col items-center justify-center gap-6 py-24 border-t border-white/5">
+
            <div className="flex items-center gap-8 opacity-20 hover:opacity-100 transition-all duration-700">
              <Trophy size={32} className="text-white" />
              <div className="w-px h-8 bg-white/20" />

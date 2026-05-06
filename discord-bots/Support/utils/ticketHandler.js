@@ -56,24 +56,43 @@ export async function handleTicketSubmit(interaction, client) {
     const overwrites = [
       {
         id: guild.id,
+        type: 0, // Everyone Role
         deny: [PermissionFlagsBits.ViewChannel],
       },
       {
         id: interaction.user.id,
+        type: 1, // Member
         allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
       },
     ];
 
     // Staff ID'lerini (Rol veya Kullanıcı) ekle
     const mentionList = [];
-    CONFIG.STAFF_IDS.forEach(id => {
-      overwrites.push({
-        id: id,
-        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages],
-      });
-      // Rol mü kullanıcı mı olduğunu anlamaya çalış (ID'ye göre etiketle)
-      mentionList.push(`<@&${id}>`); // Varsayılan rol etiketlemesi
-    });
+    for (const id of CONFIG.STAFF_IDS) {
+      // Önce rol mü diye bak (Roller genelde cache'dedir)
+      const isRole = guild.roles.cache.has(id);
+      // Kullanıcı mı diye bak (Kullanıcılar cache'de olmayabilir ama intent varsa interaction sırasında eklenmiş olabilirler)
+      const isMember = guild.members.cache.has(id);
+
+      if (isRole || isMember) {
+        overwrites.push({
+          id: id,
+          type: isRole ? 0 : 1, // 0: Role, 1: Member (Discord.js OverwriteType)
+          allow: [
+            PermissionFlagsBits.ViewChannel, 
+            PermissionFlagsBits.SendMessages, 
+            PermissionFlagsBits.ReadMessageHistory, 
+            PermissionFlagsBits.ManageMessages
+          ],
+        });
+        mentionList.push(isRole ? `<@&${id}>` : `<@${id}>`);
+      } else {
+        // Eğer cache'de yoksa ama ID geçerli bir snowflake ise d.js v14 hata verebilir.
+        // Bu yüzden cache'de olmayanları atlıyoruz veya güvenli bir şekilde ekliyoruz.
+        // En sağlıklısı bilinmeyen ID'leri atlamak veya sadece Role olduğunu varsayıp type:0 vermek (ama riskli).
+        console.warn(`[Support] ⚠️ Staff ID ${id} sunucu cache'inde bulunamadı, atlanıyor.`);
+      }
+    }
     
     // Kanal oluştur (Parent/Kategori kontrolü ile)
     let categoryId = CONFIG.TICKET_CATEGORY_ID.length > 10 ? CONFIG.TICKET_CATEGORY_ID : null;
@@ -365,22 +384,29 @@ export async function handleLogReopen(interaction) {
 
     // Yetki Overwrite'larını hazırla
     const overwrites = [
-      { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+      { id: guild.id, type: 0, deny: [PermissionFlagsBits.ViewChannel] },
     ];
 
     if (ownerId !== 'unknown') {
       overwrites.push({
         id: ownerId,
+        type: 1,
         allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
       });
     }
 
-    CONFIG.STAFF_IDS.forEach(id => {
-      overwrites.push({
-        id: id,
-        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages],
-      });
-    });
+    for (const id of CONFIG.STAFF_IDS) {
+      const isRole = guild.roles.cache.has(id);
+      const isMember = guild.members.cache.has(id);
+
+      if (isRole || isMember) {
+        overwrites.push({
+          id: id,
+          type: isRole ? 0 : 1,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages],
+        });
+      }
+    }
 
     const categoryId = CONFIG.TICKET_CATEGORY_ID.length > 10 ? CONFIG.TICKET_CATEGORY_ID : null;
 
