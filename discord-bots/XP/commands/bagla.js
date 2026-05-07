@@ -3,11 +3,11 @@ import { syncUserToDiscord } from '../utils/levelUtils.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('bagla')
+    .setName('bağla')
     .setDescription('AniPeak web hesabını Discord ile mühürle!')
     .addStringOption(option => 
       option.setName('kod')
-        .setDescription('Web sitesinden aldığın AP-XXXXXX formatındaki kod')
+        .setDescription('Web sitesinden aldığın AP_XXXXXX formatındaki kod')
         .setRequired(true)),
 
   async execute(interaction, client) {
@@ -16,56 +16,59 @@ export default {
     const discord_id = interaction.user.id;
 
     try {
-      // 1. Kodu veritabanında ara
-      const { data: verifData, error: verifError } = await client.supabase
-        .from('verification_codes')
-        .select('*, profiles(*)')
-        .eq('code', code)
+      // 1. Kodu profillerde ara
+      const { data: profile, error: fetchError } = await client.supabase
+        .from('profiles')
+        .select('*')
+        .eq('discord_sync_code', code)
         .single();
 
-      if (verifError || !verifData) {
+      if (fetchError || !profile) {
         return interaction.editReply({ 
           embeds: [
             new EmbedBuilder()
               .setTitle('❌ Geçersiz Kod')
-              .setDescription('Girdiğin kod hatalı veya mühürlenmemiş uşağım! Lütfen siteden yeni bir kod al.')
+              .setDescription('Girdiğin kod hatalı uşağım! Lütfen siteden doğru kodu kopyala.')
               .setColor('#EF4444')
           ] 
         });
       }
 
-      // 2. Süre kontrolü
-      if (new Date(verifData.expires_at) < new Date()) {
-        // Süresi dolmuş kodu sil
-        await client.supabase.from('verification_codes').delete().eq('id', verifData.id);
-        
-        return interaction.editReply({ 
-          embeds: [
-            new EmbedBuilder()
-              .setTitle('⏰ Süre Doldu')
-              .setDescription('Bu kodun süresi dolmuş amk! Siteden taze bir kod al da gel.')
-              .setColor('#F59E0B')
-          ] 
-        });
+      // [KONTROL] Kodun süresi dolmuş mu?
+      if (profile.discord_sync_code_expires) {
+        const expiry = new Date(profile.discord_sync_code_expires).getTime();
+        if (Date.now() > expiry) {
+          return interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle('⏳ SÜRE DOLDU')
+                .setDescription('Bu mühür kodunun 5 dakikalık süresi dolmuş! Lütfen siteden **YENİ KOD OLUŞTUR** butonuna basarak taze bir kod al.')
+                .setColor('#F59E0B')
+            ]
+          });
+        }
       }
 
       // [KONTROL] Hesap zaten bağlı mı?
-      if (verifData.profiles.discord_id) {
+      if (profile.discord_id) {
         return interaction.editReply({
           embeds: [
             new EmbedBuilder()
               .setTitle('⚠️ ZATEN MÜHÜRLÜ')
-              .setDescription(`Bu hesap zaten bir Discord hesabına (\`${verifData.profiles.discord_id}\`) mühürlenmiş uşağım!`)
+              .setDescription(`Bu hesap zaten bir Discord hesabına (\`${profile.discord_id}\`) mühürlenmiş!`)
               .setColor('#F59E0B')
           ]
         });
       }
 
-      // 3. Profiles tablosunu güncelle (Mühürleme)
+      // 2. Profili güncelle (Mühürleme)
       const { error: updateError } = await client.supabase
         .from('profiles')
-        .update({ discord_id: discord_id })
-        .eq('id', verifData.user_id);
+        .update({ 
+          discord_id: discord_id,
+          discord_sync_code: null // Kodu kullanıldıktan sonra temizle
+        })
+        .eq('id', profile.id);
 
       if (updateError) {
         console.error('[XP] Mühürleme hatası:', updateError);
@@ -74,45 +77,37 @@ export default {
         });
       }
 
-      // 4. Kullanılan kodu sil
-      await client.supabase.from('verification_codes').delete().eq('id', verifData.id);
-
-      // 5. Başarı Mesajı ve Anlık Senkronizasyon
+      // 3. Başarı Mesajı ve Anlık Senkronizasyon
       const successEmbed = new EmbedBuilder()
         .setTitle('🔱 MÜHÜR BASILDI!')
-        .setDescription(`Uşağım **${verifData.profiles.username}**, hesabın artık Discord ile birleşti! Rütbelerin ve seviyen saniyeler içinde yükleniyor...`)
+        .setDescription(`Uşağım **${profile.username}**, hesabın artık Discord ile birleşti! Rütbelerin ve seviyen saniyeler içinde yükleniyor...`)
         .setColor('#8B5CF6')
         .setThumbnail(interaction.user.displayAvatarURL())
         .setTimestamp();
 
       await interaction.editReply({ embeds: [successEmbed] });
 
-      // 6. LOG KANALINA BİLDİR
-      const logChannel = interaction.guild.channels.cache.get(process.env.CHANNEL_XP_LOGS);
-      if (logChannel) {
-        const logEmbed = new EmbedBuilder()
-          .setTitle('🔱 YENİ HESAP MÜHÜRLENDİ (KOD İLE)')
-          .setDescription(`**${verifData.profiles.username}** adlı kullanıcı kod kullanarak hesabını mühürledi!`)
-          .addFields(
-            { name: 'Discord', value: `<@${discord_id}>`, inline: true },
-            { name: 'AniPeak', value: `\`${verifData.profiles.username}\``, inline: true }
-          )
-          .setColor('#8B5CF6')
-          .setTimestamp();
-        await logChannel.send({ embeds: [logEmbed] }).catch(() => {});
+      // 4. LOG KANALINA BİLDİR
+      const logChannelId = process.env.CHANNEL_XP_LOGS;
+      if (logChannelId) {
+        const guild = interaction.guild;
+        const logChannel = guild.channels.cache.get(logChannelId);
+        if (logChannel) {
+          const logEmbed = new EmbedBuilder()
+            .setTitle('🔱 YENİ HESAP MÜHÜRLENDİ')
+            .setDescription(`**${profile.username}** adlı kullanıcı hesabını mühürledi!`)
+            .addFields(
+              { name: 'Discord', value: `<@${discord_id}>`, inline: true },
+              { name: 'AniPeak', value: `\`${profile.username}\``, inline: true }
+            )
+            .setColor('#8B5CF6')
+            .setTimestamp();
+          await logChannel.send({ embeds: [logEmbed] }).catch(() => {});
+        }
       }
 
-      // 7. ANLIK SENKRONİZASYON TETİKLE
-      // profiles verisini en güncel haliyle çekelim
-      const { data: updatedProfile } = await client.supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', verifData.user_id)
-        .single();
-
-      if (updatedProfile) {
-        await syncUserToDiscord(client, updatedProfile);
-      }
+      // 5. ANLIK SENKRONİZASYON TETİKLE
+      await syncUserToDiscord(client, { ...profile, discord_id });
 
     } catch (err) {
       console.error('[XP] Bagla komut hatası:', err);

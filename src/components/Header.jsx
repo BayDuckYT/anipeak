@@ -75,8 +75,8 @@ export default function Header({ onAuthOpen }) {
   const avatarLetter = user?.username?.[0]?.toUpperCase() || 'U';
   
   // Bulunabilen aktif efekti getir
-  const userEffect = user?.active_decoration && user.active_decoration !== 'none' 
-    ? effectsData.find(e => e.id === user.active_decoration) 
+  const userEffect = (user?.active_mix?.avatar || user?.active_decoration) && (user?.active_mix?.avatar !== 'none' && user?.active_decoration !== 'none')
+    ? effectsData.find(e => e.id === (user?.active_mix?.avatar || user?.active_decoration)) 
     : null;
     
   // Aktif plan ikonunu getir

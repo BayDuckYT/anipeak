@@ -159,8 +159,20 @@ export default function Home({ onAuthOpen }) {
   const { sortedSeries, announcements, chapters, getChapters } = useApp();
   const validSeries = sortedSeries.filter(s => !s.is_deleted);
 
-  // Featured item — highest trending
-  const featuredItem = validSeries.length > 0 ? validSeries[0] : null;
+  // Hero Carousel — top 5 series
+  const heroItems = useMemo(() => validSeries.slice(0, 5), [validSeries]);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
+  // Auto-slide hero
+  useEffect(() => {
+    if (heroItems.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prev) => (prev + 1) % heroItems.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [heroItems.length]);
+
+  const featuredItem = heroItems[currentHeroIndex];
   const featuredChapters = featuredItem ? getChapters(featuredItem.id) : [];
   const featuredChapterCount = featuredChapters.length;
 
@@ -179,11 +191,12 @@ export default function Home({ onAuthOpen }) {
     return withLatest.sort((a, b) => new Date(b.latestChapterDate) - new Date(a.latestChapterDate)).slice(0, 12);
   }, [validSeries, chapters]);
 
-  // Recommendations — random shuffle of high-rated series
+  // Recommendations — shuffle of high-rated series with fallback
   const recommendations = useMemo(() => {
-    const highRated = validSeries.filter(s => s.rating >= 8.5);
-    const shuffled = [...highRated].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 8);
+    let pool = validSeries.filter(s => s.rating >= 8.5);
+    if (pool.length < 4) pool = validSeries; // Fallback if not enough high rated
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 10);
   }, [validSeries]);
 
   // All genres from series
@@ -214,74 +227,122 @@ export default function Home({ onAuthOpen }) {
   return (
     <main className="min-h-screen portal-transition" id="home-top">
 
-      {/* ══════════════ HERO SECTION ══════════════ */}
-      {featuredItem && (
-        <section className="relative h-[520px] sm:h-[560px] overflow-hidden">
-          {/* Background image */}
-          <div className="absolute inset-0">
-            <img src={featuredItem.cover} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-[#050507]/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/60" />
-          </div>
+      {/* ── ══════════════ HERO SECTION (CAROUSEL) ══════════════ ── */}
+      <section className="relative h-[520px] sm:h-[600px] overflow-hidden bg-[#050507]">
+        <AnimatePresence mode='wait'>
+          {featuredItem && (
+            <motion.div
+              key={featuredItem.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0"
+            >
+              {/* Background image */}
+              <div className="absolute inset-0">
+                <img src={featuredItem.cover} alt="" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/40" />
+              </div>
 
-          {/* Purple ambient glow */}
-          <div className="absolute bottom-0 left-0 w-[500px] h-[300px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
+              {/* Purple ambient glow */}
+              <div className="absolute bottom-0 left-0 w-[500px] h-[300px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
 
-          {/* Content */}
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end pb-12 pt-20">
-            <div className="max-w-xl">
-              {/* Badge */}
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-4 backdrop-blur-md">
-                <Flame size={12} className="text-orange-400 animate-pulse" />
-                <span className="text-[11px] text-purple-300 font-bold uppercase tracking-wider">Öne Çıkan</span>
-              </motion.div>
+              {/* Content */}
+              <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end pb-16 pt-20">
+                <div className="max-w-2xl">
+                  {/* Badge */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-4 backdrop-blur-md"
+                  >
+                    <Flame size={12} className="text-orange-400 animate-pulse" />
+                    <span className="text-[11px] text-purple-300 font-bold uppercase tracking-wider">Öne Çıkan</span>
+                  </motion.div>
 
-              {/* Title */}
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-[1.1] mb-3 drop-shadow-2xl"
-                style={{ textShadow: '0 4px 30px rgba(168,85,247,0.3)' }}>
-                {featuredItem.title}
-              </motion.h1>
+                  {/* Title */}
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-4xl sm:text-6xl lg:text-7xl font-black text-white uppercase tracking-tight leading-[1] mb-4 drop-shadow-2xl"
+                    style={{ textShadow: '0 4px 30px rgba(168,85,247,0.3)' }}
+                  >
+                    {featuredItem.title}
+                  </motion.h1>
 
-              {/* Meta info */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-                className="flex items-center gap-3 text-sm text-slate-300 mb-3 flex-wrap">
-                <span className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-lg border border-white/5 backdrop-blur-sm">
-                  <Star size={14} className="text-amber-400 fill-amber-400" /> {featuredItem.rating}
-                </span>
-                <span className="text-slate-600">•</span>
-                <span className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-lg border border-white/5 backdrop-blur-sm">
-                  <BookOpen size={14} className="text-purple-400" /> {featuredChapterCount} Bölüm
-                </span>
-                <span className="text-slate-600">•</span>
-                <span className="text-slate-400 italic">{featuredGenres}</span>
-              </motion.div>
+                  {/* Meta info */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="flex items-center gap-3 text-sm text-slate-300 mb-4 flex-wrap"
+                  >
+                    <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
+                      <Star size={14} className="text-amber-400 fill-amber-400" /> {featuredItem.rating}
+                    </span>
+                    <span className="text-slate-600">•</span>
+                    <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
+                      <BookOpen size={14} className="text-purple-400" /> {featuredChapterCount} Bölüm
+                    </span>
+                    <span className="text-slate-600">•</span>
+                    <span className="text-slate-400 italic font-medium">
+                      {(Array.isArray(featuredItem.genre) ? featuredItem.genre : [featuredItem.genre || 'Aksiyon']).join(', ')}
+                    </span>
+                  </motion.div>
 
-              {/* Description */}
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-                className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2 max-w-md bg-black/20 backdrop-blur-[2px] rounded-lg">
-                {featuredItem.description || `${featuredItem.title} serisini keşfet. Efsanevi bir hikaye seni bekliyor.`}
-              </motion.p>
+                  {/* Description */}
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.45 }}
+                    className="text-slate-400 text-sm sm:text-base leading-relaxed mb-8 line-clamp-2 max-w-lg"
+                  >
+                    {featuredItem.description || `${featuredItem.title} serisini keşfet. Efsanevi bir hikaye seni bekliyor.`}
+                  </motion.p>
 
-              {/* Buttons */}
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                className="flex items-center gap-3">
-                <Link to={`/manhwa/${featuredItem.id}`}
-                  className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple energy-pulse hover:scale-105">
-                  <Play size={16} className="fill-white" /> Oku Şimdi
-                </Link>
-                <button
-                  onClick={() => { if (!user) { onAuthOpen('login'); } }}
-                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl glass border border-white/15 text-white font-semibold text-sm hover:border-purple-500/40 hover:bg-purple-500/10 transition-all energy-pulse">
-                  <Plus size={16} /> Listeye Ekle
-                </button>
-              </motion.div>
-            </div>
-          </div>
+                  {/* Buttons */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="flex items-center gap-4"
+                  >
+                    <Link
+                      to={`/manhwa/${featuredItem.id}`}
+                      className="flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple hover:scale-105 active:scale-95"
+                    >
+                      <Play size={16} className="fill-white" /> Oku Şimdi
+                    </Link>
+                    <button
+                      onClick={() => { if (!user) { onAuthOpen('login'); } }}
+                      className="flex items-center gap-2 px-7 py-4 rounded-xl glass border border-white/10 text-white font-semibold text-sm hover:border-purple-500/40 hover:bg-purple-500/10 transition-all"
+                    >
+                      <Plus size={16} /> Listeye Ekle
+                    </button>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        </section>
-      )}
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-8 right-8 z-20 flex gap-2">
+          {heroItems.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentHeroIndex(i)}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                currentHeroIndex === i ? 'w-8 bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]' : 'w-2 bg-white/20 hover:bg-white/40'
+              }`}
+            />
+          ))}
+        </div>
+      </section>
 
       {/* ══════════════ MAIN CONTENT GRID ══════════════ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -308,21 +369,23 @@ export default function Home({ onAuthOpen }) {
               </div>
             </section>
 
-            {/* ── BOTTOM ROW: New Chapters + Recommendations ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* ── NEW CHAPTERS & RECOMMENDATIONS ── */}
+            <div className="flex flex-col gap-10">
 
               {/* Yeni Bölümler */}
               <section>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <Sparkles size={18} className="text-emerald-400" />
-                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Yeni Bölümler</h2>
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Sparkles size={18} className="text-emerald-400" />
+                    </div>
+                    <h2 className="text-xl font-black text-white uppercase tracking-tight">Yeni Bölümler</h2>
                   </div>
-                  <Link to="/all-series" className="text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors">
-                    Tümünü Gör
+                  <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors">
+                    Tümünü Gör <ChevronRight size={14} />
                   </Link>
                 </div>
-                <div className="flex gap-2.5 overflow-x-auto pb-2 no-scrollbar custom-scrollbar">
+                <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar custom-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
                   {newChapterSeries.map((item) => (
                     <NewChapterCard key={item.id} item={item} chapters={chapters} />
                   ))}
@@ -331,14 +394,16 @@ export default function Home({ onAuthOpen }) {
 
               {/* Sana Özel */}
               <section>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <Heart size={18} className="text-pink-400" />
-                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Sana Özel</h2>
+                    <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/20">
+                      <Heart size={18} className="text-pink-400" />
+                    </div>
+                    <h2 className="text-xl font-black text-white uppercase tracking-tight">Sana Özel</h2>
                   </div>
-                  <span className="text-[10px] text-slate-600 italic">Bunları okudun — bunları seversin</span>
+                  <span className="text-[10px] text-slate-500 italic hidden sm:block">Sana özel öneriler — en iyileri keşfet</span>
                 </div>
-                <div className="flex gap-2.5 overflow-x-auto pb-2 no-scrollbar custom-scrollbar">
+                <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar custom-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
                   {recommendations.map((item) => (
                     <RecommendationCard key={item.id} item={item} />
                   ))}

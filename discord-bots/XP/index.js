@@ -197,6 +197,27 @@ async function bootWithRetry(attempt = 1) {
         });
     }
     await registerSlashCommands();
+
+    // ── GLOBAL SYNC LOOP (Every 30 mins) ────────────────────────
+    setInterval(async () => {
+      console.log('[XP] 🔄 Global senkronizasyon başlatıldı...');
+      try {
+        const { data: profiles } = await client.supabase
+          .from('profiles')
+          .select('*')
+          .not('discord_id', 'is', null);
+
+        if (profiles) {
+          for (const profile of profiles) {
+            await syncUserToDiscord(client, profile).catch(() => {});
+          }
+        }
+        console.log(`[XP] ✅ ${profiles?.length || 0} kullanıcı mühür kontrolünden geçti.`);
+      } catch (err) {
+        console.error('[XP] Global Sync Hatası:', err.message);
+      }
+    }, 30 * 60 * 1000);
+
   } catch (err) {
     const isNetworkError = ['ECONNRESET', 'ENOTFOUND', 'ETIMEDOUT', 'EAI_AGAIN', 'ECONNREFUSED']
       .some((code) => err.message?.includes(code));

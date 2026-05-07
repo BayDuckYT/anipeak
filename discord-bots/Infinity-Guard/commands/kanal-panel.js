@@ -8,11 +8,11 @@ export default {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
   async execute(interaction) {
-    // 1. Satır: Butonlar
+    // 1. Satır: Temel Butonlar
     const buttonRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId('channel:create')
-        .setLabel('Kanal Oluştur')
+        .setLabel('Yeni Kanal')
         .setEmoji('📂')
         .setStyle(ButtonStyle.Success),
       new ButtonBuilder()
@@ -26,17 +26,29 @@ export default {
         .setEmoji('🔓')
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
-        .setCustomId('channel:nuke')
-        .setLabel('Kanalı Nuke\'le')
-        .setEmoji('☢️')
+        .setCustomId('channel:bulk_action')
+        .setLabel('TÜM KANALLARI SEÇ')
+        .setEmoji('🌐')
         .setStyle(ButtonStyle.Secondary)
     );
 
-    // 2. Satır: Yavaş Mod (Slowmode) Menüsü
+    // 2. Satır: Manuel Toplu Seçim Menüsü
+    const selectRow = new ActionRowBuilder().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('channel:bulk_select_init')
+        .setPlaceholder('🗂️ Belirli Kanalları Toplu Seç')
+        .addOptions([
+          { label: 'Metin Kanallarını Seç', value: 'all_text', emoji: '📝' },
+          { label: 'Ses Kanallarını Seç', value: 'all_voice', emoji: '🔊' },
+          { label: 'Kategorileri Seç', value: 'all_categories', emoji: '📁' },
+        ])
+    );
+
+    // 3. Satır: Yavaş Mod (Slowmode) Menüsü
     const slowmodeMenu = new ActionRowBuilder().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('channel:slowmode')
-        .setPlaceholder('⏱️ Kanal Yavaşlatma (Slowmode) Ayarı')
+        .setPlaceholder('⏱️ Seçili Kanal(lar) için Yavaş Mod')
         .addOptions([
           { label: 'Kapat (0s)', value: '0', emoji: '🟢' },
           { label: '5 Saniye', value: '5', emoji: '🟡' },
@@ -50,8 +62,8 @@ export default {
 
     await interaction.reply({
       embeds: [embed],
-      components: [buttonRow, slowmodeMenu],
-      flags: [MessageFlags.Ephemeral] // Sadece yetkili görsün
+      components: [buttonRow, selectRow, slowmodeMenu],
+      flags: [MessageFlags.Ephemeral]
     });
   },
 };

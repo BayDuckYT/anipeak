@@ -78,6 +78,31 @@ export default {
     }
 
     // ══════════════════════════════════════════════════════════
+    //  6. GÖRSEL ZEKA (OCR) TARAMASI
+    // ══════════════════════════════════════════════════════════
+    if (message.attachments.size > 0) {
+      const image = message.attachments.find(a => a.contentType?.startsWith('image/'));
+      if (image) {
+        try {
+          const Tesseract = (await import('tesseract.js')).default;
+          const { data: { text } } = await Tesseract.recognize(image.url, 'tur+eng');
+          const lowerText = text.toLowerCase();
+
+          const hasViolation = 
+            BAD_WORDS.some(word => lowerText.includes(word.toLowerCase())) ||
+            INVITE_REGEX.test(lowerText) ||
+            ["scam", "crypto", "free nitro", "dolandırıcılık"].some(w => lowerText.includes(w));
+
+          if (hasViolation) {
+            return await handleViolation(message, 'Resim Üzerinde Yasaklı İçerik (OCR)', securityAlertEmbed(message.author, 'Resim üzerinde yasaklı kelime veya link tespit edildi!'));
+          }
+        } catch (ocrErr) {
+          console.error('[Infinity-Guard] OCR Hatası:', ocrErr.message);
+        }
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
     //  5. ANTI-SPAM MOTORU
     // ══════════════════════════════════════════════════════════
     const isSpamming = trackAndCheck(message.author.id);

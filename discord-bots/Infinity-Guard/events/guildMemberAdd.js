@@ -47,9 +47,25 @@ export default {
       joinTracker.length = 0;
     }
 
-    // ── Hesap yaşı kontrolü (yeni hesap uyarısı) ─────────────
+    // ── Alt-Account & VPN Shield ─────────────────────────────
     const accountAge = Date.now() - member.user.createdTimestamp;
+    const oneHour = 60 * 60 * 1000;
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+    if (accountAge < oneHour) {
+      try {
+        const kickEmbed = baseEmbed(COLORS.DANGER)
+          .setTitle('🛡️ ALT-ACCOUNT KALKANI')
+          .setDescription(`> ${member.user.tag} hesabı **1 saatten daha yeni** olduğu için güvenlik sebebiyle sunucudan uzaklaştırıldı.\n> Lütfen daha sonra tekrar deneyin.`);
+        
+        await member.send({ embeds: [kickEmbed] }).catch(() => {});
+        await member.kick('Infinity Guard — Yeni hesap (Alt-Account) koruması');
+        await sendLog(member.guild, kickEmbed.setTitle('🔨 ÜYE UZAKLAŞTIRILDI (YENİ HESAP)'));
+        return;
+      } catch (err) {
+        console.error('[Infinity-Guard] Alt-shield kick hatası:', err.message);
+      }
+    }
 
     if (accountAge < sevenDays) {
       const warningEmbed = baseEmbed(COLORS.WARNING)

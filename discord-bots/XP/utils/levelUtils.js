@@ -108,7 +108,7 @@ export async function syncUserToDiscord(client, dataOrId, xpIfProvided) {
       }
     }
 
-    // ── 2. RÜTBE ROL OPERASYONU (Eski Sil, Yeni Tak) ────────────
+    // ── 2. RÜTBE ROL OPERASYONU (Site İle Aynı - XP Bazlı) ────────────
     const rankRoles = {
       'Çaylak Okur': process.env.ROLE_CAYLAK_OKUR,
       'Manga Gezgini': process.env.ROLE_MANGA_GEZGINI,
@@ -120,35 +120,34 @@ export async function syncUserToDiscord(client, dataOrId, xpIfProvided) {
       'Manga Hükümdarı': process.env.ROLE_MANGA_HUKUMDARI
     };
 
-    const targetRoleId = rankRoles[info.rank];
+    const targetRank = info.rank; // Sitedeki getLevelInfo ile gelen rütbe ismi
+    const targetRoleId = rankRoles[targetRank];
     const currentRankRole = member.roles.cache.find(r => Object.values(rankRoles).includes(r.id));
 
     if (targetRoleId && (!currentRankRole || currentRankRole.id !== targetRoleId)) {
-      
-      // Eski rütbeleri tarayıp sil (listedeki diğer 7 rol)
+      // Eski rütbeleri tarayıp sil
       const rolesToRemove = Object.values(rankRoles).filter(id => id && member.roles.cache.has(id) && id !== targetRoleId);
       if (rolesToRemove.length > 0) {
-        await member.roles.remove(rolesToRemove).catch(e => console.warn('[XP Sync] Eski rütbe silinemedi:', e.message));
+        await member.roles.remove(rolesToRemove).catch(() => {});
       }
       
       // Yeni rütbeyi tak
       await member.roles.add(targetRoleId)
         .then(() => {
-           console.log(`[XP Sync] Rütbe verildi: ${info.rank} -> ${member.user.tag}`);
+           console.log(`[XP Sync] Rütbe verildi: ${targetRank} -> ${member.user.tag}`);
         })
         .catch(e => {
-           console.error('[XP Sync] Rütbe verme hatası (Yüksek ihtimalle bot rolü aşağıda):', e.message);
-           if (logChannel) logChannel.send(`❌ **Rol Hatası:** <@${member.id}> uşağına rütbe verilemedi! Bot rolünü en üste çek amk!`).catch(() => {});
+           console.error('[XP Sync] Rütbe verme hatası:', e.message);
         });
 
       // ── 3. LEVEL UP DUYURUSU ──────────────────────────────────────
       if (logChannel) {
         const embed = new EmbedBuilder()
           .setTitle('🚀 KADEMELİ RÜTBE ATLANDI!')
-          .setDescription(`Tebrikler <@${member.id}>! Artık bir **${info.rank}** oldun!`)
+          .setDescription(`Tebrikler <@${member.id}>! Sitedeki başarınla Discord'da **${targetRank}** rütbesine ulaştın!`)
           .addFields(
             { name: 'Seviye', value: `\`Lv. ${info.level}\``, inline: true },
-            { name: 'Rütbe',  value: `\`${info.rank}\``, inline: true },
+            { name: 'Rütbe',  value: `\`${targetRank}\``, inline: true },
             { name: 'Toplam', value: `\`${xp} XP\``, inline: true }
           )
           .setColor('#8B5CF6')

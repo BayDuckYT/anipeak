@@ -40,10 +40,11 @@ import {
   Minus,
   ShoppingCart,
   Package,
-  Crown,
-  Sparkles,
-  ChevronRight,
+  Crown, 
+  Sparkles, 
+  ChevronRight, 
   ArrowRight,
+  Info,
 } from 'lucide-react';
 import { useAuth, getLevelInfo } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -366,38 +367,106 @@ export default function ProfileShowcase() {
   };
 
   const levelInfo = getLevelInfo(rawUser.xp || 0);
-  const displayUser = { ...rawUser, ...levelInfo };
+  
+  // Dashboard Specific State
+  const { series } = useApp();
+  const { isLowPerformanceMode } = usePerformance();
+  const [uploading, setUploading] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const fileInputRef = useRef(null);
+  const [isMixModalOpen, setIsMixModalOpen] = useState(false);
+  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' });
+  const [previewEffect, setPreviewEffect] = useState(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [premiumToast, setPremiumToast] = useState(false);
 
-  // --- Verification Logic ---
-  const [verifCode, setVerifCode] = useState(null);
+  const [selectedBundle, setSelectedBundle] = useState(() => {
+    const mix = currentUser?.active_mix;
+    if (mix && mix.avatar !== 'none' && mix.avatar === mix.comment && mix.avatar === mix.nametag) {
+      const found = ELITE_BUNDLES.find(p => p.effects.avatar === mix.avatar);
+      return found?.id || 'mix';
+    }
+    if (mix && (mix.avatar !== 'none' || mix.comment !== 'none' || mix.nametag !== 'none' || mix.aura !== 'none')) {
+      return 'mix';
+    }
+    return 'none';
+  });
+
+  const displayUser = useMemo(() => {
+    const base = { ...rawUser, ...levelInfo };
+    if (isOwnProfile) {
+      return {
+        ...base,
+        active_decoration: mixState.avatar || activeDecoration || 'none',
+        active_mix: mixState
+      };
+    }
+    return base;
+  }, [rawUser, levelInfo, isOwnProfile, mixState, activeDecoration]);
+
+  // --- Verification Logic (Siber Karargah Versiyonu) ---
+  const [verifCode, setVerifCode] = useState(currentUser?.discord_sync_code || null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Mevcut kodun süresini kontrol et
+  useEffect(() => {
+    if (currentUser?.discord_sync_code && currentUser?.discord_sync_code_expires) {
+      const expiry = new Date(currentUser.discord_sync_code_expires).getTime();
+      const remaining = Math.floor((expiry - Date.now()) / 1000);
+      if (remaining > 0) {
+        setVerifCode(currentUser.discord_sync_code);
+        setTimeLeft(remaining);
+      } else {
+        setVerifCode(null);
+        setTimeLeft(0);
+      }
+    }
+  }, [currentUser]);
 
   const generateDiscordCode = async () => {
     if (!currentUser?.id) return;
     setIsGenerating(true);
     
     try {
-      const code = `AP-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+      const randomDigits = Math.floor(1000 + Math.random() * 9000);
+      const code = `AP-${randomDigits}`;
+      const expiresAt = new Date(Date.now() + 5 * 60000).toISOString(); // 5 Dakika
 
       const { error } = await supabase
-        .from('verification_codes')
-        .upsert({
-          user_id: currentUser.id,
-          code: code,
-          expires_at: expiresAt
-        }, { onConflict: 'user_id' });
+        .from('profiles')
+        .update({
+          discord_sync_code: code,
+          discord_sync_code_expires: expiresAt
+        })
+        .eq('id', currentUser.id);
 
       if (error) throw error;
 
       setVerifCode(code);
-      setTimeLeft(600); // 10 minutes
+      setTimeLeft(300); // 5 minutes
     } catch (err) {
       console.error('[Verification] Kod üretme hatası:', err);
-      alert('Kod üretilirken bir hata oluştu. Veritabanı tablosu (verification_codes) eksik olabilir.');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const disconnectDiscord = async () => {
+    if (!confirm('Discord mührünü bozmak istediğine emin misin uşağım?')) return;
+    try {
+      await updateProfile({ 
+        discord_id: null, 
+        discord_sync_code: null, 
+        discord_sync_code_expires: null 
+      });
+      setVerifCode(null);
+      setTimeLeft(0);
+    } catch (err) {
+      console.error('Disconnect error:', err);
     }
   };
 
@@ -477,32 +546,6 @@ export default function ProfileShowcase() {
     navigate(`/messages?user=${profileData.username}`);
   };
   
-  // Dashboard Specific State
-  const { series } = useApp();
-  const { isLowPerformanceMode } = usePerformance();
-  const [uploading, setUploading] = useState(false);
-  const [imageSrc, setImageSrc] = useState(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const fileInputRef = useRef(null);
-  const [isMixModalOpen, setIsMixModalOpen] = useState(false);
-  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' });
-  const [previewEffect, setPreviewEffect] = useState(null);
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [premiumToast, setPremiumToast] = useState(false);
-
-  const [selectedBundle, setSelectedBundle] = useState(() => {
-    const mix = currentUser?.active_mix;
-    if (mix && mix.avatar !== 'none' && mix.avatar === mix.comment && mix.avatar === mix.nametag) {
-      const found = ELITE_BUNDLES.find(p => p.effects.avatar === mix.avatar);
-      return found?.id || 'mix';
-    }
-    if (mix && (mix.avatar !== 'none' || mix.comment !== 'none' || mix.nametag !== 'none' || mix.aura !== 'none')) {
-      return 'mix';
-    }
-    return 'none';
-  });
 
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
@@ -519,7 +562,7 @@ export default function ProfileShowcase() {
   }, [location.hash, isOwnProfile]);
 
   const selectedDecoration = useMemo(() => {
-    const activeId = isOwnProfile ? mixState.avatar : (displayUser.active_mix?.avatar || 'none');
+    const activeId = isOwnProfile ? (mixState.avatar || 'none') : (displayUser.active_mix?.avatar || 'none');
     return effectsData.find(d => d.id === activeId) || null;
   }, [isOwnProfile, mixState.avatar, displayUser.active_mix?.avatar]);
 
@@ -547,9 +590,7 @@ export default function ProfileShowcase() {
     };
   }, [isOwnProfile, mixState.aura, displayUser.active_mix?.aura]);
 
-  // Update displayUser with the activeDecoration state
-  displayUser.active_decoration = activeDecoration;
-  
+  // Navigation Tabs
   const tabs = isOwnProfile ? [
     { id: 'okunanlar', label: 'Okuduklarım', icon: History },
     { id: 'listeler', label: 'Listeler', icon: BookOpen },
@@ -588,73 +629,6 @@ export default function ProfileShowcase() {
     } catch (err) { console.error(err); }
   };
 
-  // --- SUB-COMPONENT: Nameplate Item ---
-  const NameplateItem = ({ filename, isActive, onSelect }) => {
-    const videoRef = useRef(null);
-    const containerRef = useRef(null);
-    const [isVisible, setIsVisible] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-
-    useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => setIsVisible(entry.isIntersecting),
-        { threshold: 0.1 }
-      );
-      if (containerRef.current) observer.observe(containerRef.current);
-      return () => observer.disconnect();
-    }, []);
-
-    useEffect(() => {
-      if (videoRef.current && isVisible) {
-        if (isActive || isHovered) {
-          videoRef.current.play().catch(() => {});
-        } else {
-          videoRef.current.pause();
-        }
-      }
-    }, [isActive, isHovered, isVisible]);
-
-    return (
-      <motion.div
-        ref={containerRef}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={onSelect}
-        className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
-          isActive 
-            ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]' 
-            : 'border-white/5 hover:border-white/20 bg-zinc-900/50'
-        }`}
-      >
-        {isVisible ? (
-          <video 
-            ref={videoRef}
-            src={`/nameplates/${filename}`} 
-            muted loop 
-            playsInline
-            onError={(e) => {
-              console.warn("Nameplate load error:", filename);
-              e.target.style.display = 'none';
-            }}
-            className={`w-full h-full object-cover transition-opacity duration-500 ${isActive || isHovered ? 'opacity-100' : 'opacity-40'}`}
-          />
-        ) : (
-          <div className="w-full h-full bg-zinc-900/50 animate-pulse" />
-        )}
-        
-        {isActive && (
-          <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center pointer-events-none">
-            <div className="bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-md shadow-xl flex items-center gap-1">
-              <Check size={10} /> KUŞANILDI
-            </div>
-          </div>
-        )}
-      </motion.div>
-    );
-  };
-
   const decorationEffectsData = useMemo(() => effectsData.filter(e => e.category !== 'profile_effects'), []);
   const categories = useMemo(() => ['Tümü', ...new Set(decorationEffectsData.map(d => d.category))], [decorationEffectsData]);
 
@@ -663,8 +637,6 @@ export default function ProfileShowcase() {
       ? decorationEffectsData 
       : decorationEffectsData.filter(d => d.category === decorationCategory);
   }, [decorationCategory, decorationEffectsData]);
-
-  // ... (getSocialIcon, getPlatformUrl logic)
 
   const getSocialIcon = (platform) => {
     switch (platform) {
@@ -681,20 +653,20 @@ export default function ProfileShowcase() {
   const getPlatformUrl = (link) => {
     if (link.type === 'url') return link.value;
     switch (link.platform) {
+      case 'discord': return `https://discord.com/users/${link.value}`;
+      case 'youtube': return `https://youtube.com/@${link.value}`;
       case 'instagram': return `https://instagram.com/${link.value}`;
       case 'twitter': return `https://twitter.com/${link.value}`;
-      case 'youtube': return `https://youtube.com/@${link.value}`;
       case 'github': return `https://github.com/${link.value}`;
-      case 'discord': return `https://discord.com/users/${link.value}`;
       case 'myanimelist': return `https://myanimelist.net/profile/${link.value}`;
-      default: return '#';
+      default: return link.value;
     }
   };
 
   return (
-    <div className="min-h-screen text-zinc-100 font-sans selection:bg-purple-500/30 pt-20 bg-[#0B0E14]">
+    <div className="min-h-screen text-zinc-100 font-sans selection:bg-purple-500/30 pt-24 pb-12 bg-[#020203]">
       
-
+      {/* ── MODALS ── */}
       <AnimatePresence>
         {showLinksModal && (
           <ConnectedAccountsModal 
@@ -706,35 +678,31 @@ export default function ProfileShowcase() {
         )}
       </AnimatePresence>
 
-      {/* ── PREMIUM MODAL ── */}
+      <AnimatePresence>
+        {isMixModalOpen && (
+          <EliteMixModal 
+            isOpen={isMixModalOpen} 
+            onClose={() => setIsMixModalOpen(false)} 
+            mixState={mixState} 
+            setMixState={setMixState} 
+            onSave={(newMix) => updateProfile({ active_mix: newMix })} 
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {showPremiumModal && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowPremiumModal(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-md" 
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-5xl bg-zinc-950 border border-amber-500/30 rounded-[3rem] p-10 overflow-hidden shadow-[0_0_100px_rgba(245,158,11,0.15)]"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPremiumModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-5xl bg-zinc-950 border border-amber-500/30 rounded-[3rem] p-10 overflow-hidden shadow-[0_0_100px_rgba(245,158,11,0.15)]">
               <div className="absolute top-0 right-0 p-6">
-                <button onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-zinc-900 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all">
-                  <X size={20} />
-                </button>
+                <button onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-zinc-900 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
               </div>
-
               <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6">
-                  <Crown size={14} /> ELITE KARARGAH
-                </div>
-                <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">
-                  Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span>
-                </h2>
-                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş ve gününü kanıtla.</p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE KARARGAH</div>
+                <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span></h2>
+                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş ve gününü kanıtla uşağım.</p>
               </div>
-
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
                 {ELITE_BUNDLES.slice(0, 5).map(bundle => (
                   <div key={bundle.id} className="p-4 rounded-3xl bg-zinc-900 border border-zinc-800 text-center relative overflow-hidden group">
@@ -744,1316 +712,887 @@ export default function ProfileShowcase() {
                   </div>
                 ))}
               </div>
-
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-500 hover:text-white transition-all">
-                  Şimdilik Kalsın
-                </button>
-                <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">
-                  ŞİMDİ YÜKSELT <ArrowRight size={16} />
-                </button>
+                <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-500 hover:text-white transition-all">Şimdilik Kalsın</button>
+                <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ŞİMDİ YÜKSELT <ArrowRight size={16} /></button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* ── PREMIUM TOAST ── */}
-      <AnimatePresence>
-        {premiumToast && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50, scale: 0.9 }} 
-            animate={{ opacity: 1, y: 0, scale: 1 }} 
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-4 p-4 pr-6 rounded-2xl bg-zinc-900 border border-amber-500/50 shadow-[0_0_40px_rgba(245,158,11,0.2)]"
-          >
-            <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center border border-amber-500/50">
-              <Lock size={20} className="text-amber-400" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black text-white uppercase tracking-tight">Bu Efekt Kilitli</h4>
-              <p className="text-[10px] text-zinc-400 font-medium">Kuşanmak için Elite Karargah üyesi olmalısın.</p>
-            </div>
-            <button onClick={() => { setPremiumToast(false); setShowPremiumModal(true); }} className="ml-4 px-4 py-2 rounded-xl bg-amber-500 text-zinc-950 text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all">
-              BİLGİ AL
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── MIX & KARIŞTIR MODAL ── */}
-      <AnimatePresence>
-        {isMixModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setIsMixModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl bg-[#151921] border border-zinc-800 rounded-[2.5rem] p-10 md:p-16 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
-            >
-              <div className="flex items-center justify-between mb-12">
-                <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/30">
-                    <Palette className="text-purple-400" size={32} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">Efekt Karıştırıcı</h3>
-                    <p className="text-sm text-slate-400">Kilidini açtığın paketlerin parçalarını birleştir</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsMixModalOpen(false)} className="p-2 rounded-xl hover:bg-white/5 text-slate-400"><X /></button>
-              </div>
-
-              <div className="space-y-8">
-                {(() => {
-                  const parts = getUnlockedEffectParts(currentUser?.role, currentUser?.unlocked_effects);
-                  const sections = [
-                    { id: 'aura', label: 'Canvas Afiş (Arkaplan)', items: parts.aura },
-                    { id: 'avatar', label: 'Profil Çerçevesi (Aura)', items: parts.avatar },
-                    { id: 'comment', label: 'Yorum Kutusu', items: parts.comment },
-                    { id: 'nametag', label: 'İsim Etiketi', items: parts.nametag }
-                  ];
-
-                  return sections.map(section => (
-                    <div key={section.id} className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                      <h4 className="text-lg font-black text-slate-300 mb-4">{section.label}</h4>
-                      <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-                        <button
-                          onClick={() => setMixState(prev => ({ ...prev, [section.id]: 'none' }))}
-                          className={`flex-shrink-0 px-5 py-3 rounded-xl border transition-all duration-300 font-bold text-sm
-                            ${mixState[section.id] === 'none'
-                              ? 'bg-slate-700 border-slate-500 text-white shadow-lg shadow-slate-900/20'
-                              : 'bg-black/20 border-white/10 text-slate-400 hover:border-white/20'
-                            }
-                          `}
-                        >
-                          Hiçbiri
-                        </button>
-                        {section.items.map(item => (
-                          <button
-                            key={item.id}
-                            onClick={() => setMixState(prev => ({ ...prev, [section.id]: item.id }))}
-                            className={`flex-shrink-0 px-5 py-3 rounded-xl border transition-all duration-300 font-bold text-sm
-                              ${mixState[section.id] === item.id
-                                ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/25'
-                                : 'bg-black/20 border-white/10 text-slate-400 hover:border-white/20'
-                              }
-                            `}
-                          >
-                            {item.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ));
-                })()}
-
-                <div className="flex gap-4 pt-4 border-t border-white/10">
-                  <button 
-                    onClick={() => setIsMixModalOpen(false)}
-                    className="flex-1 py-4 bg-zinc-900 border border-white/5 text-slate-400 font-bold rounded-2xl hover:text-white transition-all"
-                  >
-                    Kapat
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedBundle('mix');
-                      setIsMixModalOpen(false);
-                      handleSaveEffects('mix');
-                    }}
-                    className="flex-[2] py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-2xl shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 hover:scale-105 transition-all"
-                  >
-                    <Check size={20} /> MİXİ KAYDET & KUŞAN
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+               <div className="flex flex-col lg:flex-row gap-8 items-start max-w-[1700px] mx-auto px-6">
           
-          {/* LEFT SIDEBAR: User Info */}
-          <aside className="w-full lg:w-[320px] shrink-0 space-y-6 relative z-10">
-            <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-[2rem] overflow-hidden shadow-2xl relative">
-              
-              {/* Sidebar Background Blur Effect */}
-              <div className="absolute inset-0 pointer-events-none opacity-50 bg-zinc-950/20 backdrop-blur-3xl" />
+          {/* ── LEFT SIDEBAR (SCREENSHOT 1 STYLE) ── */}
+          <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
+            <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden p-8 flex flex-col items-center relative">
+               {/* Background Effect */}
+               {displayUser.active_mix?.profile_effect && displayUser.active_mix?.profile_effect !== 'none' && (
+                 <div className="absolute inset-0 z-[-1] opacity-20">
+                   <img 
+                     src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
+                     className="w-full h-full object-cover" 
+                   />
+                 </div>
+               )}
 
-              {/* FULL CARD PROFILE EFFECT OVERLAY */}
-              {(() => {
-                const visitorMix = displayUser.active_mix || {};
-                const activePEId = isOwnProfile ? mixState.profile_effect : visitorMix.profile_effect;
-                const previewPEId = previewEffect?.category === 'profile_effects' ? previewEffect.id : null;
-                const targetPEId = previewPEId || activePEId;
-                
-                if (targetPEId && targetPEId !== 'none') {
-                  const peData = effectsData.find(e => e.id === targetPEId);
-                  if (peData?.url) {
-                    const urlLower = peData.url.toLowerCase();
-                    const isVideo = urlLower.endsWith('.webm');
-                    const isWebp = urlLower.endsWith('.webp');
-                    const isPng = urlLower.split('?')[0].endsWith('.png');
+               <div className="relative mb-8">
+                  <div className="w-40 h-40 relative">
+                     <AnimeAvatar 
+                        src={displayUser.avatar_url} 
+                        effect={selectedDecoration}
+                        size="w-40 h-40"
+                        className="rounded-full shadow-2xl"
+                     />
+                  </div>
+               </div>
 
-                    return (
-                      <motion.div 
-                        key={targetPEId}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-[2rem]"
-                      >
-                        {isVideo ? (
-                          <video src={peData.url} autoPlay muted loop playsInline className="w-full h-full object-fill opacity-90 mix-blend-screen" />
-                        ) : isWebp ? (
-                          <img src={peData.url} alt="Profile Effect" loading="eager" className="w-full h-full object-fill opacity-90 mix-blend-screen" />
-                        ) : isPng ? (
-                          <ProfileEffectSpritesheet url={peData.url} />
-                        ) : (
-                          <img src={peData.url} alt="Profile Effect" className="w-full h-full object-fill opacity-90 mix-blend-screen" />
+               {/* SCREENSHOT 3 STYLE NAME AREA */}
+               <div className="w-full text-center space-y-4 relative z-10">
+                  <div className="relative inline-flex items-center justify-center min-w-[240px] min-h-[60px] px-10 py-4">
+                    {/* Nameplate Background */}
+                    {displayUser.active_mix?.nameplate && displayUser.active_mix?.nameplate !== 'none' && (
+                      <div className="absolute inset-0 z-[-1] rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                        <video 
+                          src={`/nameplates/${displayUser.active_mix.nameplate}`} 
+                          autoPlay 
+                          muted 
+                          loop 
+                          playsInline 
+                          className="w-full h-full object-fill opacity-100" 
+                        />
+                      </div>
+                    )}
+                    <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] z-10">
+                      {displayUser.username}
+                    </h1>
+                  </div>
+
+                  <div className="inline-flex px-4 py-1.5 rounded-full bg-zinc-950 border border-zinc-800">
+                     <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">{displayUser.fullLabel}</span>
+                  </div>
+
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-40" />
+                  
+                  <div className="flex justify-between items-end px-2">
+                     <div className="text-left">
+                        <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">RANK</div>
+                        <div className="text-[10px] font-black text-white uppercase">LV. {displayUser.level} MANGA HÜKÜMDARI</div>
+                     </div>
+                     <div className="text-right">
+                        <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">TOTAL XP</div>
+                        <div className="text-[10px] font-black text-white">{displayUser.xp}</div>
+                     </div>
+                  </div>
+               </div>
+
+               {/* Discord Seal / Mührü (Interaktif) */}
+               <div className="w-full mt-8 pt-8 border-t border-white/5 space-y-4">
+                  {displayUser.discord_id ? (
+                     <div className="group relative p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-4 overflow-hidden">
+                        <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
+                                 <Shield size={14} />
+                              </div>
+                              <span className="text-[10px] font-black text-white uppercase tracking-widest">Discord Mührü</span>
+                           </div>
+                           <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#10b981]" />
+                        </div>
+                        {isOwnProfile && (
+                           <button 
+                              onClick={disconnectDiscord}
+                              className="w-full py-2 bg-zinc-950/50 hover:bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl border border-white/5 hover:border-red-500/20 transition-all"
+                           >
+                              MÜHRÜ BOZ
+                           </button>
                         )}
-                      </motion.div>
-                    );
-                  }
-                }
-                return null;
-              })()}
+                     </div>
+                  ) : isOwnProfile ? (
+                     <div className="space-y-4">
+                        {verifCode && timeLeft > 0 ? (
+                           <div className="p-5 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 space-y-4 text-center animate-in zoom-in-95 duration-300">
+                              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Senkronizasyon Kodu</p>
+                              <div className="py-3 bg-zinc-950 rounded-xl border border-indigo-500/30">
+                                 <span className="text-2xl font-black text-white tracking-[0.2em] font-mono select-all leading-none">{verifCode}</span>
+                              </div>
+                              <div className="flex items-center justify-center gap-2">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                 <p className="text-[9px] font-bold text-amber-500/80 uppercase">Geçerlilik: {formatTime(timeLeft)}</p>
+                              </div>
+                              <button 
+                                 onClick={generateDiscordCode}
+                                 className="text-[9px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors"
+                              >
+                                 YENİ KOD AL
+                              </button>
+                           </div>
+                        ) : (
+                           <button 
+                              onClick={generateDiscordCode}
+                              disabled={isGenerating}
+                              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
+                           >
+                              <Shield size={14} />
+                              {isGenerating ? 'YÜKLENİYOR...' : 'DİSCORD BAĞLA'}
+                           </button>
+                        )}
+                     </div>
+                  ) : (
+                     <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-800/20 border border-white/5 opacity-50">
+                        <div className="flex items-center gap-3">
+                           <div className="p-2 rounded-lg bg-zinc-800 text-zinc-500">
+                              <MessageSquare size={14} />
+                           </div>
+                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Mühür Yok</span>
+                        </div>
+                     </div>
+                  )}
+               </div>
 
-              {/* Profile Header */}
-              <div className="p-8 flex flex-col items-center text-center space-y-12 relative z-10">
-                <div className="relative group">
-                  <AnimeAvatar 
-                    src={displayUser.avatar_url} 
-                    effect={(previewEffect?.category !== 'profile_effects' ? previewEffect : null) || activeEffectObj} 
-                    size="w-32 h-32" 
-                    forcePlay={true}
-                  />
-                </div>
+               <p className="text-zinc-500 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic">
+                 "{displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}"
+               </p>
 
-                <div className="relative w-[calc(100%+4rem)] -mx-8 h-[110px] flex flex-col items-center justify-center overflow-hidden border-y border-white/5 bg-[#0B0E14] shadow-xl group">
-                  {/* --- NAMEPLATE VIDEO BACKGROUND --- */}
-                  {(isOwnProfile ? mixState.nameplate : (displayUser.active_mix?.nameplate || 'none')) !== 'none' && (
-                    <div className="absolute inset-0 z-0">
-                      <video 
-                        src={`/nameplates/${isOwnProfile ? mixState.nameplate : displayUser.active_mix.nameplate}`} 
-                        autoPlay muted loop playsInline 
-                        className="w-full h-full object-cover opacity-100"
+               <div className="w-full space-y-3">
+                  {isOwnProfile ? (
+                    <>
+                      <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-[10px] font-black uppercase tracking-widest transition-all">PROFİLİ DÜZENLE</button>
+                      <button onClick={() => navigate('/elite-upgrade')} className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <Crown size={14} /> PREMIUM
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button onClick={handleFollow} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isFollowing ? 'bg-zinc-800 text-zinc-400' : 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'}`}>
+                        {isFollowing ? 'TAKİPTEN ÇIK' : 'TAKİP ET'}
+                      </button>
+                      <button onClick={handleStartChat} className="p-4 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-white transition-all"><MessageSquare size={16} /></button>
+                    </div>
+                  )}
+               </div>
+
+               <div className="w-full mt-10 pt-8 border-t border-white/5 space-y-8">
+                  <div className="space-y-4">
+                     <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">BAĞLANTILAR</div>
+                     <div className="space-y-2">
+                        {userLinks.map((link, idx) => (
+                           <a key={idx} href={getPlatformUrl(link)} target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-black/20 border border-white/5 hover:border-blue-500/30 transition-all group">
+                              <div className="flex items-center gap-3">
+                                 {getSocialIcon(link.platform)}
+                                 <span className="text-[10px] font-black text-zinc-300 uppercase">{link.platform}</span>
+                              </div>
+                              <ChevronRight size={12} className="text-zinc-600 group-hover:text-blue-400 transition-colors" />
+                           </a>
+                        ))}
+                        {isOwnProfile && userLinks.length === 0 && (
+                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-white/10 text-[9px] font-black text-zinc-500 hover:text-white transition-all uppercase">HESABI BAĞLA</button>
+                        )}
+                     </div>
+                  </div>
+
+                  <div className="space-y-4">
+                     <div className="flex justify-between items-center">
+                        <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">BAŞARIMLAR</div>
+                        <div className="text-[9px] font-black text-zinc-500">{userAchievements.length}/100</div>
+                     </div>
+                     <div className="flex flex-wrap gap-2">
+                        {userAchievements.slice(0, 5).map((ua, i) => (
+                           <div key={i} className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/5 flex items-center justify-center text-amber-500" title={ua.achievements?.name}>
+                              <Award size={14} />
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-[9px] font-black text-zinc-500 uppercase tracking-widest pt-4 border-t border-white/5">
+                     <Calendar size={14} className="text-blue-500" />
+                     {new Date(displayUser.joinDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} TARIHINDEN BERI ÜYE
+                  </div>
+               </div>
+            </div>
+          </aside>
+
+          {/* ── MIDDLE MAIN CONTENT (SCREENSHOT 1 & 2 STYLE) ── */}
+          <main className="flex-1 min-w-0 space-y-8">
+            
+            {/* LARGE BANNER CARD */}
+            <div className="relative rounded-[3rem] overflow-hidden bg-zinc-900 border border-white/5 aspect-[16/6] lg:aspect-[16/5]">
+               <div className="absolute inset-0">
+                  <img src="https://images.unsplash.com/photo-1541560052-77ec1bbc09f7?q=80&w=2574&auto=format&fit=crop" className="w-full h-full object-cover" />
+                  
+                  {/* Profile Effect Overlay on Banner */}
+                  {displayUser.active_mix?.profile_effect && displayUser.active_mix?.profile_effect !== 'none' && (
+                    <div className="absolute inset-0 z-10 opacity-30 mix-blend-screen overflow-hidden pointer-events-none">
+                      <img 
+                        src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
+                        className="w-full h-full object-cover animate-pulse" 
+                        style={{ animationDuration: '10s' }}
                       />
                     </div>
                   )}
 
-                  <div className="relative z-10 w-full px-12 flex flex-col items-center gap-1">
-                    {/* USERNAME */}
-                    <h2 className={`text-xl md:text-2xl font-black tracking-tighter drop-shadow-[0_2px_10px_rgba(0,0,0,1)] text-center leading-none ${
-                      (isOwnProfile ? mixState.nametag : (displayUser.active_mix?.nametag || 'none')) !== 'none' 
-                        ? `nametag-effect-${isOwnProfile ? mixState.nametag : displayUser.active_mix.nametag}` 
-                        : (displayUser.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : (displayUser.rank === 'Ulusal Seviye Avcı' || displayUser.premium) ? 'rank-glow-gold' : 'text-white')
-                    }`}>
-                      <span className="truncate max-w-[240px] block">{displayUser.username}</span>
-                    </h2>
-
-                    {/* RANK CAPSULE */}
-                    <div className="px-5 py-0.5 rounded-full bg-black/90 backdrop-blur-md border border-white/10">
-                       <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.2em] block">
-                         {displayUser.rank || 'ÇAYLAK OKUR'}
-                       </span>
-                    </div>
-                    
-                    {/* XP Progress Bar */}
-                    <div className="w-full max-w-[180px] space-y-1">
-                       <div className="w-full h-[1px] bg-white/10 rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${displayUser.progress}%` }}
-                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500"
-                          />
-                       </div>
-                       <div className="flex justify-between items-center px-1 font-black uppercase text-[8px] text-zinc-400 tracking-widest">
-                          <span>{displayUser.fullLabel}</span>
-                          <span>{displayUser.xp || 0} XP</span>
-                       </div>
-                    </div>
-                  </div>
-                </div>
-
-
-                <p className="text-zinc-400 text-xs italic font-medium">
-                  "{displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}"
-                </p>
-
-                {!isOwnProfile && currentUser && (
-                  <div className="flex gap-2 w-full pt-2">
-                    <button 
-                      onClick={handleFollow}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-xl ${
-                        isFollowing 
-                        ? 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700' 
-                        : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-500/20'
-                      }`}
-                    >
-                      {isFollowing ? <Minus size={14} /> : <UserPlus size={14} />}
-                      {isFollowing ? 'Takipten Çık' : 'Takip Et'}
-                    </button>
-                    <button 
-                      onClick={handleStartChat}
-                      className="p-3 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:text-white transition-all"
-                    >
-                      <Mail size={16} />
-                    </button>
-                  </div>
-                )}
-
-                {isOwnProfile && (
-                  <div className="flex gap-2 w-full pt-2">
-                    <button 
-                      onClick={() => navigate('/settings')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-[10px] font-black uppercase hover:bg-zinc-800 transition-all"
-                    >
-                      <Edit3 size={14} /> Profili Düzenle
-                    </button>
-                    <button 
-                      onClick={() => setShowLinksModal(true)}
-                      className="p-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:text-white transition-all"
-                    >
-                      <LinkIcon size={16} />
-                    </button>
-                    <button 
-                      onClick={() => setShowPremiumModal(true)}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black uppercase shadow-lg shadow-amber-500/20 hover:scale-105 transition-all flex items-center gap-1"
-                    >
-                      <Crown size={12} /> PREMIUM
-                    </button>
-                    {(currentUser?.role === 'Baş Admin' || currentUser?.role === 'Yönetici') && (
-                      <Link to="/admin" className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase hover:bg-amber-500/20 transition-all">
-                        <Shield size={14} />
-                      </Link>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Stats Grid */}
-              <div className="profile-stats-grid">
-                {[
-                  { label: 'TAKİPÇİ', value: followersCount },
-                  { label: 'TAKİP', value: followingCount },
-                  { label: 'FAVORİ', value: favoritesCount },
-                  { label: 'YORUM', value: commentsCount },
-                ].map((stat, i) => (
-                  <div key={i}>
-                    <span className="text-xs font-black text-white">{stat.value}</span>
-                    <span className="text-[7px] font-black text-zinc-500 uppercase tracking-tighter">{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Footer Info */}
-              <div className="p-6 space-y-6">
-                <div className="flex items-center gap-2 text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
-                  <Calendar size={14} /> {displayUser.joinDate || '29 Nis 2026'} Tarihinden Beri Üye
-                </div>
-
-                {/* Social Links & Discord Sync */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">BAĞLANTILAR</h3>
-                    {isOwnProfile && displayUser.discord_id && (
-                      <span className="text-[8px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <Check size={8} /> DISCORD MÜHÜRLÜ
-                      </span>
-                    )}
-                  </div>
-
-                  {isOwnProfile && !displayUser.discord_id && (
-                    <div className="p-4 rounded-2xl bg-indigo-600/5 border border-indigo-500/20 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/20">
-                          <Shield size={16} />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-20" />
+               </div>
+               
+               <div className="absolute inset-0 p-10 lg:p-16 flex flex-col justify-end">
+                  <p className="text-zinc-400 text-sm font-bold uppercase tracking-[0.2em] mb-4">Hoş geldin,</p>
+                  <h2 className="text-6xl font-black text-white uppercase tracking-tighter mb-4">{displayUser.username} <span className="text-xl align-middle text-blue-500 opacity-50 ml-2">LV. {displayUser.level}</span></h2>
+                  <p className="text-zinc-400 max-w-xl text-sm font-medium leading-relaxed mb-10">Manga okumak, başka dünyalarda yaşamaktır. Kendi efsaneni burada inşa etmeye devam et uşağım.</p>
+                  
+                  {/* STATS ROW (SCREENSHOT 2 STYLE) */}
+                  <div className="flex flex-wrap gap-10">
+                     {[
+                        { label: 'Okuduğu Seri', value: readHistory.length, icon: BookOpen },
+                        { label: 'Favoriler', value: favoritesCount, icon: Star },
+                        { label: 'Yorumlar', value: commentsCount, icon: MessageSquare },
+                        { label: 'Takipçi', value: followersCount, icon: UserPlus },
+                        { label: 'Takip', value: followingCount, icon: User },
+                        { label: 'Günlük Seri', value: 12, icon: Zap },
+                     ].map((stat, i) => (
+                        <div key={i} className="flex items-center gap-4">
+                           <div className="w-12 h-12 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                              <stat.icon size={20} />
+                           </div>
+                           <div>
+                              <div className="text-2xl font-black text-white">{stat.value}</div>
+                              <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</div>
+                           </div>
                         </div>
-                        <div>
-                          <h4 className="text-[10px] font-black text-white uppercase tracking-tight">Discord Mührü</h4>
-                          <p className="text-[8px] text-zinc-500 font-bold uppercase">XP ve Rütbe Senkronizasyonu</p>
+                     ))}
+                  </div>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                {/* DEVAM EDİYOR (ALT ALTA LİSTE) */}
+                <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8 space-y-8">
+                   <div className="flex justify-between items-center">
+                      <h3 className="text-sm font-black text-white uppercase tracking-widest">DEVAM EDİYOR</h3>
+                      <button onClick={() => setActiveTab('okunanlar')} className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Tümünü Gör <ChevronRight size={10} className="inline ml-1" /></button>
+                   </div>
+                   
+                   <div className="space-y-6">
+                     {readHistory.length > 0 ? readHistory.slice(0, 3).map((history, idx) => (
+                       <div key={idx} className="flex gap-6 group">
+                          <div className="w-24 h-36 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-white/5 group-hover:scale-105 transition-transform">
+                             <img src={history.series?.cover} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 flex flex-col justify-center py-2">
+                             <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{history.series?.title}</h4>
+                             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6">Bölüm {history.last_read_chapter}</p>
+                             
+                             <div className="space-y-4">
+                                <div className="flex justify-between items-end">
+                                   <div className="h-1.5 flex-1 bg-zinc-800 rounded-full overflow-hidden mr-4">
+                                      <div className="h-full w-[78%] bg-blue-600 rounded-full" />
+                                   </div>
+                                   <span className="text-[10px] font-black text-zinc-500">%78</span>
+                                </div>
+                                <Link to={`/manhwa/${history.series_id}`} className="px-6 py-3 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 w-fit">
+                                   <Play size={12} className="fill-current" /> Devam Et
+                                </Link>
+                             </div>
+                          </div>
+                       </div>
+                     )) : (
+                       <div className="py-12 text-center text-zinc-600 text-[10px] font-bold uppercase">Henüz okunmuş bir seri yok.</div>
+                     )}
+                   </div>
+                </div>
+
+               {/* OKUMA İSTATİSTİKLERİ */}
+               <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8">
+                  <div className="flex justify-between items-center mb-8">
+                     <h3 className="text-sm font-black text-white uppercase tracking-widest">OKUMA İSTATİSTİKLERİ</h3>
+                     <select className="bg-zinc-800 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-none rounded-lg py-2 px-4 outline-none">
+                        <option>Bu Ay</option>
+                     </select>
+                  </div>
+                  
+                  <div className="flex items-center gap-10">
+                     <div className="relative w-32 h-32 flex-shrink-0">
+                        <svg className="w-full h-full -rotate-90">
+                           <circle cx="64" cy="64" r="58" fill="none" stroke="currentColor" strokeWidth="12" className="text-zinc-800" />
+                           <circle cx="64" cy="64" r="58" fill="none" stroke="currentColor" strokeWidth="12" strokeDasharray="364.4" strokeDashoffset="260" className="text-blue-500" />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                           <span className="text-3xl font-black text-white leading-none">36</span>
+                           <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mt-1">Saat</span>
+                        </div>
+                     </div>
+                     
+                     <div className="flex-1 space-y-4">
+                        {[
+                           { label: 'Okuma Süresi', value: '36 saat', color: 'bg-blue-500' },
+                           { label: 'Okuduğun Bölüm', value: '245', color: 'bg-purple-500' },
+                           { label: 'Tamamlanan Seri', value: '8', color: 'bg-emerald-500' },
+                           { label: 'Favoriye Eklenen', value: '12', color: 'bg-orange-500' },
+                        ].map((item, i) => (
+                           <div key={i} className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                 <div className={`w-2 h-2 rounded-full ${item.color}`} />
+                                 <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{item.label}</span>
+                              </div>
+                              <span className="text-[10px] font-black text-white uppercase">{item.value}</span>
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            {/* LOWER CONTENT AREA */}
+            <AnimatePresence mode="wait">
+               <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-10"
+               >
+                  {activeTab === 'etkinlik' && (
+                    <div className="grid grid-cols-1 gap-8">
+                       {/* FAVORİLERİM */}
+                       <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
+                          <div className="flex justify-between items-center">
+                             <h3 className="text-sm font-black text-white uppercase tracking-widest">FAVORİLERİM</h3>
+                             <button className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Tümünü Gör <ChevronRight size={10} className="inline ml-1" /></button>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                             {readHistory.slice(0, 6).map((h, i) => (
+                               <Link key={i} to={`/manhwa/${h.series_id}`} className="group relative rounded-2xl overflow-hidden aspect-[2/3] bg-zinc-950 border border-white/5">
+                                  <img src={h.series?.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+                                  <div className="absolute bottom-3 left-3 right-3">
+                                     <div className="text-[9px] font-black text-white uppercase truncate">{h.series?.title}</div>
+                                     <div className="text-[7px] font-black text-zinc-500 uppercase">Bölüm {h.last_read_chapter}</div>
+                                  </div>
+                               </Link>
+                             ))}
+                          </div>
+                       </div>
+
+                       {/* SON AKTİVİTELER */}
+                       <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
+                          <div className="flex justify-between items-center">
+                             <h3 className="text-sm font-black text-white uppercase tracking-widest">SON AKTİVİTELER</h3>
+                             <button className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Tümünü Gör <ChevronRight size={10} className="inline ml-1" /></button>
+                          </div>
+                          <div className="space-y-6">
+                             {readHistory.slice(0, 5).map((h, i) => (
+                               <div key={i} className="flex items-center gap-4 group">
+                                  <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/5">
+                                     <img src={h.series?.cover} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div className="flex-1">
+                                     <div className="text-[10px] font-black text-zinc-300 uppercase leading-none">
+                                        <span className="text-white">{h.series?.title}</span> serisinin {h.last_read_chapter}. bölümünü okudu.
+                                     </div>
+                                     <div className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mt-1">2 saat önce</div>
+                                  </div>
+                               </div>
+                             ))}
+                          </div>
+                       </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'okunanlar' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                       {readHistory.map((h, i) => (
+                          <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}>
+                             <Link to={`/manhwa/${h.series_id}`} className="group block glass bg-zinc-950/40 border border-white/5 rounded-[2rem] p-5 hover:border-blue-500/30 transition-all">
+                                <div className="flex gap-5">
+                                   <div className="w-24 h-32 rounded-xl overflow-hidden shrink-0 shadow-2xl">
+                                      <img src={h.series?.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                   </div>
+                                   <div className="flex-1 flex flex-col justify-center">
+                                      <h4 className="text-sm font-black text-white uppercase truncate mb-1">{h.series?.title}</h4>
+                                      <p className="text-[10px] font-black text-zinc-500 uppercase mb-4">Bölüm {h.last_read_chapter}</p>
+                                      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                         <div className="h-full w-[70%] bg-blue-600" />
+                                      </div>
+                                   </div>
+                                </div>
+                             </Link>
+                          </motion.div>
+                       ))}
+                    </div>
+                  )}
+
+                  {activeTab === 'mal' && (
+                    <div className="space-y-10">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3.5 rounded-[1.5rem] bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/5">
+                            <Tv size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">MAL Kütüphanesi</h3>
+                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">MyAnimeList üzerinden senkronize edilen kadim kayıtlar</p>
+                          </div>
                         </div>
                       </div>
 
-                      {!verifCode ? (
-                        <button 
-                          onClick={generateDiscordCode}
-                          disabled={isGenerating}
-                          className="w-full py-2.5 rounded-xl bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest hover:bg-indigo-500 transition-all disabled:opacity-50"
-                        >
-                          {isGenerating ? 'MÜHÜR ÜRETİLİYOR...' : 'HESABI BAĞLA'}
-                        </button>
+                      {malLoading ? (
+                        <div className="py-20 flex flex-col items-center justify-center gap-6">
+                           <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+                           <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest animate-pulse">MAL Verileri Işınlanıyor...</p>
+                        </div>
+                      ) : malError ? (
+                        <div className="py-20 text-center space-y-6">
+                           <div className="w-20 h-20 mx-auto rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
+                             <AlertCircle size={32} />
+                           </div>
+                           <p className="text-red-400 font-bold uppercase text-[10px] tracking-widest">{malError}</p>
+                        </div>
+                      ) : malList.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                           {malList.map((item, idx) => (
+                             <motion.div
+                               key={idx}
+                               initial={{ opacity: 0, scale: 0.9 }}
+                               animate={{ opacity: 1, scale: 1 }}
+                               transition={{ delay: idx * 0.05 }}
+                               className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 hover:border-blue-500/40 transition-all shadow-2xl"
+                             >
+                                <div className="aspect-[2/3] relative">
+                                   <img src={item.node?.main_picture?.medium} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                                   <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-white/10 text-[10px] font-black text-blue-400">
+                                      {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
+                                   </div>
+                                </div>
+                                <div className="p-4 space-y-2">
+                                   <h5 className="text-[11px] font-black text-white uppercase truncate tracking-tighter">{item.node?.title}</h5>
+                                   <div className="flex items-center justify-between">
+                                      <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
+                                      <span className="text-[8px] font-black text-blue-500 uppercase">{item.list_status?.num_episodes_watched || item.list_status?.num_chapters_read} / {item.node?.num_episodes || item.node?.num_chapters || '?'}</span>
+                                   </div>
+                                </div>
+                             </motion.div>
+                           ))}
+                        </div>
                       ) : (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex-1 bg-black/40 border border-white/10 rounded-lg py-2 px-3 text-center">
-                              <span className="text-xs font-black text-indigo-400 tracking-widest uppercase">{verifCode}</span>
-                            </div>
-                            <div className="bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-center min-w-[50px]">
-                              <span className="text-[10px] font-black text-zinc-400">{formatTime(timeLeft)}</span>
-                            </div>
-                          </div>
-                          <p className="text-[8px] text-zinc-500 text-center font-medium italic">
-                            Discord'da <code className="text-indigo-400 bg-indigo-400/10 px-1 rounded">/bagla {verifCode}</code> komutunu kullan uşağım!
-                          </p>
+                        <div className="py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5 space-y-6">
+                           <Tv size={64} className="text-zinc-800 mx-auto opacity-10" />
+                           <p className="text-white font-black uppercase text-xs tracking-[0.2em]">MAL Listesi Boş veya Bağlı Değil</p>
                         </div>
                       )}
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-2">
-                    {userLinks.map((link, idx) => (
-                      <a 
-                        key={idx}
-                        href={getPlatformUrl(link)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-2xl bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900 transition-all group"
-                      >
-                         {getSocialIcon(link.platform)}
-                         <span className="text-[10px] font-bold text-zinc-400 group-hover:text-white truncate">{link.value}</span>
-                      </a>
-                    ))}
-                    {isOwnProfile && (
-                      <button 
-                        onClick={() => setShowLinksModal(true)}
-                        className="flex items-center justify-center gap-2 mt-1 p-3 rounded-2xl bg-zinc-950/20 border border-dashed border-zinc-800/50 text-[9px] font-black uppercase text-zinc-500 hover:text-white hover:border-zinc-600 transition-all"
-                      >
-                        <Plus size={12} /> Bağlantı Ekle
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* XP Progress */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
-                    <span className="text-zinc-500">{displayUser.fullLabel}</span>
-                    <span className="text-zinc-400">{displayUser.level === 100 ? 'MAX LEVEL' : `${displayUser.xpInLevel} / ${displayUser.xpForNext} XP`}</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden border border-zinc-800/50">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${displayUser.progress}%` }}
-                      className="h-full bg-gradient-to-r from-purple-600 to-blue-500" 
-                    />
-                  </div>
-                </div>
-
-                {/* Achievements Preview */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">BAŞARIMLAR</h3>
-                      <span className="text-[9px] font-black text-zinc-500">{userAchievements?.length || 0}/100</span>
-                    </div>
-                    <div className="grid grid-cols-5 gap-2">
-                      {userAchievements?.slice(0, 5).map((ua, i) => (
-                        <div key={i} title={ua.achievements?.name} className="aspect-square rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
-                          <Award size={14} />
-                        </div>
-                      ))}
-                      {[...Array(Math.max(0, 5 - (userAchievements?.length || 0)))].map((_, i) => (
-                        <div key={i} className="aspect-square rounded-lg bg-zinc-950/50 border border-zinc-800/50 flex items-center justify-center text-zinc-800">
-                          <Lock size={12} />
-                        </div>
-                      ))}
-                    </div>
-                </div>
-              </div>
-            </div>
-          </aside>
-          {/* RIGHT CONTENT: Tabs & Sections */}
-          <main className="flex-1 min-w-0 space-y-6">
-            
-            {/* Tab Navigation */}
-            <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-2xl p-1.5 flex gap-1 overflow-x-auto no-scrollbar">
-              {tabs.map((tab) => {
-                const tabClass = `flex-1 min-w-[110px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === tab.id 
-                    ? 'bg-zinc-800 text-white shadow-xl' 
-                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
-                }`;
-                if (tab.link) {
-                  return (
-                    <Link key={tab.id} to={tab.link} className={tabClass}>
-                      <tab.icon size={16} />
-                      {tab.label}
-                    </Link>
-                  );
-                }
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={tabClass}
-                  >
-                    <tab.icon size={16} />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Content Area */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-[2.5rem] p-8 min-h-[600px]"
-              >
-                {activeTab === 'okunanlar' && (
-                  <div className="space-y-8">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-400">
-                        <History size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-black text-white uppercase tracking-tight">Okuma Geçmişi</h3>
-                        <p className="text-zinc-500 text-xs">Kaldığın yerden devam et uşağım!</p>
-                      </div>
-                    </div>
-
-                    {readHistory.length > 0 && (
-                      <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-purple-500/30 flex flex-col sm:flex-row items-center gap-6 mb-10 shadow-2xl shadow-purple-500/10">
-                         <div className="w-24 h-36 rounded-2xl overflow-hidden flex-shrink-0 shadow-2xl">
-                            <img src={readHistory[0].series?.cover} className="w-full h-full object-cover" />
-                         </div>
-                         <div className="flex-1 text-center sm:text-left">
-                            <h4 className="text-xl font-black text-white uppercase tracking-tight mb-1">{readHistory[0].series?.title}</h4>
-                            <p className="text-purple-400 font-bold uppercase tracking-widest text-xs">En son {readHistory[0].last_read_chapter}. Bölümde kaldın uşağım!</p>
-                            <Link 
-                              to={`/read/${readHistory[0].series_id}/${readHistory[0].last_read_chapter}`}
-                              className="inline-flex items-center gap-2 mt-4 px-8 py-3 rounded-2xl bg-purple-600 text-white font-black uppercase tracking-widest text-xs hover:bg-purple-500 transition-all shadow-xl shadow-purple-600/30"
-                            >
-                               OKUMAYA DEVAM ET <ArrowRight size={16} />
-                            </Link>
-                         </div>
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {readHistory.length > 0 ? readHistory.map((h, i) => (
-                        <div key={i} className="flex gap-4 p-4 rounded-2xl bg-zinc-900 border border-zinc-800/50 hover:border-purple-500/30 transition-all group">
-                          <div className="w-20 h-28 rounded-xl overflow-hidden flex-shrink-0">
-                            <img src={h.series?.cover} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  {activeTab === 'listeler' && (
+                    <div className="space-y-10">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3.5 rounded-[1.5rem] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+                            <BookOpen size={24} />
                           </div>
-                          <div className="flex-1 flex flex-col justify-center">
-                            <h4 className="text-sm font-black text-white line-clamp-1">{h.series?.title}</h4>
-                            <p className="text-[10px] text-purple-400 font-bold uppercase mt-1">Bölüm {h.last_read_chapter}</p>
-                            <p className="text-[9px] text-zinc-600 mt-2">{new Date(h.updated_at).toLocaleDateString('tr-TR')}</p>
+                          <div>
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kadim Koleksiyonlar</h3>
+                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Kendi küratörlüğünle mühürlenmiş seriler</p>
                           </div>
-                          <Link to={`/read/${h.series_id}/${h.last_read_chapter}`} className="self-center p-3 rounded-xl bg-purple-600/10 text-purple-400 hover:bg-purple-600 hover:text-white transition-all">
-                            <Play size={16} fill="currentColor" />
-                          </Link>
                         </div>
-                      )) : (
-                        <p className="text-zinc-500 text-sm italic col-span-full py-10 text-center">Henüz bir okuma geçmişi mühürlenmemiş.</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'mal' && (
-                  <div className="space-y-8">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400">
-                        <Tv size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-black text-white uppercase tracking-tight">MyAnimeList Listesi</h3>
-                        <p className="text-zinc-500 text-xs">{displayUser.username} kullanıcısının MAL verileri.</p>
-                      </div>
-                    </div>
-
-                    {!displayUser.mal_username ? (
-                      <div className="p-10 rounded-[2.5rem] bg-zinc-900/50 border border-dashed border-zinc-800 flex flex-col items-center text-center space-y-6">
-                        <div className="p-5 rounded-full bg-blue-500/10 text-blue-400">
-                          <Tv size={40} />
-                        </div>
-                        <div className="space-y-2">
-                          <h4 className="text-xl font-black text-white uppercase tracking-tight">MAL Hesabın Bağlı Değil</h4>
-                          <p className="text-zinc-500 text-sm max-w-md">MyAnimeList hesabını bağlayarak anime listeni burada sergileyebilir ve arkadaşlarının ne izlediğini görmesini sağlayabilirsin.</p>
-                        </div>
-                        <div className="flex gap-4">
+                        {isOwnProfile && (
                           <button 
-                            onClick={() => setShowLinksModal(true)}
-                            className="px-8 py-3 rounded-2xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20"
+                            onClick={() => setShowCreateListModal(true)}
+                            className="px-8 py-3.5 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                           >
-                            HESABI BAĞLA
+                            <Plus size={16} /> Yeni Liste
                           </button>
-                        </div>
+                        )}
                       </div>
-                    ) : malLoading ? (
-                      <div className="flex flex-col items-center justify-center py-20 gap-6">
-                        <div className="relative">
-                          <div className="w-16 h-16 border-4 border-blue-500/10 border-t-blue-500 rounded-full animate-spin" />
-                          <Tv className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500/50" size={20} />
-                        </div>
-                        <div className="text-center space-y-2">
-                           <p className="text-blue-400 text-xs font-black uppercase tracking-widest">MAL Verileri Mühürleniyor...</p>
-                           <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-tight">Kullanıcı: {displayUser.mal_username}</p>
-                        </div>
-                      </div>
-                    ) : malError || (displayUser.mal_username && malList.length === 0) ? (
-                      <div className="p-10 rounded-[2.5rem] bg-zinc-900/30 border border-dashed border-zinc-800/50 flex flex-col items-center text-center space-y-6">
-                        <div className="p-5 rounded-full bg-red-500/5 text-red-500/40">
-                          <AlertCircle size={40} />
-                        </div>
-                        <div className="space-y-2">
-                          <h4 className="text-lg font-black text-white uppercase tracking-tight">Liste Boş</h4>
-                          <p className="text-zinc-500 text-xs max-w-xs leading-relaxed">
-                            {malError || "Lütfen MyAnimeList hesabınızdan içerik ekleyin veya listenizin herkese açık olduğundan emin olun."}
-                          </p>
-                        </div>
-                        <button 
-                           onClick={() => fetchSocialData(displayUser.id, displayUser.mal_username)}
-                           className="px-6 py-2 rounded-xl bg-zinc-800 text-zinc-300 text-[10px] font-black uppercase hover:bg-zinc-700 transition-all"
-                        >
-                           Yeniden Dene
-                        </button>
-                      </div>
-                    ) : malList.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {malList.map((item, i) => (
-                          <div key={i} className="group relative aspect-[2/3] rounded-2xl overflow-hidden border border-white/5 bg-zinc-900 shadow-xl">
-                            <img src={item.anime?.images?.jpg?.image_url || item.manga?.images?.jpg?.image_url} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-3">
-                              <p className="text-[9px] font-black text-white line-clamp-2 uppercase leading-tight tracking-tighter">
-                                {item.anime?.title || item.manga?.title}
-                              </p>
-                              <div className="flex items-center justify-between mt-1">
-                                <span className="text-[8px] text-blue-400 font-bold uppercase">{item.status || 'İzliyor'}</span>
-                                <span className="text-[8px] text-amber-500 font-bold">★ {item.score || '-'}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
-                        <Tv size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
-                        <p className="text-zinc-500 text-sm italic font-medium">Bu kullanıcı henüz MyAnimeList hesabını bağlamamış.</p>
-                      </div>
-                    )}
-                  </div>
-                )}
 
-
-                {activeTab === 'listeler' && (
-                  <div className="space-y-8">
-                    {/* ── CREATE LIST MODAL ── */}
-                    <AnimatePresence>
-                      {showCreateListModal && (
-                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {customLists?.length > 0 ? customLists?.map((list, i) => (
                           <motion.div 
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            onClick={() => setShowCreateListModal(false)}
-                            className="absolute inset-0 bg-black/90 backdrop-blur-md" 
-                          />
-                          <motion.div 
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="relative w-full max-w-lg bg-[#0D1117] border border-white/10 rounded-[3rem] p-10 shadow-2xl overflow-hidden"
+                            key={i} 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
+                            className="group glass border border-white/5 rounded-[3rem] p-10 bg-zinc-950 hover:border-indigo-500/40 transition-all cursor-pointer relative overflow-hidden shadow-2xl"
                           >
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
                             
-                            <div className="flex items-center justify-between mb-8">
-                              <div>
-                                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Yeni Liste Oluştur</h3>
-                                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Özel koleksiyonunu mühürle</p>
-                              </div>
-                              <button onClick={() => setShowCreateListModal(false)} className="p-3 rounded-2xl bg-white/5 text-zinc-500 hover:text-white transition-all">
-                                <X size={24} />
-                              </button>
+                            <div className="flex justify-between items-start mb-10">
+                               <div>
+                                  <h4 className="text-2xl font-black text-white uppercase tracking-tighter group-hover:text-indigo-400 transition-colors leading-none">{list.name}</h4>
+                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ KOLEKSİYONU</p>
+                               </div>
+                               <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                                  <ArrowRight size={20} />
+                               </div>
                             </div>
 
-                            <form onSubmit={handleCreateList} className="space-y-6">
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Liste Adı</label>
-                                <input 
-                                  type="text" 
-                                  placeholder="Örn: Favori Seinen Serilerim" 
-                                  autoFocus
-                                  value={newListName}
-                                  onChange={e => setNewListName(e.target.value)}
-                                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm text-white focus:border-indigo-500/50 outline-none transition-all"
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Açıklama (Opsiyonel)</label>
-                                <textarea 
-                                  placeholder="Bu liste hakkında kısa bir bilgi..." 
-                                  rows={3}
-                                  value={newListDesc}
-                                  onChange={e => setNewListDesc(e.target.value)}
-                                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm text-white focus:border-indigo-500/50 outline-none transition-all resize-none"
-                                />
-                              </div>
-
-                              <button 
-                                type="submit"
-                                disabled={isListCreating || !newListName.trim()}
-                                className="w-full py-5 rounded-[2rem] bg-indigo-600 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/30 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
-                              >
-                                {isListCreating ? 'MÜHÜRLENİYOR...' : 'LİSTEYİ OLUŞTUR'}
-                              </button>
-                            </form>
-                          </motion.div>
-                        </div>
-                      )}
-                    </AnimatePresence>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-400">
-                          <BookOpen size={24} />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black text-white uppercase tracking-tight">Özel Listeler</h3>
-                          <p className="text-zinc-500 text-xs">{displayUser.username} tarafından küratörlüğü yapılmış koleksiyonlar.</p>
-                        </div>
-                      </div>
-                      {isOwnProfile && (
-                        <button 
-                          onClick={() => setShowCreateListModal(true)}
-                          className="px-6 py-3 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all flex items-center gap-2"
-                        >
-                          <Plus size={16} /> Yeni Liste Oluştur
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {customLists?.length > 0 ? customLists?.map((list, i) => (
-                        <div 
-                          key={i} 
-                          onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
-                          className="group glass border border-white/5 rounded-[2.5rem] p-8 bg-zinc-900/40 hover:border-indigo-500/30 transition-all cursor-pointer relative overflow-hidden"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-all" />
-                          
-                          <div className="flex justify-between items-start mb-6">
-                             <div>
-                                <h4 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{list.name}</h4>
-                                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">{list.custom_list_items?.length || 0} SERİ KOLEKSİYONU</p>
-                             </div>
-                             {isOwnProfile && (
-                               <button 
-                                 onClick={(e) => { e.stopPropagation(); handleDeleteList(list.id); }}
-                                 className="p-3 rounded-2xl bg-white/5 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all"
-                               >
-                                 <Minus size={18} />
-                               </button>
-                             )}
-                          </div>
-
-                          <div className="flex -space-x-4">
-                            {list.custom_list_items?.slice(0, 5).map((item, idx) => {
-                              const s = series?.find(ser => String(ser.id) === String(item.series_id));
-                              return (
-                                <div key={idx} className="w-14 h-20 rounded-xl border-2 border-zinc-900 overflow-hidden bg-zinc-800 shadow-2xl transform transition-transform group-hover:-translate-y-2" style={{ transitionDelay: `${idx * 50}ms` }}>
-                                  <img src={s?.cover || '/placeholder.png'} className="w-full h-full object-cover" />
+                            <div className="flex -space-x-6">
+                              {list.custom_list_items?.slice(0, 4).map((item, idx) => {
+                                const s = series?.find(ser => String(ser.id) === String(item.series_id));
+                                return (
+                                  <motion.div 
+                                    key={idx} 
+                                    whileHover={{ y: -10, zIndex: 10, scale: 1.1 }}
+                                    className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-zinc-900 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transform transition-all"
+                                  >
+                                    <img src={s?.cover || '/placeholder.png'} className="w-full h-full object-cover" />
+                                  </motion.div>
+                                );
+                              })}
+                              {(list.custom_list_items?.length || 0) > 4 && (
+                                <div className="w-20 h-32 rounded-2xl border-4 border-zinc-950 bg-zinc-900 flex flex-col items-center justify-center text-xs font-black text-indigo-400 shadow-2xl">
+                                  <span>+{list.custom_list_items.length - 4}</span>
+                                  <span className="text-[8px] uppercase">Daha</span>
                                 </div>
-                              );
-                            })}
-                            {(list.custom_list_items?.length || 0) > 5 && (
-                              <div className="w-14 h-20 rounded-xl border-2 border-zinc-900 bg-zinc-950 flex items-center justify-center text-xs font-black text-indigo-400 shadow-2xl group-hover:-translate-y-2">
-                                +{list.custom_list_items.length - 5}
-                              </div>
-                            )}
-                            {(!list.custom_list_items || list.custom_list_items.length === 0) && (
-                              <div className="w-full h-20 rounded-2xl border-2 border-dashed border-white/5 flex items-center justify-center text-[10px] font-black text-zinc-700 uppercase tracking-widest">
-                                Mühürlenmiş Seri Yok
-                              </div>
-                            )}
-                          </div>
-                          
-                          <div className="mt-8 flex items-center gap-2 text-zinc-500 text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
-                             İçeriği Gör <Plus size={12} className="rotate-45" />
-                          </div>
-                        </div>
-                      )) : (
-                        <div className="col-span-full text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
-                          <BookOpen size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
-                          <p className="text-zinc-500 text-sm italic font-medium">Henüz bir özel liste oluşturulmamış. Lütfen listeler kısmında 'Yeni Liste Oluştur' butonuna basarak liste ekleyebilirsiniz!</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                 {activeTab === 'basarimlar' && (
-                   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                     <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-4">
-                         <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400">
-                           <Award size={24} />
-                         </div>
-                         <div>
-                           <h3 className="text-xl font-black text-white uppercase tracking-tight">Kozmik Başarımlar</h3>
-                           <p className="text-zinc-500 text-xs">Mühürlenmiş zaferler ve efsanevi görevler</p>
-                         </div>
-                       </div>
-                       <Link to="/achievements" className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:border-white/20 hover:text-white transition-all">
-                         Tümünü Gör
-                       </Link>
-                     </div>
-
-                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                       {userAchievements.length > 0 ? userAchievements.map((ua) => (
-                         <motion.div
-                           key={ua.id}
-                           whileHover={{ y: -5 }}
-                           className="group relative p-5 rounded-3xl bg-zinc-900 border border-zinc-800 hover:border-purple-500/50 transition-all text-center"
-                         >
-                           <div className="mb-4 relative">
-                             <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform">
-                               <Award size={24} />
-                             </div>
-                             <div className="absolute -top-1 -right-1 p-1 bg-amber-500 rounded-full shadow-lg">
-                               <Sparkles size={10} className="text-zinc-950" />
-                             </div>
-                           </div>
-                           <h4 className="text-xs font-black text-white uppercase tracking-tight line-clamp-1">{ua.achievements?.name}</h4>
-                           <p className="text-[9px] font-bold text-zinc-500 mt-1 uppercase tracking-widest">
-                             {new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}
-                           </p>
-                           
-                           {/* Hover Hint */}
-                           <div className="absolute inset-0 p-4 opacity-0 group-hover:opacity-100 bg-zinc-950/90 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center text-center transition-all">
-                             <p className="text-[9px] font-bold text-white uppercase leading-tight">{ua.achievements?.description}</p>
-                           </div>
-                         </motion.div>
-                       )) : (
-                         <div className="col-span-full py-20 text-center bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
-                           <Lock size={48} className="text-zinc-800 mx-auto mb-4 opacity-20" />
-                           <p className="text-zinc-500 text-sm italic font-medium">Henüz mühürlenmiş bir başarım yok uşağım!</p>
-                           <Link to="/achievements" className="inline-flex items-center gap-2 mt-6 text-purple-400 font-bold hover:text-purple-300 transition-colors">
-                             Yolculuğa Başla <ChevronRight size={16} />
-                           </Link>
-                         </div>
-                       )}
-                     </div>
-                   </div>
-                 )}
-
-                 {activeTab === 'customize' && (
-                  <div className="space-y-10">
-                    {/* ── HEADER ── */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400">
-                          <ShoppingCart size={24} />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black text-white uppercase tracking-tight">AniPeak Market</h3>
-                          <p className="text-zinc-500 text-xs">Elit paketlerini kuşan &amp; efektlerini seç</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setIsMixModalOpen(true)}
-                        className="px-4 py-2 rounded-xl bg-purple-600/10 border border-purple-500/20 flex items-center gap-2 hover:bg-purple-600/20 transition-all"
-                      >
-                        <Palette size={14} className="text-purple-400" />
-                        <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Efekt Karıştırıcı</span>
-                      </button>
-                    </div>
-
-                    {/* ── ELITE BUNDLES (Şimdilik Gizli) ── 
-                    <div>
-                      <div className="flex items-center gap-3 text-zinc-500 mb-5">
-                        <Crown size={14} />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest">ELİT PAKETLER</h4>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {ELITE_BUNDLES.map((bundle) => {
-                          const hasAccess = canUseBundle(bundle.id, currentUser?.role, currentUser?.unlocked_effects);
-                          const isActiveBnd = selectedBundle === bundle.id;
-                          return (
-                            <div key={bundle.id} className={`p-6 rounded-[2rem] border transition-all duration-300 relative overflow-hidden group ${
-                              isActiveBnd ? 'bg-purple-600/10 border-purple-500 shadow-[0_0_30px_rgba(139,92,246,0.25)]' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'
-                            }`}>
-                              <div className="flex items-center justify-between mb-4">
-                                <span className="text-2xl">{bundle.icon}</span>
-                                {hasAccess ? (
-                                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500"><Check size={16} /></div>
-                                ) : (
-                                  <div className="p-2 rounded-lg bg-zinc-800 text-zinc-500"><Lock size={16} /></div>
-                                )}
-                              </div>
-                              <h4 className="text-lg font-black text-white uppercase">{bundle.name}</h4>
-                              <p className="text-[10px] text-zinc-500 font-bold mb-6">{bundle.anime}</p>
-                              {hasAccess ? (
-                                <button
-                                  onClick={() => handleSaveEffects(bundle.id)}
-                                  disabled={isActiveBnd}
-                                  className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                                    isActiveBnd ? 'bg-zinc-800 text-zinc-500 cursor-default' : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:scale-105 shadow-lg shadow-purple-600/20'
-                                  }`}
-                                >
-                                  {isActiveBnd ? 'KUŞANILDI' : 'KUŞAN'}
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => setShowPremiumModal(true)}
-                                  className="w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:scale-105 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
-                                >
-                                  <Crown size={14} /> PREMIUM AL
-                                </button>
                               )}
                             </div>
-                          );
-                        })}
+                            
+                            <div className="mt-10 flex items-center gap-3 text-zinc-600 group-hover:text-indigo-500 transition-all">
+                               <div className="w-8 h-px bg-current opacity-20" />
+                               <span className="text-[9px] font-black uppercase tracking-[0.3em]">Mührü İncele</span>
+                            </div>
+                          </motion.div>
+                        )) : (
+                          <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5 space-y-6">
+                            <BookOpen size={64} className="text-zinc-800 mx-auto opacity-10" />
+                            <div>
+                               <p className="text-white font-black uppercase text-sm tracking-[0.2em]">Henüz mühürlenmiş bir listen yok</p>
+                               <p className="text-zinc-600 text-[10px] font-bold uppercase mt-2">Favori serilerini gruplayarak efsaneni başlat uşağım!</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    */}
+                  )}
 
-                    {/* ── PROFİL EFEKTLERİ (YENİ) ── */}
-                    <div>
-                      <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-3 text-zinc-500">
-                          <Zap size={14} />
-                          <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">PROFİL EFEKTLERİ (FULL KART)</h4>
+                  {activeTab === 'basarimlar' && (
+                    <div className="space-y-10">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3.5 rounded-[1.5rem] bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-lg shadow-amber-500/5">
+                            <Award size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Nişanlar</h3>
+                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Mühürlenmiş zaferler ve efsanevi görevler</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                           <div className="text-right">
+                              <div className="text-xs font-black text-white">{userAchievements?.length || 0}/100</div>
+                              <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Tamamlandı</div>
+                           </div>
+                           <div className="w-12 h-12 rounded-full border-2 border-zinc-800 flex items-center justify-center p-1">
+                              <div className="w-full h-full rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+                                 <Sparkles size={16} />
+                              </div>
+                           </div>
                         </div>
                       </div>
-                      
-                      <div className="market-grid">
-                        {/* None Option */}
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`effect-card-full group border transition-all duration-300 ease-out flex flex-col items-center justify-center p-8 text-center ${
-                            mixState.profile_effect === 'none' ? 'bg-zinc-800 ring-2 ring-indigo-500 border-transparent' : 'bg-zinc-900 border-zinc-800'
-                          }`}
-                          onClick={() => {
-                            const newMix = { ...mixState, profile_effect: 'none' };
-                            setMixState(newMix);
-                            updateProfile({ active_mix: newMix });
-                          }}
-                        >
-                          <div className="p-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-600 mb-3">
-                            <X size={24} />
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        {userAchievements.length > 0 ? userAchievements.map((ua, i) => (
+                          <motion.div
+                            key={ua.id}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.05 }}
+                            whileHover={{ y: -10, scale: 1.05 }}
+                            className="group relative p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 hover:border-amber-500/40 transition-all text-center shadow-2xl overflow-hidden"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="mb-6 relative z-10">
+                              <div className="w-16 h-16 mx-auto rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-zinc-950 shadow-[0_10px_30px_rgba(245,158,11,0.3)] group-hover:rotate-12 transition-transform duration-500">
+                                <Award size={32} />
+                              </div>
+                            </div>
+                            <div className="relative z-10 space-y-2">
+                              <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight line-clamp-1">{ua.achievements?.name}</h4>
+                              <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+                                Mühür: {new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}
+                              </p>
+                            </div>
+                            <div className="absolute inset-0 p-6 opacity-0 group-hover:opacity-100 bg-zinc-950/95 backdrop-blur-md rounded-[2.5rem] flex flex-col items-center justify-center text-center transition-all duration-300 z-20">
+                              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 mb-4">
+                                 <Info size={18} />
+                              </div>
+                              <p className="text-[10px] font-black text-white uppercase leading-relaxed tracking-tight">{ua.achievements?.description}</p>
+                            </div>
+                          </motion.div>
+                        )) : (
+                          <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5 space-y-6">
+                            <Lock size={64} className="text-zinc-800 mx-auto opacity-10" />
+                            <div>
+                              <p className="text-white font-black uppercase text-sm tracking-[0.2em]">Henüz bir nişan kazanamadın</p>
+                              <p className="text-zinc-600 text-[10px] font-bold uppercase mt-2">Okuma görevlerini tamamlayarak rütbeni kanıtla uşağım!</p>
+                            </div>
                           </div>
-                          <span className="text-[11px] font-black uppercase tracking-widest text-zinc-500">HİÇ BİRİ</span>
-                        </motion.div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-                        {effectsData.filter(e => e.category === 'profile_effects').map((effect, idx) => {
-                          const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium'];
-                          const hasPremiumAccess = premiumRoles.includes(currentUser?.role);
-                          const isPremiumLocked = !hasPremiumAccess && idx >= PREMIUM_FREE_COUNT;
-                          const isActive = mixState.profile_effect === effect.id || previewEffect?.id === effect.id;
+                  {activeTab === 'customize' && (
+                    <div className="space-y-12">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3.5 rounded-[1.5rem] bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/5">
+                            <ShoppingCart size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Cephanelik</h3>
+                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Görünüşünü efsanevi efektlerle donat</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setIsMixModalOpen(true)}
+                          className="px-8 py-3.5 rounded-2xl bg-zinc-950 border border-white/10 flex items-center gap-3 hover:bg-zinc-900 hover:border-blue-500/50 transition-all shadow-xl"
+                        >
+                          <Palette size={18} className="text-blue-400" />
+                          <span className="text-[10px] font-black text-white uppercase tracking-widest">Kombinasyon Oluştur</span>
+                        </button>
+                      </div>
 
-                          return (
+                      <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
+                         {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler'].map((f) => (
+                           <button 
+                             key={f} 
+                             onClick={() => setDecorationCategory(f)}
+                             className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-500 hover:text-white'}`}
+                           >
+                              {f}
+                           </button>
+                         ))}
+                      </div>
+
+                      {/* AVATAR ÇERÇEVELERİ */}
+                      {(decorationCategory === 'Tümü' || decorationCategory === 'Çerçeveler') && (
+                        <div>
+                          <div className="flex items-center gap-3 text-indigo-400 mb-6">
+                             <Shield size={14} />
+                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">AVATAR ÇERÇEVELERİ</h4>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                             <motion.div
-                              key={effect.id}
-                              whileHover={{ scale: isPremiumLocked ? 1.02 : 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className={`effect-card-full group border transition-all duration-300 ease-out ${
-                                isPremiumLocked
-                                  ? 'bg-zinc-900/50 border-zinc-800/50 opacity-75'
-                                  : isActive
-                                    ? 'bg-zinc-800 ring-2 ring-indigo-500 shadow-[0_0_35px_rgba(99,102,241,0.5)] border-transparent'
-                                    : 'bg-zinc-900 border-transparent hover:-translate-y-1 hover:bg-white/10 hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.6)]'
-                              }`}
-                              onMouseEnter={() => {
-                                if (!isPremiumLocked && isOwnProfile) setPreviewEffect(effect);
-                              }}
-                              onMouseLeave={() => {
-                                if (isOwnProfile) setPreviewEffect(null);
-                              }}
+                              whileHover={{ scale: 1.02 }}
                               onClick={() => {
-                                if (isPremiumLocked) {
-                                  setPremiumToast(true);
-                                  setTimeout(() => setPremiumToast(false), 3000);
-                                  return;
-                                }
-                                if (isOwnProfile) {
-                                  const newMix = { ...mixState, profile_effect: mixState.profile_effect === effect.id ? 'none' : effect.id };
+                                const newMix = { ...mixState, avatar: 'none' };
+                                setMixState(newMix);
+                                updateProfile({ active_mix: newMix });
+                              }}
+                              className={`p-6 rounded-[2.5rem] border transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer ${
+                                mixState.avatar === 'none' ? 'bg-zinc-800 border-indigo-500 ring-2 ring-indigo-500/50' : 'bg-zinc-950 border-white/5'
+                              }`}
+                            >
+                               <div className="w-12 h-12 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-700 mb-4">
+                                 <X size={20} />
+                               </div>
+                               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">HİÇ BİRİ</span>
+                            </motion.div>
+
+                            {effectsData.filter(e => e.category !== 'profile_effects' && e.category !== 'auras').map((effect) => (
+                              <motion.div
+                                key={effect.id}
+                                whileHover={{ y: -5 }}
+                                className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all duration-300 overflow-hidden cursor-pointer ${
+                                  mixState.avatar === effect.id ? 'border-indigo-500 ring-2 ring-indigo-500/50 shadow-2xl' : 'border-white/5 hover:border-white/20'
+                                }`}
+                                onClick={() => {
+                                  const newMix = { ...mixState, avatar: effect.id };
                                   setMixState(newMix);
                                   updateProfile({ active_mix: newMix });
-                                  setPreviewEffect(null);
-                                }
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-b from-indigo-900/40 to-zinc-900 z-0"></div>
-                              
-                              {/* Fake Profile Card Overlay Base */}
-                              <div className="relative z-10 flex flex-col items-center mt-8 space-y-2 w-full">
-                                <div className="w-14 h-14 rounded-full bg-zinc-800 border-2 border-zinc-700 flex-shrink-0 shadow-lg shadow-black/50 relative overflow-hidden">
-                                  <User className="absolute inset-0 m-auto text-zinc-600" size={24} />
-                                </div>
-                                <div className="text-center w-full mt-3">
-                                  <div className="w-20 h-3 bg-zinc-700 rounded-full mx-auto mb-1.5 shadow-sm"></div>
-                                  <div className="w-28 h-2 bg-zinc-800 rounded-full mx-auto mb-4"></div>
-                                  <div className="space-y-2 w-[85%] mx-auto opacity-50">
-                                    <div className="w-full h-1.5 bg-zinc-800 rounded-full"></div>
-                                    <div className="w-[90%] h-1.5 bg-zinc-800 rounded-full"></div>
-                                    <div className="w-[60%] h-1.5 bg-zinc-800 rounded-full"></div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* The Effect Layer */}
-                              <div className="effect-overlay">
-                                {(() => {
-                                  const urlLower = effect.url.toLowerCase();
-                                  const isVideo = urlLower.endsWith('.webm');
-                                  const isWebp = urlLower.endsWith('.webp');
-                                  const isPng = urlLower.split('?')[0].endsWith('.png');
-
-                                  if (isVideo) {
-                                    return <video src={effect.url} autoPlay muted loop playsInline className="w-full h-full object-fill mix-blend-screen" />;
-                                  }
-
-                                  if (isWebp) {
-                                    return <img src={effect.url} alt={effect.label} loading="lazy" className="w-full h-full object-fill" />;
-                                  }
-
-                                  if (isPng) {
-                                    return <ProfileEffectSpritesheet url={effect.url} />;
-                                  }
-
-                                  return (
-                                    <img 
-                                      src={effect.url} 
-                                      alt={effect.label} 
-                                      className="w-full h-full object-fill mix-blend-screen" 
+                                }}
+                              >
+                                 <div className="aspect-square w-full relative z-10 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <AnimeAvatar 
+                                      src={displayUser.avatar_url} 
+                                      effect={effect}
+                                      size="w-24 h-24"
+                                      forcePlay={true}
                                     />
-                                  );
-                                })()}
-                              </div>
-
-                              {/* Label Area */}
-                              <div className="effect-label">
-                                <span className={`block text-[11px] font-black uppercase tracking-tight transition-colors truncate drop-shadow-[0_2px_2px_rgba(0,0,0,1)] ${
-                                  isActive ? 'text-white' : isPremiumLocked ? 'text-zinc-500' : 'text-zinc-300 group-hover:text-white'
-                                }`}>
-                                  {effect.label || effect.name}
-                                </span>
-                              </div>
-
-                              {isPremiumLocked && (
-                                <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-[3px] flex flex-col items-center justify-center p-4 z-40">
-                                  <Lock size={20} className="text-amber-500 mb-2 drop-shadow-md" />
-                                  <span className="text-[9px] font-black text-amber-500/80 uppercase tracking-widest text-center">ELİT KİLİT</span>
-                                </div>
-                              )}
-                              {mixState.profile_effect === effect.id && (
-                                <div className="absolute top-3 right-3 p-1.5 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 z-30 ring-2 ring-zinc-900">
-                                  <Check size={12} className="fill-current" />
-                                </div>
-                              )}
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="h-[1px] bg-white/5 w-full my-8" />
-
-                    {/* ── DECORATION GRID (Moved to Top) ── */}
-                    <div>
-                      <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-3 text-zinc-500">
-                          <ImageIcon size={14} />
-                          <h4 className="text-[10px] font-black uppercase tracking-widest">PROFIL ÇERÇEVELİ &amp; DEKORASYONLAR</h4>
-                        </div>
-                        {/* Category Filter */}
-                        <div className="flex gap-1.5 p-1 rounded-xl bg-zinc-950/50 border border-zinc-800/50">
-                          {categories.slice(0, 4).map(cat => (
-                            <button
-                              key={cat}
-                              onClick={() => setDecorationCategory(cat)}
-                              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === cat ? 'bg-zinc-800 text-white shadow' : 'text-zinc-500 hover:text-zinc-300'}`}
-                            >
-                              {cat}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Live Preview Banner */}
-                      {previewEffect && isOwnProfile && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className={`mb-5 p-4 rounded-2xl border flex items-center justify-between transition-colors ${saveError ? 'bg-red-500/10 border-red-500/30' : 'bg-indigo-500/10 border-indigo-500/30'}`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full animate-pulse ${saveError ? 'bg-red-400' : 'bg-indigo-400'}`} />
-                            <div className="flex flex-col">
-                              <span className={`text-xs font-bold ${saveError ? 'text-red-300' : 'text-indigo-300'}`}>
-                                {saveError ? 'Hata Oluştu' : `Canlı Önizleme: `}
-                                {!saveError && <strong className="text-white">{previewEffect.label}</strong>}
-                              </span>
-                              {saveError && <span className="text-[10px] text-red-400 font-medium">{saveError}</span>}
-                            </div>
+                                 </div>
+                                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-60" />
+                                 <div className="relative z-20 mt-4 text-center">
+                                    <span className="text-[10px] font-black text-white uppercase tracking-tight line-clamp-1">{effect.label}</span>
+                                    <div className="text-[8px] font-bold text-zinc-500 uppercase mt-1 tracking-widest">{effect.category}</div>
+                                 </div>
+                                 {mixState.avatar === effect.id && (
+                                   <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center z-30 shadow-lg">
+                                     <Check size={12} className="text-white" />
+                                   </div>
+                                 )}
+                              </motion.div>
+                            ))}
                           </div>
-                          <div className="flex gap-2">
-                            <button
-                              disabled={saveLoading}
-                              onClick={() => { setPreviewEffect(null); setSaveError(null); }}
-                              className="px-3 py-1 rounded-lg bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase hover:bg-zinc-700 transition-all disabled:opacity-50"
-                            >
-                              İptal
-                            </button>
-                            <button
-                              disabled={saveLoading}
-                              onClick={async () => { 
-                                setSaveLoading(true);
-                                setSaveError(null);
-                                try {
-                                  await updateProfile({ active_decoration: previewEffect.id });
-                                  setActiveDecoration(previewEffect.id); 
-                                  setPreviewEffect(null); 
-                                } catch(err) {
-                                  console.error('Kaydetme hatası:', err);
-                                  const errorMsg = err.message || '';
-                                  if (errorMsg.includes('profiles_role_check')) {
-                                    setSaveError('KRİTİK: Veri tabanı rütbeni tanımıyor! supabase_patch.sql dosyasını Supabase SQL Editor\'de çalıştır.');
-                                  } else {
-                                    setSaveError(errorMsg || 'Veri tabanı hatası');
-                                  }
-                                } finally {
-                                  setSaveLoading(false);
-                                }
-                              }}
-                              className="px-3 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-black uppercase hover:scale-105 transition-all disabled:opacity-50 flex items-center gap-2"
-                            >
-                              {saveLoading ? 'KAYDEDİLİYOR...' : 'Kaydet'}
-                            </button>
-                          </div>
-                        </motion.div>
+                        </div>
                       )}
-
-                      <div className="market-grid">
-                        {/* None Option */}
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`effect-card-deco group border transition-all duration-300 ease-out flex flex-col items-center justify-center p-6 text-center ${
-                            activeDecoration === 'none' && !previewEffect ? 'bg-zinc-800 ring-2 ring-indigo-500 border-transparent' : 'bg-zinc-900 border-zinc-800'
-                          }`}
-                          onClick={() => {
-                            setPreviewEffect(null);
-                            setActiveDecoration('none');
-                            updateProfile({ active_decoration: 'none' });
-                          }}
-                        >
-                          <div className="p-3 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-600 mb-2">
-                            <X size={20} />
+ 
+                      {/* Profil Efektleri */}
+                      {(decorationCategory === 'Tümü' || decorationCategory === 'Efektler') && (
+                        <div>
+                          <div className="flex items-center gap-3 text-purple-400 mb-6 mt-10">
+                             <Zap size={14} />
+                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">PROFİL KARTI EFEKTLERİ</h4>
                           </div>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">HİÇ BİRİ</span>
-                        </motion.div>
-
-                        {filteredDecorations.map((effect, idx) => {
-                          const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium'];
-                          const hasPremiumAccess = premiumRoles.includes(currentUser?.role);
-                          const isPremiumLocked = !hasPremiumAccess && idx >= PREMIUM_FREE_COUNT;
-                          const isActive = previewEffect?.id === effect.id || (!previewEffect && activeDecoration === effect.id);
-
-                          return (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                             <motion.div
-                              key={effect.id}
-                              whileHover={{ scale: isPremiumLocked ? 1.02 : 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className={`effect-card-deco group border transition-all duration-300 ease-out ${
-                                isPremiumLocked
-                                  ? 'bg-zinc-900/50 border-zinc-800/50 opacity-75'
-                                  : isActive
-                                    ? 'bg-zinc-800 ring-2 ring-indigo-500 shadow-[0_0_35px_rgba(99,102,241,0.5)] border-transparent'
-                                    : 'bg-zinc-900 border-transparent hover:-translate-y-1 hover:bg-white/10 hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.6)]'
+                              whileHover={{ scale: 1.02 }}
+                              className={`p-6 rounded-[2.5rem] border transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer ${
+                                mixState.profile_effect === 'none' ? 'bg-zinc-800 border-purple-500 ring-2 ring-purple-500/50' : 'bg-zinc-950 border-white/5'
                               }`}
                               onClick={() => {
-                                if (isPremiumLocked) {
-                                  setPremiumToast(true);
-                                  setTimeout(() => setPremiumToast(false), 3000);
-                                  return;
-                                }
-                                if (isOwnProfile) {
-                                  setPreviewEffect(effect);
-                                }
+                                const newMix = { ...mixState, profile_effect: 'none' };
+                                setMixState(newMix);
+                                updateProfile({ active_mix: newMix });
                               }}
                             >
-                              {/* Effect preview image */}
-                              <div className="relative flex items-center justify-center p-0 m-0 overflow-visible mb-6">
-                                <AnimeAvatar 
-                                  src={null} 
-                                  effect={effect} 
-                                  size="w-20 h-20" 
-                                  forcePlay={isActive}
-                                />
-                                {isActive && !isPremiumLocked && (
-                                  <div className="absolute -top-2 -right-2 p-1 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 z-20">
-                                    <Zap size={10} className="fill-current" />
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Label Area */}
-                              <div className="effect-label">
-                                <span className={`block text-[10px] font-black uppercase tracking-tight transition-colors truncate ${
-                                  isActive ? 'text-white' : isPremiumLocked ? 'text-zinc-600' : 'text-zinc-400 group-hover:text-zinc-200'
-                                }`}>
-                                  {effect.label || effect.name}
-                                </span>
-                                <span className="block text-[7px] font-bold text-zinc-700 uppercase tracking-[0.2em] mt-0.5 italic">
-                                  {effect.category}
-                                </span>
-                              </div>
-
-                              {/* Premium Lock Overlay (Siber Elite UI) */}
-                              {isPremiumLocked && (
-                                <div className="absolute inset-0 rounded-2xl bg-zinc-950/70 backdrop-blur-[3px] flex flex-col items-center justify-center p-4 transition-all duration-300 group-hover:bg-zinc-950/40 group-hover:backdrop-blur-none z-30">
-                                  <motion.div 
-                                    whileHover={{ scale: 1.2, rotate: [0, -10, 10, 0] }}
-                                    className="p-3 rounded-full bg-amber-500/10 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                                  >
-                                    <Lock size={18} className="text-amber-500 shadow-sm" />
-                                  </motion.div>
-                                  <div className="mt-3 text-center">
-                                    <span className="block text-[8px] font-black text-amber-500/80 uppercase tracking-[0.25em]">ELİT KİLİT</span>
-                                    <span className="block text-[6px] font-bold text-zinc-500 uppercase mt-0.5">Premium Gerekir</span>
-                                  </div>
-                                </div>
-                              )}
+                               <div className="w-12 h-12 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-700 mb-4">
+                                 <X size={20} />
+                               </div>
+                               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">HİÇ BİRİ</span>
                             </motion.div>
-                          );
-                        })}
-                      </div>
-                    </div>
+  
+                            {effectsData.filter(e => e.category === 'profile_effects').map((effect) => (
+                              <motion.div
+                                key={effect.id}
+                                whileHover={{ y: -10, scale: 1.02 }}
+                                className={`group relative aspect-[3/4] rounded-[2.5rem] bg-zinc-950 border transition-all duration-500 overflow-hidden cursor-pointer ${
+                                  mixState.profile_effect === effect.id ? 'border-purple-500 ring-4 ring-purple-500/20 shadow-2xl' : 'border-white/5 hover:border-white/20'
+                                }`}
+                                onClick={() => {
+                                  const newMix = { ...mixState, profile_effect: effect.id };
+                                  setMixState(newMix);
+                                  updateProfile({ active_mix: newMix });
+                                }}
+                              >
+                                 <div className="absolute inset-0">
+                                   <img 
+                                     src={effect.url} 
+                                     className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" 
+                                   />
+                                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+                                   <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors duration-500" />
+                                 </div>
+                                 
+                                 <div className="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                                    <div className="flex justify-between items-start">
+                                      <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-xl">
+                                        <Zap size={20} />
+                                      </div>
+                                      {mixState.profile_effect === effect.id && (
+                                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                                          <Check size={14} className="text-white" />
+                                        </div>
+                                      )}
+                                    </div>
 
-                    <div className="h-[1px] bg-white/5 w-full my-8" />
-
-                    {/* --- İSİM PLAKETİ SECTION (Moved Below) --- */}
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-3 text-zinc-500">
-                          <CreditCard size={14} />
-                          <h4 className="text-[10px] font-black uppercase tracking-widest italic">İSİM PLAKETİ MARKERİ</h4>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
-                        {/* Remove Option */}
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            const newMix = { ...mixState, nameplate: 'none' };
-                            setMixState(newMix);
-                            handleSaveEffects('mix');
-                          }}
-                          className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 flex items-center justify-center cursor-pointer transition-all ${
-                            mixState.nameplate === 'none' ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/5 bg-zinc-900/50'
-                          }`}
-                        >
-                          <div className="flex flex-col items-center gap-1">
-                            <X size={16} className="text-zinc-500" />
-                            <span className="text-[10px] font-black uppercase text-zinc-500">Kaldır</span>
+                                    <div className="space-y-3">
+                                       <div className="h-1 w-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" />
+                                       <h5 className="text-xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-lg">{effect.label}</h5>
+                                       <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em]">KOZMİK KOLEKSİYON</div>
+                                    </div>
+                                 </div>
+                              </motion.div>
+                            ))}
                           </div>
-                          {mixState.nameplate === 'none' && (
-                            <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center">
-                              <Check size={10} className="text-white" />
-                            </div>
-                          )}
-                        </motion.div>
-
-                        {/* Nameplate List */}
-                        {nameplatesData.map((filename) => (
-                          <NameplateItem 
-                            key={filename} 
-                            filename={filename} 
-                            isActive={mixState.nameplate === filename}
-                            onSelect={() => {
-                              const newMix = { ...mixState, nameplate: filename };
-                              setMixState(newMix);
-                              updateProfile({ active_mix: newMix });
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'settings' && (
-                  <div className="space-y-8 max-w-2xl">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400">
-                        <SettingsIcon size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-black text-white uppercase tracking-tight">Hesap Ayarları</h3>
-                        <p className="text-zinc-500 text-xs">Profilini ve tercihlerini güncelle</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Kullanıcı Adı</label>
-                        <input type="text" defaultValue={currentUser?.username} className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-4 px-6 text-sm font-bold text-white outline-none focus:border-purple-500/50 transition-all" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Biyografi</label>
-                        <textarea defaultValue={currentUser?.bio} rows={4} className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-4 px-6 text-sm font-medium text-white outline-none focus:border-purple-500/50 transition-all resize-none" />
-                      </div>
-                      <button className="px-10 py-4 rounded-2xl bg-purple-600 text-white text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-purple-600/20 hover:scale-105 transition-all">
-                        DEĞİŞİKLİKLERİ KAYDET
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'notifications' && (
-                  <div className="space-y-8 max-w-2xl">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-pink-500/10 text-pink-400">
-                        <Bell size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-black text-white uppercase tracking-tight">Bildirimler</h3>
-                        <p className="text-zinc-500 text-xs">Ne zaman rahatsız edilmek istersin?</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      {[
-                        { id: 'new_chapter', title: 'Yeni Bölüm Uyarıları', desc: 'Takip ettiğin serilere yeni bölüm geldiğinde haber ver.' },
-                        { id: 'system', title: 'Sistem Duyuruları', desc: 'Önemli güncellemeler ve bakım modları hakkında bilgilendir.' },
-                        { id: 'mentions', title: 'Bahsetmeler ve Yanıtlar', desc: 'Yorumlarına gelen yanıtlar için bildirim gönder.' }
-                      ].map((pref) => (
-                        <div key={pref.id} className="flex items-center justify-between p-5 bg-zinc-900 border border-zinc-800/50 rounded-2xl hover:bg-zinc-800/50 transition-all">
-                          <div className="pr-6">
-                            <h4 className="text-sm font-black text-white">{pref.title}</h4>
-                            <p className="text-[10px] text-zinc-500 mt-1">{pref.desc}</p>
-                          </div>
-                          <label className="relative cursor-pointer">
-                            <input type="checkbox" className="sr-only peer" defaultChecked />
-                            <div className="w-12 h-6 bg-zinc-800 rounded-full peer peer-checked:bg-purple-600 transition-all after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-zinc-400 after:rounded-full after:transition-all peer-checked:after:translate-x-6 peer-checked:after:bg-white shadow-sm" />
-                          </label>
                         </div>
-                      ))}
+                      )}
+  
+                      {/* İsim Plaketleri */}
+                      {(decorationCategory === 'Tümü' || decorationCategory === 'Plaketler') && (
+                        <div>
+                          <div className="flex items-center gap-3 text-amber-400 mb-6 mt-10">
+                             <CreditCard size={14} />
+                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">İSİM PLAKETLERİ</h4>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {nameplatesData.map((filename) => (
+                              <NameplateItem 
+                                key={filename} 
+                                filename={filename} 
+                                isActive={mixState.nameplate === filename}
+                                onSelect={() => {
+                                  const newMix = { ...mixState, nameplate: filename };
+                                  setMixState(newMix);
+                                  updateProfile({ active_mix: newMix });
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
-
-
-
-              </motion.div>
-            </AnimatePresence>
+                  )}
+                </motion.div>
+              </AnimatePresence>
 
           </main>
+
+          {/* ── RIGHT NAVIGATION (SCREENSHOT 1 STYLE) ── */}
+          <aside className="w-full lg:w-[350px] space-y-6 sticky top-24 no-scrollbar max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
+             <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-4">
+                <div className="space-y-2">
+                   {tabs.map((tab) => (
+                      <button
+                         key={tab.id}
+                         onClick={() => setActiveTab(tab.id)}
+                         className={`w-full group relative flex items-center gap-4 px-6 py-5 rounded-2xl transition-all duration-300 ${
+                            activeTab === tab.id 
+                               ? 'bg-blue-600 text-white shadow-[0_15px_30px_rgba(37,99,235,0.3)] scale-[1.02]' 
+                               : 'text-zinc-500 hover:text-white hover:bg-white/5'
+                         }`}
+                      >
+                         <div className={`p-2.5 rounded-xl transition-all duration-300 ${
+                            activeTab === tab.id ? 'bg-white/20' : 'bg-zinc-800'
+                         }`}>
+                            <tab.icon size={18} />
+                         </div>
+                         <div className="flex-1 text-left">
+                            <div className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">{tab.label}</div>
+                            <div className="text-[8px] font-bold opacity-40 uppercase tracking-widest">Görüntüle</div>
+                         </div>
+                         {activeTab === tab.id && (
+                            <motion.div layoutId="activeTabGlow" className="absolute inset-0 rounded-2xl bg-white/10 blur-xl -z-10" />
+                         )}
+                         <ChevronRight size={14} className={`transition-transform duration-300 ${activeTab === tab.id ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`} />
+                      </button>
+                   ))}
+                </div>
+             </div>
+
+             <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-8">
+                <div className="flex items-center gap-3 text-white mb-8">
+                   <Award size={18} className="text-amber-500" />
+                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">BAŞARIMLAR</h4>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                   {[
+                     { id: 1, name: 'MÜREKKE...', date: '03.05.2026', color: 'amber' },
+                     { id: 2, name: 'MANGA...', date: '03.05.2026', color: 'orange' },
+                     { id: 3, name: 'KOZMİK...', date: '03.05.2026', color: 'indigo' },
+                     { id: 4, name: 'KÜTÜPHA...', date: '04.05.2026', color: 'purple' },
+                   ].map(ach => (
+                      <motion.div 
+                        key={ach.id} 
+                        whileHover={{ y: -5 }}
+                        className="flex flex-col items-center p-6 rounded-3xl bg-zinc-950 border border-white/5 relative overflow-hidden group cursor-pointer"
+                      >
+                         <div className={`absolute inset-0 bg-gradient-to-br from-${ach.color}-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
+                         <div className={`w-14 h-14 rounded-2xl bg-${ach.color}-500/20 border border-${ach.color}-500/30 flex items-center justify-center text-${ach.color}-500 mb-4 shadow-lg shadow-${ach.color}-500/10`}>
+                           <Award size={24} />
+                         </div>
+                         <span className="text-[10px] font-black text-white uppercase tracking-tight mb-1">{ach.name}</span>
+                         <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">MÜHÜR:</div>
+                         <div className="text-[8px] font-bold text-zinc-600 tracking-widest">{ach.date}</div>
+                      </motion.div>
+                   ))}
+                </div>
+             </div>
+          </aside>
         </div>
-      </div>
+
 
       <AnimatePresence>
          {toast && (
@@ -2061,12 +1600,18 @@ export default function ProfileShowcase() {
              initial={{ opacity: 0, y: 50, scale: 0.9 }}
              animate={{ opacity: 1, y: 0, scale: 1 }}
              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-600/40 flex items-center gap-4 border border-indigo-400/30"
+             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 bg-indigo-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(79,70,229,0.4)] flex items-center gap-4 border border-white/20"
            >
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                 <Sparkles size={18} />
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white">
+                 <Sparkles size={20} />
               </div>
-              <span className="text-xs font-black uppercase tracking-widest">{toast}</span>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest">Sistem Bilgisi</div>
+                <div className="text-xs font-bold text-white/90">{toast}</div>
+              </div>
+              <button onClick={() => setToast(null)} className="ml-4 p-2 rounded-full hover:bg-white/10 transition-all">
+                <X size={16} />
+              </button>
            </motion.div>
          )}
       </AnimatePresence>
@@ -2100,97 +1645,158 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={onClose} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
       <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
-      />
-      
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-lg bg-[#151921] border border-zinc-800 rounded-[2rem] shadow-2xl overflow-hidden"
+        initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
+        className="relative w-full max-w-xl bg-zinc-950 border border-white/5 rounded-[3rem] shadow-2xl overflow-hidden p-10"
       >
-        {/* Modal Header */}
-        <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
-          <h3 className="text-xl font-black text-white uppercase tracking-tight">Bağlı Hesaplar</h3>
-          <button onClick={onClose} className="p-2 rounded-xl bg-zinc-900 text-zinc-500 hover:text-white transition-all">
-            <Plus size={20} className="rotate-45" />
-          </button>
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Bağlantılar</h3>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Dijital varlığını senkronize et uşağım</p>
+          </div>
+          <button onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all border border-white/5"><X size={24} /></button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-2 mb-10">
           {links.map((link, idx) => (
-            <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center group">
-              <div className="relative w-full sm:w-40 shrink-0">
-                <select 
-                  value={link.platform}
-                  onChange={(e) => updateRow(idx, 'platform', e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-xs font-bold text-zinc-300 appearance-none focus:border-purple-500 transition-all cursor-pointer"
-                >
+            <div key={idx} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center group p-4 rounded-[2rem] bg-zinc-900/50 border border-white/5">
+              <div className="relative w-full sm:w-44 shrink-0">
+                <select value={link.platform} onChange={(e) => updateRow(idx, 'platform', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-black text-zinc-300 appearance-none focus:border-purple-500 transition-all cursor-pointer">
                   <option value="">Platform Seç</option>
                   {platforms.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600">
-                   <Plus size={14} className="rotate-0" />
-                </div>
               </div>
-
               <div className="relative flex-1 w-full">
-                <input 
-                  type="text"
-                  placeholder={link.type === 'username' ? "Kullanıcı adı" : "Bağlantı URL'si"}
-                  value={link.value}
-                  onChange={(e) => updateRow(idx, 'value', e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all"
-                />
-                <button 
-                  onClick={() => updateRow(idx, 'type', link.type === 'username' ? 'url' : 'username')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-zinc-500 hover:text-purple-400 transition-all"
-                >
-                  {link.type === 'username' ? 'URL GİR' : 'AD GİR'}
-                </button>
+                <input type="text" placeholder={link.type === 'username' ? "Kullanıcı Adı" : "URL Adresi"} value={link.value} onChange={(e) => updateRow(idx, 'value', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all outline-none" />
               </div>
-
-              <button 
-                onClick={() => removeRow(idx)}
-                className="p-3 rounded-xl bg-zinc-900 text-zinc-600 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
-              >
-                <Plus size={16} className="rotate-45" />
-              </button>
+              <button onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
             </div>
           ))}
-
-          <button 
-            onClick={addRow}
-            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-zinc-900/50 border border-zinc-800 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all w-fit"
-          >
-            <Plus size={14} /> Bağlantı Ekle
-          </button>
+          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-zinc-900 border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-500 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-6 border-t border-zinc-800 flex justify-end gap-3 bg-zinc-900/20">
-          <button 
-            onClick={onClose}
-            className="px-6 py-3 rounded-2xl bg-zinc-900 text-zinc-400 text-xs font-black uppercase hover:bg-zinc-800 transition-all"
-          >
-            İptal
-          </button>
-          <button 
-            onClick={() => {
-              onSave(links.filter(l => l.platform && l.value));
-              onClose();
-            }}
-            className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-black uppercase shadow-lg shadow-purple-500/40 hover:scale-105 active:scale-95 transition-all"
-          >
-            <Plus size={14} className="rotate-0" /> Kaydet
-          </button>
+        <div className="flex gap-4">
+          <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-zinc-900 text-zinc-500 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">İPTAL</button>
+          <button onClick={() => { onSave(links.filter(l => l.platform && l.value)); onClose(); }} className="flex-[2] py-5 rounded-[2.5rem] bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">MÜHÜRLERİ KAYDET <Sparkles size={18} /></button>
         </div>
       </motion.div>
     </div>
   );
 }
+
+function NameplateItem({ filename, isActive, onSelect }) {
+  const isVideo = filename.endsWith('.webm');
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onSelect}
+      className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
+        isActive ? 'border-purple-500 shadow-lg shadow-purple-500/30' : 'border-white/5 bg-zinc-900/50'
+      }`}
+    >
+      {isVideo ? (
+        <video 
+          src={`/nameplates/${filename}`} 
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+          className="w-full h-full object-cover" 
+        />
+      ) : (
+        <img src={`/nameplates/${filename}`} className="w-full h-full object-cover" />
+      )}
+      {isActive && (
+        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
+          <Check size={12} className="text-white" />
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
+  if (!isOpen) return null;
+
+  const parts = {
+    aura: effectsData.filter(e => e.category === 'profile_effects'),
+    avatar: effectsData.filter(e => e.category === 'avatar_decorations'),
+    nameplate: nameplatesData
+  };
+
+  return (
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={onClose} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        className="relative w-full max-w-4xl bg-zinc-950 border border-white/5 rounded-[3rem] overflow-hidden flex flex-col h-[80vh]"
+      >
+        <div className="p-10 border-b border-white/5 flex items-center justify-between">
+           <div>
+              <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Mikser</h3>
+              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Kendi efsanevi kombinasyonunu yarat</p>
+           </div>
+           <button onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all"><X size={24} /></button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
+           {/* Section by Section */}
+           <div className="space-y-6">
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">PROFIL EFEKTI</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <button 
+                   onClick={() => setMixState(prev => ({ ...prev, profile_effect: 'none' }))}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.profile_effect === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                 >
+                    HİÇ BİRİ
+                 </button>
+                 {parts.aura.map(eff => (
+                   <button 
+                     key={eff.id}
+                     onClick={() => setMixState(prev => ({ ...prev, profile_effect: eff.id }))}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.profile_effect === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                   >
+                      {eff.label}
+                   </button>
+                 ))}
+              </div>
+           </div>
+
+           <div className="space-y-6">
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">AVATAR ÇERÇEVESİ</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <button 
+                   onClick={() => setMixState(prev => ({ ...prev, avatar: 'none' }))}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.avatar === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                 >
+                    HİÇ BİRİ
+                 </button>
+                 {parts.avatar.map(eff => (
+                   <button 
+                     key={eff.id}
+                     onClick={() => setMixState(prev => ({ ...prev, avatar: eff.id }))}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.avatar === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                   >
+                      {eff.label}
+                   </button>
+                 ))}
+              </div>
+           </div>
+        </div>
+
+        <div className="p-10 bg-zinc-900/50 border-t border-white/5 flex gap-4">
+           <button onClick={onClose} className="flex-1 py-5 rounded-2xl bg-zinc-800 text-zinc-400 text-xs font-black uppercase">İPTAL</button>
+           <button 
+             onClick={() => { onSave(mixState); onClose(); }}
+             className="flex-[2] py-5 rounded-2xl bg-purple-600 text-white text-xs font-black uppercase shadow-xl shadow-purple-600/30"
+           >
+              KOMBİNASYONU MÜHÜRLE
+           </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+

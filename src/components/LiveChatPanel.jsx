@@ -8,9 +8,9 @@ import effectsData from '../data/effects.json';
 
 // Mock messages for simulation
 const MOCK_MESSAGES = [
-  { id: 1, user: 'Gojo', text: 'Bu bölüm harika yahu!', isElite: true, time: '20:15', avatar_url: 'https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg' },
-  { id: 2, user: 'Uşak_123', text: 'Sonraki sayfaya geçemedim, bende mi sorun var?', isElite: false, time: '20:16', avatar_url: null },
-  { id: 3, user: 'Sukuna', text: 'Domain expansion mükemmel çizilmiş.', isElite: true, time: '20:18', avatar_url: 'https://i.pinimg.com/736x/11/cb/c7/11cbc7d6db64f8ad90bfec064d55ff95.jpg' }
+  { id: 1, user: 'Gojo', text: 'Bu bölüm harika yahu!', isElite: true, time: '20:15', avatar_url: 'https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg', active_mix: { nameplate: 'fire_nameplate.webm', avatar: 'fire_aura' } },
+  { id: 2, user: 'Uşak_123', text: 'Sonraki sayfaya geçemedim, bende mi sorun var?', isElite: false, time: '20:16', avatar_url: null, active_mix: null },
+  { id: 3, user: 'Sukuna', text: 'Domain expansion mükemmel çizilmiş.', isElite: true, time: '20:18', avatar_url: 'https://i.pinimg.com/736x/11/cb/c7/11cbc7d6db64f8ad90bfec064d55ff95.jpg', active_mix: { nameplate: 'dark_nebula.webm', avatar: 'glitch_effect' } }
 ];
 
 export default function LiveChatPanel({ isOpen, onClose }) {
@@ -33,9 +33,10 @@ export default function LiveChatPanel({ isOpen, onClose }) {
       id: Date.now(),
       user: user?.username || 'Misafir',
       text: inputText,
-      isElite: user?.is_elite || false,
+      isElite: user?.premium || user?.is_elite || false,
       avatar_url: user?.avatar_url || null,
-      active_decoration: user?.active_decoration || 'none',
+      active_mix: user?.active_mix || null,
+      active_decoration: user?.active_mix?.avatar || user?.active_decoration || 'none',
       time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -71,38 +72,68 @@ export default function LiveChatPanel({ isOpen, onClose }) {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar flex flex-col">
             {messages.map((msg) => {
               const isMe = user && (msg.user === user.username || msg.user === 'Misafir');
+              const avatarId = msg.active_mix?.avatar || msg.active_decoration || 'none';
+              const nameplateId = msg.active_mix?.nameplate || 'none';
+              
               return (
-              <div key={msg.id} className={`flex ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
-                <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center border border-white/5 relative">
-                  <AnimeAvatar 
-                    src={msg.avatar_url || null} 
-                    effect={msg.active_decoration && msg.active_decoration !== 'none' ? effectsData.find(e => e.id === msg.active_decoration) : null}
-                    size="w-8 h-8"
-                    forcePlay={true}
-                  />
-                  {!msg.avatar_url && !msg.active_decoration && (
-                    <span className="absolute z-10 text-[10px] font-bold text-white pointer-events-none">{msg.user?.charAt(0).toUpperCase()}</span>
+                <motion.div
+                  layout
+                  key={msg.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className={`flex gap-3 mb-6 p-4 rounded-3xl relative group overflow-hidden transition-all duration-300 ${isMe ? 'flex-row-reverse' : ''} ${
+                    nameplateId !== 'none' ? 'border border-white/10 shadow-2xl' : 'bg-white/[0.02]'
+                  }`}
+                >
+                  {/* Full-Card Nameplate Background */}
+                  {nameplateId !== 'none' && (
+                    <div className="absolute inset-0 z-0">
+                      <video 
+                        src={`/nameplates/${nameplateId}`} 
+                        autoPlay 
+                        muted 
+                        loop 
+                        playsInline 
+                        className="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity duration-500" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/20 to-transparent" />
+                    </div>
                   )}
-                </div>
-                
-                <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                  <div className={`flex items-center gap-1.5 mb-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${msg.isElite ? 'elite-text-gradient' : 'text-slate-500'}`}>
-                      {msg.user}
-                    </span>
-                    {msg.isElite && <EliteBadge className="!w-3 !h-3 text-[8px]" />}
-                    <span className="text-[9px] text-slate-600">{msg.time}</span>
+
+                  <div className="w-12 h-12 shrink-0 relative z-10">
+                    <AnimeAvatar 
+                      src={msg.avatar_url || null} 
+                      effect={avatarId !== 'none' ? effectsData.find(e => e.id === avatarId) : null}
+                      size="w-12 h-12"
+                      forcePlay={true}
+                    />
+                    {!msg.avatar_url && avatarId === 'none' && (
+                      <span className="absolute inset-0 flex items-center justify-center z-20 text-[12px] font-black text-white pointer-events-none">{msg.user?.charAt(0).toUpperCase()}</span>
+                    )}
                   </div>
-                  <div className={`px-3 py-2 rounded-2xl text-sm ${
-                    isMe 
-                      ? 'bg-purple-600 text-white rounded-br-none' 
-                      : 'bg-white/5 border border-white/10 text-slate-200 rounded-bl-none'
-                  }`}>
-                    {msg.text}
+                  
+                  <div className={`flex flex-col relative z-10 ${isMe ? 'items-end' : 'items-start'} max-w-[80%]`}>
+                    <div className={`flex items-center gap-2 mb-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <span className={`text-[11px] font-black uppercase tracking-tighter drop-shadow-[0_2px_8px_rgba(0,0,0,1)] ${
+                        msg.isElite ? 'rank-glow-gold text-amber-100' : 'text-slate-300'
+                      }`}>
+                        {msg.user}
+                      </span>
+                      {msg.isElite && <EliteBadge className="!w-3 !h-3 text-[8px]" />}
+                      <span className="text-[8px] text-slate-500/60 font-bold">{msg.time}</span>
+                    </div>
+
+                    <div className={`px-4 py-2.5 rounded-2xl text-[13px] leading-relaxed font-medium transition-all ${
+                      isMe 
+                        ? 'bg-purple-600/20 text-white border border-purple-500/20 shadow-neon-purple/20' 
+                        : 'bg-white/5 border border-white/5 text-slate-200 shadow-xl'
+                    }`}>
+                      {msg.text}
+                    </div>
                   </div>
-                </div>
-              </div>
-            )})}
+                </motion.div>
+              );
+            })}
             <div ref={messagesEndRef} />
           </div>
 

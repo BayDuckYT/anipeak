@@ -142,11 +142,15 @@ export function AuthProvider({ children }) {
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
         ...getLevelInfo(data?.xp ?? 0, is_elite),
+        rank:            data?.rank || getLevelInfo(data?.xp ?? 0, is_elite).rank, // DB'deki rütbeyi koru
         mal_username:    data?.mal_username || null,
         badges:          data?.badges || [],
         active_decoration: data?.active_decoration || 'none',
         is_elite,
         active_plan_id:  data?.active_plan_id || null,
+        discord_id:      data?.discord_id || null,
+        discord_sync_code: data?.discord_sync_code || null,
+        discord_sync_code_expires: data?.discord_sync_code_expires || null,
       };
 
       setUser(merged);
@@ -307,13 +311,41 @@ export function AuthProvider({ children }) {
         
       if (histError) throw histError;
 
+      // ── 7 GÜNLÜK SERİ (STREAK) SİSTEMİ ───────────────────────
+      const today = new Date().toISOString().split('T')[0];
+      const lastReadDate = user.last_read_date;
+      let newStreak = user.reading_streak || 0;
+
+      if (lastReadDate !== today) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        if (lastReadDate === yesterdayStr) {
+          newStreak += 1;
+        } else {
+          newStreak = 1; // Seri bozuldu veya yeni başladı
+        }
+
+        // 7. Gün Özel Ödülü
+        if (newStreak === 7) {
+          updateXP(1000); // Dev XP bonusu
+          trackActivity(user.id, 'achievement_unlock', 1, { name: 'Kozmik Başarım', type: 'streak_7' });
+        }
+
+        await updateProfile({ 
+          last_read_date: today,
+          reading_streak: newStreak 
+        });
+      }
+
       // Her bölüm okuma 10 XP verir
       updateXP(10);
       
       // Başarım takibi
       trackActivity(user.id, 'read_chapter', 1, { 
         seriesId, 
-        genres: [] // Gelecekte buraya serinin türleri eklenebilir
+        genres: [] 
       });
     } catch (err) {
       console.error('[Auth] Reading progress update error:', err);

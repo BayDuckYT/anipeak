@@ -244,6 +244,34 @@ async function handleTicketDelete(interaction) {
 
   try {
     const attachment = await generateTranscript(channel);
+    
+    // ── AI ÖZETLEME SİSTEMİ ──────────────────────────────────
+    let aiSummary = "*(Özet oluşturulamadı — Konuşma çok kısa veya AI kapalı)*";
+    try {
+      const messages = await channel.messages.fetch({ limit: 100 });
+      const chatLog = messages.reverse()
+        .filter(m => !m.author.bot)
+        .map(m => `${m.author.username}: ${m.content}`)
+        .join('\n');
+
+      if (chatLog.length > 50 && process.env.OPENAI_API_KEY) {
+        const OpenAI = (await import('openai')).default;
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        
+        const completion = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "Sen bir AniPeak moderatör asistanısın. Sana bir destek talebi konuşması vereceğim. Bunu 2-3 cümlede özetle. Kim ne sorun yaşamış, yetkili nasıl çözmüş belirt. Türkçe cevap ver." },
+            { role: "user", content: `Konuşma Logu:\n${chatLog}` }
+          ],
+          max_tokens: 200
+        });
+        aiSummary = completion.choices[0]?.message?.content || aiSummary;
+      }
+    } catch (aiErr) {
+      console.warn('[Support-AI] Özetleme hatası:', aiErr.message);
+    }
+
     console.log(`[Support] Log kanalı aranıyor: ${CONFIG.LOG_CHANNEL_ID}`);
     let logChannel = interaction.guild.channels.cache.get(CONFIG.LOG_CHANNEL_ID);
     if (!logChannel) {
@@ -251,14 +279,14 @@ async function handleTicketDelete(interaction) {
     }
 
     if (logChannel && (logChannel.type === ChannelType.GuildText || logChannel.type === ChannelType.GuildAnnouncement)) {
-      console.log(`[Support] Log kanalı bulundu: ${logChannel.name}. Gönderiliyor...`);
       const ownerId = channel.permissionOverwrites.cache.find(p => p.type === 1 && !CONFIG.STAFF_IDS.includes(p.id) && p.id !== interaction.guild.id)?.id;
       const logEmbed = baseEmbed(CONFIG.COLORS.DANGER)
         .setTitle('⛔ Destek Talebi Silindi')
         .addFields(
           { name: '👤 Sahibi', value: ownerId ? `<@${ownerId}>` : 'Bilinmiyor', inline: true },
           { name: '👮 Silen Yetkili', value: `<@${interaction.user.id}>`, inline: true },
-          { name: '📂 Kanal', value: `\`${channel.name}\``, inline: true }
+          { name: '📂 Kanal', value: `\`${channel.name}\``, inline: true },
+          { name: '🤖 AI ÖZETİ', value: `\`\`\`${aiSummary}\`\`\`` }
         );
 
       // Mesajları JSON olarak yedekle (Restorasyon için)

@@ -290,78 +290,88 @@ export default function ManhwaDetail({ onAuthOpen }) {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
-        
-        {/* Left: Chapters */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl font-black text-white flex items-center gap-3">
-              <BookOpen size={24} className="text-purple-400" />
-              Bölümler Listesi
-            </h2>
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
+          {/* Left: Chapters */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                <BookOpen size={24} className="text-purple-400" />
+                Bölümler Listesi
+              </h2>
 
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Bölüm Ara..."
-                  className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500/50 w-32 sm:w-48 transition-all"
-                />
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Ara..."
+                    className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500/50 w-24 sm:w-32 transition-all"
+                  />
+                </div>
+                <button
+                  onClick={() => setSortDesc(!sortDesc)}
+                  className="p-2.5 rounded-xl glass border border-white/10 text-slate-400 hover:text-white transition-all"
+                >
+                  <SortAsc size={18} className={sortDesc ? 'rotate-180' : ''} />
+                </button>
               </div>
-              <button
-                onClick={() => setSortDesc(!sortDesc)}
-                className="p-2.5 rounded-xl glass border border-white/10 text-slate-400 hover:text-white transition-all"
-              >
-                <SortAsc size={18} className={sortDesc ? 'rotate-180' : ''} />
-              </button>
+            </div>
+
+            <div className="space-y-3">
+              <AnimatePresence>
+                {filteredChapters.map((ch, idx) => (
+                  <motion.div
+                    key={ch.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: Math.min(idx * 0.02, 0.4) }}
+                    onClick={() => handleReadChapter(ch.number)}
+                    className="group flex items-center gap-4 px-6 py-4 glass border border-white/5 rounded-2xl hover:border-purple-500/30 hover:bg-white/5 transition-all cursor-pointer"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center font-black text-slate-300 group-hover:from-purple-600/20 group-hover:to-blue-600/20 group-hover:text-purple-400 transition-all border border-white/5 text-xs">
+                      {ch.number}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-sm text-white font-bold group-hover:text-purple-300 transition-colors">Bölüm {ch.number}</span>
+                        {ratingsMap[ch.number] && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30">
+                             <Star size={10} className="fill-emerald-400 text-emerald-400" />
+                             <span className="text-emerald-400 text-[10px] font-black">{ratingsMap[ch.number].toFixed(1)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <AnimatePresence>
-              {filteredChapters.map((ch, idx) => (
-                <motion.div
-                  key={ch.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: Math.min(idx * 0.02, 0.4) }}
-                  onClick={() => handleReadChapter(ch.number)}
-                  className="group flex items-center gap-4 px-6 py-4 glass border border-white/5 rounded-2xl hover:border-purple-500/30 hover:bg-white/5 transition-all cursor-pointer"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center font-black text-slate-300 group-hover:from-purple-600/20 group-hover:to-blue-600/20 group-hover:text-purple-400 transition-all border border-white/5">
-                    {ch.number}
+          {/* Right Sidebar (Stats, etc. could go here) */}
+          <div className="lg:col-span-1">
+             <div className="glass border border-white/5 rounded-3xl p-8 sticky top-24">
+                <h3 className="text-lg font-black text-white mb-6 uppercase italic tracking-tighter">Seri İstatistikleri</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
+                    <span className="text-slate-400 text-xs font-bold uppercase">Toplam Okunma</span>
+                    <span className="text-purple-400 font-black">{manhwa.reads_num || 0}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-white font-bold group-hover:text-purple-300 transition-colors">Bölüm {ch.number}</span>
-                      {ratingsMap[ch.number] && (
-                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30">
-                           <Star size={10} className="fill-emerald-400 text-emerald-400" />
-                           <span className="text-emerald-400 text-[10px] font-black">{ratingsMap[ch.number].toFixed(1)}</span>
-                        </div>
-                      )}
-                    </div>
-                    {ch.title && <p className="text-slate-500 text-xs truncate uppercase tracking-widest font-black">{ch.title}</p>}
+                  <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
+                    <span className="text-slate-400 text-xs font-bold uppercase">Bölüm Sayısı</span>
+                    <span className="text-white font-black">{allChapters.length}</span>
                   </div>
-                  <ChevronRight size={18} className="text-slate-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            
-            {filteredChapters.length === 0 && (
-              <div className="text-center py-20 glass border border-white/5 rounded-3xl">
-                <Search size={48} className="text-slate-700 mx-auto mb-4" />
-                <p className="text-slate-500 font-bold">Aradığın bölüm burada görünmüyor...</p>
-              </div>
-            )}
+                </div>
+             </div>
           </div>
         </div>
 
-        {/* Right: Comments */}
-        <div className="lg:col-span-1">
+        {/* BOTTOM: Comments (Exactly like the Reader page) */}
+        <div className="max-w-2xl mx-auto pt-8 border-t border-white/5">
            <CommentSystem seriesId={manhwa.id} />
         </div>
       </div>

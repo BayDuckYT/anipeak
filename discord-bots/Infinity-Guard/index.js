@@ -426,6 +426,51 @@ async function handleV2Buttons(interaction) {
     await interaction.showModal(modal);
   }
 
+  if (customId === 'channel:bulk_action') {
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    try {
+      const allTextChannels = interaction.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildText);
+      const channelIds = allTextChannels.map(ch => ch.id);
+      
+      const bulkEmbed = baseEmbed(COLORS.CYBER_BLUE)
+        .setTitle('🌐 TOPLU KANAL YÖNETİMİ')
+        .setDescription(`Sunucudaki toplam **${channelIds.length}** metin kanalı seçildi. Uygulanacak işlemi seçin:`)
+        .setFooter({ text: 'Seçimler önbelleğe alındı. Bir işlem seçtiğinizde hepsine uygulanacak.' });
+
+      const bulkRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`bulk_op:lock:${channelIds.join(',')}`).setLabel('HEPSİNİ KİLİTLE').setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId(`bulk_op:unlock:${channelIds.join(',')}`).setLabel('KİLİTLERİ AÇ').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId(`bulk_op:slowmode:${channelIds.join(',')}`).setLabel('YAVAŞ MOD (10s)').setStyle(ButtonStyle.Primary)
+      );
+
+      await interaction.editReply({ embeds: [bulkEmbed], components: [bulkRow] });
+    } catch (err) {
+      await interaction.editReply({ content: `❌ Hata: ${err.message}` });
+    }
+    return;
+  }
+
+  if (customId.startsWith('bulk_op:')) {
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    const [, op, idsStr] = customId.split(':');
+    const ids = idsStr.split(',');
+    
+    let successCount = 0;
+    for (const id of ids) {
+      const ch = interaction.guild.channels.cache.get(id);
+      if (!ch) continue;
+      try {
+        if (op === 'lock') await ch.permissionOverwrites.edit(interaction.guild.roles.everyone, { SendMessages: false });
+        if (op === 'unlock') await ch.permissionOverwrites.edit(interaction.guild.roles.everyone, { SendMessages: null });
+        if (op === 'slowmode') await ch.setRateLimitPerUser(10);
+        successCount++;
+      } catch (e) {}
+    }
+    
+    await interaction.editReply({ content: `✅ Toplu işlem tamamlandı! **${successCount}** kanal başarıyla güncellendi.` });
+    return;
+  }
+
   if (customId === 'channel:lockdown' || customId === 'channel:unlock') {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
     const isLocking = customId === 'channel:lockdown';
