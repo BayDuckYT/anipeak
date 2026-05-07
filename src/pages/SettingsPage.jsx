@@ -14,7 +14,7 @@ import {
   Loader2,
   ChevronRight,
   Camera,
-  Image as ImageIcon,
+  ImageIcon,
   Sparkles,
   Globe,
   Lock,
@@ -92,7 +92,6 @@ export default function SettingsPage() {
     { id: 'bildirimler', label: 'Bildirimler', icon: Bell },
     { id: 'gizlilik', label: 'Gizlilik', icon: Eye },
     { id: 'gorunum', label: 'Görünüm', icon: Palette },
-    { id: 'discord', label: 'Discord Sync', icon: LinkIcon },
     { id: 'mal', label: 'MyAnimeList', icon: LinkIcon },
   ];
 
@@ -433,9 +432,12 @@ export default function SettingsPage() {
                            className="w-full py-4 rounded-2xl bg-[#2E51A2] text-white text-xs font-black uppercase tracking-widest hover:bg-[#254182] transition-all shadow-lg shadow-[#2E51A2]/20"
                         >
                            Hesabı Bağla / Güncelle
-                         )}
-            </div>
-          </div>
+                        </button>
+                      </div>
+                   </div>
+                </div>
+              )}
+          </main>
         </div>
       </div>
     </div>
@@ -487,5 +489,4 @@ function NotificationToggle({ title, desc, enabled, onToggle }) {
        </button>
     </div>
   );
-}
 }
