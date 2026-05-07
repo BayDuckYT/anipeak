@@ -86,8 +86,12 @@ export async function syncUserToDiscord(client, dataOrId, xpIfProvided) {
     const member = await guild.members.fetch(discord_id).catch(() => null);
     if (!member) return;
 
-    const info = getLevelInfo(xp);
-    const newNickname = `[Lv. ${info.level}] ${username || member.user.username}`.substring(0, 32);
+    // ── 1. NICKNAME GÜNCELLEME (Sadece Seviye + Discord İsmi) ──────
+    // Sitedeki ismi kullanmıyoruz, Discord'daki orijinal ismini koruyoruz.
+    const baseName = member.user.globalName || member.user.username;
+    // Eğer isimde zaten bir [Lv. X] varsa onu temizle ki üst üste binmesin
+    const cleanName = baseName.replace(/^\[Lv\.\s\d+\]\s/, '');
+    const newNickname = `[Lv. ${info.level}] ${cleanName}`.substring(0, 32);
     
     // ── 1. OWNER VE İSİM KONTROLÜ ──────────────────────────────────
     let nameChangeSuccess = true;
