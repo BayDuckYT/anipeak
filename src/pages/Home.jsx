@@ -259,16 +259,12 @@ export default function Home({ onAuthOpen }) {
       <section className="relative h-[520px] sm:h-[600px] overflow-hidden bg-[#050507]">
         <AnimatePresence mode='wait'>
           {featuredItem && (
-            <motion.div
+            <div
               key={featuredItem.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
               className="absolute inset-0"
             >
-              {/* Background image — LCP Element (eager + high priority) */}
-              <div className="absolute inset-0 bg-purple-900/10 animate-pulse">
+              {/* Background image — LCP Element (eager + high priority + no fake delays) */}
+              <div className="absolute inset-0 bg-[#050507]">
                 <img
                   src={getOptimizedImage(featuredItem.cover, 1200)}
                   alt={featuredItem.title}
@@ -278,8 +274,7 @@ export default function Home({ onAuthOpen }) {
                   decoding="sync"
                   width="1440"
                   height="600"
-                  className="w-full h-full object-cover opacity-0 transition-opacity duration-500"
-                  onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse', 'bg-purple-900/10'); }}
+                  className="w-full h-full object-cover"
                   onError={handleImageError}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-transparent" />
@@ -368,7 +363,7 @@ export default function Home({ onAuthOpen }) {
                   </motion.div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
