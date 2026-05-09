@@ -29,7 +29,7 @@ const GENRE_COLORS = {
 };
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
-import { handleImageError } from '../utils/imageOpt.js';
+import { handleImageError, getOptimizedImage } from '../utils/imageOpt.js';
 import VirtualHScroll from '../components/VirtualHScroll.jsx';
 
 
@@ -48,7 +48,7 @@ function TrendingCard({ item, rank, getChapters }) {
           </span>
         </div>
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={item.cover} alt={item.title} width="180" height="240" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy"
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="180" height="240" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy"
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
           {/* Rating badge */}
@@ -75,7 +75,7 @@ function NewChapterCard({ item, chapters }) {
     <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[130px]">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/30 transition-all">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={item.cover} alt={item.title} width="130" height="173" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="130" height="173" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           {/* "Güncel" badge */}
@@ -101,7 +101,7 @@ function RecommendationCard({ item }) {
     <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[150px]">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-blue-500/30 transition-all">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={item.cover} alt={item.title} width="150" height="200" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="150" height="200" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           <div className="absolute bottom-2 left-2 right-2">
@@ -123,7 +123,7 @@ function RecommendationCard({ item }) {
 function DiscoveryItem({ item, rank }) {
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all group">
-      <img src={item.cover} alt={item.title} width="40" height="56" className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} width="40" height="56" className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
@@ -159,7 +159,18 @@ export default function Home({ onAuthOpen }) {
   const location = useLocation();
   const { user } = useAuth();
   const { sortedSeries, announcements, chapters, getChapters } = useApp();
-  const validSeries = sortedSeries.filter(s => !s.is_deleted);
+  const validSeries = useMemo(() => {
+    // PERFORMANS OPTİMİZASYONU: Anasayfa hesaplamaları için veriyi 1000 ile sınırla.
+    // 30.000 manga olduğunda her render'da map/sort yapmak ana iş parçacığını kilitler (TBT'yi uçurur).
+    const arr = [];
+    for (let i = 0; i < sortedSeries.length; i++) {
+      if (!sortedSeries[i].is_deleted) {
+        arr.push(sortedSeries[i]);
+        if (arr.length >= 1000) break;
+      }
+    }
+    return arr;
+  }, [sortedSeries]);
 
   // Hero Carousel — top 5 series
   const heroItems = useMemo(() => validSeries.slice(0, 5), [validSeries]);
@@ -244,7 +255,7 @@ export default function Home({ onAuthOpen }) {
               {/* Background image — LCP Element (eager + high priority) */}
               <div className="absolute inset-0">
                 <img
-                  src={featuredItem.cover}
+                  src={getOptimizedImage(featuredItem.cover, 1200)}
                   alt={featuredItem.title}
                   aria-hidden="true"
                   fetchpriority="high"
