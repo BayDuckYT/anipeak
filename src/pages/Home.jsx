@@ -201,19 +201,30 @@ export default function Home({ onAuthOpen }) {
   // New chapters — series with most recent chapter updates
   const newChapterSeries = useMemo(() => {
     const withLatest = validSeries.map(s => {
-      const chs = chapters[String(s.id)] || [];
-      const latest = chs[0];
+      const chs = chapters[String(s.id)];
+      const latest = chs && chs.length > 0 ? chs[0] : null;
       return { ...s, latestChapterDate: latest?.created_at || '1970-01-01' };
     });
-    return withLatest.sort((a, b) => new Date(b.latestChapterDate) - new Date(a.latestChapterDate)).slice(0, 12);
+    // PERFORMANS OPTİMİZASYONU: new Date() kullanmak düşük CPU'lu cihazlarda (Lighthouse/Mobil) 
+    // aşırı maliyetlidir. ISO tarih stringleri doğrudan localeCompare ile sıralanabilir.
+    return withLatest.sort((a, b) => b.latestChapterDate.localeCompare(a.latestChapterDate)).slice(0, 12);
   }, [validSeries, chapters]);
 
   // Recommendations — shuffle of high-rated series with fallback
   const recommendations = useMemo(() => {
     let pool = validSeries.filter(s => s.rating >= 8.5);
     if (pool.length < 4) pool = validSeries; // Fallback if not enough high rated
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 10);
+    
+    // PERFORMANS OPTİMİZASYONU: Tüm diziyi Math.random() - 0.5 ile sort etmek 
+    // Lighthouse CPU'sunu boğar. Bunun yerine 10 rastgele eleman seç.
+    const result = [];
+    const tempPool = [...pool];
+    const count = Math.min(10, tempPool.length);
+    for (let i = 0; i < count; i++) {
+       const randomIndex = Math.floor(Math.random() * tempPool.length);
+       result.push(tempPool.splice(randomIndex, 1)[0]);
+    }
+    return result;
   }, [validSeries]);
 
   // All genres from series
@@ -443,12 +454,12 @@ export default function Home({ onAuthOpen }) {
                       <Compass size={24} className="text-cyan-400" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Oracle Seçimleri</h2>
-                      <p className="text-[10px] text-cyan-400/70 font-mono tracking-widest uppercase">Nebula Kahini Senin İçin Seçti</p>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Sana Özel Öneriler</h2>
+                      <p className="text-[10px] text-cyan-400/70 font-mono tracking-widest uppercase">Akıllı Algoritma Senin İçin Seçti</p>
                     </div>
                   </div>
                   <Link to="/oracle" className="flex items-center gap-2 px-4 py-2 rounded-xl glass border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/10 transition-all">
-                    Tüm Kehanetler <ChevronRight size={14} />
+                    Tüm Öneriler <ChevronRight size={14} />
                   </Link>
                 </div>
 

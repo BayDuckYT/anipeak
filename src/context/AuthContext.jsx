@@ -110,8 +110,9 @@ export function AuthProvider({ children }) {
         .eq('id', authUser.id)
         .single();
         
+      // PROFIL ÇEKME İŞLEMİNE 8 SN TIMEOUT EKLENDİ (YAVAŞ MOBİL/LIGHTHOUSE BAĞLANTILARINI DESTEKLEMEK İÇİN)
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profil yükleme gecikti (Timeout)')), 3000)
+        setTimeout(() => reject(new Error('Profil yükleme gecikti (Timeout)')), 8000)
       );
 
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
@@ -372,7 +373,6 @@ export function AuthProvider({ children }) {
     // Safety Timeout: force loading=false after 1s so UI always shows (Optimized)
     const safetyTimeout = setTimeout(() => {
       if (mounted) {
-        console.warn("[Auth] Siber Limit Aşımı — UI zorla açılıyor");
         setLoading(false);
       }
     }, 1000);

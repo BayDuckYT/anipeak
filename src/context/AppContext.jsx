@@ -390,12 +390,7 @@ export function AppProvider({ children }) {
 
   // ── Derived ──────────────────────────────────────────────────────────
   const sortedSeries = useMemo(() =>
-    [...series]
-      .filter(s => !s.is_deleted)
-      .sort((a, b) => {
-        if (a.is_trending !== b.is_trending) return a.is_trending ? -1 : 1;
-        return (b.reads_num || 0) - (a.reads_num || 0);
-      }),
+    series.filter(s => !s.is_deleted),
   [series]);
 
   const value = {
