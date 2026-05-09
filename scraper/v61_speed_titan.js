@@ -11,34 +11,42 @@ import https from 'https';
 import dotenv from 'dotenv';
 import path from 'path';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import fs from 'fs';
 
 puppeteer.use(StealthPlugin());
 process.setMaxListeners(0);
 EventEmitter.defaultMaxListeners = 0;
 https.globalAgent.setMaxListeners(0);
 
+// .env fallback
 dotenv.config({ path: '/root/anipeak/scraper/.env' });
 
 // ────────────────────────────────────────────────────────────
-// ⚙️ KONFİGÜRASYON (R2 & HD EDITION)
+// ⚙️ KONFİGÜRASYON (HARDCODED FOR STABILITY)
 // ────────────────────────────────────────────────────────────
 const CONFIG = {
   BASE_URL: 'https://mangaokutr.co',
-  CHAPTER_CONCURRENCY: 5,   // Aynı anda 5 bölüm işle
-  PAGE_DOWNLOAD_LIMIT: 15,  // Her bölüm için 15 paralel indirme
+  CHAPTER_CONCURRENCY: 3,   
+  PAGE_UPLOAD_CONCURRENCY: 15, 
+};
+
+// Kritik R2 Bilgileri (Dosya okuma hatalarını engellemek için direkt gömüldü)
+const R2_CREDENTIALS = {
+  accountID: '5ea1dc1a085c04db3ae5f70b4e945b44',
+  accessKeyId: 'cf18c4a293cab8223922055c0b79b96b',
+  secretAccessKey: 'c33a182e615fedc56f4aacc14b9af0a41ea510fbf524f04b7393b93123186f82',
+  bucket: 'anipeakimage',
+  publicUrl: 'https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev'
 };
 
 const s3Client = new S3Client({
   region: 'auto',
-  endpoint: `https://${(process.env.R2_ACCOUNT_ID || '').trim()}.r2.cloudflarestorage.com`,
+  endpoint: `https://${R2_CREDENTIALS.accountID}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: (process.env.R2_ACCESS_KEY_ID || '').trim(),
-    secretAccessKey: (process.env.R2_SECRET_ACCESS_KEY || '').trim(),
+    accessKeyId: R2_CREDENTIALS.accessKeyId,
+    secretAccessKey: R2_CREDENTIALS.secretAccessKey,
   },
 });
-
-const R2_BUCKET = (process.env.R2_BUCKET || 'anipeakimage').trim();
-const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').trim();
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -50,14 +58,13 @@ async function processAndUploadR2(imageUrl, isCover, seriesTitle, chapterNumber,
   try {
     const res = await axios.get(imageUrl, {
       responseType: 'arraybuffer',
-      timeout: 25000,
+      timeout: 30000,
       headers: {
         'Referer': referer,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
       }
     });
 
-    // HD Kalite: 90% WebP (Orijinal keskinliği korur)
     const finalBuffer = await sharp(res.data)
       .webp({ quality: 90, effort: 6 }) 
       .toBuffer();
@@ -69,15 +76,15 @@ async function processAndUploadR2(imageUrl, isCover, seriesTitle, chapterNumber,
       : `manga/${safeTitle}/ch_${chapterNumber}/${fileName}`;
 
     await s3Client.send(new PutObjectCommand({
-      Bucket: R2_BUCKET,
+      Bucket: R2_CREDENTIALS.bucket,
       Key: r2Path,
       Body: finalBuffer,
       ContentType: 'image/webp'
     }));
 
-    return `${R2_PUBLIC_URL}/${r2Path}`;
+    return `${R2_CREDENTIALS.publicUrl}/${r2Path}`;
   } catch (e) {
-    logger.error(`[Titan-HD] Hata (${imageUrl}): ${e.message}`);
+    logger.error(`[HD-Upload] Hata (${imageUrl}): ${e.message}`);
     return null;
   }
 }
@@ -86,9 +93,9 @@ async function processAndUploadR2(imageUrl, isCover, seriesTitle, chapterNumber,
 
 async function extractSeriesInfo(page, url) {
   try {
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
   } catch (e) {
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 180000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 90000 });
   }
   return await page.evaluate(() => {
     const title = document.querySelector('.post-title h1, h1')?.innerText.trim();
@@ -97,7 +104,6 @@ async function extractSeriesInfo(page, url) {
     const genres = Array.from(document.querySelectorAll('a[href*="/manga-genre/"], .genres-content a')).map(a => a.innerText.trim());
     const status = document.body.innerText.includes('Ongoing') || document.body.innerText.includes('Devam') ? 'Devam Ediyor' : 'Tamamlandı';
     
-    // Orijinal isim tespiti
     let finalTitle = title;
     const altElement = document.querySelector('.alter, .alternative, .other-name');
     if (altElement) {
@@ -116,13 +122,13 @@ async function extractSeriesInfo(page, url) {
 
 async function extractChapterPageUrls(page, chapterUrl) {
   try {
-    await page.goto(chapterUrl, { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await page.goto(chapterUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
   } catch (e) {
-    await page.goto(chapterUrl, { waitUntil: 'domcontentloaded', timeout: 180000 });
+    await page.goto(chapterUrl, { waitUntil: 'domcontentloaded', timeout: 90000 });
   }
   
   await page.evaluate(async () => {
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
       window.scrollBy(0, window.innerHeight * 2);
       await new Promise(r => setTimeout(r, 100));
     }
@@ -140,14 +146,49 @@ async function extractChapterPageUrls(page, chapterUrl) {
   });
 }
 
+// 🚀 BÖLÜM İŞLEME (NITRO)
+
+async function processChapter(chapter, seriesTitle, seriesId, browser, uploadLimit) {
+  const { data: existing } = await supabase.from('chapters').select('id').eq('series_id', seriesId).eq('number', chapter.number).maybeSingle();
+  if (existing) return;
+
+  const chPage = await browser.newPage();
+  try {
+    const pageUrls = await extractChapterPageUrls(chPage, chapter.href);
+    if (pageUrls.length < 3) return;
+
+    console.log(`\x1b[36m[NITRO-DL]\x1b[0m >> ${seriesTitle} Ch.${chapter.number}: ${pageUrls.length} sayfa...`);
+    const referer = new URL(chapter.href).origin + '/';
+    
+    const uploadedPages = new Array(pageUrls.length);
+    const tasks = pageUrls.map((imgUrl, i) => uploadLimit(async () => {
+      const url = await processAndUploadR2(imgUrl, false, seriesTitle, chapter.number, i + 1, referer);
+      if (url) {
+        uploadedPages[i] = url;
+        console.log(`\x1b[32m[HD-OK]\x1b[0m >> Ch.${chapter.number} P.${i+1}`);
+      }
+    }));
+
+    await Promise.all(tasks);
+    const finalPages = uploadedPages.filter(p => p);
+
+    if (finalPages.length > 0) {
+      await createChapterIfNotExists(seriesId, chapter.number, `${seriesTitle} - Bölüm ${chapter.number}`, finalPages);
+      console.log(`\x1b[35m[COMPLETE]\x1b[0m >> ${seriesTitle} Bölüm ${chapter.number} Bitti.`);
+    }
+  } catch (err) {
+    logger.error(`[Chapter-Error] Bölüm ${chapter.number}: ${err.message}`);
+  } finally {
+    await chPage.close();
+  }
+}
+
 // 🚀 ANA SERİ İŞLEME
 
 async function processSeries(seriesUrl, browser) {
-  console.log(`\x1b[35m[TITAN-HD]\x1b[0m >> Hedef: ${seriesUrl}`);
+  console.log(`\x1b[35m[TITAN-FINAL]\x1b[0m >> Hedef: ${seriesUrl}`);
   
   const mainPage = await browser.newPage();
-  await mainPage.setViewport({ width: 1440, height: 900 });
-
   try {
     const seriesData = await extractSeriesInfo(mainPage, seriesUrl);
     await mainPage.close();
@@ -159,7 +200,6 @@ async function processSeries(seriesUrl, browser) {
 
     console.log(`\x1b[36m[INFO]\x1b[0m >> ${seriesData.title}: HD İşlem Başlıyor...`);
 
-    // Kapak HD Yükle
     let coverUrl = seriesData.cover;
     if (seriesData.cover) {
       coverUrl = await processAndUploadR2(seriesData.cover, true, seriesData.title, 0, 0, CONFIG.BASE_URL + '/');
@@ -168,56 +208,34 @@ async function processSeries(seriesUrl, browser) {
     const seriesId = await getOrCreateSeries(
       seriesData.title, coverUrl,
       seriesData.description,
-      seriesData.genres.length > 0 ? seriesData.genres : ['Aksiyon'],
+      seriesData.genres.length > 0 ? seriesData.genres : ['Manga'],
       seriesData.status
     );
 
+    const uploadLimit = pLimit(CONFIG.PAGE_UPLOAD_CONCURRENCY);
     const chapterLimit = pLimit(CONFIG.CHAPTER_CONCURRENCY);
 
-    for (const chapter of seriesData.chapters) {
-      // Dublikat kontrolü
-      const { data: existing } = await supabase.from('chapters').select('id').eq('series_id', seriesId).eq('number', chapter.number).single();
-      if (existing) continue;
+    const chapterTasks = seriesData.chapters.map(chapter => chapterLimit(() => 
+      processChapter(chapter, seriesData.title, seriesId, browser, uploadLimit)
+    ));
 
-      await chapterLimit(async () => {
-        const chPage = await browser.newPage();
-        try {
-          const pageUrls = await extractChapterPageUrls(chPage, chapter.href);
-          if (pageUrls.length < 3) return;
+    await Promise.all(chapterTasks);
 
-          console.log(`\x1b[36m[HD-DL]\x1b[0m >> ${seriesData.title} Ch.${chapter.number}: ${pageUrls.length} sayfa...`);
-          const referer = new URL(chapter.href).origin + '/';
-          
-          const uploadedPages = [];
-          for (let i = 0; i < pageUrls.length; i++) {
-            const url = await processAndUploadR2(pageUrls[i], false, seriesData.title, chapter.number, i + 1, referer);
-            if (url) uploadedPages.push(url);
-          }
-
-          if (uploadedPages.length > 0) {
-            await createChapterIfNotExists(seriesId, chapter.number, `${seriesData.title} - Bölüm ${chapter.number}`, uploadedPages);
-            console.log(`\x1b[32m[HD-OK]\x1b[0m >> Ch.${chapter.number} R2'ye yüklendi.`);
-          }
-        } finally {
-          await chPage.close();
-        }
-      });
-    }
   } catch (err) {
-    console.log(`\x1b[31m[!]\x1b[0m >> ${err.message}`);
+    console.log(`\x1b[31m[Kritik-Hata]\x1b[0m >> ${err.message}`);
   }
 }
 
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ ANIPEAK V61: SPEED TITAN — HD R2 EDITION ⚡        ║');
-  console.log('\x1b[35m%s\x1b[0m', '║   90% WebP HD · No GitHub · Direct R2 · Ultra Fast    ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ ANIPEAK V61: FINAL TITAN — R2 NITRO ⚡           ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   Hardcoded Credentials · Giga-Speed · 90% WebP      ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
 
   let urlPath = path.resolve('scraper', 'url.txt');
   if (!fs.existsSync(urlPath)) {
-    urlPath = '/root/anipeak/scraper/url.txt'; // VDS Fallback
+    urlPath = '/root/anipeak/scraper/url.txt'; 
   }
 
   if (fs.existsSync(urlPath)) {
@@ -239,9 +257,7 @@ async function main() {
     console.log(`\x1b[31m[HATA]\x1b[0m >> url.txt bulunamadı!`);
   }
 
-  await browser.close();
   console.log(`\n\x1b[32m[GÖREV TAMAMLANDI]\x1b[0m`);
 }
 
-import fs from 'fs';
 main().catch(err => { console.error(err); process.exit(1); });
