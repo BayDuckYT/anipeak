@@ -1,8 +1,0 @@
-# ════════════════════════════════════════════════════════════════
-# AniPeak — Cloudflare Pages SPA Yönlendirme Kuralları
-# React Router'ın client-side routing'i için zorunlu.
-# Tüm 404'ler index.html'e yönlendirilir, React Router devralır.
-# ════════════════════════════════════════════════════════════════
-
-# ── SPA Catch-All (En Alt Satırda Olmalı) ──
-/*    /index.html   200
