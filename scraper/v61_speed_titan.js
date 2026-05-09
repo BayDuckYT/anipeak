@@ -24,8 +24,8 @@ dotenv.config({ path: '/root/anipeak/scraper/.env' });
 // ────────────────────────────────────────────────────────────
 const CONFIG = {
   BASE_URL: 'https://mangaokutr.co',
-  CHAPTER_CONCURRENCY: 5,   // Aynı anda 5 bölüm işle
-  PAGE_DOWNLOAD_LIMIT: 15,  // Her bölüm için 15 paralel indirme
+  CHAPTER_CONCURRENCY: 10,   // ULTRA HIZ: Aynı anda 10 bölüm
+  PAGE_DOWNLOAD_LIMIT: 40,   // NITRO: Bölüm başına 40 paralel sayfa
 };
 
 const s3Client = new S3Client({
@@ -193,9 +193,19 @@ async function processSeries(seriesUrl, browser) {
     const chapterLimit = pLimit(CONFIG.CHAPTER_CONCURRENCY);
 
     for (const chapter of seriesData.chapters) {
-      // Dublikat kontrolü
-      const { data: existing } = await supabase.from('chapters').select('id').eq('series_id', seriesId).eq('number', chapter.number).single();
-      if (existing) continue;
+      // KENDİ KENDİNİ ONARMA: Eğer bölüm varsa ama linkler bozuksa (..r2 içeriyorsa) tekrar indir
+      const { data: existing } = await supabase.from('chapters')
+        .select('id, images')
+        .eq('series_id', seriesId)
+        .eq('number', chapter.number)
+        .single();
+      
+      const isBroken = existing?.images?.some(img => img.includes('..r2')) || (existing && (!existing.images || existing.images.length < 3));
+      if (existing && !isBroken) continue;
+      
+      if (isBroken) {
+        console.log(`\x1b[33m[REPAIR]\x1b[0m >> Bozuk link tespit edildi, yeniden işleniyor: Ch.${chapter.number}`);
+      }
 
       await chapterLimit(async () => {
         const chPage = await browser.newPage();
@@ -206,15 +216,20 @@ async function processSeries(seriesUrl, browser) {
           console.log(`\x1b[36m[HD-DL]\x1b[0m >> ${seriesData.title} Ch.${chapter.number}: ${pageUrls.length} sayfa...`);
           const referer = new URL(chapter.href).origin + '/';
           
-          const uploadedPages = [];
-          for (let i = 0; i < pageUrls.length; i++) {
-            const url = await processAndUploadR2(pageUrls[i], false, seriesData.title, chapter.number, i + 1, referer);
-            if (url) uploadedPages.push(url);
-          }
+          // ULTRA HIZ: Sayfaları seri (Promise.all) şekilde yükle
+          const uploadPromises = pageUrls.map((url, i) => 
+            processAndUploadR2(url, false, seriesData.title, chapter.number, i + 1, referer)
+          );
+          const results = await Promise.all(uploadPromises);
+          const uploadedPages = results.filter(url => url !== null);
 
           if (uploadedPages.length > 0) {
+            // Eğer varsa eski bozuk veriyi sil (onarma modu)
+            if (existing?.id) {
+              await supabase.from('chapters').delete().eq('id', existing.id);
+            }
             await createChapterIfNotExists(seriesId, chapter.number, `${seriesData.title} - Bölüm ${chapter.number}`, uploadedPages);
-            console.log(`\x1b[32m[HD-OK]\x1b[0m >> Ch.${chapter.number} R2'ye yüklendi.`);
+            console.log(`\x1b[32m[HD-OK]\x1b[0m >> Ch.${chapter.number} başarıyla mühürlendi.`);
           }
         } finally {
           await chPage.close();
