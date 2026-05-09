@@ -215,19 +215,15 @@ async function main() {
   console.log('\x1b[35m%s\x1b[0m', '║   90% WebP HD · No GitHub · Direct R2 · Ultra Fast    ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
 
-  let urlPath = path.resolve('scraper', 'urls.txt');
-  if (!fs.existsSync(urlPath)) {
-    urlPath = '/root/anipeak/scraper/urls.txt'; // VDS Fallback
-  }
+  const targets = [
+    'https://mangaokutr.co/manga/jujutsu-kaisen/',
+    'https://mangaokutr.co/manga/solo-leveling/',
+    'https://mangaokutr.co/manga/chainsaw-man/',
+    'https://mangaokutr.co/manga/berserk/',
+    'https://mangaokutr.co/manga/oshi-no-ko/',
+    'https://mangaokutr.co/manga/blue-lock/'
+  ];
 
-  const input = fs.existsSync(urlPath) 
-    ? fs.readFileSync(urlPath, 'utf-8')
-    : await new Promise(resolve => {
-        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-        rl.question('\x1b[33m[HEDEF]\x1b[0m >> Seri URL: ', (answer) => { rl.close(); resolve(answer); });
-      });
-
-  const targets = input.split('\n').map(t => t.trim()).filter(t => t.length > 2);
   const browser = await puppeteer.launch({
     headless: 'new',
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
