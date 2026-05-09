@@ -1,5 +1,5 @@
 name = "anipeak"
-main = "src/worker.js"
+main = "src/entry.js"
 compatibility_date = "2024-05-09"
 
 [assets]
