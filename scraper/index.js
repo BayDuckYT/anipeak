@@ -12,7 +12,16 @@ async function runScraper() {
 
   try {
     logger.info("[Bot] Seri linkleri taranıyor...");
-    const seriesUrls = await getSeriesLinks();
+    let seriesUrls = [];
+    
+    const urlFilePath = path.resolve('scraper', 'urls.txt');
+    if (fs.existsSync(urlFilePath)) {
+      logger.info("[Bot] urls.txt bulundu, sadece bu linkler işlenecek.");
+      seriesUrls = fs.readFileSync(urlFilePath, 'utf-8').split('\n').filter(l => l.trim().startsWith('http'));
+    } else {
+      seriesUrls = await getSeriesLinks();
+    }
+    
     logger.info(`[Bot] Toplam ${seriesUrls.length} potansiyel seri linki bulundu.`);
 
     for (const [sIdx, seriesUrl] of seriesUrls.entries()) {
@@ -25,7 +34,6 @@ async function runScraper() {
           continue;
         }
 
-        // 1. Kapak Entegrasyonu ve Koruması (Mandatory Cover)
         if (!sData.cover) {
            logger.warn(`[Kapak Koruması] Kapak resmi bulunamadı, seri reddedildi: ${sData.title}`);
            continue; 
@@ -36,14 +44,13 @@ async function runScraper() {
         
         let finalCoverUrl = '';
         try {
-          finalCoverUrl = await processAndUploadImage(sData.cover, true);
+          finalCoverUrl = await processAndUploadImage(sData.cover, true, sData.title, 0, 0);
           logger.info(`[Bot] Kapak başarıyla yüklendi: ${finalCoverUrl}`);
         } catch (coverErr) {
           logger.error(`[Bot] Kapak yüklenemediği için seri durduruldu: ${sData.title} | Hata: ${coverErr.message}`);
-          continue; // Kapak yoksa seri yok
+          continue; 
         }
 
-        // 2. Seri Oluştur/Getir
         let seriesId;
         try {
            seriesId = await getOrCreateSeries(sData.title, finalCoverUrl, sData.description, sData.genre, sData.status);
@@ -53,15 +60,12 @@ async function runScraper() {
            continue; 
         }
 
-        // 3. Sıralı ve Tam Bölüm Yükleme Mantığı (Batch Processing)
         if (sData.chapters && sData.chapters.length > 0) {
-          // Kesin Sıralı Yükleme (1. bölümden son bölüme)
           const sortedChapters = sData.chapters.sort((a, b) => a.number - b.number);
           logger.info(`[Bot] Toplam ${sortedChapters.length} bölüm sıralı olarak işlenecek.`);
 
           for (const [cIdx, chapter] of sortedChapters.entries()) {
             try {
-               // Duplicate Check
                const { data: existing } = await supabase
                   .from('chapters')
                   .select('id')
@@ -83,22 +87,23 @@ async function runScraper() {
                  continue;
                }
 
-               logger.info(`[Bot] > ${rawPages.length} sayfa işleniyor (Logo temizleme & Optimizasyon)...`);
+               logger.info(`[Bot] > ${rawPages.length} HD sayfa işleniyor...`);
                const processedPages = [];
                
-               for (const pageUrl of rawPages) {
-                  const cleanUrl = await processAndUploadImage(pageUrl);
-                  processedPages.push(cleanUrl);
+               for (const [pIdx, pageUrl] of rawPages.entries()) {
+                  const cleanUrl = await processAndUploadImage(pageUrl, false, sData.title, chapter.number, pIdx + 1);
+                  if (cleanUrl) processedPages.push(cleanUrl);
                }
 
-               await createChapterIfNotExists(seriesId, chapter.number, chapter.title, processedPages);
-               logger.info(`[BAŞARILI] ==> ${sData.title} - Bölüm ${chapter.number} yüklendi!`);
+               if (processedPages.length > 0) {
+                 await createChapterIfNotExists(seriesId, chapter.number, chapter.title, processedPages);
+                 logger.info(`[BAŞARILI] ==> ${sData.title} - Bölüm ${chapter.number} yüklendi!`);
+               }
                
-               await delay(1000); // Bölümler arası kısa bekleme
+               await delay(500); 
 
             } catch (chErr) {
                logger.error(`[Bölüm Hatası] Bölüm ${chapter.number} işlenirken hata oluştu: ${chErr.message}`);
-               // Bir bölümde hata olsa bile diğerlerini denemeye devam et ama logla
             }
           }
         }

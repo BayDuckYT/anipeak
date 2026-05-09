@@ -105,100 +105,42 @@ async function uploadToR2(buffer, fileName, contentType) {
   }
 }
 
-export async function processAndUploadEliteImage(imageUrl, isCover = false, seriesTitle = 'Unknown', chapterNumber = 0, pageIndex = 1) {
-  try {
-    const { data: buffer } = await axios.get(imageUrl, {
-      responseType: 'arraybuffer',
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-      timeout: 30000
-    });
-
-    // 1. Akıllı Reklam & Logo Tespiti (Placeholder Engeli)
-    if (!isCover) {
-       const isAd = await checkIsAd(buffer);
-       const metadata = await sharp(buffer).metadata();
-       const isTooSmall = metadata.width < 400 || metadata.height < 600;
-       const isTooLight = buffer.byteLength < 20000; 
-
-       if (isAd || isTooSmall || isTooLight) {
-          logger.warn(`[Archive-Security] Logo/Placeholder elendi (${metadata.width}x${metadata.height}, ${Math.round(buffer.byteLength/1024)}KB): ${imageUrl}`);
-          return null; 
-       }
-    }
-
-    let processedBuffer = buffer;
-
-    // 2. GEMINI AI ÇEVİRİ & DİZGİ
-    if (!isCover) {
-      logger.info(`[Archive-AI] Sayfa tercüme ediliyor: ${seriesTitle} - Bölüm ${chapterNumber} - Sayfa ${pageIndex}`);
-      processedBuffer = await translateAndTypesetManga(processedBuffer);
-    }
-
-    // 3. Marka Basımı (Branding) & WebP Optimizasyonu
-    let sharpInstance = sharp(processedBuffer);
-    
-    if (isCover) {
-      sharpInstance = sharpInstance.resize(400, 600, { fit: 'cover' });
-    } else {
-      const metadata = await sharpInstance.metadata();
-      const svgText = `
-        <svg width="${metadata.width}" height="40">
-          <rect x="0" y="0" width="${metadata.width}" height="40" fill="rgba(0,0,0,0.6)" />
-          <text x="50%" y="25" font-family="Arial" font-size="24" fill="white" text-anchor="middle" font-weight="bold">ANIPEAK.COM.TR</text>
-        </svg>`;
-      
-      sharpInstance = sharpInstance.composite([{
-        input: Buffer.from(svgText),
-        gravity: 'south'
-      }]);
-    }
-
-    // WebP ile %70 tasarruf sağlıyoruz
-    const finalBuffer = await sharpInstance
-      .webp({ quality: 80 })
-      .toBuffer();
-
-    // 4. YEREL ARŞİVLEME (Opsiyonel - VDS disk dolmasın diye kapatılabilir)
+export async function processAndUploadImage(imageUrl, isCover, seriesTitle, chapterNumber, pageIndex) {
     try {
-      const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
-      const seriesDir = path.join(BASE_ARCHIVE_PATH, safeTitle);
-      let targetDir = seriesDir;
-      let fileName = 'cover.webp';
+        const { data: buffer } = await axios.get(imageUrl, {
+            responseType: 'arraybuffer',
+            headers: { 
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://mangaokutr.co/'
+            },
+            timeout: 30000
+        });
 
-      if (!isCover) {
-        targetDir = path.join(seriesDir, `Bolum ${chapterNumber}`);
-        fileName = `${pageIndex.toString().padStart(3, '0')}.webp`;
-      }
+        // HD Kalite: 90% WebP (Orijinal keskinliği korur, boyutu optimize eder)
+        const finalBuffer = await sharp(buffer)
+            .webp({ quality: 90, effort: 6 }) 
+            .toBuffer();
 
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-      }
+        const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
+        const fileName = isCover ? 'cover.webp' : `${pageIndex.toString().padStart(3, '0')}.webp`;
+        const r2Path = isCover 
+            ? `manga/${safeTitle}/${fileName}` 
+            : `manga/${safeTitle}/ch_${chapterNumber}/${fileName}`;
 
-      const filePath = path.join(targetDir, fileName);
-      fs.writeFileSync(filePath, finalBuffer);
-      // logger.info(`[Archive-Local] Kaydedildi: ${filePath}`);
-    } catch (fsErr) {}
+        await s3Client.send(new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET,
+            Key: r2Path,
+            Body: finalBuffer,
+            ContentType: 'image/webp'
+        }));
 
-    // 5. R2 BULUT YÜKLEME
-    const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
-    const r2Path = isCover 
-      ? `manga/${safeTitle}/cover.webp`
-      : `manga/${safeTitle}/ch_${chapterNumber}/${pageIndex.toString().padStart(3, '0')}.webp`;
-
-    try {
-      const uploadUrl = await uploadToR2(finalBuffer, r2Path, 'image/webp');
-      logger.info(`[Archive-Cloud] R2 Yüklendi: ${uploadUrl}`);
-      return uploadUrl;
-    } catch (r2Err) {
-      logger.error(`[Archive-Cloud] R2 Yükleme başarısız, ImgBB yedek devrede...`);
-      // Yedek olarak ImgBB (Opsiyonel)
-      return imageUrl;
+        const uploadUrl = `${process.env.R2_PUBLIC_URL}/${r2Path}`;
+        logger.info(`[HD-Upload] R2 Başarılı: ${uploadUrl}`);
+        return uploadUrl;
+    } catch (e) {
+        logger.error(`[HD-Upload] Hata: ${e.message}`);
+        return imageUrl;
     }
-
-  } catch (error) {
-    logger.error(`[Archive-Processor] Kritik Hata (${imageUrl}): ${error.message}`);
-    return isCover ? null : imageUrl; 
-  }
 }
 
 /**
