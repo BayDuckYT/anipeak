@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/adminServer.js",
-    "build": "vite build",
+    "build": "rm -f public/_redirects && rm -f dist/_redirects && vite build",
     "preview": "vite preview",
     "start:bots": "concurrently \"node discord-bots/Infinity-Guard/index.js\" \"node discord-bots/Support/index.js\" \"node discord-bots/Haber/index.js\" \"node discord-bots/XP/index.js\""
   },
