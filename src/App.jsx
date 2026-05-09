@@ -16,8 +16,10 @@ import Loader from './components/Loader.jsx';
 import ScrollToTop from './components/ScrollToTop.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
-// Lazy Loaded Pages
-const Home = lazy(() => import('./pages/Home.jsx'));
+// Ana sayfa için LCP optimizasyonu: Eager (direkt) yükleme, lazy değil
+import Home from './pages/Home.jsx';
+
+// Diğer sayfalar Lazy Loaded
 const ManhwaDetail = lazy(() => import('./pages/ManhwaDetail.jsx'));
 const Reader = lazy(() => import('./pages/Reader.jsx'));
 const Admin = lazy(() => import('./pages/Admin.jsx'));
