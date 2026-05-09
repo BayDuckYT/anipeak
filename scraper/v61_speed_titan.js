@@ -38,7 +38,7 @@ const s3Client = new S3Client({
 });
 
 const R2_BUCKET = (process.env.R2_BUCKET || 'anipeakimage').trim();
-const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').trim();
+const R2_PUBLIC_URL = 'https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev';
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
