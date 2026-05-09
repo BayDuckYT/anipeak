@@ -24,8 +24,8 @@
   # ── 6. Permissions Policy — Gereksiz API Erişimlerini Kapat ──
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), interest-cohort=()
 
-  # ── 7. Content Security Policy — Kaynak Beyaz Listesi ──
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://wsrv.nl https://fonts.googleapis.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  # ── 7. Content Security Policy — Kaynak Beyaz Listesi (A+ Grade) ──
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://wsrv.nl https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
   # ── 8. Teknoloji Gizleme ──
   X-Powered-By: AniPeak-Infinity-Guard
