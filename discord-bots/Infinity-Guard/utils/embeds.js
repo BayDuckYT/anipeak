@@ -98,7 +98,7 @@ export function antiLinkEmbed(user, deletedUrl) {
   return baseEmbed(COLORS.NEON_PINK)
     .setTitle('🔗 ANIPEAK KORUMA — LİNK FİLTRESİ')
     .setDescription(
-      '> Yasaklı bir link tespit edildi ve engellendi.'
+      '> Link filtresi tarafından bir bağlantı tespit edildi ve engellendi.'
     )
     .addFields(
       { name: '🎯 Gönderen', value: `${user}`, inline: true },

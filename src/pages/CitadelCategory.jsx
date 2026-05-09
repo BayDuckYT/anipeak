@@ -5,6 +5,8 @@ import { ArrowLeft, Lock, Crown, Plus, Image as ImageIcon, Code, EyeOff } from '
 import { useAuth } from '../context/AuthContext';
 import EliteBadge from '../components/EliteBadge';
 
+import DOMPurify from 'dompurify';
+
 export default function CitadelCategory() {
   const { category } = useParams();
   const { user } = useAuth();
@@ -110,7 +112,12 @@ export default function CitadelCategory() {
       .replace(/```([\s\S]*?)```/g, '<pre class="bg-[#0a0a0c] p-4 rounded-xl font-mono text-xs my-3 text-emerald-400 overflow-x-auto border border-white/5 shadow-inner"><code>$1</code></pre>')
       .replace(/\|\|(.*?)\|\|/g, '<span class="bg-white/10 text-transparent hover:text-white px-2 py-0.5 rounded cursor-pointer transition-colors duration-300" onclick="this.classList.remove(\'text-transparent\')">$1</span>');
       
-    return <div dangerouslySetInnerHTML={{ __html: html }} className="text-slate-300 text-sm leading-relaxed" />;
+    // DOMPurify with ALLOWED_ATTR to keep our onclick functionality for spoilers
+    const sanitizedHtml = DOMPurify.sanitize(html, {
+      ADD_ATTR: ['onclick']
+    });
+      
+    return <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} className="text-slate-300 text-sm leading-relaxed" />;
   };
 
   return (

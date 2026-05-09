@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { getLevelInfo } from '../utils/levelUtils.js';
 
 export default {
@@ -8,32 +8,39 @@ export default {
 
   async execute(interaction, client) {
     await interaction.deferReply();
-    const discord_id = interaction.user.id;
+    const discord_id = String(interaction.user.id); // Her zaman string yap
 
     try {
-      // 1. Kullanıcıyı bul
+      // 1. Kullanıcıyı discord_id ile bul
       const { data: profile, error: fetchError } = await client.supabase
         .from('profiles')
-        .select('*')
+        .select('id, username, xp, is_elite, reading_streak, discord_id')
         .eq('discord_id', discord_id)
-        .single();
+        .maybeSingle(); // single() yerine maybeSingle() - hata fırlatmaz, null döner
 
-      if (fetchError || !profile) {
-        return interaction.editReply({ 
-          content: '❌ Hesabın henüz mühürlenmemiş uşağım! Siteden mühür kodu alıp `/bağla` komutunu kullanmalısın.' 
+      // Debug: Konsolda göster
+      if (fetchError) {
+        console.error(`[XP istatistik] Supabase fetchError (discord_id: ${discord_id}):`, fetchError);
+      }
+      if (!profile) {
+        console.warn(`[XP istatistik] Profil bulunamadı — discord_id: ${discord_id}`);
+        return interaction.editReply({
+          content: '❌ Discord hesabın AniPeak\'e mühürlü değil!\n\n**Nasıl bağlarım?**\n1️⃣ Siteye gir → Profilim → "Discord Bağla" butonuna tıkla\n2️⃣ Oluşan kodu kopyala\n3️⃣ Buraya `/bağla kod:AP_XXXX` yaz',
         });
       }
 
-      // 2. Okuma geçmişini çek (Toplam okunan bölüm sayısı için)
-      const { data: history, error: histError } = await client.supabase
+      // 2. Okuma geçmişini çek
+      const { data: history } = await client.supabase
         .from('reading_history')
         .select('last_read_chapter')
         .eq('user_id', profile.id);
 
-      const totalChapters = history ? history.reduce((sum, h) => sum + (h.last_read_chapter || 0), 0) : 0;
+      const totalChapters = history
+        ? history.reduce((sum, h) => sum + (h.last_read_chapter || 0), 0)
+        : 0;
       const totalSeries = history ? history.length : 0;
 
-      const levelInfo = getLevelInfo(profile.xp, profile.is_elite);
+      const levelInfo = getLevelInfo(profile.xp || 0, profile.is_elite);
 
       const embed = new EmbedBuilder()
         .setTitle(`📊 ANIPEAK KARARGAH VERİLERİ — ${profile.username}`)
@@ -41,7 +48,7 @@ export default {
         .setThumbnail(interaction.user.displayAvatarURL())
         .addFields(
           { name: '🔱 Seviye & Rütbe', value: `\`Lv. ${levelInfo.level}\` | **${levelInfo.rank}**`, inline: false },
-          { name: '⚡ Toplam XP', value: `\`${profile.xp} XP\``, inline: true },
+          { name: '⚡ Toplam XP', value: `\`${profile.xp || 0} XP\``, inline: true },
           { name: '🔥 Okuma Serisi', value: `\`${profile.reading_streak || 0} Gün\``, inline: true },
           { name: '📖 Toplam Okuma', value: `\`${totalChapters} Bölüm\` (${totalSeries} Seri)`, inline: true },
         )
@@ -51,16 +58,19 @@ export default {
 
       // İlerleme çubuğu
       if (levelInfo.level < 100) {
-        const progress = Math.floor(levelInfo.progress / 10);
+        const progress = Math.floor((levelInfo.progress || 0) / 10);
         const bar = '▓'.repeat(progress) + '░'.repeat(10 - progress);
-        embed.addFields({ name: `📈 Seviye İlerlemesi (%${Math.floor(levelInfo.progress)})`, value: `\`${bar}\` \`${levelInfo.xpInLevel} / ${levelInfo.xpForNext} XP\`` });
+        embed.addFields({
+          name: `📈 Seviye İlerlemesi (%${Math.floor(levelInfo.progress || 0)})`,
+          value: `\`${bar}\` \`${levelInfo.xpInLevel} / ${levelInfo.xpForNext} XP\``,
+        });
       }
 
       await interaction.editReply({ embeds: [embed] });
 
     } catch (err) {
       console.error('[XP] İstatistik hatası:', err);
-      await interaction.editReply({ content: '❌ Veriler çekilirken bir hata oluştu!' });
+      await interaction.editReply({ content: '❌ Veriler çekilirken beklenmedik bir hata oluştu!' });
     }
   },
 };

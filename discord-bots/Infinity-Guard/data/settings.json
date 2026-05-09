@@ -1,0 +1,459 @@
+{
+  "global": {
+    "antiSpam": true,
+    "antiLink": true,
+    "badWords": true,
+    "capsFilter": true,
+    "duplicateFilter": true
+  },
+  "channels": {
+    "1494328426570449077": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426570449078": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426570449083": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426318925985": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1500418696555003934": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426755264552": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328427388469498": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426990141456": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970858": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426755264555": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426318925983": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1500249094432624711": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970852": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707416": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559639": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559640": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428646629381": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428646629378": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559638": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426755264554": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707418": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970856": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1500269111379230852": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970854": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426990141452": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559645": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1500568998847447171": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426990141458": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428072013940": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559644": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428646629377": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707417": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970855": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970850": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328427388469492": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426570449085": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428646629376": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707415": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428072013939": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970853": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707412": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559637": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707414": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428072013938": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428646629380": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426990141454": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1501633126353338479": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426570449086": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559641": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328427388469491": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428072013942": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426755264559": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426990141459": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426755264553": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707411": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426041970849": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328427388469490": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428646629379": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328425752559643": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426318925981": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328428340707409": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426990141457": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1494328426990141453": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    },
+    "1500243006937370645": {
+      "antiSpam": true,
+      "antiLink": true,
+      "badWords": false,
+      "capsFilter": true,
+      "duplicateFilter": true
+    }
+  }
+}

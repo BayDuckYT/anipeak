@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost
+  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import AnimeAvatar from './AnimeAvatar.jsx';
 import effectsData from '../data/effects.json';
+import { getOptimizedImage, handleImageError } from '../utils/imageOpt.js';
 
 export default function Header({ onAuthOpen }) {
   const [scrolled, setScrolled] = useState(false);
@@ -145,6 +146,12 @@ export default function Header({ onAuthOpen }) {
               <Calendar size={15} className="text-indigo-400" /> Takvim
             </Link>
             <Link 
+              to="/oracle"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/oracle' ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10'}`}
+            >
+              <Sparkles size={15} className="text-cyan-400" /> Oracle
+            </Link>
+            <Link 
               to="/elite-upgrade" 
               onClick={handlePremiumClick}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all energy-pulse ${
@@ -186,9 +193,9 @@ export default function Header({ onAuthOpen }) {
                       className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
                     >
                       <img 
-                        src={m?.cover} 
+                        src={getOptimizedImage(m?.cover, 100)} 
                         alt={m?.title} 
-                        onError={(e) => { e.target.src = 'https://via.placeholder.com/32x40?text='; }}
+                        onError={handleImageError}
                         className="w-8 h-10 rounded-lg object-cover flex-shrink-0" 
                       />
                       <div className="min-w-0">
@@ -224,6 +231,7 @@ export default function Header({ onAuthOpen }) {
           {/* Notifications Bell - Always Visible */}
           <div className="relative" ref={notifRef}>
             <button
+              aria-label="Bildirimler"
               onClick={() => { setNotifOpen(!notifOpen); if (!notifOpen && user) markAllRead(); }}
               className="relative p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
             >
@@ -367,6 +375,14 @@ export default function Header({ onAuthOpen }) {
                           Profilim
                         </Link>
                         <Link
+                          to="/global-nexus"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                        >
+                          <span className="text-[15px] leading-none group-hover:scale-110 transition-transform">🌍</span>
+                          Harita
+                        </Link>
+                        <Link
                           to="/profile"
                           onClick={() => setProfileOpen(false)}
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
@@ -426,6 +442,7 @@ export default function Header({ onAuthOpen }) {
 
             {/* Mobile toggle */}
             <button
+              aria-label="Menü"
               onClick={() => setMobileOpen(!mobileOpen)}
               className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
             >
@@ -475,6 +492,13 @@ export default function Header({ onAuthOpen }) {
                 className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase"
               >
                 <Calendar size={16} /> Yayın Takvimi
+              </Link>
+              <Link 
+                to="/oracle"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-black text-cyan-400 hover:bg-cyan-500/10 transition-all uppercase"
+              >
+                <Sparkles size={16} /> Oracle
               </Link>
               {user ? (
                 <>

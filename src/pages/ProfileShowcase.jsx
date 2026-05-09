@@ -721,11 +721,11 @@ export default function ProfileShowcase() {
         )}
       </AnimatePresence>
 
-               <div className="flex flex-col lg:flex-row gap-8 items-start max-w-[1700px] mx-auto px-6">
+               <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start max-w-[1700px] mx-auto px-4 sm:px-6">
           
           {/* ── LEFT SIDEBAR (SCREENSHOT 1 STYLE) ── */}
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
-            <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden p-8 flex flex-col items-center relative">
+            <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative">
                {/* Background Effect */}
                {displayUser.active_mix?.profile_effect && displayUser.active_mix?.profile_effect !== 'none' && (
                  <div className="absolute inset-0 z-[-1] opacity-20">
@@ -936,12 +936,12 @@ export default function ProfileShowcase() {
                </div>
                
                <div className="absolute inset-0 p-10 lg:p-16 flex flex-col justify-end">
-                  <p className="text-zinc-400 text-sm font-bold uppercase tracking-[0.2em] mb-4">Hoş geldin,</p>
-                  <h2 className="text-6xl font-black text-white uppercase tracking-tighter mb-4">{displayUser.username} <span className="text-xl align-middle text-blue-500 opacity-50 ml-2">LV. {displayUser.level}</span></h2>
-                  <p className="text-zinc-400 max-w-xl text-sm font-medium leading-relaxed mb-10">Manga okumak, başka dünyalarda yaşamaktır. Kendi efsaneni burada inşa etmeye devam et uşağım.</p>
+                  <p className="text-zinc-400 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mb-4">Hoş geldin,</p>
+                  <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{displayUser.username} <span className="text-lg md:text-xl align-middle text-blue-500 opacity-50 ml-2">LV. {displayUser.level}</span></h2>
+                  <p className="text-zinc-400 max-w-xl text-xs sm:text-sm font-medium leading-relaxed mb-10">Manga okumak, başka dünyalarda yaşamaktır. Kendi efsaneni burada inşa etmeye devam et uşağım.</p>
                   
                   {/* STATS ROW (SCREENSHOT 2 STYLE) */}
-                  <div className="flex flex-wrap gap-10">
+                  <div className="flex flex-wrap gap-4 sm:gap-10">
                      {[
                         { label: 'Okuduğu Seri', value: readHistory.length, icon: BookOpen },
                         { label: 'Favoriler', value: favoritesCount, icon: Star },
@@ -964,9 +964,9 @@ export default function ProfileShowcase() {
                </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
                 {/* DEVAM EDİYOR (ALT ALTA LİSTE) */}
-                <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8 space-y-8">
+                <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 space-y-8">
                    <div className="flex justify-between items-center">
                       <h3 className="text-sm font-black text-white uppercase tracking-widest">DEVAM EDİYOR</h3>
                       <button onClick={() => setActiveTab('okunanlar')} className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Tümünü Gör <ChevronRight size={10} className="inline ml-1" /></button>

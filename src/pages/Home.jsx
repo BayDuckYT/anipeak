@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, BookOpen, ChevronRight, Flame, Zap, Play, Plus,
-  TrendingUp, Crown, Bell, Sparkles, Heart,
+  TrendingUp, Crown, Bell, Sparkles, Heart, Compass,
   Swords, Skull, School, Rocket, Theater, Smile, Ghost, Search
 } from 'lucide-react';
 
@@ -29,6 +29,7 @@ const GENRE_COLORS = {
 };
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
+import { handleImageError } from '../utils/imageOpt.js';
 
 
 // ── Trending Card (numbered) ──
@@ -47,7 +48,7 @@ function TrendingCard({ item, rank, getChapters }) {
         </div>
         <div className="relative aspect-[3/4] overflow-hidden">
           <img src={item.cover} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy"
-            onError={(e) => { e.target.src = 'https://via.placeholder.com/300x450?text=Resim+Yok'; }} />
+            onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
           {/* Rating badge */}
           <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/90 text-white text-[11px] font-black">
@@ -74,11 +75,11 @@ function NewChapterCard({ item, chapters }) {
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/30 transition-all">
         <div className="relative aspect-[3/4] overflow-hidden">
           <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
-            onError={(e) => { e.target.src = 'https://via.placeholder.com/300x450?text=Resim+Yok'; }} />
+            onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           {/* "Güncel" badge */}
           <div className="absolute top-1.5 left-1.5">
-            <span className="px-1.5 py-0.5 rounded bg-emerald-500/90 text-white text-[8px] font-black uppercase">Güncel</span>
+            <span className="px-1.5 py-0.5 rounded bg-emerald-500/90 text-slate-900 text-[8px] font-black uppercase">Güncel</span>
           </div>
         </div>
         <div className="p-2 bg-[#0a0a0c]">
@@ -100,7 +101,7 @@ function RecommendationCard({ item }) {
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-blue-500/30 transition-all">
         <div className="relative aspect-[3/4] overflow-hidden">
           <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
-            onError={(e) => { e.target.src = 'https://via.placeholder.com/300x450?text=Resim+Yok'; }} />
+            onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           <div className="absolute bottom-2 left-2 right-2">
             <div className="flex items-center gap-1 mb-1">
@@ -122,7 +123,7 @@ function DiscoveryItem({ item, rank }) {
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all group">
       <img src={item.cover} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
-        onError={(e) => { e.target.src = 'https://via.placeholder.com/40x56?text='; }} />
+        onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
         <div className="flex items-center gap-1 mt-0.5">
@@ -239,9 +240,16 @@ export default function Home({ onAuthOpen }) {
               transition={{ duration: 0.8 }}
               className="absolute inset-0"
             >
-              {/* Background image */}
+              {/* Background image — LCP Element (eager + high priority) */}
               <div className="absolute inset-0">
-                <img src={featuredItem.cover} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={featuredItem.cover}
+                  alt=""
+                  aria-hidden="true"
+                  fetchpriority="high"
+                  className="w-full h-full object-cover"
+                  onError={handleImageError}
+                />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/40" />
               </div>
@@ -335,6 +343,7 @@ export default function Home({ onAuthOpen }) {
           {heroItems.map((_, i) => (
             <button
               key={i}
+              aria-label={`Slayt ${i + 1} göster`}
               onClick={() => setCurrentHeroIndex(i)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 currentHeroIndex === i ? 'w-8 bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]' : 'w-2 bg-white/20 hover:bg-white/40'
@@ -392,18 +401,28 @@ export default function Home({ onAuthOpen }) {
                 </div>
               </section>
 
-              {/* Sana Özel */}
-              <section>
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/20">
-                      <Heart size={18} className="text-pink-400" />
-                    </div>
-                    <h2 className="text-xl font-black text-white uppercase tracking-tight">Sana Özel</h2>
-                  </div>
-                  <span className="text-[10px] text-slate-500 italic hidden sm:block">Sana özel öneriler — en iyileri keşfet</span>
+              {/* Oracle: Sana Özel (Personalized) */}
+              <section className="relative overflow-hidden rounded-3xl p-8 border border-cyan-500/10 bg-gradient-to-br from-[#0a0a0c] via-[#0d0d1a] to-[#0a0a0c]">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                  <Sparkles size={120} className="text-cyan-400" />
                 </div>
-                <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar custom-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
+                
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                      <Compass size={24} className="text-cyan-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Oracle Seçimleri</h2>
+                      <p className="text-[10px] text-cyan-400/70 font-mono tracking-widest uppercase">Nebula Kahini Senin İçin Seçti</p>
+                    </div>
+                  </div>
+                  <Link to="/oracle" className="flex items-center gap-2 px-4 py-2 rounded-xl glass border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/10 transition-all">
+                    Tüm Kehanetler <ChevronRight size={14} />
+                  </Link>
+                </div>
+
+                <div className="flex gap-5 overflow-x-auto pb-4 no-scrollbar custom-scrollbar relative z-10" style={{ scrollSnapType: 'x mandatory' }}>
                   {recommendations.map((item) => (
                     <RecommendationCard key={item.id} item={item} />
                   ))}

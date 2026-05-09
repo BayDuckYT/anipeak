@@ -88,6 +88,7 @@ export async function syncUserToDiscord(client, dataOrId, xpIfProvided) {
 
     // ── 1. NICKNAME GÜNCELLEME (Sadece Seviye + Discord İsmi) ──────
     // Sitedeki ismi kullanmıyoruz, Discord'daki orijinal ismini koruyoruz.
+    const info = getLevelInfo(xp || 0); // ← Eksik olan bu satırdı!
     const baseName = member.user.globalName || member.user.username;
     // Eğer isimde zaten bir [Lv. X] varsa onu temizle ki üst üste binmesin
     const cleanName = baseName.replace(/^\[Lv\.\s\d+\]\s/, '');

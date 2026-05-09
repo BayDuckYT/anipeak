@@ -11,6 +11,8 @@ import { useApp } from '../context/AppContext.jsx';
 import { supabase } from '../lib/supabaseClient';
 import StarRating from '../components/StarRating.jsx';
 import CommentSystem from '../components/CommentSystem.jsx';
+import { useSEO } from '../hooks/useSEO.js';
+import { getOptimizedImage, handleImageError } from '../utils/imageOpt.js';
 
 function formatNum(n) {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
@@ -29,6 +31,13 @@ export default function ManhwaDetail({ onAuthOpen }) {
     () => sortedSeries.find((m) => String(m.id) === String(id)),
     [sortedSeries, id]
   );
+
+  useSEO({
+    title: manhwa ? `${manhwa.title} Oku` : 'Yükleniyor...',
+    description: manhwa ? manhwa.description : 'AniPeak - En iyi Manhwa ve Webtoon platformu.',
+    image: manhwa ? manhwa.cover : '',
+    url: window.location.href
+  });
 
   // All chapters from AppContext
   const allChapters = useMemo(
@@ -195,9 +204,9 @@ export default function ManhwaDetail({ onAuthOpen }) {
               className="flex-shrink-0 mx-auto sm:mx-0"
             >
               <img
-                src={manhwa?.cover}
+                src={getOptimizedImage(manhwa?.cover, 400)}
                 alt={manhwa?.title}
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/400x600?text=Kapak+Yüklenemedi'; }}
+                onError={handleImageError}
                 className="w-48 h-64 sm:w-60 sm:h-80 rounded-2xl object-cover shadow-[0_0_50px_rgba(139,92,246,0.3)] border border-white/10"
               />
             </motion.div>
@@ -233,17 +242,16 @@ export default function ManhwaDetail({ onAuthOpen }) {
               <p className="text-slate-300 text-sm leading-relaxed mb-6 max-w-2xl line-clamp-4 sm:line-clamp-none">{manhwa.description}</p>
 
               {/* Stats & Rating */}
-              <div className="flex flex-wrap items-center gap-8 mb-8 p-6 glass rounded-2xl border border-white/5">
-                <div className="flex items-center gap-4">
-                  <div className="text-center border-r border-white/10 pr-6">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-8 mb-8 p-4 sm:p-6 glass rounded-2xl border border-white/5">
+                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto border-b sm:border-b-0 sm:border-r border-white/10 pb-4 sm:pb-0 sm:pr-6 justify-between sm:justify-start">
+                  <div className="text-left sm:text-center">
                     <div className="text-2xl font-black text-white">{manhwa.rating || '0.0'}</div>
                     <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Global Puan</div>
                   </div>
                   <StarRating seriesId={manhwa.id} initialRating={manhwa.rating} />
                 </div>
-                
-                <div className="flex flex-wrap gap-8">
-                  <div>
+                <div className="flex flex-wrap gap-4 sm:gap-8">
+                  <div className="flex-1 min-w-[100px]">
                     <div className="text-lg font-black text-white flex items-center gap-1.5"><Eye size={16} className="text-purple-400" /> {formatNum(manhwa.reads_num)}</div>
                     <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Okunma</div>
                   </div>

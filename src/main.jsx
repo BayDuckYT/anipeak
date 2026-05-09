@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import './styles/accessibility.css'
 
 // Legacy LocalStorage Cleanup (Production Migration)
 const LEGACY_KEYS = ['anipeak_user', 'anipeak_maintenance', 'anipeak_history'];

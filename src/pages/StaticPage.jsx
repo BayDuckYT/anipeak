@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
+import DOMPurify from 'dompurify';
 import { ChevronRight, FileText, Activity } from 'lucide-react';
 
 export default function StaticPage() {
@@ -66,7 +67,7 @@ export default function StaticPage() {
 
           <div 
             className="prose prose-invert max-w-none text-slate-300 leading-relaxed space-y-6 text-lg"
-            dangerouslySetInnerHTML={{ __html: page.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(page.content) }}
           />
         </motion.div>
       </div>

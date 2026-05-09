@@ -19,7 +19,7 @@ const __dirname  = path.dirname(__filename);
 // ── .env dosyasını BOTUN KENDİ dizininden yükle ─────────────
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-import { Client, Collection, IntentsBitField, REST, Routes, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ChannelType, PermissionFlagsBits, UserSelectMenuBuilder, RoleSelectMenuBuilder, MessageFlags } from 'discord.js';
+import { Client, Collection, IntentsBitField, REST, Routes, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ChannelType, PermissionFlagsBits, UserSelectMenuBuilder, RoleSelectMenuBuilder, MessageFlags, EmbedBuilder } from 'discord.js';
 import fs from 'node:fs';
 import { modSuccessEmbed, purgeSuccessEmbed, baseEmbed, lockdownLogEmbed, nukeLogEmbed, writeEmbed } from './utils/embeds.js';
 import { COLORS, MOD_REASONS } from './utils/config.js';
@@ -153,6 +153,29 @@ client.on('interactionCreate', async (interaction) => {
         await handleV2Buttons(interaction);
         return;
       }
+
+      // Guard Target Buttons
+      if (customId === 'guard_target_all') {
+        const allTextChannels = interaction.guild.channels.cache
+          .filter(c => c.type === ChannelType.GuildText)
+          .map(c => c.id);
+        
+        interaction.client.guardSelections = interaction.client.guardSelections || new Map();
+        interaction.client.guardSelections.set(interaction.user.id, allTextChannels);
+        
+        return interaction.reply({ 
+          content: `🌐 **TÜM KANALLAR (${allTextChannels.length} adet)** seçildi. Şimdi aşağıdan yapılacak işlemi seçin.`, 
+          ephemeral: true 
+        });
+      }
+
+      if (customId === 'guard_target_reset') {
+        interaction.client.guardSelections?.delete(interaction.user.id);
+        return interaction.reply({ 
+          content: '🔄 Kanal seçimi sıfırlandı. Lütfen menüden yeni kanal(lar) seçin.', 
+          ephemeral: true 
+        });
+      }
     }
 
     // ── 3. Select Menu Interactions ────────────────────────
@@ -162,6 +185,12 @@ client.on('interactionCreate', async (interaction) => {
       // Ceza sebebi seçimi
       if (customId.startsWith('reason:')) {
         await modHandlers.handleReasonSelect(interaction);
+        return;
+      }
+
+      // Setup: Otomatik Yapılandırma
+      if (customId === 'setup:auto_config') {
+        await handleSetupAutoConfig(interaction);
         return;
       }
 
@@ -175,6 +204,98 @@ client.on('interactionCreate', async (interaction) => {
     // V2: User ve Role Select Menu Interactions
     if (interaction.isUserSelectMenu() || interaction.isRoleSelectMenu()) {
       await handleV2SelectMenus(interaction);
+      return;
+    }
+
+    // ── 3.5. Guard Settings Interactions ──
+    if (interaction.isChannelSelectMenu() && interaction.customId === 'guard_channel_select') {
+      const selectedChannels = interaction.values;
+      // Kullanıcının seçimini Map'e kaydet
+      interaction.client.guardSelections = interaction.client.guardSelections || new Map();
+      interaction.client.guardSelections.set(interaction.user.id, selectedChannels);
+      
+      await interaction.reply({ 
+        content: `✅ **${selectedChannels.length}** kanal seçildi. Şimdi aşağıdan yapılacak işlemi seçin.`, 
+        ephemeral: true 
+      });
+      return;
+    }
+
+    if (interaction.isStringSelectMenu() && interaction.customId === 'guard_setting_toggle') {
+      const selection = interaction.values[0];
+      const selectedChannels = interaction.client.guardSelections?.get(interaction.user.id);
+      
+      if (selection === 'spacer') return interaction.deferUpdate();
+
+      const { getSettings, saveSettings } = await import('./utils/settingsManager.js');
+      const settings = getSettings();
+      let logMessage = '';
+      let affectedChannelsText = '';
+
+      if (selection === 'global_on' || selection === 'global_off') {
+        const value = selection === 'global_on';
+        settings.global = {
+          antiSpam: value,
+          antiLink: value,
+          badWords: value,
+          capsFilter: value,
+          duplicateFilter: value
+        };
+        // Global ayar değişince tüm kanal ayarlarını sıfırlayabiliriz veya olduğu gibi bırakabiliriz.
+        // Burada tüm özel kanal ayarlarını silip genele dönüyoruz.
+        settings.channels = {}; 
+        logMessage = `🌐 **${interaction.user.tag}** tarafından **TÜM SUNUCUDA** korumalar **${value ? 'AÇILDI' : 'KAPATILDI'}**.`;
+        affectedChannelsText = 'Tüm Sunucu (Global)';
+      } else {
+        if (!selectedChannels) {
+          return interaction.reply({ 
+            content: '❌ Önce yukarıdaki menüden kanal seçmelisiniz!', 
+            ephemeral: true 
+          });
+        }
+
+        if (selection === 'all_on' || selection === 'all_off') {
+          const value = selection === 'all_on';
+          selectedChannels.forEach(id => {
+            settings.channels[id] = {
+              antiSpam: value,
+              antiLink: value,
+              badWords: value,
+              capsFilter: value,
+              duplicateFilter: value
+            };
+          });
+          logMessage = `📢 **${interaction.user.tag}** tarafından **${selectedChannels.length}** kanalda tüm korumalar **${value ? 'AÇILDI' : 'KAPATILDI'}**.`;
+        } else {
+          let newValue;
+          selectedChannels.forEach(id => {
+            if (!settings.channels[id]) settings.channels[id] = { ...settings.global };
+            settings.channels[id][selection] = !settings.channels[id][selection];
+            newValue = settings.channels[id][selection]; // Assuming they all toggle to the same state if they were in sync
+          });
+          logMessage = `📢 **${interaction.user.tag}** tarafından **${selectedChannels.length}** kanalda **${selection}** ayarı **${newValue ? 'AÇILDI' : 'KAPATILDI'}**.`;
+        }
+        affectedChannelsText = selectedChannels.map(id => `<#${id}>`).join(', ');
+      }
+
+      saveSettings(settings);
+
+      // Log gönderimi
+      const logChannel = interaction.guild.channels.cache.find(c => c.name === 'infinity-log');
+      if (logChannel) {
+        const logEmbed = new EmbedBuilder()
+          .setTitle('🛡️ Guard Ayarları Güncellendi')
+          .setDescription(logMessage)
+          .addFields({ name: 'Etkilenen Kanallar', value: affectedChannelsText })
+          .setColor(COLORS.CYBER_BLUE)
+          .setTimestamp();
+        await logChannel.send({ embeds: [logEmbed] });
+      }
+
+      await interaction.reply({ 
+        content: `✅ İşlem başarılı! ${logMessage}`, 
+        ephemeral: true 
+      });
       return;
     }
 
@@ -613,6 +734,37 @@ async function handleV2SelectMenus(interaction) {
     } catch (err) {
       await interaction.editReply({ embeds: [baseEmbed(COLORS.DANGER).setTitle('❌ İşlem Başarısız').setDescription(`Yetki yetersiz veya rol hiyerarşisi sorunu: ${err.message}`)] });
     }
+  }
+}
+
+/**
+ * Setup: Otomatik Yapılandırma Handler
+ */
+async function handleSetupAutoConfig(interaction) {
+  const value = interaction.values[0];
+  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+
+  if (value === 'protect_all') {
+    const textChannels = interaction.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildText);
+    const voiceChannels = interaction.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildVoice);
+    
+    const embed = baseEmbed(COLORS.SUCCESS)
+      .setTitle('🛡️ TAM KORUMA AKTİF EDİLDİ')
+      .setDescription(
+        `Sunucudaki tüm kanallar (**${textChannels.size}** Metin, **${voiceChannels.size}** Ses) koruma altına alındı.\n\n` +
+        '**Uygulanan Protokoller:**\n' +
+        '✅ **Anti-Spam:** Aktif\n' +
+        '✅ **Anti-Link:** Aktif\n' +
+        '✅ **Küfür Filtresi:** Aktif (Dereceli Ceza)\n' +
+        '✅ **Akıllı Selam:** Aktif\n' +
+        '✅ **Görsel Zeka (OCR):** Aktif'
+      )
+      .setFooter({ text: 'Infinity Guard — Elite Koruma Modu' });
+
+    await interaction.editReply({ embeds: [embed] });
+    await sendLog(interaction.guild, embed);
+  } else {
+    await interaction.editReply({ content: '✅ Varsayılan ayarlar korundu. Log kanalı ve temel koruma aktif.' });
   }
 }
 

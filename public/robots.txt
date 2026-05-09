@@ -1,0 +1,46 @@
+# ════════════════════════════════════════════════════════════════
+# AniPeak — Cloudflare Pages robots.txt (SEO Optimize)
+# ════════════════════════════════════════════════════════════════
+
+# Tüm tarayıcılara izin ver
+User-agent: *
+Allow: /
+
+# Yönetim Paneli gizle
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /settings
+
+# Profil sayfaları indekslensin (SEO için önemli)
+Allow: /profil/
+Allow: /@
+
+# Statik assetler indekslenmesin (gereksiz)
+Disallow: /assets/
+
+# Sitemap konumu
+Sitemap: https://anipeak.com.tr/sitemap.xml
+
+# ── Google ──
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# ── Bing ──
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+# ── Kötü Botları Engelle ──
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

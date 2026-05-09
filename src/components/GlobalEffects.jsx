@@ -172,6 +172,8 @@ export default function GlobalEffects() {
   return (
     <canvas
       ref={canvasRef}
+      aria-hidden="true"
+      role="presentation"
       className={`fixed inset-0 pointer-events-none z-[-1] gpu-accelerated transition-colors duration-700 ${
         user?.appearance_settings?.theme === 'amoled' ? 'bg-black' : 'bg-[#050507]'
       }`}

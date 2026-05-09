@@ -25,10 +25,18 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 // ── Supabase Client ─────────────────────────────────────────
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+// Service role key RLS'yi bypass eder — bot için zorunlu
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.warn('[XP] ⚠️  SUPABASE_URL veya SUPABASE_KEY tanımlı değil! Supabase devre dışı.');
+}
+
+if (process.env.SUPABASE_SERVICE_KEY && !process.env.SUPABASE_SERVICE_KEY.startsWith('BURAYA')) {
+  console.log('[XP] 🔑 Service Role Key kullanılıyor (RLS bypass aktif)');
+} else {
+  console.warn('[XP] ⚠️  Publishable key kullanılıyor — /istatistik gibi komutlar çalışmayabilir!');
+  console.warn('[XP] ➡️  .env dosyasına SUPABASE_SERVICE_KEY ekle!');
 }
 
 const supabase = (supabaseUrl && supabaseKey)

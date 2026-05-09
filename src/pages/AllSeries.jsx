@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Star, Eye, BookOpen, Play, Flame, Grid3X3, List, ChevronRight, ChevronDown, Crown, Swords, Compass, Heart, Smile, Skull, HelpCircle, Brain, Rocket, Ghost, AlertTriangle, Landmark, School, Sparkles, Layers } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
+import { getOptimizedImage, handleImageError } from '../utils/imageOpt.js';
 
 // ── Category config ──
 const GENERAL_GENRES = [
@@ -45,8 +46,8 @@ function SeriesCard({ item }) {
     <Link to={`/manhwa/${item.id}`} className="group block">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] transition-all duration-300">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"
-            onError={(e) => { e.target.src = 'https://via.placeholder.com/300x450?text=Resim+Yok'; }} />
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"
+            onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           {/* Rating badge */}
           <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/70 border border-amber-500/30 backdrop-blur-sm">
@@ -77,8 +78,8 @@ function SeriesListItem({ item }) {
 
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all group">
-      <img src={item.cover} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
-        onError={(e) => { e.target.src = 'https://via.placeholder.com/48x64?text='; }} />
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
+        onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <h3 className="text-white text-sm font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
         <p className="text-slate-600 text-[10px] truncate">{genres.join(', ')}</p>
@@ -102,8 +103,8 @@ function PopularItem({ item, rank }) {
       <span className={`text-lg font-black w-6 text-center flex-shrink-0 ${
         rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-orange-400' : 'text-slate-600'
       }`}>{rank}</span>
-      <img src={item.cover} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
-        onError={(e) => { e.target.src = 'https://via.placeholder.com/40x56?text='; }} />
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
+        onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
         <p className="text-slate-600 text-[9px] truncate">{genres.slice(0, 2).join(', ')}</p>

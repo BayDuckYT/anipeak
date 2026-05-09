@@ -1,0 +1,76 @@
+# ════════════════════════════════════════════════════════════════
+# AniPeak — Cloudflare Pages Edge Güvenlik Başlıkları
+# Bu dosya Cloudflare'in edge sunucularına doğrudan gömülür.
+# Her HTTP yanıtına otomatik eklenir — sunucu kodu gerektirmez.
+# ════════════════════════════════════════════════════════════════
+
+# ── Tüm Sayfalara Uygula ──
+/*
+  # ── 1. HSTS — 2 Yıl HTTPS Zorunlu (Preload Listesine Ekli) ──
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+  # ── 2. Clickjacking Koruması ──
+  X-Frame-Options: DENY
+
+  # ── 3. MIME Sniffing Koruması ──
+  X-Content-Type-Options: nosniff
+
+  # ── 4. XSS Filtresi (Legacy Tarayıcılar) ──
+  X-XSS-Protection: 1; mode=block
+
+  # ── 5. Referrer Sızıntısı Önleme ──
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # ── 6. Permissions Policy — Gereksiz API Erişimlerini Kapat ──
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), interest-cohort=()
+
+  # ── 7. Content Security Policy — Kaynak Beyaz Listesi ──
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://wsrv.nl https://fonts.googleapis.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+
+  # ── 8. Teknoloji Gizleme ──
+  X-Powered-By: AniPeak-Infinity-Guard
+
+  # ── 9. Cross-Origin Politikası ──
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: cross-origin
+
+  # ── 10. Cache Kontrolü (HTML Sayfaları) ──
+  Cache-Control: public, max-age=0, must-revalidate
+
+# ── Statik Assetler — Uzun Süre Önbellekleme (İmmutable) ──
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+# ── JavaScript Chunk'ları ──
+/assets/js/*
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript; charset=utf-8
+
+# ── CSS Dosyaları ──
+/assets/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── Görseller ──
+/assets/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── Fontlar ──
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+# ── robots.txt ──
+/robots.txt
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8
+
+# ── sitemap.xml ──
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+  Content-Type: application/xml; charset=utf-8
+
+# ── API Proxy (Eğer Cloudflare Workers kullanılıyorsa) ──
+/api/*
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Robots-Tag: noindex

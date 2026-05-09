@@ -1,0 +1,68 @@
+/**
+ * ═══════════════════════════════════════════════════════════════
+ * AniPeak Global Erişilebilirlik (Accessibility) Düzeltici
+ * Tailwind CSS utility'leri olarak tanımlı — tüm siteye uygulanır
+ * ═══════════════════════════════════════════════════════════════
+ * 
+ * Kullanım: className="... focus-ring" (butonlar için)
+ *           className="... sr-only"   (sadece ekran okuyucu için)
+ */
+
+/* ── Odak Halkası (Focus Ring) — Klavye Navigasyonu ── */
+.focus-ring:focus-visible {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* ── Sadece Ekran Okuyucu İçin (Visually Hidden) ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Yüksek Kontrast Modu Desteği ── */
+@media (prefers-contrast: high) {
+  .glass, .glass-strong {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
+  .text-slate-400, .text-slate-500 {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+/* ── Azaltılmış Hareket Modu (Accessibility) ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Minimum dokunma hedefleri sadece gerekli yerlerde Tailwind class'ları (min-h-[44px] min-w-[44px]) ile verilmeli, global olarak verilirse CLS'ye (Layout Shift) sebep olur. */
+
+/* ── Skip Navigation Linki — Klavye kullanıcıları ── */
+.skip-to-main {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: #a855f7;
+  color: white;
+  font-weight: 700;
+  border-radius: 0 0 0.5rem 0.5rem;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+.skip-to-main:focus {
+  top: 0;
+}

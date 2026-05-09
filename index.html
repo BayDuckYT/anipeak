@@ -3,20 +3,140 @@
 
 <head>
   <meta charset="UTF-8" />
+
+  <!-- ══════ INFINITY-GUARD GÜVENLİK PROTOKOLÜ ══════ -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://wsrv.nl; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <!-- ═════════════════════════════════════════════ -->
+
+  <!-- Favicon: SVG (vektörel, her çözünürlükte keskin) -->
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
+
+  <!-- Viewport + Hız -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Temel SEO -->
   <meta name="description"
-    content="AniPeak - Premium Manhwa ve Webtoon okuma platformu. En iyi içerikleri keşfet, oku ve eğlen." />
+    content="AniPeak - Premium Manhwa ve Webtoon okuma platformu. Solo Leveling, Tower of God ve daha fazlasını oku." />
+  <meta name="keywords" content="manhwa oku, webtoon türkçe, solo leveling, tower of god, anime manga platformu" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://anipeak.com.tr/" />
+
+  <!-- OpenGraph (Discord, Facebook, WhatsApp) -->
+  <meta property="og:title" content="AniPeak – Efsanevi Manhwa Deneyimi" />
+  <meta property="og:description" content="AniPeak - Premium Manhwa ve Webtoon okuma platformu. En iyi içerikleri keşfet, oku ve eğlen." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://anipeak.com.tr/" />
+  <meta property="og:image" content="https://anipeak.com.tr/premium_hero.png" />
+  <meta property="og:site_name" content="AniPeak" />
+  <meta property="og:locale" content="tr_TR" />
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AniPeak – Efsanevi Manhwa Deneyimi" />
+  <meta name="twitter:description" content="AniPeak - Premium Manhwa ve Webtoon okuma platformu. En iyi içerikleri keşfet, oku ve eğlen." />
+  <meta name="twitter:image" content="https://anipeak.com.tr/premium_hero.png" />
+
+  <!-- Browser Tema Rengi (Mor Neon) -->
+  <meta name="theme-color" content="#A855F7" />
+
+  <!-- Sayfa Başlığı -->
   <title>AniPeak – Efsanevi Manhwa Deneyimi</title>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PERFORMANS OPTİMİZASYONU: Render-Blocking'i önle
+       ═══════════════════════════════════════════════════════ -->
+
+  <!-- 1. DNS Ön-Çözümlemesi (DNS Prefetch) — Dış servislere bağlantı önce kurulsun -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="//wsrv.nl" />
+  <link rel="dns-prefetch" href="//szlbeaefbnqaqxhxdakp.supabase.co" />
+
+  <!-- 3. Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap"
+    rel="stylesheet"
+    media="print"
+    onload="this.media='all'"
+  />
+  <!-- JavaScript kapalı tarayıcılar için fallback -->
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet" />
+  </noscript>
+
+  <!-- 4. Kritik Satır İçi CSS (Critical CSS) — İlk ekran "beyaz flash" olmadan yüklensin -->
+  <style>
+    /* Tarayıcı, React yüklenmeden önce bunu gösterir */
+    html { background: #050507; color-scheme: dark; }
+    body { margin: 0; background: #050507; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    #root { min-height: 100vh; }
+
+    /* Sayfa geçişlerinde "beyaz çakma" önleme */
+    * { box-sizing: border-box; }
+
+    /* Görsel yüklenirken yer tutucu — Layout Shift sıfır olsun (CLS=0) */
+    img { display: block; max-width: 100%; }
+
+    /* Skip Navigation Link (Erişilebilirlik + CLS Önleme) */
+    .skip-to-main {
+      position: absolute;
+      top: -100%;
+      left: 1rem;
+      z-index: 9999;
+      padding: 0.75rem 1.5rem;
+      background: #a855f7;
+      color: white;
+      font-weight: 700;
+      border-radius: 0 0 0.5rem 0.5rem;
+      text-decoration: none;
+      transition: top 0.2s;
+    }
+    .skip-to-main:focus { top: 0; }
+  </style>
+
+  <!-- 5. Structured Data (JSON-LD) — Google'a platform hakkında zengin bilgi ver -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "AniPeak",
+      "url": "https://anipeak.com.tr/",
+      "description": "Premium Manhwa ve Webtoon okuma platformu",
+      "inLanguage": "tr-TR",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://anipeak.com.tr/all-series?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+
 </head>
 
 <body>
-  <div id="root"></div>
+  <!-- Skip Navigation — Klavye/Ekran Okuyucu Erişilebilirliği -->
+  <a href="#main-content" class="skip-to-main">Ana İçeriğe Geç</a>
+
+  <!-- Yükleme ekranı (React başlamadan görünür — FCP hızlanır) -->
+  <div id="root">
+    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#050507;">
+      <div style="text-align:center;">
+        <div style="font-size:3rem;margin-bottom:0.5rem;" aria-hidden="true">📖</div>
+        <div style="color:#a855f7;font-family:system-ui,sans-serif;font-weight:900;font-size:1.2rem;letter-spacing:0.1em;">AniPeak</div>
+        <div style="width:2rem;height:2px;background:linear-gradient(to right,#a855f7,#3b82f6);margin:0.75rem auto;border-radius:9999px;" aria-hidden="true"></div>
+        <p style="display:none;">Yükleniyor...</p>
+      </div>
+    </div>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

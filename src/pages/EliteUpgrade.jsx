@@ -162,7 +162,7 @@ export default function EliteUpgrade() {
         {/* ── 2. DEVASA CEPHANELİK (Infinite Marquee) ── */}
         <section className="py-24 border-y border-white/5 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent">
           <div className="text-center mb-20 px-4">
-            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter mb-4 uppercase">
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter mb-4 uppercase">
               DEVASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">CEPHANELİK</span>
             </h2>
             <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-[11px]">
@@ -246,11 +246,11 @@ export default function EliteUpgrade() {
 
         {/* ── 4. PLANLARIMIZ SECTION (Cooler & Bottom) ── */}
         <section id="plans-section" className="py-24 border-t border-white/5 bg-gradient-to-b from-transparent to-purple-900/5">
-          <div className="flex flex-col items-center justify-center mb-20 text-center">
+          <div className="flex flex-col items-center justify-center mb-20 text-center px-4">
             <div className="flex items-center gap-2 text-indigo-400 font-black text-xs uppercase tracking-[0.4em] mb-3">
               <Box size={14} /> Üyelik Paketleri
             </div>
-            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none">PREMIUM PLANLAR</h2>
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none">PREMIUM PLANLAR</h2>
             <p className="text-slate-500 font-bold mt-4 tracking-wide max-w-lg">Sana en uygun rütbeyi seç ve siber dünyanın ayrıcalıklarını keşfet!</p>
           </div>
 

@@ -7,6 +7,8 @@ import {
   PermissionFlagsBits,
   ChannelType,
   MessageFlags,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
 } from 'discord.js';
 import { baseEmbed } from '../utils/embeds.js';
 import { COLORS, LOG_CHANNEL_NAME } from '../utils/config.js';
@@ -59,17 +61,37 @@ export default {
         '╔═══════════════════════════════════════╗\n' +
         '║   SİBER KALKAN AKTİF EDİLDİ          ║\n' +
         '╚═══════════════════════════════════════╝\n' +
-        '```'
+        '```\n' +
+        '> **Akıllı Kurulum:** Aşağıdaki menüyü kullanarak otomatik yapılandırma yapabilirsiniz.'
       )
       .addFields(
         { name: '📋 Log Kanalı',    value: `${logChannel}`, inline: true },
         { name: '🔗 Anti-Link',     value: '`✅ Aktif`',    inline: true },
         { name: '🚫 Anti-Spam',     value: '`✅ Aktif`',    inline: true },
-        { name: '📊 Mesaj Logları', value: '`✅ Aktif`',    inline: true },
-        { name: '🔊 Ses Logları',   value: '`✅ Aktif`',    inline: true },
-        { name: '👥 Üye Logları',   value: '`✅ Aktif`',    inline: true },
+        { name: '🤬 Küfür Filtresi', value: '`✅ Aktif`',    inline: true },
+        { name: '🤖 Akıllı Selam',  value: '`✅ Aktif`',    inline: true },
       );
 
-    await interaction.editReply({ embeds: [embed] });
+    const row = new ActionRowBuilder().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('setup:auto_config')
+        .setPlaceholder('🛡️ Otomatik Yapılandırma Seçin')
+        .addOptions([
+          {
+            label: 'Bütün Kanalları Koru',
+            description: 'Mevcut tüm kanalları tam koruma (Anti-Spam, Link, Raid) kapsamına alır.',
+            value: 'protect_all',
+            emoji: '🛡️',
+          },
+          {
+            label: 'Varsayılan Ayarlar',
+            description: 'Sadece log kanalını ve temel filtreleri aktif eder.',
+            value: 'default_setup',
+            emoji: '⚙️',
+          }
+        ])
+    );
+
+    await interaction.editReply({ embeds: [embed], components: [row] });
   },
 };

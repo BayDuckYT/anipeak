@@ -33,6 +33,8 @@ const EliteUpgrade = lazy(() => import('./pages/EliteUpgrade.jsx'));
 const ListDetail = lazy(() => import('./pages/ListDetail.jsx'));
 const Achievements = lazy(() => import('./pages/Achievements.jsx'));
 const SchedulePage = lazy(() => import('./pages/SchedulePage.jsx'));
+const OraclePage = lazy(() => import('./pages/OraclePage.jsx'));
+const GlobalNexus = lazy(() => import('./pages/GlobalNexus.jsx'));
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
@@ -74,6 +76,8 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/elite-upgrade" element={<EliteUpgrade />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/takvim" element={<SchedulePage />} />
+          <Route path="/oracle" element={<OraclePage />} />
+          <Route path="/global-nexus" element={<GlobalNexus />} />
           <Route path="/:username/liste/:listId" element={<ListDetail />} />
           <Route path="/:slug" element={<StaticPage />} />
         </Routes>
@@ -182,7 +186,7 @@ function AppContent() {
     };
   }, [isAdmin, isTester]);
   
-  if (loading) return <Loader fullScreen text="Sayfa Yükleniyor..." />;
+  // Global loading kaldırıldı, çünkü Home sayfası anında yüklenmeli. PrivateRoute'lar kendi loading state'ini yönetiyor.
 
   // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
   const isResetPage = window.location.pathname === '/reset-password';
@@ -194,7 +198,7 @@ function AppContent() {
         <ScrollToTop />
         <GlobalEffects />
 
-        <div className="min-h-screen bg-[#050507]">
+        <div id="main-content" className="min-h-screen bg-[#050507]">
           {isMaintenanceBlocked ? (
             <MaintenanceScreen onAuthOpen={(mode) => setAuthModal(mode)} />
           ) : (

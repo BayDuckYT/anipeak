@@ -158,7 +158,7 @@ export default function SettingsPage() {
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 w-full max-w-3xl bg-zinc-900/30 backdrop-blur-xl border border-zinc-800/50 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
+          <main className="flex-1 w-full max-w-3xl bg-zinc-900/30 backdrop-blur-xl border border-zinc-800/50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl">
              
              {activeTab === 'hesap' && (
                <div className="space-y-12">
@@ -168,8 +168,8 @@ export default function SettingsPage() {
                        <h2 className="text-xl font-black text-white uppercase tracking-tight">Profil Bilgileri</h2>
                     </div>
 
-                    <div className="p-8 rounded-[2rem] bg-zinc-950/50 border border-zinc-800/50 flex flex-col md:flex-row items-center gap-8 group hover:border-purple-500/20 transition-all">
-                       <div className="relative group/avatar">
+                    <div className="p-6 md:p-8 rounded-[2rem] bg-zinc-950/50 border border-zinc-800/50 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:border-purple-500/20 transition-all">
+                       <div className="relative group/avatar shrink-0">
                           <div className="w-24 h-24 rounded-full bg-zinc-900 border-2 border-zinc-800 overflow-hidden flex items-center justify-center">
                              {user?.avatar_url ? (
                                <img src={user.avatar_url} className="w-full h-full object-cover" />
