@@ -15,6 +15,12 @@ export function PerformanceProvider({ children }) {
     let lowFpsCount = 0;
 
     const measureFPS = (currentTime) => {
+      if (document.hidden) {
+        lastTime = currentTime;
+        animationFrameId = requestAnimationFrame(measureFPS);
+        return;
+      }
+      
       frameCount++;
       const delta = currentTime - lastTime;
 
@@ -24,15 +30,16 @@ export function PerformanceProvider({ children }) {
         setFps(currentFps);
         
         // If FPS is below 30 for 3 consecutive seconds, trigger low performance mode
-        if (currentFps < 30) {
+        if (currentFps > 0 && currentFps < 30) {
           lowFpsCount++;
-          if (lowFpsCount >= 3) {
-            console.warn(`[Siber Performans] FPS ${currentFps} seviyesine düştü. Düşük Güç Modu Aktif Ediliyor (Efektler Hafifletilecek).`);
+          if (lowFpsCount >= 3 && !isLowPerformanceMode) {
             setIsLowPerformanceMode(true);
           }
         } else if (currentFps > 45) {
           lowFpsCount = 0;
-          setIsLowPerformanceMode(false);
+          if (isLowPerformanceMode) {
+            setIsLowPerformanceMode(false);
+          }
         }
 
         frameCount = 0;
@@ -53,10 +60,8 @@ export function PerformanceProvider({ children }) {
 
     const updateBatteryStatus = (battery) => {
       const isLowAndNotCharging = battery.level <= 0.20 && !battery.charging;
-      console.log(`[Siber Pil] Pil Seviyesi: %${Math.round(battery.level * 100)} - Şarj Oluyor mu: ${battery.charging}`);
       
       if (isLowAndNotCharging) {
-        console.warn("[Siber Pil] Düşük pil tespit edildi. Pil Tasarruf Modu Mühürlendi!");
         setIsLowPowerMode(true);
       } else {
         setIsLowPowerMode(false);
@@ -72,7 +77,7 @@ export function PerformanceProvider({ children }) {
         battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
         battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
       }).catch(err => {
-        console.warn("[Siber Pil] Pil API desteklenmiyor veya reddedildi:", err);
+        // Sessizce hatayı geç
       });
     }
 
