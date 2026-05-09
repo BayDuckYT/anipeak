@@ -1,3 +1,4 @@
+// Build trigger: 2026-05-09 12:18
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -15,32 +16,32 @@ export default defineConfig({
   },
 
   build: {
-    // Kod sıkıştırma motoru: esbuild (varsayılan) yerine terser daha iyi sıkıştırır
-    // Ancak esbuild daha hızlı — target ayarlayıp production'ı küçültelim
+    // Kod sikistirma motoru: esbuild (varsayilan) yerine terser daha iyi sikistirir
+    // Ancak esbuild daha hizli — target ayarlayip production'i kucultelim
     target: 'esnext',
     minify: 'esbuild',
 
-    // Chunk (Parça) ayrıştırma — her sayfa kendi paketini yükler
-    // Bu sayede anasayfa gereksiz 500KB yüklemez
+    // Chunk (Parca) ayristirma — her sayfa kendi paketini yukler
+    // Bu sayede anasayfa gereksiz 500KB yuklemez
     rollupOptions: {
       output: {
         manualChunks: {
-          // React core — her sayfada ortak, önbelleğe alınır
+          // React core — her sayfada ortak, onbellege alinir
           'vendor-react': ['react', 'react-dom'],
           // Router — navigasyon
           'vendor-router': ['react-router-dom'],
-          // Animasyon kütüphanesi
+          // Animasyon kutuphanesi
           'vendor-framer': ['framer-motion'],
-          // İkon kütüphanesi
+          // Ikon kutuphanesi
           'vendor-icons': ['lucide-react'],
-          // Supabase — veri katmanı
+          // Supabase — veri katmani
           'vendor-supabase': ['@supabase/supabase-js'],
-          // 3D Globe — sadece GlobalNexus sayfasında lazım
+          // 3D Globe — sadece GlobalNexus sayfasinda lazim
           'vendor-cobe': ['cobe'],
         },
-        // Asset dosyalarını kategorilere ayır
+        // Asset dosyalarini kategorilere ayir
         assetFileNames: (assetInfo) => {
-          const ext = assetInfo.name?.split('.').pop();
+          const ext = assetInfo.name ? assetInfo.name.split('.').pop() : '';
           if (/png|jpe?g|svg|gif|webp/.test(ext)) return 'assets/images/[name]-[hash][extname]';
           if (/woff2?|ttf|eot/.test(ext)) return 'assets/fonts/[name]-[hash][extname]';
           if (ext === 'css') return 'assets/css/[name]-[hash][extname]';
@@ -51,17 +52,17 @@ export default defineConfig({
       },
     },
 
-    // Chunk boyutu uyarı limitini artır (kütüphane parçaları büyük olabilir)
+    // Chunk boyutu uyari limitini artir (kutuphane parcalari buyuk olabilir)
     chunkSizeWarningLimit: 600,
 
-    // CSS kodu bölme — her chunk kendi CSS'ini yükler
+    // CSS kodu bolme — her chunk kendi CSS'ini yukler
     cssCodeSplit: true,
 
-    // Source map production'da kapalı (güvenlik + hız)
+    // Source map production'da kapali (guvenlik + hiz)
     sourcemap: false,
   },
 
-  // Bağımlılık ön-paketleme optimizasyonu
+  // Bagimlilik on-paketleme optimizasyonu
   optimizeDeps: {
     include: [
       'react',
