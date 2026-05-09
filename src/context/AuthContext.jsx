@@ -330,7 +330,7 @@ export function AuthProvider({ children }) {
         // 7. Gün Özel Ödülü
         if (newStreak === 7) {
           updateXP(1000); // Dev XP bonusu
-          trackActivity(user.id, 'achievement_unlock', 1, { name: 'Kozmik Başarım', type: 'streak_7' });
+          trackActivity(user.id, 'achievement_unlock', 1, { name: 'Gizli Başarım', type: 'streak_7' });
         }
 
         await updateProfile({ 

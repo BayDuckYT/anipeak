@@ -82,7 +82,7 @@ export default function OraclePage() {
             animate={{ y: 0, opacity: 1 }}
             className="text-5xl sm:text-7xl font-black tracking-tighter mb-4"
           >
-            ORACLE OF <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-500 animate-gradient-x">NEBULA</span>
+            AKILLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-500 animate-gradient-x">ÖNERİ SİSTEMİ</span>
           </motion.h1>
           <motion.p 
             initial={{ y: 20, opacity: 0 }}
@@ -90,7 +90,7 @@ export default function OraclePage() {
             transition={{ delay: 0.1 }}
             className="text-gray-400 text-lg max-w-2xl font-light italic"
           >
-            Ruhunun derinliklerindeki manga DNA'sını keşfet. Nebula Kahini senin için kehanetlerini fısıldıyor.
+            Okuma geçmişini analiz eden akıllı algoritmamız senin için en uygun serileri buluyor.
           </motion.p>
         </div>
 
@@ -112,7 +112,7 @@ export default function OraclePage() {
                 transition={{ duration: 1.5, repeat: Infinity }}
                 className="mt-8 text-cyan-400 font-mono tracking-widest uppercase text-sm"
               >
-                Ruhun Analiz Ediliyor...
+                Profilin Analiz Ediliyor...
               </motion.p>
             </motion.div>
           ) : (
@@ -140,7 +140,7 @@ export default function OraclePage() {
                         {soulProfile.name} <span className="text-purple-400">/ {soulProfile.title}</span>
                       </h2>
                       <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-lg">
-                        {soulProfile.desc} Nebula'nın derinliklerindeki kozmik imzanız %{soulProfile.dnaScore} oranında benzersiz bulundu.
+                        {soulProfile.desc} Sistemdeki eşleşme oranınız %{soulProfile.dnaScore} oranında benzersiz bulundu.
                       </p>
                       <div className="flex flex-wrap gap-3">
                         {soulProfile.cosmicDistribution.map(item => (
@@ -172,8 +172,8 @@ export default function OraclePage() {
                   />
                   <MetricBox 
                     icon={Clock} 
-                    label="Nebula Rank" 
-                    value="Elder Envoy" 
+                    label="Sistem Rütbesi" 
+                    value="Elite Member" 
                     subtext="Discord XP verilerinle senkronize edildi."
                     color="pink"
                   />
@@ -187,7 +187,7 @@ export default function OraclePage() {
                         <Terminal className="w-6 h-6 text-cyan-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-black">NEBULA KAHİNİ <span className="text-cyan-400">ÖNERİYOR</span></h2>
+                        <h2 className="text-2xl font-black">AKILLI ALGORİTMA <span className="text-cyan-400">ÖNERİYOR</span></h2>
                         <p className="text-xs text-gray-500 font-mono">SİSTEM ANALİZİ: {recommendedSeries.length} OPTİMAL EŞLEŞME</p>
                       </div>
                     </div>
@@ -232,9 +232,9 @@ export default function OraclePage() {
                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
                   <div className="relative z-10">
                     <Ghost className="w-12 h-12 text-white mx-auto mb-4 animate-bounce" />
-                    <h3 className="text-xl font-bold mb-2">NEBULA ELÇİSİ</h3>
+                    <h3 className="text-xl font-bold mb-2">DİSCORD BAĞLANTISI</h3>
                     <p className="text-xs text-gray-300 mb-6 font-light">
-                      Ruh profilin Discord Elite statünle %100 uyumlu. Nebula rütbeni şimdi Discord'da sergile.
+                      Profiliniz Discord Premium statünüzle %100 uyumlu. Rütbenizi şimdi Discord'da sergileyin.
                     </p>
                     <button className="w-full py-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-cyan-400 transition-colors flex items-center justify-center gap-2">
                       SENKRONİZE ET <ArrowRight className="w-4 h-4" />

@@ -59,7 +59,7 @@ export default function EliteUpgrade() {
           is_popular: true,
           is_lifetime: true,
           icon: 'Crown',
-          features: ['Tüm Efektler ÜCRETSİZ', 'HÜKÜMDAR Mührü', 'Öncelikli Destek', 'Kozmik İsim Plakası', 'Tüm Gelecek Güncellemeler']
+          features: ['Tüm Efektler ÜCRETSİZ', 'HÜKÜMDAR Mührü', 'Öncelikli Destek', 'Özel İsim Plakası', 'Tüm Gelecek Güncellemeler']
         }
       ];
       setPlans(customPlans);

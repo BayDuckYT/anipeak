@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 const FORUM_CATEGORIES = [
   {
     id: 'teoriler',
-    name: 'Kozmik Teoriler',
+    name: 'Teoriler',
     description: 'Evrenin sırlarını çöz. Seriler hakkındaki en çılgın teorilerini paylaş.',
     icon: <Zap size={24} className="text-amber-400" />,
     requiresElite: false,

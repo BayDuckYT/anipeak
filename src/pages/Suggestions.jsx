@@ -25,7 +25,7 @@ export default function Suggestions() {
         setFormData({ name: '', email: '', message: '' });
       }
     } catch (err) {
-      alert('Siber Karargâh şu an çevrimdışı. Lütfen daha sonra tekrar deneyin!');
+      alert('Sunucu şu an çevrimdışı. Lütfen daha sonra tekrar deneyin!');
     } finally {
       setLoading(false);
     }

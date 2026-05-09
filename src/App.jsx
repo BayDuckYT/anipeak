@@ -92,7 +92,7 @@ function MaintenanceScreen({ onAuthOpen }) {
       {/* Top Right Admin Door */}
       <div className="absolute top-6 right-6 z-50">
         <button onClick={() => onAuthOpen('login')} className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-amber-500/20 text-amber-400 font-bold text-sm hover:bg-amber-500/10 hover:border-amber-500/40 transition-all shadow-[0_0_15px_rgba(245,158,11,0.15)] group">
-          <ShieldAlert size={16} className="group-hover:scale-110 transition-transform" /> Kozmik Oda Giriş
+          <ShieldAlert size={16} className="group-hover:scale-110 transition-transform" /> Yetkili Girişi
         </button>
       </div>
 
@@ -107,7 +107,7 @@ function MaintenanceScreen({ onAuthOpen }) {
          <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-orange-500 mx-auto rounded-full mb-6" />
          
          <p className="text-lg text-slate-300 font-semibold mb-4 leading-relaxed">
-           Şu anda altyapımızda kozmik bir güncelleme yapıyoruz.
+           Şu anda altyapımızda kapsamlı bir bakım çalışması yapıyoruz.
          </p>
          
          <p className="text-sm text-slate-400 mb-8 p-4 bg-white/5 rounded-xl border border-white/10">

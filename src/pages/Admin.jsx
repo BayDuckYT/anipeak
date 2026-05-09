@@ -747,7 +747,7 @@ function TicketsPanel({ showToast }) {
       .channel('admin-tickets')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'error_reports' }, (payload) => {
         setTickets(prev => [payload.new, ...prev]);
-        showToast('🚀 Yeni bir kozmik ihbar düştü!', 'info');
+        showToast('🚀 Yeni bir hata bildirimi düştü!', 'info');
       })
       .subscribe();
     return () => supabase.removeChannel(channel);

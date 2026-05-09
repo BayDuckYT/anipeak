@@ -81,7 +81,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
               <AlertCircle size={30} />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Kozmik İhbar</h3>
+              <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Hata Bildirimi</h3>
               <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] mt-1">Acil Durum Müdahale Hattı</p>
             </div>
           </div>
