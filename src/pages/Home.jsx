@@ -30,6 +30,7 @@ const GENRE_COLORS = {
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { handleImageError } from '../utils/imageOpt.js';
+import VirtualHScroll from './VirtualHScroll.jsx';
 
 
 // ── Trending Card (numbered) ──
@@ -47,7 +48,7 @@ function TrendingCard({ item, rank, getChapters }) {
           </span>
         </div>
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={item.cover} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy"
+          <img src={item.cover} alt={item.title} width="180" height="240" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy"
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
           {/* Rating badge */}
@@ -74,7 +75,7 @@ function NewChapterCard({ item, chapters }) {
     <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[130px]">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/30 transition-all">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
+          <img src={item.cover} alt={item.title} width="130" height="173" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           {/* "Güncel" badge */}
@@ -100,7 +101,7 @@ function RecommendationCard({ item }) {
     <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[150px]">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-blue-500/30 transition-all">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
+          <img src={item.cover} alt={item.title} width="150" height="200" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           <div className="absolute bottom-2 left-2 right-2">
@@ -122,7 +123,7 @@ function RecommendationCard({ item }) {
 function DiscoveryItem({ item, rank }) {
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all group">
-      <img src={item.cover} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
+      <img src={item.cover} alt={item.title} width="40" height="56" className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
@@ -375,11 +376,14 @@ export default function Home({ onAuthOpen }) {
                   Tümünü Gör <ChevronRight size={14} />
                 </Link>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-3 no-scrollbar custom-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
-                {(trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 10)).map((item, i) => (
+              <VirtualHScroll
+                items={trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 10)}
+                itemWidth={180}
+                gap={12}
+                renderItem={(item, i) => (
                   <TrendingCard key={item.id} item={item} rank={i + 1} getChapters={getChapters} />
-                ))}
-              </div>
+                )}
+              />
             </section>
 
             {/* ── NEW CHAPTERS & RECOMMENDATIONS ── */}
@@ -398,11 +402,14 @@ export default function Home({ onAuthOpen }) {
                     Tümünü Gör <ChevronRight size={14} />
                   </Link>
                 </div>
-                <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar custom-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
-                  {newChapterSeries.map((item) => (
+                <VirtualHScroll
+                  items={newChapterSeries}
+                  itemWidth={130}
+                  gap={16}
+                  renderItem={(item) => (
                     <NewChapterCard key={item.id} item={item} chapters={chapters} />
-                  ))}
-                </div>
+                  )}
+                />
               </section>
 
               {/* Oracle: Sana Özel (Personalized) */}
@@ -426,10 +433,15 @@ export default function Home({ onAuthOpen }) {
                   </Link>
                 </div>
 
-                <div className="flex gap-5 overflow-x-auto pb-4 no-scrollbar custom-scrollbar relative z-10" style={{ scrollSnapType: 'x mandatory' }}>
-                  {recommendations.map((item) => (
-                    <RecommendationCard key={item.id} item={item} />
-                  ))}
+                <div className="relative z-10">
+                  <VirtualHScroll
+                    items={recommendations}
+                    itemWidth={150}
+                    gap={20}
+                    renderItem={(item) => (
+                      <RecommendationCard key={item.id} item={item} />
+                    )}
+                  />
                 </div>
               </section>
             </div>
