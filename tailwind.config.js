@@ -26,10 +26,15 @@ export default {
         marquee: {
           '0%': { transform: 'translateX(0%)' },
           '100%': { transform: 'translateX(-50%)' },
-        }
+        },
+        'marquee-slide': {
+          '0%': { transform: 'translateX(100vw)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
       },
       animation: {
         'marquee': 'marquee 40s linear infinite',
+        'marquee-slide': 'marquee-slide 15s linear infinite',
       }
     },
   },

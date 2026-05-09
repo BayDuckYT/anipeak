@@ -205,9 +205,14 @@ function AppContent() {
             <>
               {maintenanceMode && (
                 <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-red-600 to-red-900 border-b border-red-500/50 text-white text-xs font-black py-1.5 uppercase tracking-widest shadow-lg overflow-hidden flex items-center">
-                   <marquee scrollamount="8" className="w-full drop-shadow-md">
-                     🚨 SİSTEM BAKIMDA 🚨 • SADECE YETKİLİ & TESTER MODU AKTİF • LÜTFEN YAPTIĞINIZ DEĞİŞİKLİKLERE DİKKAT EDİNİZ • 🚨 SİSTEM BAKIMDA 🚨
-                   </marquee>
+                   <div className="w-full overflow-hidden whitespace-nowrap relative">
+                     <div className="inline-block animate-[marquee-slide_15s_linear_infinite] drop-shadow-md">
+                       <span className="mx-4">🚨 SİSTEM BAKIMDA 🚨</span>
+                       <span className="mx-4">• SADECE YETKİLİ & TESTER MODU AKTİF •</span>
+                       <span className="mx-4">LÜTFEN YAPTIĞINIZ DEĞİŞİKLİKLERE DİKKAT EDİNİZ</span>
+                       <span className="mx-4">🚨 SİSTEM BAKIMDA 🚨</span>
+                     </div>
+                   </div>
                 </div>
               )}
               <div className={(maintenanceMode ? "pt-7 " : "") + "portal-transition"}>
