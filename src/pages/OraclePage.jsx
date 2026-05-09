@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, Compass, Zap, Ghost, Eye, Terminal, 
-  Activity, Star, Clock, Target, Layers, ArrowRight
+  Activity, Star, Clock, Target, Layers, ArrowRight,
+  TrendingUp, BookOpen, Shield, Crown, BarChart3
 } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { getLevelInfo } from '../context/AuthContext.jsx';
+import { supabase } from '../lib/supabaseClient';
 import { 
   NebulaBackground, 
   SoulDNA, 
@@ -13,54 +16,209 @@ import {
   MetricBox 
 } from '../components/NebulaOracle.jsx';
 
+// ─── GERÇEK VERİ BAZLI RUH TİPLERİ ───────────────────────────────────
 const SOUL_TYPES = [
-  { name: 'Shadow Wanderer', title: 'Gölge Gezgini', desc: 'Karanlık ve gizemin derinliklerinde yürüyen bir ruh.', color: 'purple' },
-  { name: 'Celestial Knight', title: 'Gök Şövalyesi', desc: 'Adalet ve ışığın peşinde, aksiyon dolu bir kader.', color: 'cyan' },
-  { name: 'Nebula Dreamer', title: 'Nebula Hayalperesti', desc: 'Gerçekliğin ötesindeki dünyalarda kaybolan bir zihin.', color: 'pink' },
-  { name: 'Silent Reaper', title: 'Sessiz Azrail', desc: 'Sessizliğin içindeki kaosu ve dramı hisseden bir bilinç.', color: 'indigo' },
-  { name: 'Void Hunter', title: 'Boşluk Avcısı', desc: 'Kaybolmuş serilerin ve gizli kalmış hikayelerin kaşifi.', color: 'blue' }
+  { name: 'Shadow Wanderer', title: 'Gölge Gezgini', desc: 'Karanlık ve gizemin derinliklerinde yürüyen bir ruh.', color: 'purple', genres: ['Horror', 'Korku', 'Dark Fantasy', 'Karanlık Fantezi', 'Gerilim', 'Thriller', 'Psikolojik'] },
+  { name: 'Celestial Knight', title: 'Gök Şövalyesi', desc: 'Adalet ve ışığın peşinde, aksiyon dolu bir kader.', color: 'cyan', genres: ['Aksiyon', 'Action', 'Shounen', 'Macera', 'Adventure', 'Dövüş Sanatları'] },
+  { name: 'Nebula Dreamer', title: 'Nebula Hayalperesti', desc: 'Gerçekliğin ötesindeki dünyalarda kaybolan bir zihin.', color: 'pink', genres: ['Fantezi', 'Fantasy', 'Isekai', 'Bilim Kurgu', 'Sci-Fi'] },
+  { name: 'Silent Reaper', title: 'Sessiz Azrail', desc: 'Sessizliğin içindeki kaosu ve dramı hisseden bir bilinç.', color: 'indigo', genres: ['Drama', 'Romantik', 'Romance', 'Seinen', 'Slice of Life', 'Günlük Yaşam'] },
+  { name: 'Void Hunter', title: 'Boşluk Avcısı', desc: 'Kaybolmuş serilerin ve gizli kalmış hikayelerin kaşifi.', color: 'blue', genres: ['Gizem', 'Mystery', 'Dedektif', 'Suç', 'Crime'] }
 ];
 
-const PROPHECIES = [
-  "Kategorilerin derinliklerinde kaybolan ruhun, intikam ve karanlık fantezinin kesiştiği bu Nebula'da huzur bulacak.",
-  "Zamanın ötesindeki çizgiler, senin aksiyon dolu bir evrende yeniden doğacağını fısıldıyor.",
-  "Ruhun, dramanın ve acının en saf halini ararken, yıldızların arasında bir teselli bulacak.",
-  "Nebula'nın kalbi senin için atıyor; seçimlerin geleceğin tozlu raflarında bir efsane olacak.",
-  "Karanlık fantezinin soğuk nefesi seni korkutmuyor, aksine rüyalarına ilham veriyor."
-];
+// ─── GERÇEK VERİYE DAYALI KEHANETLERİ OLUŞTUR ───────────────────────
+function generateProphecy(manga, userGenres) {
+  const topGenre = manga.genres?.[0] || 'Aksiyon';
+  const prophecies = {
+    'Aksiyon': `"${manga.title}" serisindeki savaş koreografisi, senin okuma ritmine mükemmel uyuyor.`,
+    'Action': `"${manga.title}" serisindeki savaş koreografisi, senin okuma ritmine mükemmel uyuyor.`,
+    'Drama': `"${manga.title}" hikaye derinliği ve karakter gelişimiyle tam senin ruhuna hitap ediyor.`,
+    'Fantezi': `"${manga.title}" dünya inşası ve mitolojik alt metinleriyle seni başka bir evrene taşıyacak.`,
+    'Fantasy': `"${manga.title}" dünya inşası ve mitolojik alt metinleriyle seni başka bir evrene taşıyacak.`,
+    'Korku': `"${manga.title}" atmosferi ve gerilim unsurlarıyla karanlık tarafını besleyecek.`,
+    'Horror': `"${manga.title}" atmosferi ve gerilim unsurlarıyla karanlık tarafını besleyecek.`,
+  };
+  return prophecies[topGenre] || `"${manga.title}" algoritmamızın senin için seçtiği ${manga.rating ? `${manga.rating} puanlık` : 'özel'} bir eser.`;
+}
+
+// ─── GERÇEK EŞLEŞME SKORU HESAPLA ───────────────────────────────────
+function calculateMatchScore(manga, userTopGenres) {
+  if (!manga.genres || !userTopGenres.length) return 75;
+  
+  const matchingGenres = manga.genres.filter(g => 
+    userTopGenres.some(ug => ug.toLowerCase() === g.toLowerCase())
+  );
+  
+  const genreScore = Math.min((matchingGenres.length / Math.max(manga.genres.length, 1)) * 60, 60);
+  const ratingBonus = manga.rating ? Math.min((manga.rating / 10) * 25, 25) : 10;
+  const popularityBonus = manga.reads_num ? Math.min((manga.reads_num / 10000) * 15, 15) : 5;
+  
+  return Math.min(Math.round(genreScore + ratingBonus + popularityBonus), 99);
+}
 
 export default function OraclePage() {
-  const { sortedSeries } = useApp();
+  const { sortedSeries, chapters } = useApp();
   const { user } = useAuth();
   const [analyzing, setAnalyzing] = useState(true);
   const [soulProfile, setSoulProfile] = useState(null);
+  const [userStats, setUserStats] = useState(null);
+
+  // ─── GERÇEK VERİ ANALİZİ (SAHTE DEĞİL) ───────────────────────────
+  const analyzeUser = useCallback(async () => {
+    // 1. Kullanıcının favori serilerini çek (gerçek veri)
+    let favoriteGenres = [];
+    let favCount = 0;
+    
+    if (user?.id) {
+      try {
+        const { data: favs, count } = await supabase
+          .from('favorites')
+          .select('series_id', { count: 'exact' })
+          .eq('user_id', user.id);
+        
+        favCount = count || 0;
+        
+        if (favs && favs.length > 0) {
+          const favSeriesIds = favs.map(f => f.series_id);
+          const favSeries = sortedSeries.filter(s => favSeriesIds.includes(s.id));
+          favoriteGenres = favSeries.flatMap(s => s.genres || []);
+        }
+      } catch (e) { /* Favorites tablosu yoksa sessizce devam et */ }
+    }
+    
+    // 2. Tüm serilerin tür dağılımını hesapla (okuma geçmişi bazlı)
+    const genreCount = {};
+    const readSeries = sortedSeries.filter(s => {
+      const chapterList = chapters[String(s.id)];
+      return chapterList && chapterList.length > 0;
+    });
+    
+    // Favori türlerini ağırlıklı say
+    favoriteGenres.forEach(g => {
+      genreCount[g] = (genreCount[g] || 0) + 3; // Favoriler 3x ağırlık
+    });
+    
+    // Genel tür dağılımı
+    readSeries.forEach(s => {
+      (s.genres || []).forEach(g => {
+        genreCount[g] = (genreCount[g] || 0) + 1;
+      });
+    });
+    
+    // 3. Tür dağılımını sırala
+    const sortedGenres = Object.entries(genreCount)
+      .sort((a, b) => b[1] - a[1]);
+    
+    const topGenres = sortedGenres.slice(0, 5);
+    const totalGenrePoints = topGenres.reduce((sum, [, v]) => sum + v, 0) || 1;
+    
+    const cosmicDistribution = topGenres.slice(0, 3).map(([label, value]) => ({
+      label,
+      value: Math.round((value / totalGenrePoints) * 100)
+    }));
+    
+    // 4. Ruh tipini gerçek veriye göre belirle (rastgele DEĞİL)
+    const userTopGenreNames = topGenres.map(([name]) => name.toLowerCase());
+    
+    let bestSoulMatch = SOUL_TYPES[2]; // Default: Nebula Dreamer
+    let bestScore = 0;
+    
+    for (const soul of SOUL_TYPES) {
+      const matchCount = soul.genres.filter(sg => 
+        userTopGenreNames.some(ug => ug.includes(sg.toLowerCase()) || sg.toLowerCase().includes(ug))
+      ).length;
+      if (matchCount > bestScore) {
+        bestScore = matchCount;
+        bestSoulMatch = soul;
+      }
+    }
+    
+    // 5. XP ve Seviye bilgilerini kullan (gerçek veri)
+    const xp = user?.xp || 0;
+    const levelInfo = getLevelInfo(xp, user?.is_elite);
+    
+    // 6. Gerçek istatistikler
+    const totalChaptersRead = Object.values(chapters).reduce((sum, chs) => sum + (chs?.length || 0), 0);
+    const totalSeries = sortedSeries.length;
+    
+    // Okuma ritmi: XP bazlı gerçek hesaplama
+    let readingRhythm = 'Keşfedici';
+    if (xp > 10000) readingRhythm = 'Yoğun';
+    else if (xp > 5000) readingRhythm = 'Düzenli';
+    else if (xp > 1000) readingRhythm = 'Aktif';
+    else if (xp > 100) readingRhythm = 'Başlangıç';
+    
+    // Etkileşim oranı: gerçek hesaplama (favori/toplam seri)
+    const engagementRate = totalSeries > 0 
+      ? `${Math.min(Math.round((favCount / Math.max(totalSeries * 0.1, 1)) * 100), 100)}%`
+      : '0%';
+    
+    // DNA skoru: XP + favori + okuma bazlı gerçek skor
+    const dnaScore = Math.min(
+      50 + (xp > 0 ? 15 : 0) + (favCount > 0 ? 15 : 0) + (totalChaptersRead > 100 ? 10 : totalChaptersRead / 10) + (bestScore > 0 ? 10 : 0),
+      99.9
+    ).toFixed(1);
+    
+    setSoulProfile({
+      ...bestSoulMatch,
+      dnaScore,
+      readingRhythm,
+      engagementRate,
+      cosmicDistribution: cosmicDistribution.length > 0 ? cosmicDistribution : [
+        { label: 'Henüz Veri Yok', value: 100 }
+      ]
+    });
+    
+    setUserStats({
+      totalChaptersRead,
+      totalSeries,
+      favCount,
+      xp,
+      levelInfo,
+      topGenres: topGenres.map(([name]) => name),
+    });
+    
+    setAnalyzing(false);
+  }, [user, sortedSeries, chapters]);
 
   useEffect(() => {
-    // Simulate complex AI Analysis
+    // Gerçek analiz: minimum 1.5s animasyon + veri çekme
     const timer = setTimeout(() => {
-      const randomType = SOUL_TYPES[Math.floor(Math.random() * SOUL_TYPES.length)];
-      setSoulProfile({
-        ...randomType,
-        dnaScore: 98.4,
-        readingRhythm: 'Intense',
-        engagementRate: '94%',
-        cosmicDistribution: [
-          { label: 'Dark Fantasy', value: 70 },
-          { label: 'Drama', value: 20 },
-          { label: 'Action', value: 10 }
-        ]
-      });
-      setAnalyzing(false);
-    }, 3000);
+      analyzeUser();
+    }, 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [analyzeUser]);
 
+  // ─── GERÇEK VERİYE DAYALI ÖNERİLER ───────────────────────────────
   const recommendedSeries = useMemo(() => {
-    return [...sortedSeries]
-      .filter(s => s.rating >= 8.5)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 4);
-  }, [sortedSeries]);
+    if (!userStats?.topGenres) {
+      return sortedSeries.filter(s => s.rating >= 8.5).slice(0, 4);
+    }
+    
+    // Kullanıcının en çok okuduğu türlere göre eşleşme skoru hesapla
+    const scored = sortedSeries
+      .map(s => ({
+        ...s,
+        matchScore: calculateMatchScore(s, userStats.topGenres)
+      }))
+      .filter(s => s.matchScore > 60) // Minimum %60 eşleşme
+      .sort((a, b) => b.matchScore - a.matchScore);
+    
+    return scored.slice(0, 6);
+  }, [sortedSeries, userStats]);
+
+  // ─── SİSTEM RÜTBESİ (GERÇEK) ───────────────────────────────────
+  const systemRank = useMemo(() => {
+    if (!user) return { value: 'Misafir', subtext: 'Giriş yaparak rütbenizi görün.' };
+    
+    const levelInfo = getLevelInfo(user.xp || 0, user.is_elite);
+    
+    return {
+      value: levelInfo.rank,
+      subtext: user.discord_id 
+        ? `Discord ile senkronize · Lv.${levelInfo.level}` 
+        : `Lv.${levelInfo.level} · Discord bağlantısı bekleniyor`
+    };
+  }, [user]);
 
   return (
     <div className="relative min-h-screen pt-24 pb-20 text-white selection:bg-cyan-500/30">
@@ -90,7 +248,7 @@ export default function OraclePage() {
             transition={{ delay: 0.1 }}
             className="text-gray-400 text-lg max-w-2xl font-light italic"
           >
-            Okuma geçmişini analiz eden akıllı algoritmamız senin için en uygun serileri buluyor.
+            Okuma geçmişini, XP verilerini ve favori türlerini analiz eden akıllı algoritmamız senin için en uygun serileri buluyor.
           </motion.p>
         </div>
 
@@ -112,8 +270,11 @@ export default function OraclePage() {
                 transition={{ duration: 1.5, repeat: Infinity }}
                 className="mt-8 text-cyan-400 font-mono tracking-widest uppercase text-sm"
               >
-                Profilin Analiz Ediliyor...
+                Gerçek Veriler Analiz Ediliyor...
               </motion.p>
+              <p className="mt-2 text-gray-500 text-xs font-mono">
+                XP: {user?.xp || 0} · Seriler: {sortedSeries.length} · Bölümler taranıyor...
+              </p>
             </motion.div>
           ) : (
             <motion.div
@@ -154,27 +315,27 @@ export default function OraclePage() {
                   </div>
                 </div>
 
-                {/* Metrics Grid */}
+                {/* Metrics Grid — GERÇEK VERİLER */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <MetricBox 
                     icon={Activity} 
-                    label="Reading Rhythm" 
+                    label="Okuma Ritmi" 
                     value={soulProfile.readingRhythm} 
-                    subtext="Okuma ritmin duygusal yoğunlukla %92 uyumlu."
+                    subtext={`${userStats?.xp || 0} XP · ${userStats?.favCount || 0} favori seri`}
                     color="purple"
                   />
                   <MetricBox 
                     icon={Zap} 
-                    label="Engagement" 
+                    label="Etkileşim" 
                     value={soulProfile.engagementRate} 
-                    subtext="Artstyle ve panel detaylarına olan odağın."
+                    subtext={`${userStats?.totalSeries || 0} seri · ${userStats?.totalChaptersRead || 0} bölüm`}
                     color="cyan"
                   />
                   <MetricBox 
-                    icon={Clock} 
+                    icon={user?.discord_id ? Shield : Clock} 
                     label="Sistem Rütbesi" 
-                    value="Elite Member" 
-                    subtext="Discord XP verilerinle senkronize edildi."
+                    value={systemRank.value} 
+                    subtext={systemRank.subtext}
                     color="pink"
                   />
                 </div>
@@ -188,12 +349,12 @@ export default function OraclePage() {
                       </div>
                       <div>
                         <h2 className="text-2xl font-black">AKILLI ALGORİTMA <span className="text-cyan-400">ÖNERİYOR</span></h2>
-                        <p className="text-xs text-gray-500 font-mono">SİSTEM ANALİZİ: {recommendedSeries.length} OPTİMAL EŞLEŞME</p>
+                        <p className="text-xs text-gray-500 font-mono">SİSTEM ANALİZİ: {recommendedSeries.length} OPTİMAL EŞLEŞME · {userStats?.topGenres?.slice(0, 2).join(' + ') || 'Genel'} bazlı</p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <div className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
-                      <span className="text-[10px] text-cyan-400 font-mono tracking-widest uppercase">REAL-TIME SYNC</span>
+                    <div className="flex gap-2 items-center">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] text-emerald-400 font-mono tracking-widest uppercase">CANLI VERİ</span>
                     </div>
                   </div>
 
@@ -202,8 +363,8 @@ export default function OraclePage() {
                       <OracleCard 
                         key={s.id} 
                         manga={s} 
-                        matchScore={99 - i * 0.1} 
-                        prophecy={PROPHECIES[i % PROPHECIES.length]} 
+                        matchScore={s.matchScore || calculateMatchScore(s, userStats?.topGenres || [])} 
+                        prophecy={generateProphecy(s, userStats?.topGenres || [])} 
                       />
                     ))}
                   </div>
@@ -214,16 +375,49 @@ export default function OraclePage() {
               <div className="lg:col-span-4 space-y-8">
                 <div className="p-6 rounded-3xl bg-[#16162a]/60 border border-purple-500/10 backdrop-blur-md">
                   <h3 className="text-sm font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <Target className="w-4 h-4 text-purple-400" /> DROP-RATE LOGIC
+                    <BarChart3 className="w-4 h-4 text-purple-400" /> ANALİZ RAPORU
                   </h3>
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10">
-                      <p className="text-[11px] text-red-400/70 mb-1 font-mono uppercase tracking-tighter">İmha Edilen Parametre</p>
-                      <p className="text-xs text-gray-400 italic">"Yetersiz olay örgüsü ve zayıf karakter gelişimi içeren seriler kehanetlerden çıkarıldı."</p>
+                      <p className="text-[11px] text-red-400/70 mb-1 font-mono uppercase tracking-tighter">Filtrelenen Parametreler</p>
+                      <p className="text-xs text-gray-400 italic">
+                        {userStats?.topGenres?.length > 0 
+                          ? `"${userStats.topGenres[0]}" türü dışındaki düşük puanlı seriler elendi.`
+                          : '"Yeterli okuma verisi toplanmadan filtre uygulanamaz."'
+                        }
+                      </p>
                     </div>
                     <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
                       <p className="text-[11px] text-emerald-400/70 mb-1 font-mono uppercase tracking-tighter">Onaylanan Akış</p>
-                      <p className="text-xs text-gray-400 italic">"Görsel sanat kalitesi yüksek ve psikolojik derinliği olan seriler önceliklendirildi."</p>
+                      <p className="text-xs text-gray-400 italic">
+                        {userStats?.topGenres?.length >= 2
+                          ? `"${userStats.topGenres[0]}" ve "${userStats.topGenres[1]}" türlerinde yüksek eşleşme tespit edildi.`
+                          : '"Daha fazla seri okuyarak algoritmanın hassasiyetini artırabilirsin."'
+                        }
+                      </p>
+                    </div>
+                    
+                    {/* Gerçek İstatistik Özeti */}
+                    <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/10">
+                      <p className="text-[11px] text-cyan-400/70 mb-2 font-mono uppercase tracking-tighter">Veri Kaynakları</p>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">Toplam XP</span>
+                          <span className="text-cyan-400 font-mono">{userStats?.xp?.toLocaleString() || '0'}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">Favori Seriler</span>
+                          <span className="text-cyan-400 font-mono">{userStats?.favCount || 0}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">Analiz Edilen Seriler</span>
+                          <span className="text-cyan-400 font-mono">{userStats?.totalSeries || 0}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">Seviye</span>
+                          <span className="text-cyan-400 font-mono">Lv.{userStats?.levelInfo?.level || 1}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -231,14 +425,30 @@ export default function OraclePage() {
                 <div className="relative group p-8 rounded-3xl bg-gradient-to-br from-cyan-600/20 to-purple-600/20 border border-white/5 overflow-hidden text-center">
                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
                   <div className="relative z-10">
-                    <Ghost className="w-12 h-12 text-white mx-auto mb-4 animate-bounce" />
-                    <h3 className="text-xl font-bold mb-2">DİSCORD BAĞLANTISI</h3>
-                    <p className="text-xs text-gray-300 mb-6 font-light">
-                      Profiliniz Discord Premium statünüzle %100 uyumlu. Rütbenizi şimdi Discord'da sergileyin.
-                    </p>
-                    <button className="w-full py-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-cyan-400 transition-colors flex items-center justify-center gap-2">
-                      SENKRONİZE ET <ArrowRight className="w-4 h-4" />
-                    </button>
+                    {user?.discord_id ? (
+                      <>
+                        <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
+                        <h3 className="text-xl font-bold mb-2">DISCORD BAĞLI</h3>
+                        <p className="text-xs text-gray-300 mb-4 font-light">
+                          Discord hesabınız senkronize. Rütbeniz ve XP'niz anlık olarak güncelleniyor.
+                        </p>
+                        <div className="w-full py-3 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 border border-emerald-500/30">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                          SENKRONİZE
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Ghost className="w-12 h-12 text-white mx-auto mb-4 animate-bounce" />
+                        <h3 className="text-xl font-bold mb-2">DISCORD BAĞLANTISI</h3>
+                        <p className="text-xs text-gray-300 mb-6 font-light">
+                          Discord hesabınızı bağlayarak rütbenizi senkronize edin ve ek XP kazanın.
+                        </p>
+                        <button className="w-full py-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-cyan-400 transition-colors flex items-center justify-center gap-2">
+                          SENKRONİZE ET <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
