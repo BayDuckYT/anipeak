@@ -5,6 +5,10 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
 
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
+
   server: {
     proxy: {
       '/api': {
@@ -17,21 +21,9 @@ export default defineConfig({
 
   build: {
     target: 'esnext',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        dead_code: true,
-        passes: 2,
-      },
-      format: {
-        comments: false,
-      },
-    },
-    cssMinify: true,
-    reportCompressedSize: false,
-    modulePreload: { polyfill: true },
+    minify: 'esbuild',
+    // Terser kurmaya gerek kalmadan Esbuild ile ölü kodları temizle
+    terserOptions: undefined,
     rollupOptions: {
       output: {
         manualChunks: {
