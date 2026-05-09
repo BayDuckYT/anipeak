@@ -198,7 +198,7 @@ async function processSeries(seriesUrl, browser) {
       // HATA DÜZELTMESİ: .single() yerine .limit(1) kullanıyoruz. Eğer veritabanında aynı bölümden 2 tane varsa 
       // .single() patlayıp data'yı null döndürür, bu da botun "bölüm yok" sanıp en baştan indirmesine sebep olur!
       const { data: existingArr, error: checkError } = await supabase.from('chapters')
-        .select('id, images')
+        .select('id, pages')
         .eq('series_id', seriesId)
         .eq('number', chapter.number)
         .limit(1);
@@ -209,8 +209,8 @@ async function processSeries(seriesUrl, browser) {
         
       const existing = existingArr && existingArr.length > 0 ? existingArr[0] : null;
       
-      // Veritabanında images sütununda resim var mı?
-      const existingImgs = existing?.images;
+      // Veritabanında pages sütununda resim var mı?
+      const existingImgs = existing?.pages;
       
       const isBroken = existingImgs?.some(img => img.includes('..r2')) || (existing && (!existingImgs || existingImgs.length < 3));
       if (existing && !isBroken) {
