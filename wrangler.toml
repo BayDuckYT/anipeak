@@ -1,0 +1,5 @@
+name = "anipeak"
+compatibility_date = "2024-05-09"
+
+[assets]
+directory = "./dist"
