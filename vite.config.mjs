@@ -16,13 +16,11 @@ export default defineConfig({
   },
 
   build: {
-    // Kod sikistirma motoru: esbuild (varsayilan) yerine terser daha iyi sikistirir
-    // Ancak esbuild daha hizli — target ayarlayip production'i kucultelim
     target: 'esnext',
     minify: 'esbuild',
-
-    // Chunk (Parca) ayristirma — her sayfa kendi paketini yukler
-    // Bu sayede anasayfa gereksiz 500KB yuklemez
+    cssMinify: true,
+    reportCompressedSize: false,
+    modulePreload: { polyfill: true },
     rollupOptions: {
       output: {
         manualChunks: {

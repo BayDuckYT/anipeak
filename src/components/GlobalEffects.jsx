@@ -38,7 +38,7 @@ export default function GlobalEffects() {
       return;
     }
 
-    const ctx = canvas.getContext('2d', { alpha: true });
+    const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: false });
     
     let animationFrameId;
     let particles = [];
@@ -50,9 +50,16 @@ export default function GlobalEffects() {
       initParticles();
     };
 
+    let mouseTicking = false;
     const handleMouseMove = (e) => {
-      mouse.current.x = e.clientX;
-      mouse.current.y = e.clientY;
+      if (!mouseTicking) {
+        requestAnimationFrame(() => {
+          mouse.current.x = e.clientX;
+          mouse.current.y = e.clientY;
+          mouseTicking = false;
+        });
+        mouseTicking = true;
+      }
     };
 
     class Particle {
@@ -93,20 +100,16 @@ export default function GlobalEffects() {
         ctx.fillStyle = this.color;
         ctx.globalAlpha = this.alpha;
         ctx.fill();
-        
-        // Subtle glow for some particles
-        if (this.radius > 1.5) {
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = this.color;
-        } else {
-          ctx.shadowBlur = 0;
-        }
       }
     }
 
     function initParticles() {
       particles = [];
-      const count = Math.min(Math.floor((width * height) / 15000), 120);
+      // Mobilde daha az parçacık — GPU yükü düşer, performans artar
+      const isMobile = window.innerWidth < 768;
+      const divisor = isMobile ? 30000 : 15000;
+      const maxCount = isMobile ? 40 : 80;
+      const count = Math.min(Math.floor((width * height) / divisor), maxCount);
       for (let i = 0; i < count; i++) {
         particles.push(new Particle());
       }
@@ -137,27 +140,25 @@ export default function GlobalEffects() {
       ctx.stroke();
     };
 
-    const animate = () => {
+    // 30 FPS cap — görsel kalite aynı, CPU/GPU %50 daha az çalışır
+    let lastTime = 0;
+    const FPS_CAP = 30;
+    const FRAME_INTERVAL = 1000 / FPS_CAP;
+
+    const animate = (timestamp) => {
+      animationFrameId = requestAnimationFrame(animate);
+      if (timestamp - lastTime < FRAME_INTERVAL) return;
+      lastTime = timestamp;
+
       ctx.clearRect(0, 0, width, height);
-      
-      // Performance optimization: 148 FPS target (actually matches monitor refresh rate)
       drawGrid();
 
+      ctx.shadowBlur = 0; // Reset once per frame, not per particle
       particles.forEach(p => {
         p.update();
         p.draw();
       });
-
-      // Special effects for Admin/Premium (Matrix blend)
-      if (user?.role === 'Baş Admin' || user?.role === 'Yönetici') {
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.05)';
-        ctx.font = '10px monospace';
-        for(let i = 0; i < 10; i++) {
-            ctx.fillText(Math.random().toString(36).substring(7), Math.random() * width, Math.random() * height);
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(animate);
+      ctx.globalAlpha = 1;
     };
 
     animate();

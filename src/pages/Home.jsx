@@ -244,9 +244,13 @@ export default function Home({ onAuthOpen }) {
               <div className="absolute inset-0">
                 <img
                   src={featuredItem.cover}
-                  alt=""
+                  alt={featuredItem.title}
                   aria-hidden="true"
                   fetchpriority="high"
+                  loading="eager"
+                  decoding="sync"
+                  width="1440"
+                  height="600"
                   className="w-full h-full object-cover"
                   onError={handleImageError}
                 />

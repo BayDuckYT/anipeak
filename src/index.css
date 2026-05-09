@@ -40,8 +40,8 @@ body {
 
 /* --- PERFORMANCE UTILITIES --- */
 .gpu-accelerated {
-  will-change: transform, opacity;
   transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -567,21 +567,19 @@ body {
   100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 }
 
-/* Cyber Portal Transition - Smooth entrance like a digital opening */
+/* Cyber Portal Transition - Lightweight fade+slide (LCP optimized) */
 .portal-transition {
-  animation: portal-open 0.8s cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation: portal-open 0.5s ease-out both;
 }
 
 @keyframes portal-open {
-  0% { 
-    transform: scale(0.92) translateY(30px); 
-    opacity: 0; 
-    filter: blur(15px) brightness(2) hue-rotate(90deg); 
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
   }
-  100% { 
-    transform: scale(1) translateY(0); 
-    opacity: 1; 
-    filter: blur(0) brightness(1) hue-rotate(0deg); 
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

@@ -57,7 +57,7 @@ function ProfileRedirect() {
 function AnimatedRoutes({ onAuthOpen }) {
   const location = useLocation();
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <Suspense fallback={<Loader fullScreen={false} text="Sayfa Yükleniyor..." />}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home onAuthOpen={onAuthOpen} />} />
