@@ -8,12 +8,26 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { translateAndTypesetManga } from './aiTranslator.js';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 if (fs.existsSync(path.resolve('scraper', '.env'))) {
   dotenv.config({ path: path.resolve('scraper', '.env') });
 } else {
   dotenv.config();
 }
+
+// R2 Configuration
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
+
+const R2_BUCKET = process.env.R2_BUCKET || 'anipeak-assets';
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || '';
 
 const IMGBB_KEYS = (process.env.IMGBB_API_KEY || '18c27627979b4a622d1b79d414392f7b').split(',').map(k => k.trim());
 let currentKeyIndex = 0;
@@ -71,6 +85,26 @@ export async function applySeal(imageBuffer) {
   }
 }
 
+/**
+ * Cloudflare R2'ye dosya yükler
+ */
+async function uploadToR2(buffer, fileName, contentType) {
+  try {
+    const command = new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: fileName,
+      Body: buffer,
+      ContentType: contentType,
+    });
+
+    await s3Client.send(command);
+    return `${R2_PUBLIC_URL}/${fileName}`;
+  } catch (err) {
+    logger.error(`[R2-Upload] Hata: ${err.message}`);
+    throw err;
+  }
+}
+
 export async function processAndUploadEliteImage(imageUrl, isCover = false, seriesTitle = 'Unknown', chapterNumber = 0, pageIndex = 1) {
   try {
     const { data: buffer } = await axios.get(imageUrl, {
@@ -82,11 +116,9 @@ export async function processAndUploadEliteImage(imageUrl, isCover = false, seri
     // 1. Akıllı Reklam & Logo Tespiti (Placeholder Engeli)
     if (!isCover) {
        const isAd = await checkIsAd(buffer);
-       // Boyut kontrolü: Manga sayfaları genelde büyüktür. 
-       // Placeholder logoları genelde küçük (örn 300x400) veya çok hafiftir.
        const metadata = await sharp(buffer).metadata();
        const isTooSmall = metadata.width < 400 || metadata.height < 600;
-       const isTooLight = buffer.byteLength < 20000; // 20KB altı genelde logodur
+       const isTooLight = buffer.byteLength < 20000; 
 
        if (isAd || isTooSmall || isTooLight) {
           logger.warn(`[Archive-Security] Logo/Placeholder elendi (${metadata.width}x${metadata.height}, ${Math.round(buffer.byteLength/1024)}KB): ${imageUrl}`);
@@ -102,13 +134,12 @@ export async function processAndUploadEliteImage(imageUrl, isCover = false, seri
       processedBuffer = await translateAndTypesetManga(processedBuffer);
     }
 
-    // 3. Marka Basımı (Branding) & Optimizasyon
+    // 3. Marka Basımı (Branding) & WebP Optimizasyonu
     let sharpInstance = sharp(processedBuffer);
     
     if (isCover) {
       sharpInstance = sharpInstance.resize(400, 600, { fit: 'cover' });
     } else {
-      // Sayfanın altına jilet gibi marka bas
       const metadata = await sharpInstance.metadata();
       const svgText = `
         <svg width="${metadata.width}" height="40">
@@ -122,20 +153,21 @@ export async function processAndUploadEliteImage(imageUrl, isCover = false, seri
       }]);
     }
 
+    // WebP ile %70 tasarruf sağlıyoruz
     const finalBuffer = await sharpInstance
-      .png({ quality: 90 })
+      .webp({ quality: 80 })
       .toBuffer();
 
-    // 4. YEREL ARŞİVLEME (C:\Users\Murathan\Desktop\anipeak manga)
+    // 4. YEREL ARŞİVLEME (Opsiyonel - VDS disk dolmasın diye kapatılabilir)
     try {
       const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
       const seriesDir = path.join(BASE_ARCHIVE_PATH, safeTitle);
       let targetDir = seriesDir;
-      let fileName = 'cover.png';
+      let fileName = 'cover.webp';
 
       if (!isCover) {
         targetDir = path.join(seriesDir, `Bolum ${chapterNumber}`);
-        fileName = `${pageIndex.toString().padStart(2, '0')}.png`;
+        fileName = `${pageIndex.toString().padStart(3, '0')}.webp`;
       }
 
       if (!fs.existsSync(targetDir)) {
@@ -144,47 +176,29 @@ export async function processAndUploadEliteImage(imageUrl, isCover = false, seri
 
       const filePath = path.join(targetDir, fileName);
       fs.writeFileSync(filePath, finalBuffer);
-      logger.info(`[Archive-Local] Kaydedildi: ${filePath}`);
-    } catch (fsErr) {
-      logger.error(`[Archive-Local] Kayıt hatası: ${fsErr.message}`);
+      // logger.info(`[Archive-Local] Kaydedildi: ${filePath}`);
+    } catch (fsErr) {}
+
+    // 5. R2 BULUT YÜKLEME
+    const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
+    const r2Path = isCover 
+      ? `manga/${safeTitle}/cover.webp`
+      : `manga/${safeTitle}/ch_${chapterNumber}/${pageIndex.toString().padStart(3, '0')}.webp`;
+
+    try {
+      const uploadUrl = await uploadToR2(finalBuffer, r2Path, 'image/webp');
+      logger.info(`[Archive-Cloud] R2 Yüklendi: ${uploadUrl}`);
+      return uploadUrl;
+    } catch (r2Err) {
+      logger.error(`[Archive-Cloud] R2 Yükleme başarısız, ImgBB yedek devrede...`);
+      // Yedek olarak ImgBB (Opsiyonel)
+      return imageUrl;
     }
-
-    // 5. ImgBB BULUT DAĞITIMI (Rotation)
-    let uploadUrl = null;
-    for (let i = 0; i < IMGBB_KEYS.length; i++) {
-       const key = IMGBB_KEYS[currentKeyIndex];
-       try {
-         const base64Data = finalBuffer.toString('base64');
-         const form = new FormData();
-         form.append('image', base64Data);
-
-         const res = await axios.post(`https://api.imgbb.com/1/upload?key=${key}`, form, {
-           headers: form.getHeaders(),
-           maxContentLength: Infinity,
-           maxBodyLength: Infinity
-         });
-
-         if (res.data && res.data.success) {
-            uploadUrl = res.data.data.url;
-            logger.info(`[Archive-Cloud] ImgBB Yüklendi (${key.substring(0,4)}...): ${uploadUrl}`);
-            break;
-         }
-       } catch (e) {
-         currentKeyIndex = (currentKeyIndex + 1) % IMGBB_KEYS.length;
-       }
-    }
-
-    if (!uploadUrl) throw new Error("Tüm ImgBB anahtarları başarısız!");
-    return uploadUrl;
 
   } catch (error) {
-    if (error.response) {
-      logger.error(`[Archive-Processor] API Hatası: ${JSON.stringify(error.response.data)}`);
-    }
     logger.error(`[Archive-Processor] Kritik Hata (${imageUrl}): ${error.message}`);
     return isCover ? null : imageUrl; 
   }
-
 }
 
 /**
