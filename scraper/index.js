@@ -2,6 +2,11 @@ import { getSeriesLinks, getSeriesDetails, getChapterPages } from './src/scraper
 import { getOrCreateSeries, createChapterIfNotExists, supabase } from './src/db.js';
 import { processAndUploadImage } from './utils/imageProcessor.js';
 import logger from './utils/logger.js';
+import path from 'path';
+import fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: path.resolve('scraper', '.env') });
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
