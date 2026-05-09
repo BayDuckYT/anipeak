@@ -2,7 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: "c:/Users/Murathan/Desktop/animain2/scraper/.env" });
+dotenv.config({ path: path.resolve('scraper', '.env') });
+if (!process.env.SUPABASE_URL) {
+  dotenv.config({ path: '/root/anipeak/scraper/.env' }); // VDS fallback
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
