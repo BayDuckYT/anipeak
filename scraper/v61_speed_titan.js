@@ -115,12 +115,14 @@ async function extractSeriesInfo(page, url) {
     const genres = Array.from(document.querySelectorAll('a[href*="/manga-genre/"], .genres-content a')).map(a => a.innerText.trim());
     const status = document.body.innerText.includes('Ongoing') || document.body.innerText.includes('Devam') ? 'Devam Ediyor' : 'Tamamlandı';
     
-    // Orijinal isim tespiti
+    // Orijinal isim tespiti (Alternatif isimleri YALNIZCA başlık boşsa kullan)
     let finalTitle = title;
-    const altElement = document.querySelector('.alter, .alternative, .other-name');
-    if (altElement) {
-       const altText = altElement.innerText.replace(/Alternatif İsimler:|Diğer İsimler:|Alternative Titles:/i, '').trim();
-       if (altText && /^[a-zA-Z0-9\s:-]+$/.test(altText)) finalTitle = altText;
+    if (!finalTitle || finalTitle.trim() === '') {
+      const altElement = document.querySelector('.alter, .alternative, .other-name');
+      if (altElement) {
+         const altText = altElement.innerText.replace(/Alternatif İsimler:|Diğer İsimler:|Alternative Titles:/i, '').trim();
+         if (altText && /^[a-zA-Z0-9\s:-]+$/.test(altText)) finalTitle = altText;
+      }
     }
 
     const chapters = Array.from(document.querySelectorAll('.wp-manga-chapter a')).map(a => ({
@@ -193,15 +195,24 @@ async function processSeries(seriesUrl, browser) {
     const chapterLimit = pLimit(CONFIG.CHAPTER_CONCURRENCY);
 
     for (const chapter of seriesData.chapters) {
-      // KENDİ KENDİNİ ONARMA: Eğer bölüm varsa ama linkler bozuksa (..r2 içeriyorsa) tekrar indir
-      const { data: existing } = await supabase.from('chapters')
-        .select('id, images')
+      // HATA DÜZELTMESİ: .single() yerine .limit(1) kullanıyoruz. Eğer veritabanında aynı bölümden 2 tane varsa 
+      // .single() patlayıp data'yı null döndürür, bu da botun "bölüm yok" sanıp en baştan indirmesine sebep olur!
+      const { data: existingArr } = await supabase.from('chapters')
+        .select('id, images, pages')
         .eq('series_id', seriesId)
         .eq('number', chapter.number)
-        .single();
+        .limit(1);
+        
+      const existing = existingArr && existingArr.length > 0 ? existingArr[0] : null;
       
-      const isBroken = existing?.images?.some(img => img.includes('..r2')) || (existing && (!existing.images || existing.images.length < 3));
-      if (existing && !isBroken) continue;
+      // Veritabanında images veya pages sütununda resim var mı?
+      const existingImgs = existing?.images || existing?.pages;
+      
+      const isBroken = existingImgs?.some(img => img.includes('..r2')) || (existing && (!existingImgs || existingImgs.length < 3));
+      if (existing && !isBroken) {
+        console.log(`\x1b[33m[SKIP]\x1b[0m >> Ch.${chapter.number} zaten var, atlanıyor.`);
+        continue;
+      }
       
       if (isBroken) {
         console.log(`\x1b[33m[REPAIR]\x1b[0m >> Bozuk link tespit edildi, yeniden işleniyor: Ch.${chapter.number}`);

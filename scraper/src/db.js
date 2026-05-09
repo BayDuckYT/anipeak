@@ -93,7 +93,7 @@ export async function createChapterIfNotExists(seriesId, chapterNumber, chapterT
        series_id: seriesId,
        number: chapterNumber,
        title: chapterTitle || `Bölüm ${chapterNumber}`,
-       pages: pagesUrlArray,
+       images: pagesUrlArray,
        is_premium: false
      }]);
 
