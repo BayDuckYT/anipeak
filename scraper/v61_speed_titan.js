@@ -30,7 +30,7 @@ const CONFIG = {
 
 const s3Client = new S3Client({
   region: 'auto',
-  endpoint: `https://${(process.env.R2_ACCOUNT_ID || '').trim()}.r2.cloudflarestorage.com`,
+  endpoint: `https://5ea1dc1a085c04db3ae5f70b4e945b44.r2.cloudflarestorage.com`,
   credentials: {
     accessKeyId: (process.env.R2_ACCESS_KEY_ID || '').trim(),
     secretAccessKey: (process.env.R2_SECRET_ACCESS_KEY || '').trim(),
