@@ -13,6 +13,13 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error("Kozmik Hata Yakalandı:", error, errorInfo);
+    
+    // Vite Sürüm Güncelleme (Chunk Missing) Hatası Çözümü
+    // Yeni deploy atıldığında eski dosyalar (assets/js/SettingsPage-xxx.js) silindiği için bu hata fırlar.
+    // Otomatik olarak sayfayı yenileterek tarayıcının yeni dosyaları çekmesini sağlıyoruz.
+    if (error.message && (error.message.includes('Failed to fetch dynamically imported module') || error.message.includes('Importing a module script failed'))) {
+      window.location.reload(true);
+    }
   }
 
   render() {
