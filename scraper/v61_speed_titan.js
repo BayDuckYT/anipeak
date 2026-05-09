@@ -215,23 +215,28 @@ async function main() {
   console.log('\x1b[35m%s\x1b[0m', '║   90% WebP HD · No GitHub · Direct R2 · Ultra Fast    ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
 
-  const targets = [
-    'https://mangaokutr.co/manga/jujutsu-kaisen/',
-    'https://mangaokutr.co/manga/solo-leveling/',
-    'https://mangaokutr.co/manga/chainsaw-man/',
-    'https://mangaokutr.co/manga/berserk/',
-    'https://mangaokutr.co/manga/oshi-no-ko/',
-    'https://mangaokutr.co/manga/blue-lock/'
-  ];
+  let urlPath = path.resolve('scraper', 'url.txt');
+  if (!fs.existsSync(urlPath)) {
+    urlPath = '/root/anipeak/scraper/url.txt'; // VDS Fallback
+  }
 
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-  });
+  if (fs.existsSync(urlPath)) {
+    console.log(`\x1b[32m[INFO]\x1b[0m >> url.txt bulundu, linkler okunuyor...`);
+    const input = fs.readFileSync(urlPath, 'utf-8');
+    const targets = input.split('\n').map(t => t.trim()).filter(t => t.length > 5);
 
-  for (const target of targets) {
-    const url = target.startsWith('http') ? target : `${CONFIG.BASE_URL}/manga/${target}`;
-    await processSeries(url, browser);
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+
+    for (const target of targets) {
+      const url = target.startsWith('http') ? target : `${CONFIG.BASE_URL}/manga/${target}`;
+      await processSeries(url, browser);
+    }
+    await browser.close();
+  } else {
+    console.log(`\x1b[31m[HATA]\x1b[0m >> url.txt bulunamadı!`);
   }
 
   await browser.close();
