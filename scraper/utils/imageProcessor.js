@@ -16,6 +16,8 @@ const s3Client = new S3Client({
   },
 });
 
+const R2_BUCKET = process.env.R2_BUCKET || 'anipeakimage';
+
 export async function processAndUploadImage(imageUrl, isCover, seriesTitle, chapterNumber, pageIndex) {
     try {
         const { data: buffer } = await axios.get(imageUrl, {
@@ -39,7 +41,7 @@ export async function processAndUploadImage(imageUrl, isCover, seriesTitle, chap
             : `manga/${safeTitle}/ch_${chapterNumber}/${fileName}`;
 
         await s3Client.send(new PutObjectCommand({
-            Bucket: process.env.R2_BUCKET,
+            Bucket: R2_BUCKET,
             Key: r2Path,
             Body: finalBuffer,
             ContentType: 'image/webp'

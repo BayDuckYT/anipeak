@@ -54,6 +54,18 @@ export async function getSeriesDetails(seriesUrl) {
       .replace(/ Manga$/i, '')
       .replace(/ Webtoon$/i, '')
       .trim();
+
+    // Alternatif/Orijinal İsim Arama (Solo Leveling, Jujutsu Kaisen vb. için)
+    $('.alter b, .alternative b, .other-name b').parent().each((_, el) => {
+        let altText = $(el).text().replace(/Alternatif İsimler:|Diğer İsimler:|Alternative Titles:/i, '').trim();
+        if (altText && altText.length > 2) {
+            // Eğer alternatif isim çok kısa değilse ve İngilizce karakterler içeriyorsa öncelik ver
+            if (/^[a-zA-Z0-9\s:-]+$/.test(altText)) {
+                logger.info(`[Scraper] Orijinal isim bulundu: ${altText} (Eski: ${title})`);
+                title = altText;
+            }
+        }
+    });
                 
     let cover = '';
     $('img').each((_, el) => {
