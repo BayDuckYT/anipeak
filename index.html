@@ -61,13 +61,20 @@
   <link rel="preconnect" href="https://yrcrgkdikkaeccikdzvw.supabase.co" crossorigin />
   <link rel="preconnect" href="https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev" crossorigin />
 
-  <!-- 3. Google Fonts -->
+  <!-- 3. Google Fonts (Non-blocking: media swap trick) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,700;0,14..32,900&display=swap" />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,700;0,14..32,900&display=swap"
     rel="stylesheet"
+    media="print"
+    onload="this.media='all'"
   />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,700;0,14..32,900&display=swap" rel="stylesheet" />
+  </noscript>
 
   <!-- 4. Kritik Satır İçi CSS (Critical CSS) — İlk ekran "beyaz flash" olmadan yüklensin -->
   <style>

@@ -38,7 +38,7 @@ import LazySection from '../components/LazySection.jsx';
 function TrendingCard({ item, rank, getChapters }) {
   const chapterCount = getChapters(item.id).length;
   return (
-    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[160px] sm:w-[180px] hover-lift portal-transition">
+    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[160px] sm:w-[180px] hover-lift portal-transition" aria-label={`${item.title} serisini oku`}>
       <div className="relative rounded-2xl overflow-hidden border border-white/8 transition-all duration-300 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.2)] energy-pulse">
         {/* Rank number */}
         <div className="absolute top-2 left-2 z-20">
@@ -48,14 +48,14 @@ function TrendingCard({ item, rank, getChapters }) {
             {rank}
           </span>
         </div>
-        <div className="relative aspect-[3/4] overflow-hidden bg-purple-900/20 animate-pulse rounded-lg">
+        <div className="relative overflow-hidden bg-purple-900/20 rounded-lg" style={{ aspectRatio: '3/4' }}>
           <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="180" height="240" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-0 transition-opacity" loading="lazy"
             onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
           {/* Rating badge */}
           <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/90 text-white text-[11px] font-black">
-            <Star size={10} className="fill-white" /> {item.rating}
+            <Star size={10} className="fill-white" aria-hidden="true" /> {item.rating}
           </div>
         </div>
         <div className="p-2.5 bg-[#0a0a0c]">
@@ -74,9 +74,9 @@ function NewChapterCard({ item, chapters }) {
   const timeAgo = latestChapter?.created_at ? getTimeAgo(latestChapter.created_at) : '';
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[130px]">
+    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[130px]" aria-label={`${item.title} - Bölüm ${chapterNum}`}>
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/30 transition-all">
-        <div className="relative aspect-[3/4] overflow-hidden bg-purple-900/20 animate-pulse rounded-lg">
+        <div className="relative overflow-hidden bg-purple-900/20 rounded-lg" style={{ aspectRatio: '3/4' }}>
           <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="130" height="173" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0" loading="lazy"
             onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
@@ -354,14 +354,16 @@ export default function Home({ onAuthOpen }) {
                     <Link
                       to={`/manhwa/${featuredItem.id}`}
                       className="flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple hover:scale-105 active:scale-95"
+                      aria-label={`${featuredItem.title} serisini okumaya başla`}
                     >
-                      <Play size={16} className="fill-white" /> Oku Şimdi
+                      <Play size={16} className="fill-white" aria-hidden="true" /> Oku Şimdi
                     </Link>
                     <button
                       onClick={() => { if (!user) { onAuthOpen('login'); } }}
                       className="flex items-center gap-2 px-7 py-4 rounded-xl glass border border-white/10 text-white font-semibold text-sm hover:border-purple-500/40 hover:bg-purple-500/10 transition-all"
+                      aria-label={`${featuredItem.title} serisini listeye ekle`}
                     >
-                      <Plus size={16} /> Listeye Ekle
+                      <Plus size={16} aria-hidden="true" /> Listeye Ekle
                     </button>
                   </motion.div>
                 </div>

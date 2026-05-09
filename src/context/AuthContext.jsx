@@ -387,12 +387,8 @@ export function AuthProvider({ children }) {
         );
         const { data: { session: fetchedSession }, error } = await Promise.race([sessionPromise, timeout]);
         session = fetchedSession;
-
         if (error) throw error;
-        if (mounted && session?.user) {
-          await fetchProfile(session.user);
-          subscribeToProfile(session.user.id);
-        }
+
       } catch (err) {
         // Ağ hatası: kullanıcıyı çıkatma, sadece logla
         console.warn("[Auth] Session yüklenemedi (ağ hatası), oturum korunuyor:", err.message);
@@ -401,13 +397,19 @@ export function AuthProvider({ children }) {
           setLoading(false);
           clearTimeout(safetyTimeout);
 
-          // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil (Background check)
-          const cachedId = localStorage.getItem('anipeak_last_user_id');
-          if (session?.user && cachedId !== session.user.id) {
-            console.warn("[Auth] Önbellek uyumsuzluğu tespit edildi, temizleniyor...");
-            localStorage.removeItem('anipeak_user_cache');
-            localStorage.removeItem('anipeak_last_user_id');
-            await fetchProfile(session.user);
+          // Profil yüklemesini async olarak (arkaplanda) devam ettir
+          if (session?.user) {
+            fetchProfile(session.user).then(() => {
+              // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil (Background check)
+              const cachedId = localStorage.getItem('anipeak_last_user_id');
+              if (cachedId !== session.user.id) {
+                console.warn("[Auth] Önbellek uyumsuzluğu tespit edildi, temizleniyor...");
+                localStorage.removeItem('anipeak_user_cache');
+                localStorage.removeItem('anipeak_last_user_id');
+                fetchProfile(session.user);
+              }
+              subscribeToProfile(session.user.id);
+            });
           }
         }
       }

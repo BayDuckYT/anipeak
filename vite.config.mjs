@@ -17,7 +17,18 @@ export default defineConfig({
 
   build: {
     target: 'esnext',
-    minify: 'esbuild',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        dead_code: true,
+        passes: 2,
+      },
+      format: {
+        comments: false,
+      },
+    },
     cssMinify: true,
     reportCompressedSize: false,
     modulePreload: { polyfill: true },
