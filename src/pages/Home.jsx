@@ -30,7 +30,7 @@ const GENRE_COLORS = {
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { handleImageError } from '../utils/imageOpt.js';
-import VirtualHScroll from './VirtualHScroll.jsx';
+import VirtualHScroll from '../components/VirtualHScroll.jsx';
 
 
 // ── Trending Card (numbered) ──
