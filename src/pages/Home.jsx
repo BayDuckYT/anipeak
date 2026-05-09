@@ -31,6 +31,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { handleImageError, getOptimizedImage } from '../utils/imageOpt.js';
 import VirtualHScroll from '../components/VirtualHScroll.jsx';
+import LazySection from '../components/LazySection.jsx';
 
 
 // ── Trending Card (numbered) ──
@@ -47,10 +48,11 @@ function TrendingCard({ item, rank, getChapters }) {
             {rank}
           </span>
         </div>
-        <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="180" height="240" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy"
+        <div className="relative aspect-[3/4] overflow-hidden bg-purple-900/20 animate-pulse rounded-lg">
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="180" height="240" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-0 transition-opacity" loading="lazy"
+            onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
           {/* Rating badge */}
           <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/90 text-white text-[11px] font-black">
             <Star size={10} className="fill-white" /> {item.rating}
@@ -74,10 +76,11 @@ function NewChapterCard({ item, chapters }) {
   return (
     <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[130px]">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/30 transition-all">
-        <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="130" height="173" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
+        <div className="relative aspect-[3/4] overflow-hidden bg-purple-900/20 animate-pulse rounded-lg">
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="130" height="173" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0" loading="lazy"
+            onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none" />
           {/* "Güncel" badge */}
           <div className="absolute top-1.5 left-1.5">
             <span className="px-1.5 py-0.5 rounded bg-emerald-500/90 text-slate-900 text-[8px] font-black uppercase">Güncel</span>
@@ -100,10 +103,11 @@ function RecommendationCard({ item }) {
   return (
     <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[150px]">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-blue-500/30 transition-all">
-        <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="150" height="200" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
+        <div className="relative aspect-[3/4] overflow-hidden bg-cyan-900/20 animate-pulse rounded-lg">
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="150" height="200" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0" loading="lazy"
+            onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none" />
           <div className="absolute bottom-2 left-2 right-2">
             <div className="flex items-center gap-1 mb-1">
               <Star size={10} className="text-amber-400 fill-amber-400" />
@@ -253,7 +257,7 @@ export default function Home({ onAuthOpen }) {
               className="absolute inset-0"
             >
               {/* Background image — LCP Element (eager + high priority) */}
-              <div className="absolute inset-0">
+              <div className="absolute inset-0 bg-purple-900/10 animate-pulse">
                 <img
                   src={getOptimizedImage(featuredItem.cover, 1200)}
                   alt={featuredItem.title}
@@ -263,7 +267,8 @@ export default function Home({ onAuthOpen }) {
                   decoding="sync"
                   width="1440"
                   height="600"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover opacity-0 transition-opacity duration-500"
+                  onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse', 'bg-purple-900/10'); }}
                   onError={handleImageError}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-transparent" />
@@ -401,18 +406,19 @@ export default function Home({ onAuthOpen }) {
             <div className="flex flex-col gap-10">
 
               {/* Yeni Bölümler */}
-              <section>
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                      <Sparkles size={18} className="text-emerald-400" />
+              <LazySection minHeight="240px">
+                <section>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                        <Sparkles size={18} className="text-emerald-400" />
+                      </div>
+                      <h2 className="text-xl font-black text-white uppercase tracking-tight">Yeni Bölümler</h2>
                     </div>
-                    <h2 className="text-xl font-black text-white uppercase tracking-tight">Yeni Bölümler</h2>
+                    <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors">
+                      Tümünü Gör <ChevronRight size={14} />
+                    </Link>
                   </div>
-                  <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors">
-                    Tümünü Gör <ChevronRight size={14} />
-                  </Link>
-                </div>
                 <VirtualHScroll
                   items={newChapterSeries}
                   itemWidth={130}
@@ -421,10 +427,12 @@ export default function Home({ onAuthOpen }) {
                     <NewChapterCard key={item.id} item={item} chapters={chapters} />
                   )}
                 />
-              </section>
+                </section>
+              </LazySection>
 
               {/* Oracle: Sana Özel (Personalized) */}
-              <section className="relative overflow-hidden rounded-3xl p-8 border border-cyan-500/10 bg-gradient-to-br from-[#0a0a0c] via-[#0d0d1a] to-[#0a0a0c]">
+              <LazySection minHeight="300px">
+                <section className="relative overflow-hidden rounded-3xl p-8 border border-cyan-500/10 bg-gradient-to-br from-[#0a0a0c] via-[#0d0d1a] to-[#0a0a0c]">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                   <Sparkles size={120} className="text-cyan-400" />
                 </div>
@@ -454,12 +462,15 @@ export default function Home({ onAuthOpen }) {
                     )}
                   />
                 </div>
-              </section>
+                  </div>
+                </section>
+              </LazySection>
             </div>
 
             {/* ── ANNOUNCEMENTS ── */}
             {announcements.length > 0 && (
-              <section className="glass border border-white/8 rounded-2xl p-5">
+              <LazySection minHeight="150px">
+                <section className="glass border border-white/8 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-neon-purple">
                     <Bell size={13} className="text-white" />
@@ -485,7 +496,8 @@ export default function Home({ onAuthOpen }) {
                     </motion.div>
                   ))}
                 </div>
-              </section>
+                </section>
+              </LazySection>
             )}
 
             {/* ── CTA BANNER ── */}
