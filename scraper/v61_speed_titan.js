@@ -197,16 +197,20 @@ async function processSeries(seriesUrl, browser) {
     for (const chapter of seriesData.chapters) {
       // HATA DÜZELTMESİ: .single() yerine .limit(1) kullanıyoruz. Eğer veritabanında aynı bölümden 2 tane varsa 
       // .single() patlayıp data'yı null döndürür, bu da botun "bölüm yok" sanıp en baştan indirmesine sebep olur!
-      const { data: existingArr } = await supabase.from('chapters')
-        .select('id, images, pages')
+      const { data: existingArr, error: checkError } = await supabase.from('chapters')
+        .select('id, images')
         .eq('series_id', seriesId)
         .eq('number', chapter.number)
         .limit(1);
         
+      if (checkError) {
+        console.log(`\x1b[31m[DB HATA]\x1b[0m >> Ch.${chapter.number} kontrol edilemedi: ${checkError.message}`);
+      }
+        
       const existing = existingArr && existingArr.length > 0 ? existingArr[0] : null;
       
-      // Veritabanında images veya pages sütununda resim var mı?
-      const existingImgs = existing?.images || existing?.pages;
+      // Veritabanında images sütununda resim var mı?
+      const existingImgs = existing?.images;
       
       const isBroken = existingImgs?.some(img => img.includes('..r2')) || (existing && (!existingImgs || existingImgs.length < 3));
       if (existing && !isBroken) {
