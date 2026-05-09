@@ -462,7 +462,6 @@ export default function Home({ onAuthOpen }) {
                     )}
                   />
                 </div>
-                  </div>
                 </section>
               </LazySection>
             </div>
