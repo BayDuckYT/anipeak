@@ -22,7 +22,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 
   # ── 6. Titanyum CSP (Strict Dynamic) ──
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-anipeak' 'strict-dynamic' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.pinimg.com https://wsrv.nl; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.pinimg.com https://wsrv.nl; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
   # ── 7. Teknoloji Gizleme (Hayalet Gemi) ──
   X-Powered-By: Hidden
