@@ -139,12 +139,18 @@ export default function AnimeAvatar({
       effect.type === 'spritesheet' || 
       rawSrc.includes('/effects/') || 
       rawSrc.includes('/avatar-efekts/') ||
-      rawSrc.includes('/decorations/'); // Added missing path
+      rawSrc.includes('/decorations/');
+      
+    // [PERFORMANS] Yerel PNG/Webp efektleri çok büyük boyutlu (1-3MB). Production'da sıkıştır.
+    let optimizedSrc = rawSrc;
+    if (rawSrc.startsWith('/') && typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      optimizedSrc = `https://wsrv.nl/?url=https://anipeak.com.tr${encodeURIComponent(rawSrc)}&output=webp&q=75`;
+    }
     
     if (isWebp) {
       return (
         <img 
-          src={rawSrc}
+          src={optimizedSrc}
           alt={effect.label || effect.name}
           style={effectStyle}
           className="max-w-none"
@@ -153,12 +159,12 @@ export default function AnimeAvatar({
     }
 
     if (isPng && isSpritesheet) {
-      return <AutoSpritesheet src={rawSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
+      return <AutoSpritesheet src={optimizedSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
     }
 
     return (
       <img 
-        src={rawSrc}
+        src={optimizedSrc}
         alt={effect.label || effect.name}
         style={effectStyle}
         className="max-w-none"
