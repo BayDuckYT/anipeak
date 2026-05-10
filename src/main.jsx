@@ -4,13 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import './styles/accessibility.css'
 
-// [PERFORMANS] Google Fonts Asenkron Yükleme (CSP Uyumlu)
-try {
-  const fontLink = document.createElement('link');
-  fontLink.rel = 'stylesheet';
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap';
-  document.head.appendChild(fontLink);
-} catch (e) {}
+// [PERFORMANS] Fontlar index.html içerisinde yüklendiğinden script kaldırıldı.
 
 // Legacy LocalStorage Cleanup (Production Migration)
 const LEGACY_KEYS = ['anipeak_user', 'anipeak_maintenance', 'anipeak_history'];

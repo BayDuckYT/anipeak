@@ -111,7 +111,7 @@ export default function Home({ onAuthOpen }) {
   
   const heroImageSrc = useMemo(() => {
     if (!heroItem) return '';
-    return getOptimizedImage(heroItem.hero_bg || heroItem.cover, 800);
+    return getOptimizedImage(heroItem.hero_bg || heroItem.cover, 400);
   }, [heroItem]);
 
   // Preload Hero Image
