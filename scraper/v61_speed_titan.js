@@ -283,7 +283,12 @@ async function extractCatalogUrls(page, url) {
     const links = await page.evaluate(() => {
       // Madara temalı sitelerdeki genel liste/kart linkleri
       const aTags = Array.from(document.querySelectorAll('.post-title a, .manga-title-badges, .item-summary a, .h5 a, .series-title a'));
-      return Array.from(new Set(aTags.map(a => a.href).filter(href => href && href.includes('/manga/') && href.split('/').length > 5)));
+      return Array.from(new Set(aTags.map(a => a.href).filter(href => {
+        if (!href || !href.includes('/manga/')) return false;
+        // Bölüm linklerini atla, sadece ana seri linklerini al (örn: https://site.com/manga/isim/)
+        const parts = href.split('/').filter(Boolean);
+        return parts.length === 4; 
+      })));
     });
     
     console.log(`\x1b[32m[CATALOG]\x1b[0m >> ${links.length} adet potansiyel seri linki bulundu!`);
