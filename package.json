@@ -7,8 +7,9 @@
     "dev": "vite",
     "server": "node server/adminServer.js",
     "build": "rm -f public/_redirects && rm -f dist/_redirects && vite build",
-    "preview": "vite preview",
-    "start:bots": "concurrently \"node discord-bots/Infinity-Guard/index.js\" \"node discord-bots/Support/index.js\" \"node discord-bots/Haber/index.js\" \"node discord-bots/XP/index.js\""
+    "preview": "npm run build && wrangler dev",
+    "start:bots": "concurrently \"node discord-bots/Infinity-Guard/index.js\" \"node discord-bots/Support/index.js\" \"node discord-bots/Haber/index.js\" \"node discord-bots/XP/index.js\"",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -37,6 +38,7 @@
     "sharp": "^0.34.5"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.36.3",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
@@ -44,6 +46,7 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "terser": "^5.47.1",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "wrangler": "^4.90.0"
   }
 }
