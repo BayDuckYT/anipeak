@@ -16,52 +16,52 @@ export function getLevelInfo(xp, is_elite = false) {
 
   if (val < 500) {
     level = Math.floor(val / 50) + 1;
-    rank = 'Çaylak Okur';
+    rank = 'Yeni Okur';
     xpInLevel = val % 50;
     xpForNext = 50;
   } else if (val < 2000) {
     level = 11 + Math.floor((val - 500) / 100);
-    rank = 'Manga Gezgini';
+    rank = 'Okur';
     xpInLevel = (val - 500) % 100;
     xpForNext = 100;
   } else if (val < 5000) {
     level = 26 + Math.floor((val - 2000) / 200);
-    rank = 'Üstün Savaşçı';
+    rank = 'Deneyimli Okur';
     xpInLevel = (val - 2000) % 200;
     xpForNext = 200;
   } else if (val < 10000) {
     level = 41 + Math.floor((val - 5000) / 333);
-    rank = 'Elit Avcı';
+    rank = 'Kıdemli Okur';
     xpInLevel = (val - 5000) % 333;
     xpForNext = 333;
   } else if (val < 25000) {
     level = 56 + Math.floor((val - 10000) / 1000);
-    rank = 'Lonca Üyesi';
+    rank = 'Koleksiyoncu';
     xpInLevel = (val - 10000) % 1000;
     xpForNext = 1000;
   } else if (val < 50000) {
     level = 71 + Math.floor((val - 25000) / 1666);
-    rank = 'Üstün Baskıncı';
+    rank = 'Usta Okur';
     xpInLevel = (val - 25000) % 1666;
     xpForNext = 1666;
   } else if (val < 100000) {
     level = 86 + Math.floor((val - 50000) / 3333);
-    rank = 'Ulusal Seviye Avcı';
+    rank = 'Efsanevi Okur';
     xpInLevel = (val - 50000) % 3333;
     xpForNext = 3333;
   } else {
     level = 100;
-    rank = 'Manga Hükümdarı';
+    rank = 'Zirve Okur';
     xpInLevel = 1;
     xpForNext = 1;
   }
 
   // Güvenlik kontrolleri
   if (level > 100) level = 100;
-  if (level === 100) rank = 'Manga Hükümdarı';
+  if (level === 100) rank = 'Zirve Okur';
 
   // [ELITE MODIFIER]
-  if (is_elite && rank !== 'Manga Hükümdarı') {
+  if (is_elite && rank !== 'Zirve Okur') {
     rank = `Elite ${rank}`;
   }
 

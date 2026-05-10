@@ -315,14 +315,14 @@ export default function ProfileShowcase() {
       navigate(`/${currentUser.username}/liste/${data.id}`);
     } catch (err) {
       console.error("Create list error:", err);
-      showToast("Liste oluşturulamadı uşağım! Konsolu kontrol et.");
+      showToast("Liste oluşturulamadı! Lütfen tekrar dene.");
     } finally {
       setIsListCreating(false);
     }
   };
 
   const handleDeleteList = async (listId) => {
-    if (!confirm('Bu listeyi ebediyen silmek istediğine emin misin uşağım?')) return;
+    if (!confirm('Bu listeyi silmek istediğine emin misin?')) return;
     try {
       await supabase.from('custom_lists').delete().eq('id', listId);
       setCustomLists(prev => prev.filter(l => l.id !== listId));
@@ -456,7 +456,7 @@ export default function ProfileShowcase() {
   };
 
   const disconnectDiscord = async () => {
-    if (!confirm('Discord mührünü bozmak istediğine emin misin uşağım?')) return;
+    if (!confirm('Discord bağlantısını kesmek istediğine emin misin?')) return;
     try {
       await updateProfile({ 
         discord_id: null, 
@@ -699,9 +699,9 @@ export default function ProfileShowcase() {
                 <button onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-zinc-900 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
               </div>
               <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE KARARGAH</div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÜYELİK</div>
                 <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span></h2>
-                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş ve gününü kanıtla uşağım.</p>
+                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş.</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
                 {ELITE_BUNDLES.slice(0, 5).map(bundle => (
@@ -776,17 +776,17 @@ export default function ProfileShowcase() {
                   
                   <div className="flex justify-between items-end px-2">
                      <div className="text-left">
-                        <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">RANK</div>
-                        <div className="text-[10px] font-black text-white uppercase">LV. {displayUser.level} MANGA HÜKÜMDARI</div>
+                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">İSTATİSTİKLER</div>
+                        <div className="text-2xl font-black text-white uppercase tracking-tighter">VERİLER</div>
                      </div>
                      <div className="text-right">
-                        <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">TOTAL XP</div>
-                        <div className="text-[10px] font-black text-white">{displayUser.xp}</div>
+                        <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mb-1">TOPLAM XP</div>
+                        <div className="text-xl font-black text-white tracking-tighter">{displayUser.xp}</div>
                      </div>
                   </div>
                </div>
 
-               {/* Discord Seal / Mührü (Interaktif) */}
+               {/* Discord Connection */}
                <div className="w-full mt-8 pt-8 border-t border-white/5 space-y-4">
                   {displayUser.discord_id ? (
                      <div className="group relative p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-4 overflow-hidden">
@@ -795,7 +795,7 @@ export default function ProfileShowcase() {
                               <div className="p-2 rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
                                  <Shield size={14} />
                               </div>
-                              <span className="text-[10px] font-black text-white uppercase tracking-widest">Discord Mührü</span>
+                              <span className="text-[10px] font-black text-white uppercase tracking-widest">Discord Bağlantısı</span>
                            </div>
                            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#10b981]" />
                         </div>
@@ -804,7 +804,7 @@ export default function ProfileShowcase() {
                               onClick={disconnectDiscord}
                               className="w-full py-2 bg-zinc-950/50 hover:bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl border border-white/5 hover:border-red-500/20 transition-all"
                            >
-                              MÜHRÜ BOZ
+                              BAĞLANTIYI KES
                            </button>
                         )}
                      </div>
@@ -834,7 +834,7 @@ export default function ProfileShowcase() {
                               className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
                            >
                               <Shield size={14} />
-                              {isGenerating ? 'YÜKLENİYOR...' : 'DİSCORD BAĞLA'}
+                              {isGenerating ? 'YÜKLENİYOR...' : 'DİSCORD HESABINI BAĞLA'}
                            </button>
                         )}
                      </div>
@@ -844,7 +844,7 @@ export default function ProfileShowcase() {
                            <div className="p-2 rounded-lg bg-zinc-800 text-zinc-500">
                               <MessageSquare size={14} />
                            </div>
-                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Mühür Yok</span>
+                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Bağlantı Yok</span>
                         </div>
                      </div>
                   )}
@@ -886,7 +886,7 @@ export default function ProfileShowcase() {
                            </a>
                         ))}
                         {isOwnProfile && userLinks.length === 0 && (
-                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-white/10 text-[9px] font-black text-zinc-500 hover:text-white transition-all uppercase">HESABI BAĞLA</button>
+                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-white/10 text-[9px] font-black text-zinc-500 hover:text-white transition-all uppercase">HESAP EKLE</button>
                         )}
                      </div>
                   </div>
@@ -904,695 +904,281 @@ export default function ProfileShowcase() {
                         ))}
                      </div>
                   </div>
-
-                  <div className="flex items-center gap-3 text-[9px] font-black text-zinc-500 uppercase tracking-widest pt-4 border-t border-white/5">
-                     <Calendar size={14} className="text-blue-500" />
-                     {new Date(displayUser.joinDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} TARIHINDEN BERI ÜYE
-                  </div>
                </div>
-            </div>
           </aside>
 
-          {/* ── MIDDLE MAIN CONTENT (SCREENSHOT 1 & 2 STYLE) ── */}
-          <main className="flex-1 min-w-0 space-y-8">
+          {/* ── MAIN CONTENT AREA ── */}
+          <main className="flex-1 min-w-0 space-y-10">
             
-            {/* LARGE BANNER CARD */}
-            <div className="relative rounded-[3rem] overflow-hidden bg-zinc-900 border border-white/5 aspect-[16/6] lg:aspect-[16/5]">
-               <div className="absolute inset-0">
-                  <img src="https://images.unsplash.com/photo-1541560052-77ec1bbc09f7?q=80&w=2574&auto=format&fit=crop" className="w-full h-full object-cover" />
+            <div className="relative rounded-[3rem] overflow-hidden bg-[#050507] border border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.5)] group">
+               <div className="absolute inset-0 z-0">
+                  <img 
+                    src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2670&auto=format&fit=crop" 
+                    className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[10s]" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/40 to-transparent z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-transparent to-transparent z-10" />
                   
-                  {/* Profile Effect Overlay on Banner */}
                   {displayUser.active_mix?.profile_effect && displayUser.active_mix?.profile_effect !== 'none' && (
-                    <div className="absolute inset-0 z-10 opacity-30 mix-blend-screen overflow-hidden pointer-events-none">
+                    <div className="absolute inset-0 z-20 opacity-30 mix-blend-screen pointer-events-none">
                       <img 
                         src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
                         className="w-full h-full object-cover animate-pulse" 
-                        style={{ animationDuration: '10s' }}
+                        style={{ animationDuration: '8s' }}
                       />
                     </div>
                   )}
-
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-20" />
                </div>
                
-               <div className="absolute inset-0 p-10 lg:p-16 flex flex-col justify-end">
-                  <p className="text-zinc-400 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mb-4">Hoş geldin,</p>
-                  <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{displayUser.username} <span className="text-lg md:text-xl align-middle text-blue-500 opacity-50 ml-2">LV. {displayUser.level}</span></h2>
-                  <p className="text-zinc-400 max-w-xl text-xs sm:text-sm font-medium leading-relaxed mb-10">Manga okumak, başka dünyalarda yaşamaktır. Kendi efsaneni burada inşa etmeye devam et uşağım.</p>
-                  
-                  {/* STATS ROW (SCREENSHOT 2 STYLE) */}
-                  <div className="flex flex-wrap gap-4 sm:gap-10">
+               <div className="relative z-30 p-10 lg:p-14 flex flex-col min-h-[450px] justify-between">
+                  <div>
+                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">PROFIL</h2>
+                        <div className="flex items-center gap-4 mt-4">
+                           <div className="px-4 py-2 rounded-xl bg-blue-500/20 border border-blue-500/30 backdrop-blur-md">
+                              <span className="text-xs font-black text-blue-400 uppercase tracking-widest">{displayUser.rank}</span>
+                           </div>
+                           <div className="h-4 w-px bg-white/10" />
+                           <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Üye Özeti</div>
+                        </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-12 mt-12">
                      {[
-                        { label: 'Okuduğu Seri', value: readHistory.length, icon: BookOpen },
-                        { label: 'Favoriler', value: favoritesCount, icon: Star },
-                        { label: 'Yorumlar', value: commentsCount, icon: MessageSquare },
-                        { label: 'Takipçi', value: followersCount, icon: UserPlus },
-                        { label: 'Takip', value: followingCount, icon: User },
-                        { label: 'Günlük Seri', value: 12, icon: Zap },
+                        { label: 'SERİ', value: readHistory.length, icon: BookOpen, color: 'text-blue-500' },
+                        { label: 'FAVORİ', value: favoritesCount, icon: Star, color: 'text-amber-500' },
+                        { label: 'YORUM', value: commentsCount, icon: MessageSquare, color: 'text-purple-500' },
+                        { label: 'TAKİPÇİ', value: followersCount, icon: UserPlus, color: 'text-emerald-500' },
                      ].map((stat, i) => (
-                        <div key={i} className="flex items-center gap-4">
-                           <div className="w-12 h-12 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
-                              <stat.icon size={20} />
+                        <div key={i} className="space-y-1">
+                           <div className="flex items-center gap-2">
+                             <stat.icon size={16} className={stat.color} />
+                             <span className="text-3xl font-black text-white tracking-tighter">{stat.value}</span>
                            </div>
-                           <div>
-                              <div className="text-2xl font-black text-white">{stat.value}</div>
-                              <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</div>
-                           </div>
+                           <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</div>
                         </div>
                      ))}
                   </div>
                </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
-                {/* DEVAM EDİYOR (ALT ALTA LİSTE) */}
-                <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 space-y-8">
-                   <div className="flex justify-between items-center">
-                      <h3 className="text-sm font-black text-white uppercase tracking-widest">DEVAM EDİYOR</h3>
-                      <button onClick={() => setActiveTab('okunanlar')} className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Tümünü Gör <ChevronRight size={10} className="inline ml-1" /></button>
-                   </div>
-                   
-                   <div className="space-y-6">
-                     {readHistory.length > 0 ? readHistory.slice(0, 3).map((history, idx) => (
-                       <div key={idx} className="flex gap-6 group">
-                          <div className="w-24 h-36 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-white/5 group-hover:scale-105 transition-transform">
-                             <img src={history.series?.cover} className="w-full h-full object-cover" />
-                          </div>
-                          <div className="flex-1 flex flex-col justify-center py-2">
-                             <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{history.series?.title}</h4>
-                             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6">Bölüm {history.last_read_chapter}</p>
-                             
-                             <div className="space-y-4">
-                                <div className="flex justify-between items-end">
-                                   <div className="h-1.5 flex-1 bg-zinc-800 rounded-full overflow-hidden mr-4">
-                                      <div className="h-full w-[78%] bg-blue-600 rounded-full" />
-                                   </div>
-                                   <span className="text-[10px] font-black text-zinc-500">%78</span>
-                                </div>
-                                <Link to={`/manhwa/${history.series_id}`} className="px-6 py-3 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 w-fit">
-                                   <Play size={12} className="fill-current" /> Devam Et
-                                </Link>
-                             </div>
-                          </div>
-                       </div>
-                     )) : (
-                       <div className="py-12 text-center text-zinc-600 text-[10px] font-bold uppercase">Henüz okunmuş bir seri yok.</div>
-                     )}
-                   </div>
-                </div>
-
-               {/* OKUMA İSTATİSTİKLERİ */}
-               <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8">
-                  <div className="flex justify-between items-center mb-8">
-                     <h3 className="text-sm font-black text-white uppercase tracking-widest">OKUMA İSTATİSTİKLERİ</h3>
-                     <select className="bg-zinc-800 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-none rounded-lg py-2 px-4 outline-none">
-                        <option>Bu Ay</option>
-                     </select>
-                  </div>
-                  
-                  <div className="flex items-center gap-10">
-                     <div className="relative w-32 h-32 flex-shrink-0">
-                        <svg className="w-full h-full -rotate-90">
-                           <circle cx="64" cy="64" r="58" fill="none" stroke="currentColor" strokeWidth="12" className="text-zinc-800" />
-                           <circle cx="64" cy="64" r="58" fill="none" stroke="currentColor" strokeWidth="12" strokeDasharray="364.4" strokeDashoffset="260" className="text-blue-500" />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                           <span className="text-3xl font-black text-white leading-none">36</span>
-                           <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mt-1">Saat</span>
-                        </div>
-                     </div>
-                     
-                     <div className="flex-1 space-y-4">
-                        {[
-                           { label: 'Okuma Süresi', value: '36 saat', color: 'bg-blue-500' },
-                           { label: 'Okuduğun Bölüm', value: '245', color: 'bg-purple-500' },
-                           { label: 'Tamamlanan Seri', value: '8', color: 'bg-emerald-500' },
-                           { label: 'Favoriye Eklenen', value: '12', color: 'bg-orange-500' },
-                        ].map((item, i) => (
-                           <div key={i} className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                 <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                                 <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{item.label}</span>
-                              </div>
-                              <span className="text-[10px] font-black text-white uppercase">{item.value}</span>
-                           </div>
-                        ))}
-                     </div>
-                  </div>
-               </div>
+            <div className="flex items-center gap-2 p-2 rounded-3xl bg-zinc-950 border border-white/5 shadow-2xl overflow-x-auto no-scrollbar">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                    activeTab === tab.id 
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
+                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+                  }`}
+                >
+                  <tab.icon size={16} />
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
-            {/* LOWER CONTENT AREA */}
             <AnimatePresence mode="wait">
                <motion.div
                   key={activeTab}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="space-y-10"
+                  transition={{ duration: 0.4, ease: "circOut" }}
                >
-                  {activeTab === 'etkinlik' && (
-                    <div className="grid grid-cols-1 gap-8">
-                       {/* FAVORİLERİM */}
-                       <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-                          <div className="flex justify-between items-center">
-                             <h3 className="text-sm font-black text-white uppercase tracking-widest">FAVORİLERİM</h3>
-                             <button className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Tümünü Gör <ChevronRight size={10} className="inline ml-1" /></button>
+                  {activeTab === 'okunanlar' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                       <div className="lg:col-span-7 space-y-8">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
+                              <History size={16} className="text-blue-500" /> SON OKUNANLAR
+                            </h3>
                           </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                             {readHistory.slice(0, 6).map((h, i) => (
-                               <Link key={i} to={`/manhwa/${h.series_id}`} className="group relative rounded-2xl overflow-hidden aspect-[2/3] bg-zinc-950 border border-white/5">
-                                  <img src={h.series?.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                                  <div className="absolute bottom-3 left-3 right-3">
-                                     <div className="text-[9px] font-black text-white uppercase truncate">{h.series?.title}</div>
-                                     <div className="text-[7px] font-black text-zinc-500 uppercase">Bölüm {h.last_read_chapter}</div>
+
+                          <div className="space-y-4">
+                             {readHistory.length > 0 ? readHistory.slice(0, 5).map((h, i) => (
+                               <Link 
+                                 key={i} 
+                                 to={`/manhwa/${h.series_id}`}
+                                 className="group flex gap-6 p-6 rounded-[2rem] glass-strong bg-zinc-900/40 border border-white/5 hover:border-blue-500/30 transition-all"
+                               >
+                                  <div className="w-24 h-32 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-white/5">
+                                     <img src={h.series?.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                  </div>
+                                  <div className="flex-1 flex flex-col justify-center py-1">
+                                     <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{h.series?.title}</h4>
+                                     <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6">Bölüm {h.last_read_chapter}</p>
+                                     
+                                     <div className="flex items-center justify-between">
+                                        <div className="flex -space-x-2">
+                                           {[1,2,3].map(p => <div key={p} className="w-6 h-6 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center"><User size={10} className="text-zinc-600" /></div>)}
+                                        </div>
+                                        <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">DEVAM ET</span>
+                                     </div>
                                   </div>
                                </Link>
-                             ))}
-                          </div>
-                       </div>
-
-                       {/* SON AKTİVİTELER */}
-                       <div className="glass bg-zinc-900/20 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-                          <div className="flex justify-between items-center">
-                             <h3 className="text-sm font-black text-white uppercase tracking-widest">SON AKTİVİTELER</h3>
-                             <button className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Tümünü Gör <ChevronRight size={10} className="inline ml-1" /></button>
-                          </div>
-                          <div className="space-y-6">
-                             {readHistory.slice(0, 5).map((h, i) => (
-                               <div key={i} className="flex items-center gap-4 group">
-                                  <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/5">
-                                     <img src={h.series?.cover} className="w-full h-full object-cover" />
-                                  </div>
-                                  <div className="flex-1">
-                                     <div className="text-[10px] font-black text-zinc-300 uppercase leading-none">
-                                        <span className="text-white">{h.series?.title}</span> serisinin {h.last_read_chapter}. bölümünü okudu.
-                                     </div>
-                                     <div className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mt-1">2 saat önce</div>
-                                  </div>
+                             )) : (
+                               <div className="py-20 text-center glass rounded-[2rem] border border-dashed border-white/5">
+                                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
                                </div>
-                             ))}
+                             )}
                           </div>
                        </div>
-                    </div>
-                  )}
 
-                  {activeTab === 'okunanlar' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                       {readHistory.map((h, i) => (
-                          <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}>
-                             <Link to={`/manhwa/${h.series_id}`} className="group block glass bg-zinc-950/40 border border-white/5 rounded-[2rem] p-5 hover:border-blue-500/30 transition-all">
-                                <div className="flex gap-5">
-                                   <div className="w-24 h-32 rounded-xl overflow-hidden shrink-0 shadow-2xl">
-                                      <img src={h.series?.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                   </div>
-                                   <div className="flex-1 flex flex-col justify-center">
-                                      <h4 className="text-sm font-black text-white uppercase truncate mb-1">{h.series?.title}</h4>
-                                      <p className="text-[10px] font-black text-zinc-500 uppercase mb-4">Bölüm {h.last_read_chapter}</p>
-                                      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-                                         <div className="h-full w-[70%] bg-blue-600" />
+                       <div className="lg:col-span-5 space-y-8">
+                          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-indigo-600/20 to-blue-600/20 border border-white/5 shadow-2xl relative overflow-hidden">
+                             <div className="absolute top-0 right-0 p-4 opacity-10"><Zap size={100} /></div>
+                             <h3 className="text-sm font-black text-white uppercase tracking-widest mb-8">VERİ ANALİZİ</h3>
+                             <div className="space-y-6">
+                                {[
+                                   { label: 'HAFTALIK OKUMA', value: '42 Bölüm', progress: 75, color: 'bg-blue-500' },
+                                   { label: 'TAMAMLANAN GÖREV', value: '12/15', progress: 85, color: 'bg-purple-500' },
+                                   { label: 'XP', value: '8,420', progress: 60, color: 'bg-emerald-500' },
+                                ].map((item, i) => (
+                                   <div key={i} className="space-y-2">
+                                      <div className="flex justify-between text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                                         <span>{item.label}</span>
+                                         <span className="text-white">{item.value}</span>
+                                      </div>
+                                      <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden p-[1px]">
+                                         <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.progress}%` }} />
                                       </div>
                                    </div>
-                                </div>
-                             </Link>
-                          </motion.div>
-                       ))}
+                                ))}
+                             </div>
+                          </div>
+
+                          <div className="p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 space-y-6">
+                             <div className="flex justify-between items-center">
+                                <h3 className="text-sm font-black text-white uppercase tracking-widest">KOLEKSİYONLARIM</h3>
+                                <button onClick={() => setActiveTab('listeler')} className="text-[9px] font-black text-zinc-500 hover:text-white uppercase">Tümü</button>
+                             </div>
+                             <div className="space-y-4">
+                                {customLists.slice(0, 3).map((list, i) => (
+                                   <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group">
+                                      <div className="flex items-center gap-4">
+                                         <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                                            <BookOpen size={16} />
+                                         </div>
+                                         <span className="text-[11px] font-black text-white uppercase truncate">{list.name}</span>
+                                      </div>
+                                      <ChevronRight size={14} className="text-zinc-600 group-hover:text-white" />
+                                   </div>
+                                ))}
+                             </div>
+                          </div>
+                       </div>
                     </div>
                   )}
 
                   {activeTab === 'mal' && (
                     <div className="space-y-10">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3.5 rounded-[1.5rem] bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/5">
-                            <Tv size={24} />
-                          </div>
-                          <div>
-                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">MAL Kütüphanesi</h3>
-                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">MyAnimeList üzerinden senkronize edilen kadim kayıtlar</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {malLoading ? (
-                        <div className="py-20 flex flex-col items-center justify-center gap-6">
-                           <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-                           <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest animate-pulse">MAL Verileri Işınlanıyor...</p>
-                        </div>
-                      ) : malError ? (
-                        <div className="py-20 text-center space-y-6">
-                           <div className="w-20 h-20 mx-auto rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
-                             <AlertCircle size={32} />
-                           </div>
-                           <p className="text-red-400 font-bold uppercase text-[10px] tracking-widest">{malError}</p>
-                        </div>
-                      ) : malList.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                           {malList.map((item, idx) => (
-                             <motion.div
-                               key={idx}
-                               initial={{ opacity: 0, scale: 0.9 }}
-                               animate={{ opacity: 1, scale: 1 }}
-                               transition={{ delay: idx * 0.05 }}
-                               className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 hover:border-blue-500/40 transition-all shadow-2xl"
-                             >
-                                <div className="aspect-[2/3] relative">
-                                   <img src={item.node?.main_picture?.medium} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                                   <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-white/10 text-[10px] font-black text-blue-400">
-                                      {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
-                                   </div>
-                                </div>
-                                <div className="p-4 space-y-2">
-                                   <h5 className="text-[11px] font-black text-white uppercase truncate tracking-tighter">{item.node?.title}</h5>
-                                   <div className="flex items-center justify-between">
-                                      <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
-                                      <span className="text-[8px] font-black text-blue-500 uppercase">{item.list_status?.num_episodes_watched || item.list_status?.num_chapters_read} / {item.node?.num_episodes || item.node?.num_chapters || '?'}</span>
-                                   </div>
-                                </div>
-                             </motion.div>
-                           ))}
-                        </div>
-                      ) : (
-                        <div className="py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5 space-y-6">
-                           <Tv size={64} className="text-zinc-800 mx-auto opacity-10" />
-                           <p className="text-white font-black uppercase text-xs tracking-[0.2em]">MAL Listesi Boş veya Bağlı Değil</p>
-                        </div>
-                      )}
+                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                          {malLoading ? (
+                            Array.from({ length: 10 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-[2rem] bg-zinc-900 animate-pulse" />)
+                          ) : malList.length > 0 ? (
+                            malList.map((item, idx) => (
+                              <div key={idx} className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 hover:border-blue-500/40 transition-all shadow-2xl">
+                                 <div className="aspect-[2/3] relative">
+                                    <img src={item.node?.main_picture?.medium} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                                    <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-white/10 text-[10px] font-black text-blue-400">
+                                       {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
+                                    </div>
+                                 </div>
+                                 <div className="p-4 space-y-2">
+                                    <h5 className="text-[11px] font-black text-white uppercase truncate tracking-tighter">{item.node?.title}</h5>
+                                    <div className="flex items-center justify-between">
+                                       <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
+                                       <span className="text-[8px] font-black text-blue-500 uppercase">{item.list_status?.num_episodes_watched || item.list_status?.num_chapters_read} / {item.node?.num_episodes || item.node?.num_chapters || '?'}</span>
+                                    </div>
+                                 </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5">
+                               <Tv size={64} className="text-zinc-800 mx-auto opacity-10 mb-4" />
+                               <p className="text-white font-black uppercase text-xs tracking-[0.2em]">Listeye erişilemedi</p>
+                            </div>
+                          )}
+                       </div>
                     </div>
                   )}
 
                   {activeTab === 'listeler' && (
-                    <div className="space-y-10">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3.5 rounded-[1.5rem] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
-                            <BookOpen size={24} />
-                          </div>
-                          <div>
-                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kadim Koleksiyonlar</h3>
-                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Kendi küratörlüğünle mühürlenmiş seriler</p>
-                          </div>
-                        </div>
-                        {isOwnProfile && (
-                          <button 
-                            onClick={() => setShowCreateListModal(true)}
-                            className="px-8 py-3.5 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-                          >
-                            <Plus size={16} /> Yeni Liste
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {customLists?.length > 0 ? customLists?.map((list, i) => (
-                          <motion.div 
-                            key={i} 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
-                            className="group glass border border-white/5 rounded-[3rem] p-10 bg-zinc-950 hover:border-indigo-500/40 transition-all cursor-pointer relative overflow-hidden shadow-2xl"
-                          >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       {customLists.map((list, i) => (
+                         <div 
+                           key={i} 
+                           onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
+                           className="group glass-strong border border-white/5 rounded-[3rem] p-10 bg-zinc-950 hover:border-indigo-500/40 transition-all cursor-pointer relative overflow-hidden shadow-2xl"
+                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                            
-                            <div className="flex justify-between items-start mb-10">
+                            <div className="flex justify-between items-start mb-10 relative z-10">
                                <div>
-                                  <h4 className="text-2xl font-black text-white uppercase tracking-tighter group-hover:text-indigo-400 transition-colors leading-none">{list.name}</h4>
-                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ KOLEKSİYONU</p>
+                                  <h4 className="text-3xl font-black text-white uppercase tracking-tighter group-hover:text-indigo-400 transition-colors leading-none">{list.name}</h4>
+                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ</p>
                                </div>
                                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                                   <ArrowRight size={20} />
                                </div>
                             </div>
-
-                            <div className="flex -space-x-6">
-                              {list.custom_list_items?.slice(0, 4).map((item, idx) => {
-                                const s = series?.find(ser => String(ser.id) === String(item.series_id));
-                                return (
-                                  <motion.div 
-                                    key={idx} 
-                                    whileHover={{ y: -10, zIndex: 10, scale: 1.1 }}
-                                    className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-zinc-900 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transform transition-all"
-                                  >
-                                    <img src={s?.cover || '/placeholder.png'} className="w-full h-full object-cover" />
-                                  </motion.div>
-                                );
-                              })}
-                              {(list.custom_list_items?.length || 0) > 4 && (
-                                <div className="w-20 h-32 rounded-2xl border-4 border-zinc-950 bg-zinc-900 flex flex-col items-center justify-center text-xs font-black text-indigo-400 shadow-2xl">
-                                  <span>+{list.custom_list_items.length - 4}</span>
-                                  <span className="text-[8px] uppercase">Daha</span>
-                                </div>
-                              )}
+                            <div className="flex -space-x-6 relative z-10">
+                               {list.custom_list_items?.slice(0, 4).map((item, idx) => {
+                                 const s = series?.find(ser => String(ser.id) === String(item.series_id));
+                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-zinc-900 shadow-2xl"><img src={s?.cover || '/placeholder.png'} className="w-full h-full object-cover" /></div>;
+                               })}
                             </div>
-                            
-                            <div className="mt-10 flex items-center gap-3 text-zinc-600 group-hover:text-indigo-500 transition-all">
-                               <div className="w-8 h-px bg-current opacity-20" />
-                               <span className="text-[9px] font-black uppercase tracking-[0.3em]">Mührü İncele</span>
-                            </div>
-                          </motion.div>
-                        )) : (
-                          <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5 space-y-6">
-                            <BookOpen size={64} className="text-zinc-800 mx-auto opacity-10" />
-                            <div>
-                               <p className="text-white font-black uppercase text-sm tracking-[0.2em]">Henüz mühürlenmiş bir listen yok</p>
-                               <p className="text-zinc-600 text-[10px] font-bold uppercase mt-2">Favori serilerini gruplayarak efsaneni başlat uşağım!</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                         </div>
+                       ))}
                     </div>
                   )}
 
                   {activeTab === 'basarimlar' && (
-                    <div className="space-y-10">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3.5 rounded-[1.5rem] bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-lg shadow-amber-500/5">
-                            <Award size={24} />
-                          </div>
-                          <div>
-                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Nişanlar</h3>
-                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Mühürlenmiş zaferler ve efsanevi görevler</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                           <div className="text-right">
-                              <div className="text-xs font-black text-white">{userAchievements?.length || 0}/100</div>
-                              <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Tamamlandı</div>
-                           </div>
-                           <div className="w-12 h-12 rounded-full border-2 border-zinc-800 flex items-center justify-center p-1">
-                              <div className="w-full h-full rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
-                                 <Sparkles size={16} />
-                              </div>
-                           </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        {userAchievements.length > 0 ? userAchievements.map((ua, i) => (
-                          <motion.div
-                            key={ua.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.05 }}
-                            whileHover={{ y: -10, scale: 1.05 }}
-                            className="group relative p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 hover:border-amber-500/40 transition-all text-center shadow-2xl overflow-hidden"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="mb-6 relative z-10">
-                              <div className="w-16 h-16 mx-auto rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-zinc-950 shadow-[0_10px_30px_rgba(245,158,11,0.3)] group-hover:rotate-12 transition-transform duration-500">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                       {userAchievements.map((ua, i) => (
+                          <div key={i} className="group relative p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 hover:border-amber-500/40 transition-all text-center shadow-2xl overflow-hidden">
+                             <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                             <div className="w-16 h-16 mx-auto rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-zinc-950 shadow-xl mb-4 group-hover:rotate-12 transition-transform">
                                 <Award size={32} />
-                              </div>
-                            </div>
-                            <div className="relative z-10 space-y-2">
-                              <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight line-clamp-1">{ua.achievements?.name}</h4>
-                              <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
-                                Mühür: {new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}
-                              </p>
-                            </div>
-                            <div className="absolute inset-0 p-6 opacity-0 group-hover:opacity-100 bg-zinc-950/95 backdrop-blur-md rounded-[2.5rem] flex flex-col items-center justify-center text-center transition-all duration-300 z-20">
-                              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 mb-4">
-                                 <Info size={18} />
-                              </div>
-                              <p className="text-[10px] font-black text-white uppercase leading-relaxed tracking-tight">{ua.achievements?.description}</p>
-                            </div>
-                          </motion.div>
-                        )) : (
-                          <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5 space-y-6">
-                            <Lock size={64} className="text-zinc-800 mx-auto opacity-10" />
-                            <div>
-                              <p className="text-white font-black uppercase text-sm tracking-[0.2em]">Henüz bir nişan kazanamadın</p>
-                              <p className="text-zinc-600 text-[10px] font-bold uppercase mt-2">Okuma görevlerini tamamlayarak rütbeni kanıtla uşağım!</p>
-                            </div>
+                             </div>
+                             <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
+                             <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}</p>
                           </div>
-                        )}
-                      </div>
+                       ))}
                     </div>
                   )}
 
                   {activeTab === 'customize' && (
                     <div className="space-y-12">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3.5 rounded-[1.5rem] bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/5">
-                            <ShoppingCart size={24} />
-                          </div>
-                          <div>
-                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Cephanelik</h3>
-                            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Görünüşünü efsanevi efektlerle donat</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => setIsMixModalOpen(true)}
-                          className="px-8 py-3.5 rounded-2xl bg-zinc-950 border border-white/10 flex items-center gap-3 hover:bg-zinc-900 hover:border-blue-500/50 transition-all shadow-xl"
-                        >
-                          <Palette size={18} className="text-blue-400" />
-                          <span className="text-[10px] font-black text-white uppercase tracking-widest">Kombinasyon Oluştur</span>
-                        </button>
-                      </div>
-
-                      <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
-                         {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler'].map((f) => (
-                           <button 
-                             key={f} 
-                             onClick={() => setDecorationCategory(f)}
-                             className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-500 hover:text-white'}`}
-                           >
-                              {f}
-                           </button>
+                       <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
+                          {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler'].map((f) => (
+                            <button 
+                              key={f} 
+                              onClick={() => setDecorationCategory(f)}
+                              className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-500 hover:text-white'}`}
+                            >
+                               {f}
+                            </button>
+                          ))}
+                       </div>
+                       
+                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                         {decorationCategory === 'Çerçeveler' && decorationEffectsData.map(effect => (
+                           <div key={effect.id} onClick={() => { setMixState({...mixState, avatar: effect.id}); updateProfile({ active_mix: {...mixState, avatar: effect.id} }); }} className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${mixState.avatar === effect.id ? 'border-indigo-500 ring-2 ring-indigo-500/50' : 'border-white/5 hover:border-white/20'}`}>
+                              <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-24 h-24" forcePlay={true} className="mx-auto" />
+                              <div className="text-center mt-4">
+                                 <span className="text-[10px] font-black text-white uppercase tracking-tight">{effect.label}</span>
+                              </div>
+                           </div>
                          ))}
-                      </div>
-
-                      {/* AVATAR ÇERÇEVELERİ */}
-                      {(decorationCategory === 'Tümü' || decorationCategory === 'Çerçeveler') && (
-                        <div>
-                          <div className="flex items-center gap-3 text-indigo-400 mb-6">
-                             <Shield size={14} />
-                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">AVATAR ÇERÇEVELERİ</h4>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                            <motion.div
-                              whileHover={{ scale: 1.02 }}
-                              onClick={() => {
-                                const newMix = { ...mixState, avatar: 'none' };
-                                setMixState(newMix);
-                                updateProfile({ active_mix: newMix });
-                              }}
-                              className={`p-6 rounded-[2.5rem] border transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer ${
-                                mixState.avatar === 'none' ? 'bg-zinc-800 border-indigo-500 ring-2 ring-indigo-500/50' : 'bg-zinc-950 border-white/5'
-                              }`}
-                            >
-                               <div className="w-12 h-12 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-700 mb-4">
-                                 <X size={20} />
-                               </div>
-                               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">HİÇ BİRİ</span>
-                            </motion.div>
-
-                            {effectsData.filter(e => e.category !== 'profile_effects' && e.category !== 'auras').map((effect) => (
-                              <motion.div
-                                key={effect.id}
-                                whileHover={{ y: -5 }}
-                                className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all duration-300 overflow-hidden cursor-pointer ${
-                                  mixState.avatar === effect.id ? 'border-indigo-500 ring-2 ring-indigo-500/50 shadow-2xl' : 'border-white/5 hover:border-white/20'
-                                }`}
-                                onClick={() => {
-                                  const newMix = { ...mixState, avatar: effect.id };
-                                  setMixState(newMix);
-                                  updateProfile({ active_mix: newMix });
-                                }}
-                              >
-                                 <div className="aspect-square w-full relative z-10 flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <AnimeAvatar 
-                                      src={displayUser.avatar_url} 
-                                      effect={effect}
-                                      size="w-24 h-24"
-                                      forcePlay={true}
-                                    />
-                                 </div>
-                                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-60" />
-                                 <div className="relative z-20 mt-4 text-center">
-                                    <span className="text-[10px] font-black text-white uppercase tracking-tight line-clamp-1">{effect.label}</span>
-                                    <div className="text-[8px] font-bold text-zinc-500 uppercase mt-1 tracking-widest">{effect.category}</div>
-                                 </div>
-                                 {mixState.avatar === effect.id && (
-                                   <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center z-30 shadow-lg">
-                                     <Check size={12} className="text-white" />
-                                   </div>
-                                 )}
-                              </motion.div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
- 
-                      {/* Profil Efektleri */}
-                      {(decorationCategory === 'Tümü' || decorationCategory === 'Efektler') && (
-                        <div>
-                          <div className="flex items-center gap-3 text-purple-400 mb-6 mt-10">
-                             <Zap size={14} />
-                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">PROFİL KARTI EFEKTLERİ</h4>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                            <motion.div
-                              whileHover={{ scale: 1.02 }}
-                              className={`p-6 rounded-[2.5rem] border transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer ${
-                                mixState.profile_effect === 'none' ? 'bg-zinc-800 border-purple-500 ring-2 ring-purple-500/50' : 'bg-zinc-950 border-white/5'
-                              }`}
-                              onClick={() => {
-                                const newMix = { ...mixState, profile_effect: 'none' };
-                                setMixState(newMix);
-                                updateProfile({ active_mix: newMix });
-                              }}
-                            >
-                               <div className="w-12 h-12 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-700 mb-4">
-                                 <X size={20} />
-                               </div>
-                               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">HİÇ BİRİ</span>
-                            </motion.div>
-  
-                            {effectsData.filter(e => e.category === 'profile_effects').map((effect) => (
-                              <motion.div
-                                key={effect.id}
-                                whileHover={{ y: -10, scale: 1.02 }}
-                                className={`group relative aspect-[3/4] rounded-[2.5rem] bg-zinc-950 border transition-all duration-500 overflow-hidden cursor-pointer ${
-                                  mixState.profile_effect === effect.id ? 'border-purple-500 ring-4 ring-purple-500/20 shadow-2xl' : 'border-white/5 hover:border-white/20'
-                                }`}
-                                onClick={() => {
-                                  const newMix = { ...mixState, profile_effect: effect.id };
-                                  setMixState(newMix);
-                                  updateProfile({ active_mix: newMix });
-                                }}
-                              >
-                                 <div className="absolute inset-0">
-                                   <img 
-                                     src={effect.url} 
-                                     className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" 
-                                   />
-                                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
-                                   <div className="absolute inset-0 bg-zinc-950/20 group-hover:bg-transparent transition-colors duration-500" />
-                                 </div>
-                                 
-                                 <div className="absolute inset-0 p-8 flex flex-col justify-between z-10">
-                                    <div className="flex justify-between items-start">
-                                      <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-xl">
-                                        <Zap size={20} />
-                                      </div>
-                                      {mixState.profile_effect === effect.id && (
-                                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.5)]">
-                                          <Check size={14} className="text-white" />
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    <div className="space-y-3">
-                                       <div className="h-1 w-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" />
-                                       <h5 className="text-xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-lg">{effect.label}</h5>
-                                       <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em]">KOZMİK KOLEKSİYON</div>
-                                    </div>
-                                 </div>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-  
-                      {/* İsim Plaketleri */}
-                      {(decorationCategory === 'Tümü' || decorationCategory === 'Plaketler') && (
-                        <div>
-                          <div className="flex items-center gap-3 text-amber-400 mb-6 mt-10">
-                             <CreditCard size={14} />
-                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">İSİM PLAKETLERİ</h4>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {nameplatesData.map((filename) => (
-                              <NameplateItem 
-                                key={filename} 
-                                filename={filename} 
-                                isActive={mixState.nameplate === filename}
-                                onSelect={() => {
-                                  const newMix = { ...mixState, nameplate: filename };
-                                  setMixState(newMix);
-                                  updateProfile({ active_mix: newMix });
-                                }}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                       </div>
                     </div>
                   )}
-                </motion.div>
-              </AnimatePresence>
-
+               </motion.div>
+            </AnimatePresence>
           </main>
-
-          {/* ── RIGHT NAVIGATION (SCREENSHOT 1 STYLE) ── */}
-          <aside className="w-full lg:w-[350px] space-y-6 sticky top-24 no-scrollbar max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
-             <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-4">
-                <div className="space-y-2">
-                   {tabs.map((tab) => (
-                      <button
-                         key={tab.id}
-                         onClick={() => setActiveTab(tab.id)}
-                         className={`w-full group relative flex items-center gap-4 px-6 py-5 rounded-2xl transition-all duration-300 ${
-                            activeTab === tab.id 
-                               ? 'bg-blue-600 text-white shadow-[0_15px_30px_rgba(37,99,235,0.3)] scale-[1.02]' 
-                               : 'text-zinc-500 hover:text-white hover:bg-white/5'
-                         }`}
-                      >
-                         <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                            activeTab === tab.id ? 'bg-white/20' : 'bg-zinc-800'
-                         }`}>
-                            <tab.icon size={18} />
-                         </div>
-                         <div className="flex-1 text-left">
-                            <div className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">{tab.label}</div>
-                            <div className="text-[8px] font-bold opacity-40 uppercase tracking-widest">Görüntüle</div>
-                         </div>
-                         {activeTab === tab.id && (
-                            <motion.div layoutId="activeTabGlow" className="absolute inset-0 rounded-2xl bg-white/10 blur-xl -z-10" />
-                         )}
-                         <ChevronRight size={14} className={`transition-transform duration-300 ${activeTab === tab.id ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`} />
-                      </button>
-                   ))}
-                </div>
-             </div>
-
-             <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-8">
-                <div className="flex items-center gap-3 text-white mb-8">
-                   <Award size={18} className="text-amber-500" />
-                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">BAŞARIMLAR</h4>
-                </div>
-                <div className="grid grid-cols-2 gap-6">
-                   {[
-                     { id: 1, name: 'MÜREKKE...', date: '03.05.2026', color: 'amber' },
-                     { id: 2, name: 'MANGA...', date: '03.05.2026', color: 'orange' },
-                     { id: 3, name: 'KOZMİK...', date: '03.05.2026', color: 'indigo' },
-                     { id: 4, name: 'KÜTÜPHA...', date: '04.05.2026', color: 'purple' },
-                   ].map(ach => (
-                      <motion.div 
-                        key={ach.id} 
-                        whileHover={{ y: -5 }}
-                        className="flex flex-col items-center p-6 rounded-3xl bg-zinc-950 border border-white/5 relative overflow-hidden group cursor-pointer"
-                      >
-                         <div className={`absolute inset-0 bg-gradient-to-br from-${ach.color}-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
-                         <div className={`w-14 h-14 rounded-2xl bg-${ach.color}-500/20 border border-${ach.color}-500/30 flex items-center justify-center text-${ach.color}-500 mb-4 shadow-lg shadow-${ach.color}-500/10`}>
-                           <Award size={24} />
-                         </div>
-                         <span className="text-[10px] font-black text-white uppercase tracking-tight mb-1">{ach.name}</span>
-                         <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">MÜHÜR:</div>
-                         <div className="text-[8px] font-bold text-zinc-600 tracking-widest">{ach.date}</div>
-                      </motion.div>
-                   ))}
-                </div>
-             </div>
-          </aside>
         </div>
-
 
       <AnimatePresence>
          {toast && (
@@ -1606,7 +1192,7 @@ export default function ProfileShowcase() {
                  <Sparkles size={20} />
               </div>
               <div>
-                <div className="text-[10px] font-black uppercase tracking-widest">Sistem Bilgisi</div>
+                <div className="text-[10px] font-black uppercase tracking-widest">Sistem Bildirimi</div>
                 <div className="text-xs font-bold text-white/90">{toast}</div>
               </div>
               <button onClick={() => setToast(null)} className="ml-4 p-2 rounded-full hover:bg-white/10 transition-all">
@@ -1615,7 +1201,6 @@ export default function ProfileShowcase() {
            </motion.div>
          )}
       </AnimatePresence>
-
     </div>
   );
 }
@@ -1652,8 +1237,8 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
       >
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Bağlantılar</h3>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Dijital varlığını senkronize et uşağım</p>
+            <h3 className="text-2xl font-black text-white uppercase tracking-tight">SOSYAL MEDYA</h3>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Hesaplarını bağla</p>
           </div>
           <button onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all border border-white/5"><X size={24} /></button>
         </div>
@@ -1678,7 +1263,7 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
 
         <div className="flex gap-4">
           <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-zinc-900 text-zinc-500 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">İPTAL</button>
-          <button onClick={() => { onSave(links.filter(l => l.platform && l.value)); onClose(); }} className="flex-[2] py-5 rounded-[2.5rem] bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">MÜHÜRLERİ KAYDET <Sparkles size={18} /></button>
+          <button onClick={() => { onSave(links.filter(l => l.platform && l.value)); onClose(); }} className="flex-[2] py-5 rounded-[2.5rem] bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">KAYDET <Sparkles size={18} /></button>
         </div>
       </motion.div>
     </div>
@@ -1735,14 +1320,13 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
       >
         <div className="p-10 border-b border-white/5 flex items-center justify-between">
            <div>
-              <h3 className="text-2xl font-black text-white uppercase tracking-tight">Kozmik Mikser</h3>
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Kendi efsanevi kombinasyonunu yarat</p>
+              <h3 className="text-2xl font-black text-white uppercase tracking-tight">GÖRÜNÜM</h3>
+              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini düzenle</p>
            </div>
            <button onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all"><X size={24} /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
-           {/* Section by Section */}
            <div className="space-y-6">
               <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">PROFIL EFEKTI</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1792,11 +1376,12 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
              onClick={() => { onSave(mixState); onClose(); }}
              className="flex-[2] py-5 rounded-2xl bg-purple-600 text-white text-xs font-black uppercase shadow-xl shadow-purple-600/30"
            >
-              KOMBİNASYONU MÜHÜRLE
+              AYARLARI KAYDET
            </button>
         </div>
       </motion.div>
     </div>
   );
 }
+
 
