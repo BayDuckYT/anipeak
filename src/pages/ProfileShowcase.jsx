@@ -905,6 +905,7 @@ export default function ProfileShowcase() {
                      </div>
                   </div>
                </div>
+            </div>
           </aside>
 
           {/* ── MAIN CONTENT AREA ── */}
