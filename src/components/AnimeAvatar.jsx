@@ -137,12 +137,9 @@ export default function AnimeAvatar({
       rawSrc.includes('/avatar-efekts/') ||
       rawSrc.includes('/decorations/');
 
-    // [PERFORMANS] Yerel PNG/Webp efektleri çok büyük boyutlu (1-3MB). Production'da sıkıştır.
-    let optimizedSrc = rawSrc;
-    if (rawSrc.startsWith('/') && typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      const resizeParam = !isSpritesheet ? '&w=150' : '';
-      optimizedSrc = `https://wsrv.nl/?url=https://anipeak.com.tr${encodeURIComponent(rawSrc)}${resizeParam}&output=webp&q=75`;
-    }
+    // [PERFORMANS] Yerel dosyaları proxy'ye (wsrv.nl) gönderme; çünkü proxy şerit yapısını bozabiliyor.
+    // Cloudflare zaten bunları kendi CDN'inde otomatik olarak WebP yapıp sıkıştıracaktır.
+    const optimizedSrc = rawSrc;
     
     // AutoSpritesheet akıllıdır; eğer resim bir şerit (strip) değilse otomatik olarak img tagı render eder.
     return (
