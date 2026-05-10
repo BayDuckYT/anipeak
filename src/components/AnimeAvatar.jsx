@@ -132,6 +132,7 @@ export default function AnimeAvatar({
 
     const urlLower = rawSrc.toLowerCase();
     const isPng = urlLower.split('?')[0].endsWith('.png');
+    const isWebp = urlLower.endsWith('.webp');
     const isSpritesheetFile = 
       effect.category === 'flags' || 
       effect.type === 'spritesheet' || 
