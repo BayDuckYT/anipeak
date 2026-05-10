@@ -6,8 +6,13 @@
 export function getOptimizedImage(url, width = 300) {
   if (!url) return getFallbackImage();
   
-  // Eğer url zaten optimize edilmiş bir servis ise veya yerel dosya ise karışma
-  if (url.includes('wsrv.nl') || url.startsWith('/') || url.startsWith('data:')) {
+  // Eğer url zaten optimize edilmiş bir servis ise
+  if (url.includes('wsrv.nl')) {
+    // Veritabanında w=300 olarak kaydedilmiş olabilir, onu istenen genişlikle değiştir
+    return url.replace(/&w=\d+/, `&w=${width}`).replace(/\?w=\d+&/, `?w=${width}&`);
+  }
+  
+  if (url.startsWith('/') || url.startsWith('data:')) {
     return url;
   }
 

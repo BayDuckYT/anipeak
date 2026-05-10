@@ -132,19 +132,18 @@ export default function AnimeAvatar({
 
     const urlLower = rawSrc.toLowerCase();
     const isPng = urlLower.split('?')[0].endsWith('.png');
-    const isWebp = urlLower.endsWith('.webp');
-    const isSpritesheet = 
+    const isSpritesheetFile = 
       effect.category === 'flags' || 
-      effect.category === 'decorations' ||
       effect.type === 'spritesheet' || 
-      rawSrc.includes('/effects/') || 
-      rawSrc.includes('/avatar-efekts/') ||
-      rawSrc.includes('/decorations/');
+      (isPng && rawSrc.includes('/decorations/')) ||
+      (isPng && rawSrc.includes('/effects/'));
       
+    const willUseSpritesheet = isPng && isSpritesheetFile;
+
     // [PERFORMANS] Yerel PNG/Webp efektleri çok büyük boyutlu (1-3MB). Production'da sıkıştır.
     let optimizedSrc = rawSrc;
     if (rawSrc.startsWith('/') && typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      const resizeParam = !isSpritesheet ? '&w=150' : '';
+      const resizeParam = !willUseSpritesheet ? '&w=150' : '';
       optimizedSrc = `https://wsrv.nl/?url=https://anipeak.com.tr${encodeURIComponent(rawSrc)}${resizeParam}&output=webp&q=75`;
     }
     
