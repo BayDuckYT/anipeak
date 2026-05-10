@@ -110,14 +110,14 @@ export function AuthProvider({ children }) {
         .eq('id', authUser.id)
         .single();
         
-      // PROFIL ÇEKME İŞLEMİNE 8 SN TIMEOUT EKLENDİ (YAVAŞ MOBİL/LIGHTHOUSE BAĞLANTILARINI DESTEKLEMEK İÇİN)
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profil yükleme gecikti (Timeout)')), 8000)
+      // PROFIL ÇEKME İŞLEMİNE 5 SN TIMEOUT EKLENDİ (DAHA GÜVENLİ)
+      const timeoutPromise = new Promise((resolve) => 
+        setTimeout(() => resolve({ error: { message: 'Profil yükleme gecikti (Timeout)', code: 'TIMEOUT' } }), 5000)
       );
 
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== 'PGRST116' && error.code !== 'TIMEOUT') {
         console.warn('[Auth] Profil çekme uyarısı:', error.message);
       }
 
@@ -382,11 +382,12 @@ export function AuthProvider({ children }) {
       try {
         // 8 saniye içinde session gelmezse ağ hatası say, kullanıcıyı çıkarma
         const sessionPromise = supabase.auth.getSession();
-        const timeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('getSession timeout')), 8000)
+        const timeout = new Promise((resolve) =>
+          setTimeout(() => resolve({ data: { session: null }, error: { message: 'getSession timeout' } }), 5000)
         );
-        const { data: { session: fetchedSession }, error } = await Promise.race([sessionPromise, timeout]);
-        session = fetchedSession;
+        const result = await Promise.race([sessionPromise, timeout]);
+        const { data, error } = result;
+        session = data?.session || null;
         if (error) throw error;
 
       } catch (err) {

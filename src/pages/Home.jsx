@@ -38,28 +38,28 @@ import LazySection from '../components/LazySection.jsx';
 function TrendingCard({ item, rank, getChapters }) {
   const chapterCount = getChapters(item.id).length;
   return (
-    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[160px] sm:w-[180px] hover-lift portal-transition" aria-label={`${item.title} serisini oku`}>
-      <div className="relative rounded-2xl overflow-hidden border border-white/8 transition-all duration-300 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.2)] energy-pulse">
+    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[160px] sm:w-[180px] hover-lift portal-transition block min-h-[44px]" aria-label={`${rank}. Sırada: ${item.title} serisi, ${item.rating} yıldız`}>
+      <div className="relative rounded-2xl overflow-hidden border border-white/10 transition-all duration-300 group-hover:border-purple-500/50 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.3)] energy-pulse bg-[#0a0a0c]">
         {/* Rank number */}
-        <div className="absolute top-2 left-2 z-20">
-          <span className={`text-3xl font-black italic drop-shadow-lg ${
-            rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-orange-400' : 'text-white/60'
-          }`} style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+        <div className="absolute top-2 left-2 z-20 pointer-events-none">
+          <span className={`text-4xl font-black italic drop-shadow-lg ${
+            rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-200' : rank === 3 ? 'text-orange-400' : 'text-white/80'
+          }`} style={{ textShadow: '2px 2px 10px rgba(0,0,0,0.9)' }}>
             {rank}
           </span>
         </div>
-        <div className="relative overflow-hidden bg-purple-900/20 rounded-lg" style={{ aspectRatio: '3/4' }}>
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="180" height="240" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-0 transition-opacity" loading="lazy"
+        <div className="relative overflow-hidden bg-purple-900/20" style={{ aspectRatio: '3/4', width: '100%' }}>
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-0 transition-opacity" loading="lazy"
             onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
           {/* Rating badge */}
-          <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/90 text-white text-[11px] font-black">
-            <Star size={10} className="fill-white" aria-hidden="true" /> {item.rating}
+          <div className="absolute bottom-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-600/95 text-white text-[12px] font-black border border-emerald-500/50 backdrop-blur-sm">
+            <Star size={12} className="fill-white" aria-hidden="true" /> {item.rating}
           </div>
         </div>
-        <div className="p-2.5 bg-[#0a0a0c]">
-          <h3 className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors read-invitation">{item.title}</h3>
+        <div className="p-3 bg-gradient-to-b from-transparent to-[#050507]">
+          <h3 className="text-white text-sm font-bold truncate group-hover:text-purple-300 transition-colors read-invitation">{item.title}</h3>
         </div>
       </div>
     </Link>
@@ -74,23 +74,23 @@ function NewChapterCard({ item, chapters }) {
   const timeAgo = latestChapter?.created_at ? getTimeAgo(latestChapter.created_at) : '';
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[130px]" aria-label={`${item.title} - Bölüm ${chapterNum}`}>
-      <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/30 transition-all">
-        <div className="relative overflow-hidden bg-purple-900/20 rounded-lg" style={{ aspectRatio: '3/4' }}>
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="130" height="173" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0" loading="lazy"
+    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[130px] block min-h-[44px]" aria-label={`${item.title} - Bölüm ${chapterNum} oku`}>
+      <div className="relative rounded-xl overflow-hidden border border-white/10 group-hover:border-purple-500/40 transition-all bg-[#0a0a0c]">
+        <div className="relative overflow-hidden bg-purple-900/20" style={{ aspectRatio: '3/4', width: '100%' }}>
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0" loading="lazy"
             onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent pointer-events-none" />
           {/* "Güncel" badge */}
-          <div className="absolute top-1.5 left-1.5">
-            <span className="px-1.5 py-0.5 rounded bg-emerald-500/90 text-slate-900 text-[8px] font-black uppercase">Güncel</span>
+          <div className="absolute top-1.5 left-1.5 pointer-events-none">
+            <span className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-black uppercase tracking-wider border border-emerald-500/50">Güncel</span>
           </div>
         </div>
-        <div className="p-2 bg-[#0a0a0c]">
-          <p className="text-white text-[10px] font-bold truncate">{item.title}</p>
-          <div className="flex items-center justify-between mt-1">
-            <span className="text-purple-400 text-[9px] font-black">Bölüm {chapterNum}</span>
-            {timeAgo && <span className="text-slate-600 text-[8px]">{timeAgo}</span>}
+        <div className="p-2.5 bg-gradient-to-b from-transparent to-[#050507]">
+          <p className="text-white text-xs font-bold truncate">{item.title}</p>
+          <div className="flex items-center justify-between mt-1.5">
+            <span className="text-purple-300 text-[10px] font-black px-1.5 py-0.5 bg-purple-500/20 rounded">Bölüm {chapterNum}</span>
+            {timeAgo && <span className="text-slate-400 text-[10px] font-medium">{timeAgo}</span>}
           </div>
         </div>
       </div>
@@ -101,22 +101,22 @@ function NewChapterCard({ item, chapters }) {
 // ── Recommendation Card ──
 function RecommendationCard({ item }) {
   return (
-    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[150px]">
-      <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-blue-500/30 transition-all">
-        <div className="relative aspect-[3/4] overflow-hidden bg-cyan-900/20 animate-pulse rounded-lg">
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} width="150" height="200" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0" loading="lazy"
+    <Link to={`/manhwa/${item.id}`} className="group flex-shrink-0 w-[150px] block min-h-[44px]" aria-label={`${item.title} önerilen seri`}>
+      <div className="relative rounded-xl overflow-hidden border border-white/10 group-hover:border-cyan-500/40 transition-all bg-[#0a0a0c]">
+        <div className="relative overflow-hidden bg-cyan-900/20 animate-pulse" style={{ aspectRatio: '3/4', width: '100%' }}>
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0" loading="lazy"
             onLoad={(e) => { e.currentTarget.classList.remove('opacity-0'); e.currentTarget.parentElement.classList.remove('animate-pulse'); }}
             onError={handleImageError} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute bottom-2 left-2 right-2">
-            <div className="flex items-center gap-1 mb-1">
-              <Star size={10} className="text-amber-400 fill-amber-400" />
-              <span className="text-white text-[10px] font-black">{item.rating}</span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-2 left-2 right-2 pointer-events-none">
+            <div className="flex items-center gap-1.5 mb-1 px-2 py-1 bg-black/60 rounded-lg w-max backdrop-blur-sm border border-white/10">
+              <Star size={12} className="text-amber-400 fill-amber-400" />
+              <span className="text-white text-[11px] font-black">{item.rating}</span>
             </div>
           </div>
         </div>
-        <div className="p-2 bg-[#0a0a0c]">
-          <p className="text-white text-[10px] font-bold truncate group-hover:text-blue-400 transition-colors">{item.title}</p>
+        <div className="p-3 bg-gradient-to-b from-transparent to-[#050507]">
+          <p className="text-white text-xs font-bold truncate group-hover:text-cyan-300 transition-colors">{item.title}</p>
         </div>
       </div>
     </Link>
@@ -126,14 +126,15 @@ function RecommendationCard({ item }) {
 // ── Sidebar Discovery Item ──
 function DiscoveryItem({ item, rank }) {
   return (
-    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all group">
-      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} width="40" height="56" className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
-        onError={handleImageError} />
-      <div className="flex-1 min-w-0">
-        <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
-        <div className="flex items-center gap-1 mt-0.5">
-          <Star size={10} className="text-amber-400 fill-amber-400" />
-          <span className="text-amber-400 text-[10px] font-black">{item.rating}</span>
+    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-all group min-h-[44px]" aria-label={`${item.title} manga keşfet`}>
+      <div className="relative w-12 flex-shrink-0 rounded-lg overflow-hidden border border-white/10 bg-purple-900/20" style={{ aspectRatio: '3/4' }}>
+        <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
+      </div>
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        <p className="text-slate-100 text-sm font-bold truncate group-hover:text-emerald-300 transition-colors leading-tight">{item.title}</p>
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <Star size={12} className="text-amber-400 fill-amber-400" />
+          <span className="text-amber-400 text-xs font-black">{item.rating}</span>
         </div>
       </div>
     </Link>
@@ -400,8 +401,8 @@ export default function Home({ onAuthOpen }) {
                   <Flame size={20} className="text-orange-400" />
                   <h2 className="text-xl font-black text-white uppercase tracking-tight">Trending Now</h2>
                 </div>
-                <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors read-invitation">
-                  Tümünü Gör <ChevronRight size={14} />
+                <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors read-invitation" aria-label="Tüm trend serileri görüntüle">
+                  Tümünü Gör <ChevronRight size={14} aria-hidden="true" />
                 </Link>
               </div>
               <VirtualHScroll
@@ -427,8 +428,8 @@ export default function Home({ onAuthOpen }) {
                       </div>
                       <h2 className="text-xl font-black text-white uppercase tracking-tight">Yeni Bölümler</h2>
                     </div>
-                    <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors">
-                      Tümünü Gör <ChevronRight size={14} />
+                    <Link to="/all-series" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-bold transition-colors" aria-label="Tüm yeni bölümleri görüntüle">
+                      Tümünü Gör <ChevronRight size={14} aria-hidden="true" />
                     </Link>
                   </div>
                 <VirtualHScroll
@@ -459,8 +460,8 @@ export default function Home({ onAuthOpen }) {
                       <p className="text-[10px] text-cyan-400/70 font-mono tracking-widest uppercase">Akıllı Algoritma Senin İçin Seçti</p>
                     </div>
                   </div>
-                  <Link to="/oracle" className="flex items-center gap-2 px-4 py-2 rounded-xl glass border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/10 transition-all">
-                    Tüm Öneriler <ChevronRight size={14} />
+                  <Link to="/oracle" className="flex items-center gap-2 px-4 py-2 rounded-xl glass border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/10 transition-all min-h-[44px]" aria-label="Tüm oracle önerilerini görüntüle">
+                    Tüm Öneriler <ChevronRight size={14} aria-hidden="true" />
                   </Link>
                 </div>
 
