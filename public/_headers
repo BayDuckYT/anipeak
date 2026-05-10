@@ -21,8 +21,8 @@
   # ── 5. Permissions Policy (Sıfır İzin) ──
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
 
-  # ── 6. Titanyum CSP (Strict Domain Whitelist) ──
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.pinimg.com https://wsrv.nl; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;
+  # -- 6. CSP (Strict Domain Whitelist) --
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev https://wsrv.nl; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;
 
   # ── 7. Teknoloji Gizleme (Hayalet Gemi) ──
   X-Powered-By: Hidden
@@ -30,8 +30,13 @@
   X-AspNet-Version: Hidden
   X-AspNetMvc-Version: Hidden
 
-  # ── 8. Önbellek Yönetimi ──
+  # -- 8. Onbellek Yonetimi --
   Cache-Control: public, max-age=0, must-revalidate
+
+  # -- 9. Cross-Origin Izolasyon --
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  X-DNS-Prefetch-Control: off
 
 # ── Statik Assetler — Uzun Süre Önbellekleme (İmmutable) ──
 /assets/*
@@ -66,7 +71,10 @@
   Cache-Control: public, max-age=3600
   Content-Type: application/xml; charset=utf-8
 
-# ── API Proxy (Eğer Cloudflare Workers kullanılıyorsa) ──
+# -- API Proxy --
 /api/*
   Cache-Control: no-store, no-cache, must-revalidate
   X-Robots-Tag: noindex
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
