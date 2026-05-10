@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Trophy, Star, Eye } from 'lucide-react';
-import { getOptimizedImage } from '../utils/imageOptimizer';
+import { getOptimizedImage } from '../utils/imageOpt.js';
 
 export default function ElitePodium({ items }) {
   if (!items || items.length === 0) return null;
