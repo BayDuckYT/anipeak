@@ -1500,7 +1500,13 @@ export default function Admin() {
                         </td>
                         <td className="px-5 py-4">
                           <div className="flex flex-col gap-1.5">
-                            <button onClick={() => toggleStatus(s.id)}
+                            <button onClick={async () => {
+                              try {
+                                await toggleStatus(s.id);
+                              } catch (err) {
+                                showToast('Durum değiştirme hatası: ' + err.message, 'error');
+                              }
+                            }}
                               className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-widest font-black border transition-all hover:scale-[1.03] w-fit ${s.status === 'Devam Ediyor' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-blue-400 border-blue-500/30 bg-blue-500/10'}`}>
                               {s.status}
                             </button>
@@ -1531,7 +1537,14 @@ export default function Admin() {
                               </>
                             ) : (
                               <>
-                                <button onClick={() => toggleTrend(s.id)}
+                                <button onClick={async () => {
+                                  try {
+                                    await toggleTrend(s.id);
+                                    showToast(s.is_trending ? 'Trend kaldırıldı' : 'Trend yapıldı!', 'success');
+                                  } catch (err) {
+                                    showToast('Trend hatası: Yetkiniz olmayabilir (RLS)', 'error');
+                                  }
+                                }}
                                   className={`p-2 rounded-lg transition-all border ${s.is_trending ? 'text-orange-400 bg-orange-500/20 border-orange-500/30' : 'text-slate-500 border-transparent hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/10'}`}>
                                   <Flame size={15} className={s.is_trending ? 'fill-orange-400' : ''} />
                                 </button>
