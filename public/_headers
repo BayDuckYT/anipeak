@@ -18,15 +18,17 @@
   # ── 4. Referrer Sızıntısı Önleme ──
   Referrer-Policy: strict-origin-when-cross-origin
 
-  # ── 5. Permissions Policy ──
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  # ── 5. Permissions Policy (Sıfır İzin) ──
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
 
-  # ── 6. Titanyum CSP (Strict Dynamic) ──
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.pinimg.com https://wsrv.nl; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  # ── 6. Titanyum CSP (Strict Domain Whitelist) ──
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.pinimg.com https://wsrv.nl; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;
 
   # ── 7. Teknoloji Gizleme (Hayalet Gemi) ──
   X-Powered-By: Hidden
-  Server: AniPeak-Siber-Kale
+  Server: AniPeak Infinity Guard
+  X-AspNet-Version: Hidden
+  X-AspNetMvc-Version: Hidden
 
   # ── 8. Önbellek Yönetimi ──
   Cache-Control: public, max-age=0, must-revalidate

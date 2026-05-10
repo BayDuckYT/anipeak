@@ -27,8 +27,9 @@ export function setupSecurityEngine(app) {
         contentSecurityPolicy: {
             directives: {
                 defaultSrc:     ["'self'"],
-                scriptSrc:      ["'self'", "'unsafe-inline'", "'unsafe-eval'",
-                                 "https://fonts.googleapis.com"],
+                scriptSrc:      ["'self'", "'unsafe-inline'",
+                                 "https://fonts.googleapis.com",
+                                 "https://static.cloudflareinsights.com"],
                 styleSrc:       ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
                 fontSrc:        ["'self'", "https://fonts.gstatic.com"],
                 imgSrc:         ["'self'", "data:", "blob:", "https:", "http:"],
@@ -72,13 +73,28 @@ export function setupSecurityEngine(app) {
         res.removeHeader('Server');
         res.removeHeader('X-Powered-By');
         res.setHeader('X-Powered-By', 'Invisible-Guard');
-        res.setHeader('Server', 'AniPeak-Siber-Kale');
+        res.setHeader('Server', 'AniPeak Infinity Guard');
+        res.setHeader('X-AspNet-Version', 'Hidden');
+        res.setHeader('X-AspNetMvc-Version', 'Hidden');
         // Önbellek kontrolü — API yanıtları önbelleğe alınmasın
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
         next();
     });
     console.log(`\x1b[36m[INFINITY-GUARD] 🛡️ HTTP Kalkanları AKTİF (Helmet CSP + HSTS + Anti-Fingerprint).\x1b[0m`);
+
+    // ─── 1.5. ÇEREZ ZIRHI (Insecure Cookie Koruması) ─────────────────────────
+    app.use((req, res, next) => {
+        const originalCookie = res.cookie;
+        res.cookie = function (name, value, options = {}) {
+            options.httpOnly = true;
+            options.secure = true;
+            options.sameSite = 'Strict';
+            return originalCookie.call(this, name, value, options);
+        };
+        next();
+    });
+    console.log(`\x1b[36m[INFINITY-GUARD] 🍪 Çerez (Cookie) Zırhı AKTİF (Secure + HttpOnly + SameSite=Strict).\x1b[0m`);
 
     // ─── 2. CORS — Alan Adı Kısıtlaması (Beyaz Liste) ─────────────────────────
     const whitelist = [
