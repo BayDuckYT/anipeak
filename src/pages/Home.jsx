@@ -49,6 +49,7 @@ function MinimalCard({ item, type = 'trending', rank, chapters }) {
             alt={item.title} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
             loading="lazy"
+            decoding="async"
             onError={handleImageError} 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none" />
@@ -73,7 +74,7 @@ function SidebarItem({ item, rank }) {
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 py-2.5 group border-b border-white/5 last:border-0" aria-label={`${item.title} keşfet`}>
       <span className="text-slate-400 font-mono font-bold w-4 text-center group-hover:text-purple-400">{rank}</span>
       <div className="w-10 h-14 flex-shrink-0 rounded bg-white/5 overflow-hidden">
-        <img src={getOptimizedImage(item.cover, 100)} alt="" className="w-full h-full object-cover opacity-90 group-hover:opacity-100" loading="lazy" onError={handleImageError} />
+        <img src={getOptimizedImage(item.cover, 100)} alt="" className="w-full h-full object-cover opacity-90 group-hover:opacity-100" loading="lazy" decoding="async" onError={handleImageError} />
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-slate-200 text-sm font-bold truncate group-hover:text-purple-300">{item.title}</h4>
@@ -198,7 +199,7 @@ export default function Home({ onAuthOpen }) {
 
               <div className="hidden lg:block w-[280px] flex-shrink-0">
                 <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                  <img src={heroImageSrc} alt={heroItem.title} className="w-full h-auto object-cover" loading="eager" />
+                  <img src={heroImageSrc} alt={heroItem.title} className="w-full h-auto object-cover" loading="eager" fetchpriority="high" decoding="async" />
                 </div>
               </div>
 

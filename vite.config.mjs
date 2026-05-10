@@ -21,26 +21,37 @@ export default defineConfig({
 
   build: {
     target: 'esnext',
-    minify: 'esbuild',
-    // Terser kurmaya gerek kalmadan Esbuild ile ölü kodları temizle
-    terserOptions: undefined,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info'],
+        passes: 2
+      },
+      format: {
+        comments: false
+      }
+    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          // React core — her sayfada ortak, onbellege alinir
-          'vendor-react': ['react', 'react-dom'],
-          // Router — navigasyon
-          'vendor-router': ['react-router-dom'],
-          // Animasyon kutuphanesi
-          'vendor-framer': ['framer-motion'],
-          // Ikon kutuphanesi
-          'vendor-icons': ['lucide-react'],
-          // Supabase — veri katmani
-          'vendor-supabase': ['@supabase/supabase-js'],
-          // 3D Globe — sadece GlobalNexus sayfasinda lazim
-          'vendor-cobe': ['cobe'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@supabase')) {
+              return 'vendor-supabase';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-framer';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            return 'vendor'; // Bütün diğer node_modules için tek bir vendor chunk'ı
+          }
         },
-        // Asset dosyalarini kategorilere ayir
         assetFileNames: (assetInfo) => {
           const ext = assetInfo.name ? assetInfo.name.split('.').pop() : '';
           if (/png|jpe?g|svg|gif|webp/.test(ext)) return 'assets/images/[name]-[hash][extname]';
@@ -53,10 +64,7 @@ export default defineConfig({
       },
     },
 
-    // Chunk boyutu uyari limitini artir (kutuphane parcalari buyuk olabilir)
-    chunkSizeWarningLimit: 600,
-
-    // CSS kodu bolme — her chunk kendi CSS'ini yukler
+    chunkSizeWarningLimit: 800,
     cssCodeSplit: true,
 
     // Source map production'da kapali (guvenlik + hiz)
