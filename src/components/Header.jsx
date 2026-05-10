@@ -174,7 +174,8 @@ export default function Header({ onAuthOpen }) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Manhwa ara..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_8px_rgba(168,85,247,0.3)] transition-all"
+                aria-label="Manhwa arama"
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_8px_rgba(168,85,247,0.3)] transition-all"
               />
             </div>
             {/* Search results */}
@@ -200,7 +201,7 @@ export default function Header({ onAuthOpen }) {
                       />
                       <div className="min-w-0">
                         <p className="text-white text-xs font-semibold truncate">{m?.title}</p>
-                        <p className="text-slate-500 text-[10px] truncate">
+                        <p className="text-slate-400 text-[10px] truncate">
                           {Array.isArray(m?.genre) ? m.genre.join(', ') : m?.genre || 'Genel'}
                         </p>
                       </div>
@@ -214,17 +215,17 @@ export default function Header({ onAuthOpen }) {
           {/* Right actions */}
           <div className="flex items-center gap-1.5">
             {/* Admin */}
-            <Link to="/admin" className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all">
+            <Link to="/admin" className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all min-h-[44px]" aria-label="Yönetim panelini aç">
               <Shield size={14} /> <span className="hidden lg:inline">Yönetim Paneli</span>
             </Link>
 
             {/* Messages - Paper Airplane */}
             <Link 
               to="/messages" 
-              className="relative p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
-              title="Mesajlar"
+              className="relative p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Mesajlar"
             >
-              <SendHorizontal size={18} />
+              <SendHorizontal size={18} aria-hidden="true" />
               {/* Optional: Add unread DM count here if available */}
             </Link>
 
@@ -266,7 +267,7 @@ export default function Header({ onAuthOpen }) {
                             <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.read ? 'bg-purple-400' : 'bg-slate-700'}`} />
                             <div className="min-w-0">
                               <p className="text-slate-300 text-xs leading-relaxed">{n?.text}</p>
-                              <p className="text-slate-600 text-[10px] mt-1">{n?.time}</p>
+                              <p className="text-slate-400 text-[10px] mt-1">{n?.time}</p>
                             </div>
                           </div>
                         ))
@@ -298,7 +299,8 @@ export default function Header({ onAuthOpen }) {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition-all"
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition-all min-h-[44px]"
+                  aria-label="Profil menüsünü aç"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple relative">
                     <AnimeAvatar 
@@ -348,7 +350,7 @@ export default function Header({ onAuthOpen }) {
                                {user.rank}
                              </span>
                                <span className="w-1 h-1 rounded-full bg-slate-700" />
-                               <span className="text-[9px] font-bold text-slate-500 uppercase">XP: {user.xp || 0}</span>
+                               <span className="text-[9px] font-bold text-slate-400 uppercase">XP: {user.xp || 0}</span>
                             </div>
                           </div>
                         </div>
@@ -426,13 +428,15 @@ export default function Header({ onAuthOpen }) {
             <>
               <button
                 onClick={() => onAuthOpen('login')}
-                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all energy-pulse"
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all energy-pulse min-h-[44px]"
+                aria-label="Giriş yap"
               >
                 <LogIn size={15} /> Giriş
               </button>
               <button
                 onClick={() => onAuthOpen('register')}
-                className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple energy-pulse"
+                className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple energy-pulse min-h-[44px]"
+                aria-label="Ücretsiz kayıt ol"
               >
                 <UserPlus size={15} /> Kayıt Ol
               </button>
@@ -468,7 +472,8 @@ export default function Header({ onAuthOpen }) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Manhwa ara..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-all"
+                  aria-label="Manhwa arama"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all"
                 />
                 {searchResults.length > 0 && (
                   <div className="absolute top-full mt-1 left-0 right-0 glass-strong border border-white/10 rounded-xl overflow-hidden z-50">

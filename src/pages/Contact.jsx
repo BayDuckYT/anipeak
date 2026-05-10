@@ -20,16 +20,14 @@ export default function Contact() {
         setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
       }
     } else if (formData.subject === 'Lojistik Öneri') {
-      // Lojistik Öneri direkt sunucudaki suggestions.txt dosyasına mühürlenir
+      // Öneriler de diğer mesajlar gibi Supabase veritabanına işlenir
       try {
-        const res = await fetch('http://localhost:3001/api/admin/suggest', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user: formData.name, message: formData.message })
-        });
-        if (res.ok) {
+        const { error } = await supabase.from('contact_messages').insert([formData]);
+        if (!error) {
           setSuccess(true);
           setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
+        } else {
+          alert('Bağlantı hatası oluştu. Lütfen tekrar deneyin.');
         }
       } catch (err) {
         alert('Sunucu şu an çevrimdışı. Lütfen daha sonra tekrar deneyin!');

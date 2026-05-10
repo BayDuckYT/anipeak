@@ -28,6 +28,16 @@
   border-width: 0;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   KONTRAST DÜZELTMESİ (WCAG AA)
+   text-slate-600 koyu arka planlarda (~#050507) 2.1:1 kontrast oranı verir.
+   WCAG AA standardı 4.5:1 gerektirir.
+   Bu override ile tüm text-slate-600 kullanımlarını minimum 4.5:1 seviyesine çeker.
+   ═══════════════════════════════════════════════════════════════ */
+.text-slate-600 {
+  color: #94a3b8 !important; /* slate-400 tonu — koyu arka plan üzerinde 7:1 kontrast */
+}
+
 /* ── Yüksek Kontrast Modu Desteği ── */
 @media (prefers-contrast: high) {
   .glass, .glass-strong {
@@ -45,6 +55,17 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NON-COMPOSITED ANİMASYON DÜZELTMESİ (Lighthouse Performance)
+   animate-pulse gibi animasyonlar GPU katmanında çalışsın.
+   Bu, Lighthouse'un "Avoid non-composited animations" uyarısını engeller.
+   ═══════════════════════════════════════════════════════════════ */
+.animate-pulse,
+.animate-pulse-glow {
+  will-change: opacity;
+  transform: translateZ(0); /* GPU katmanına terfi ettir */
 }
 
 /* Minimum dokunma hedefleri sadece gerekli yerlerde Tailwind class'ları (min-h-[44px] min-w-[44px]) ile verilmeli, global olarak verilirse CLS'ye (Layout Shift) sebep olur. */

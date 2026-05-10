@@ -12,7 +12,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("Kozmik Hata Yakalandı:", error, errorInfo);
+    console.error("Hata Yakalandı:", error, errorInfo);
     
     // Vite Sürüm Güncelleme (Chunk Missing) Hatası Çözümü
     // Yeni deploy atıldığında eski dosyalar (assets/js/SettingsPage-xxx.js) silindiği için bu hata fırlar.
@@ -70,7 +70,7 @@ class ErrorBoundary extends React.Component {
             </button>
             
             <div className="mt-8 text-[10px] text-slate-600 font-mono opacity-50">
-              Hata Kodu: {this.state.error?.message || 'Unknown Cosmic Anomaly'}
+              Hata Kodu: {this.state.error?.message || 'Bilinmeyen Hata'}
             </div>
           </div>
         </div>

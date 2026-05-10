@@ -268,9 +268,9 @@ export default function Home({ onAuthOpen }) {
               <div className="absolute inset-0 bg-[#050507]">
                 <img
                   src={
-                    featuredItem.title === 'Solo Leveling' ? '/solo_leveling_bg.jpg' : // Örnek özel arkaplan mantığı
-                    featuredItem.hero_bg ? featuredItem.hero_bg : // Veritabanından gelirse
-                    getOptimizedImage(featuredItem.cover, 1200) // Varsayılan olarak seri kapağı
+                    featuredItem.title === 'Solo Leveling' ? '/solo_leveling_bg.jpg' :
+                    featuredItem.hero_bg ? featuredItem.hero_bg :
+                    getOptimizedImage(featuredItem.cover, 1200)
                   }
                   alt={featuredItem.title}
                   aria-hidden="true"
@@ -279,6 +279,7 @@ export default function Home({ onAuthOpen }) {
                   decoding="sync"
                   width="1440"
                   height="600"
+                  sizes="100vw"
                   className="w-full h-full object-cover"
                   onError={handleImageError}
                 />
@@ -324,11 +325,11 @@ export default function Home({ onAuthOpen }) {
                     <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
                       <Star size={14} className="text-amber-400 fill-amber-400" /> {featuredItem.rating}
                     </span>
-                    <span className="text-slate-600">•</span>
+                    <span className="text-slate-400" aria-hidden="true">•</span>
                     <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
                       <BookOpen size={14} className="text-purple-400" /> {featuredChapterCount} Bölüm
                     </span>
-                    <span className="text-slate-600">•</span>
+                    <span className="text-slate-400" aria-hidden="true">•</span>
                     <span className="text-slate-400 italic font-medium">
                       {(Array.isArray(featuredItem.genre) ? featuredItem.genre : [featuredItem.genre || 'Aksiyon']).join(', ')}
                     </span>
@@ -502,7 +503,7 @@ export default function Home({ onAuthOpen }) {
                         ann.type === 'chapter' ? 'bg-purple-500' : ann.type === 'series' ? 'bg-blue-500' : 'bg-emerald-500'
                       }`} />
                       <p className="text-slate-300 text-xs flex-1">{ann.text}</p>
-                      <span className="text-slate-600 text-[9px] flex-shrink-0">
+                      <span className="text-slate-400 text-[9px] flex-shrink-0">
                         {new Date(ann.created_at || ann.ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </motion.div>
@@ -549,8 +550,9 @@ export default function Home({ onAuthOpen }) {
                   const colorCls = GENRE_COLORS[genre] || 'from-slate-500/20 to-zinc-500/20 border-slate-500/30 text-slate-400';
                   return (
                     <Link key={genre} to={`/all-series?genre=${genre}`}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gradient-to-br ${colorCls} border hover:scale-[1.03] transition-all`}>
-                      <IconComp size={18} />
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gradient-to-br ${colorCls} border hover:scale-[1.03] transition-all min-h-[44px]`}
+                      aria-label={`${genre} kategorisindeki mangaları görüntüle`}>
+                      <IconComp size={18} aria-hidden="true" />
                       <span className="text-[9px] font-black uppercase tracking-wider">{genre}</span>
                     </Link>
                   );

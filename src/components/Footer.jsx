@@ -17,8 +17,8 @@ export default function Footer() {
         <div className="flex flex-wrap justify-center gap-10 text-sm">
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Platform</h4>
-            <Link to="/all-series" className="text-slate-300 hover:text-purple-300 transition-colors font-medium">Tüm Seriler</Link>
-            <Link to="/#trendler" className="text-slate-300 hover:text-purple-300 transition-colors font-medium">Trendler</Link>
+            <Link to="/all-series" className="text-slate-300 hover:text-purple-300 transition-colors font-medium py-1" aria-label="Tüm manga serilerini görüntüle">Tüm Seriler</Link>
+            <Link to="/#trendler" className="text-slate-300 hover:text-purple-300 transition-colors font-medium py-1" aria-label="Trend mangaları görüntüle">Trendler</Link>
           </div>
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Kurumsal</h4>
@@ -28,8 +28,8 @@ export default function Footer() {
           </div>
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Topluluk</h4>
-            <a href="https://discord.gg/anipeak" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-blue-400 transition-colors font-medium">Discord</a>
-            <a href="https://www.instagram.com/anipeakoffical/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-pink-400 transition-colors font-medium">Instagram</a>
+            <a href="https://discord.gg/anipeak" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-blue-400 transition-colors font-medium py-1" aria-label="AniPeak Discord sunucusuna katıl">Discord</a>
+            <a href="https://www.instagram.com/anipeakoffical/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-pink-400 transition-colors font-medium py-1" aria-label="AniPeak Instagram sayfasını ziyaret et">Instagram</a>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, MessageSquare, Mail, User } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
 export default function Suggestions() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -11,18 +12,18 @@ export default function Suggestions() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/admin/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            user: formData.name, 
-            email: formData.email, 
-            message: formData.message 
-        })
-      });
-      if (res.ok) {
+      const { error } = await supabase.from('contact_messages').insert([{
+        name: formData.name,
+        email: formData.email,
+        subject: 'Kullanıcı Önerisi',
+        message: formData.message
+      }]);
+      
+      if (!error) {
         setSuccess(true);
         setFormData({ name: '', email: '', message: '' });
+      } else {
+        alert('Veritabanına bağlanılamadı.');
       }
     } catch (err) {
       alert('Sunucu şu an çevrimdışı. Lütfen daha sonra tekrar deneyin!');
