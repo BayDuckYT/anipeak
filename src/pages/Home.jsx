@@ -33,8 +33,12 @@ function MinimalCard({ item, type = 'trending', rank, chapters }) {
     <Link to={`/manhwa/${item.id}`} className="group block w-[140px] sm:w-[160px] flex-shrink-0" aria-label={`${item.title} serisine git`}>
       <div className="relative rounded-xl overflow-hidden bg-[#0c0a10] border border-white/5 transition-colors hover:border-purple-500/40">
         {isTrending && rank && (
-          <div className="absolute top-2 left-2 z-20 px-2.5 py-0.5 rounded bg-black/80 backdrop-blur border border-white/10 text-white font-bold text-xs">
-            #{rank}
+          <div className="absolute top-2 left-2 z-20 pointer-events-none">
+            <span className={`text-4xl font-black italic drop-shadow-lg ${
+              rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-200' : rank === 3 ? 'text-orange-400' : 'text-white/80'
+            }`} style={{ textShadow: '2px 2px 10px rgba(0,0,0,0.9)' }}>
+              {rank}
+            </span>
           </div>
         )}
         <div className="relative" style={{ aspectRatio: '3/4' }}>
@@ -125,7 +129,7 @@ export default function Home({ onAuthOpen }) {
   }, [heroImageSrc]);
 
   // Veri Setleri
-  const trendingSeries = useMemo(() => validSeries.filter(s => s.is_trending).slice(0, 10), [validSeries]);
+  const trendingSeries = useMemo(() => validSeries.filter(s => s.is_trending).slice(0, 5), [validSeries]);
   const newChapterSeries = useMemo(() => {
     return [...validSeries]
       .map(s => ({ ...s, ts: chapters[String(s.id)]?.[0]?.created_at || '1970-01-01' }))
@@ -263,17 +267,6 @@ export default function Home({ onAuthOpen }) {
           <aside className="hidden xl:block w-[300px] flex-shrink-0 space-y-10">
             
             <div className="bg-[#0c0a10] border border-white/5 rounded-xl p-6">
-              <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-5 flex items-center gap-2">
-                <Star size={16} className="text-amber-400" /> En Yüksek Puanlılar
-              </h3>
-              <div className="flex flex-col">
-                {topRated.map((item, i) => (
-                  <SidebarItem key={item.id} item={item} rank={i + 1} />
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-[#0c0a10] border border-white/5 rounded-xl p-6">
                <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-5 flex items-center gap-2">
                 <Search size={16} /> Keşfet
               </h3>
@@ -282,6 +275,17 @@ export default function Home({ onAuthOpen }) {
                   <Link key={g} to={`/all-series?genre=${g}`} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
                     {g}
                   </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-[#0c0a10] border border-white/5 rounded-xl p-6">
+              <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-5 flex items-center gap-2">
+                <Star size={16} className="text-amber-400" /> En Yüksek Puanlılar
+              </h3>
+              <div className="flex flex-col">
+                {topRated.map((item, i) => (
+                  <SidebarItem key={item.id} item={item} rank={i + 1} />
                 ))}
               </div>
             </div>
