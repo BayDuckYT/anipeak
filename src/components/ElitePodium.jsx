@@ -139,7 +139,7 @@ export default function ElitePodium({ items }) {
                <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" style={{ aspectRatio: '2/3' }} loading="lazy" decoding="async" />
              </div>
              <div className="flex-1 min-w-0">
-               <h4 className="text-xs font-bold text-white truncate">{item.title}</h4>
+               <h3 className="text-sm font-bold text-white truncate">{item.title}</h3>
                <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-1">
                  <span className="flex items-center gap-1"><Star size={10} className="text-amber-400"/> {item.rating}</span>
                  <span className="flex items-center gap-1"><Eye size={10}/> {item.reads_num || 0}</span>

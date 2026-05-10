@@ -9,7 +9,7 @@ export default function Footer() {
           <p className="text-slate-300 text-sm max-w-xs text-center md:text-left leading-relaxed font-medium">
             Türkiye'nin en gelişmiş elit manga platformu. Kaliteli çeviri, hızlı okuma ve premium topluluk deneyimi.
           </p>
-          <p className="text-slate-400 text-[10px] max-w-xs text-center md:text-left leading-relaxed mt-2 italic">
+          <p className="text-slate-300 text-[11px] max-w-xs text-center md:text-left leading-relaxed mt-2 italic">
             Bu sitede fan yapımı çeviriler yer almaktadır. Orijinal sürüm için, lütfen ülkenizde mevcutsa çizgi romanı satın alın.
           </p>
         </div>
@@ -35,7 +35,7 @@ export default function Footer() {
       </div>
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
         <span>© 2026 AniPeak Production. Tüm hakları saklıdır.</span>
-        <span className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse">
+        <span className="text-emerald-300 font-black animate-pulse">
           🛡️ SİBER GÜVENLİK: ANİPEAK İNFİNİTY-GUARD
         </span>
         <span>Altyapı: AniPeak Core v3.0</span>

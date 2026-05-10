@@ -77,7 +77,7 @@ function SidebarItem({ item, rank }) {
         <img src={getOptimizedImage(item.cover, 100)} alt="" className="w-full h-full object-cover opacity-90 group-hover:opacity-100" loading="lazy" decoding="async" onError={handleImageError} />
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="text-slate-200 text-sm font-bold truncate group-hover:text-purple-300">{item.title}</h4>
+        <h3 className="text-slate-200 text-sm font-bold truncate group-hover:text-purple-300">{item.title}</h3>
         <div className="flex items-center gap-1.5 mt-0.5">
           <Star size={10} className="text-amber-400 fill-amber-400" />
           <span className="text-slate-400 text-xs">{item.rating}</span>
