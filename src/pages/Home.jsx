@@ -213,7 +213,7 @@ export default function Home({ onAuthOpen }) {
                 </h2>
                 <Link to="/all-series" className="text-xs font-bold text-slate-400 hover:text-white transition-colors">Tümünü Gör</Link>
               </div>
-              <VirtualHScroll items={trendingSeries} itemWidth={160} gap={16} renderItem={(item, i) => (
+              <VirtualHScroll items={trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5)} itemWidth={160} gap={16} renderItem={(item, i) => (
                 <MinimalCard key={item.id} item={item} type="trending" rank={i + 1} />
               )} />
             </section>
