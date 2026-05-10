@@ -27,10 +27,10 @@ export default function VirtualHScroll({
     const el = containerRef.current;
     if (!el) return;
 
-    // İlk ölçüm
-    setContainerWidth(el.clientWidth);
-
     const handleScroll = () => setScrollLeft(el.scrollLeft);
+    
+    // ResizeObserver ilk render'da zaten tetiklenir, bu yüzden el.clientWidth ile
+    // senkron (forced reflow) sorgulama yapıp main thread'i kitlemeye gerek yok.
     const resizeObs = new ResizeObserver(([entry]) => {
       setContainerWidth(entry.contentRect.width);
     });

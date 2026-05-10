@@ -486,34 +486,34 @@ export default function Header({ onAuthOpen }) {
                   </div>
                 )}
               </div>
-              <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><Compass size={16} /> Keşfet</Link>
-              <Link to="/messages" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all"><SendHorizontal size={16} /> Mesajlar</Link>
-              <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all"><Crown size={16} /> Premium</Link>
-              <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Shield size={16} /> Yönetim Paneli</Link>
-              <Link to="/achievements" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all"><Award size={16} /> Başarımlar</Link>
+              <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-h-[44px]"><Compass size={16} /> Keşfet</Link>
+              <Link to="/messages" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-h-[44px]"><SendHorizontal size={16} /> Mesajlar</Link>
+              <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all min-h-[44px]"><Crown size={16} /> Premium</Link>
+              <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Shield size={16} /> Yönetim Paneli</Link>
+              <Link to="/achievements" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Award size={16} /> Başarımlar</Link>
               <Link 
                 to="/takvim"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase min-h-[44px]"
               >
                 <Calendar size={16} /> Yayın Takvimi
               </Link>
               <Link 
                 to="/oracle"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-black text-cyan-400 hover:bg-cyan-500/10 transition-all uppercase"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-black text-cyan-400 hover:bg-cyan-500/10 transition-all uppercase min-h-[44px]"
               >
                 <Sparkles size={16} /> Oracle
               </Link>
               {user ? (
                 <>
-                  <Link to="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 transition-all"><Library size={16} /> Okuduklarım</Link>
-                  <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-all"><LogOut size={16} /> Çıkış Yap</button>
+                  <Link to="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 transition-all min-h-[44px]"><Library size={16} /> Okuduklarım</Link>
+                  <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-all min-h-[44px]"><LogOut size={16} /> Çıkış Yap</button>
                 </>
               ) : (
                 <div className="flex gap-2 pt-2">
-                  <button onClick={() => { onAuthOpen('login'); setMobileOpen(false); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-slate-300 border border-white/10">Giriş Yap</button>
-                  <button onClick={() => { onAuthOpen('register'); setMobileOpen(false); }} className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white">Kayıt Ol</button>
+                  <button onClick={() => { onAuthOpen('login'); setMobileOpen(false); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-slate-300 border border-white/10 min-h-[44px]">Giriş Yap</button>
+                  <button onClick={() => { onAuthOpen('register'); setMobileOpen(false); }} className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white min-h-[44px]">Kayıt Ol</button>
                 </div>
               )}
             </motion.div>
