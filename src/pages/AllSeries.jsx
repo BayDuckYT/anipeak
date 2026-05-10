@@ -365,7 +365,7 @@ export default function AllSeries() {
                   <PopularItem key={item.id} item={item} rank={i + 1} />
                 ))}
               </div>
-              <Link to="/all-series" className="flex items-center justify-center gap-1 mt-4 py-2.5 rounded-xl bg-white/5 border border-white/8 text-xs text-slate-400 font-bold hover:text-purple-400 hover:border-purple-500/30 transition-all">
+              <Link to="/popular" className="flex items-center justify-center gap-1 mt-4 py-2.5 rounded-xl bg-white/5 border border-white/8 text-xs text-slate-400 font-bold hover:text-purple-400 hover:border-purple-500/30 transition-all">
                 Tümünü Gör <ChevronRight size={14} />
               </Link>
             </div>
