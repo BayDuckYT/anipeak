@@ -15,26 +15,20 @@
   # ── 3. MIME Sniffing Koruması ──
   X-Content-Type-Options: nosniff
 
-  # ── 4. XSS Filtresi (Legacy Tarayıcılar) ──
-  X-XSS-Protection: 1; mode=block
-
-  # ── 5. Referrer Sızıntısı Önleme ──
+  # ── 4. Referrer Sızıntısı Önleme ──
   Referrer-Policy: strict-origin-when-cross-origin
 
-  # ── 6. Permissions Policy — Gereksiz API Erişimlerini Kapat ──
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), interest-cohort=()
+  # ── 5. Permissions Policy ──
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 
-  # ── 7. Content Security Policy — Kaynak Beyaz Listesi (A+ Grade) ──
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://api.jikan.moe https://*.supabase.co wss://*.supabase.co https://wsrv.nl https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  # ── 6. Titanyum CSP (Strict Dynamic) ──
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.pinimg.com https://wsrv.nl; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
-  # ── 8. Teknoloji Gizleme ──
-  X-Powered-By: AniPeak-Infinity-Guard
+  # ── 7. Teknoloji Gizleme (Hayalet Gemi) ──
+  X-Powered-By: Hidden
+  Server: AniPeak-Siber-Kale
 
-  # ── 9. Cross-Origin Politikası ──
-  Cross-Origin-Opener-Policy: same-origin-allow-popups
-  Cross-Origin-Resource-Policy: cross-origin
-
-  # ── 10. Cache Kontrolü (HTML Sayfaları) ──
+  # ── 8. Önbellek Yönetimi ──
   Cache-Control: public, max-age=0, must-revalidate
 
 # ── Statik Assetler — Uzun Süre Önbellekleme (İmmutable) ──

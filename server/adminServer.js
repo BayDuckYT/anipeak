@@ -124,7 +124,10 @@ app.post('/api/admin/deploy', (req, res) => {
 
         console.log('📦 Veri senkronizasyonu başlatıldı...');
         execSync('git add .');
-        execSync(`git commit -m "${commitMsg}"`);
+        
+        // KABUK ENJEKSİYONU KORUMASI: Mesajı sadece güvenli karakterlere sınırla
+        const safeCommitMsg = commitMsg.replace(/[^a-zA-Z0-9\s._\-]/g, '');
+        execSync(`git commit -m "${safeCommitMsg}"`);
         execSync('git push origin main');
 
         // Cloudflare Webhook (Opsiyonel)

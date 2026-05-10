@@ -67,10 +67,12 @@ export function setupSecurityEngine(app) {
         crossOriginResourcePolicy:  { policy: 'cross-origin' }, // Medya dosyaları için
     }));
 
-    // "Server" başlığını sil — hangi teknoloji kullandığımızı gizle
+    // "Server" ve "X-Powered-By" başlıklarını tamamen temizle (HAYALET GEMİ MODU)
     app.use((req, res, next) => {
         res.removeHeader('Server');
         res.removeHeader('X-Powered-By');
+        res.setHeader('X-Powered-By', 'Invisible-Guard');
+        res.setHeader('Server', 'AniPeak-Siber-Kale');
         // Önbellek kontrolü — API yanıtları önbelleğe alınmasın
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
