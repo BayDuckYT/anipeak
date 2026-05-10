@@ -130,38 +130,27 @@ export default function AnimeAvatar({
       );
     }
 
-    const urlLower = rawSrc.toLowerCase();
-    const isPng = urlLower.split('?')[0].endsWith('.png');
-    const isWebp = urlLower.endsWith('.webp');
     const isSpritesheet = 
       effect.category === 'flags' || 
       effect.type === 'spritesheet' || 
-      (isPng && rawSrc.includes('/decorations/')) ||
-      (isPng && rawSrc.includes('/effects/'));
+      rawSrc.includes('/effects/') || 
+      rawSrc.includes('/avatar-efekts/') ||
+      rawSrc.includes('/decorations/');
       
-    const willUseSpritesheet = isPng && isSpritesheet;
+    const willUseSpritesheet = isSpritesheet;
 
     // [PERFORMANS] Yerel PNG/Webp efektleri çok büyük boyutlu (1-3MB). Production'da sıkıştır.
     let optimizedSrc = rawSrc;
     if (rawSrc.startsWith('/') && typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      // Sadece spritesheet OLMAYANLARI (statik çerçeveler vb.) boyutlandır. 
+      // Spritesheet'ler boyutlandırılırsa kareler bozulur.
       const resizeParam = !willUseSpritesheet ? '&w=150' : '';
       optimizedSrc = `https://wsrv.nl/?url=https://anipeak.com.tr${encodeURIComponent(rawSrc)}${resizeParam}&output=webp&q=75`;
     }
     
-    if (isWebp) {
-      return (
-        <img 
-          src={optimizedSrc}
-          alt={effect.label || effect.name}
-          style={effectStyle}
-          className="max-w-none"
-        />
-      );
-    }
-
-    if (isPng && isSpritesheet) {
-      return <AutoSpritesheet src={optimizedSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
-    }
+    // Webp olsa bile spritesheet olabilir, bu yüzden direkt AutoSpritesheet'e gönderiyoruz.
+    // AutoSpritesheet zaten kare sayısını hesaplayıp gerekirse düz img olarak render eder.
+    return <AutoSpritesheet src={optimizedSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
 
     return (
       <img 
