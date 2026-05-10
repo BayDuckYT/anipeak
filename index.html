@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
 
   <!-- ══════ INFINITY-GUARD GÜVENLİK PROTOKOLÜ ══════ -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://api.jikan.moe https://*.supabase.co wss://*.supabase.co https://wsrv.nl https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'unsafe-hashes' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://api.jikan.moe https://*.supabase.co wss://*.supabase.co https://wsrv.nl https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
   <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -61,20 +61,10 @@
   <link rel="preconnect" href="https://yrcrgkdikkaeccikdzvw.supabase.co" crossorigin />
   <link rel="preconnect" href="https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev" crossorigin />
 
-  <!-- 3. Google Fonts (Non-blocking: media swap trick) -->
+  <!-- 3. Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,700;0,14..32,900&display=swap" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,700;0,14..32,900&display=swap"
-    rel="stylesheet"
-    media="print"
-    onload="this.media='all'"
-  />
-  <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,700;0,14..32,900&display=swap" rel="stylesheet" />
-  </noscript>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet" />
 
   <!-- 4. Kritik Satır İçi CSS (Critical CSS) — İlk ekran "beyaz flash" olmadan yüklensin -->
   <style>

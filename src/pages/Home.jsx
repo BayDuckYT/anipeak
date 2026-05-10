@@ -266,7 +266,11 @@ export default function Home({ onAuthOpen }) {
               {/* Background image — LCP Element (eager + high priority + no fake delays) */}
               <div className="absolute inset-0 bg-[#050507]">
                 <img
-                  src={getOptimizedImage(featuredItem.cover, 1200)}
+                  src={
+                    featuredItem.title === 'Solo Leveling' ? '/solo_leveling_bg.jpg' : // Örnek özel arkaplan mantığı
+                    featuredItem.hero_bg ? featuredItem.hero_bg : // Veritabanından gelirse
+                    getOptimizedImage(featuredItem.cover, 1200) // Varsayılan olarak seri kapağı
+                  }
                   alt={featuredItem.title}
                   aria-hidden="true"
                   fetchpriority="high"
