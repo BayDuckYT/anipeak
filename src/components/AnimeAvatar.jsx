@@ -144,7 +144,8 @@ export default function AnimeAvatar({
     // [PERFORMANS] Yerel PNG/Webp efektleri çok büyük boyutlu (1-3MB). Production'da sıkıştır.
     let optimizedSrc = rawSrc;
     if (rawSrc.startsWith('/') && typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      optimizedSrc = `https://wsrv.nl/?url=https://anipeak.com.tr${encodeURIComponent(rawSrc)}&output=webp&q=75`;
+      const resizeParam = !isSpritesheet ? '&w=150' : '';
+      optimizedSrc = `https://wsrv.nl/?url=https://anipeak.com.tr${encodeURIComponent(rawSrc)}${resizeParam}&output=webp&q=75`;
     }
     
     if (isWebp) {

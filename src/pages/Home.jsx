@@ -43,7 +43,7 @@ function MinimalCard({ item, type = 'trending', rank, chapters }) {
         )}
         <div className="relative" style={{ aspectRatio: '3/4' }}>
           <img 
-            src={getOptimizedImage(item.cover, 300)} 
+            src={getOptimizedImage(item.cover, 200)} 
             alt={item.title} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
             loading="lazy"
