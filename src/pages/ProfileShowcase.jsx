@@ -45,6 +45,7 @@ import {
   ChevronRight, 
   ArrowRight,
   Info,
+  Gem,
 } from 'lucide-react';
 import { useAuth, getLevelInfo } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -763,13 +764,19 @@ export default function ProfileShowcase() {
                         />
                       </div>
                     )}
-                    <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] z-10">
+                    <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] z-10 flex items-center gap-2">
+                      {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && (
+                        <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                      )}
                       {displayUser.username}
                     </h1>
                   </div>
 
                   <div className="inline-flex px-4 py-1.5 rounded-full bg-zinc-950 border border-zinc-800">
-                     <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">{displayUser.fullLabel}</span>
+                     <span className={`text-[9px] font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 'text-blue-400'}`}>
+                        {displayUser.is_elite && <Crown size={10} className="inline mr-1 mb-0.5" />}
+                        {displayUser.fullLabel}
+                     </span>
                   </div>
 
                   <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-40" />
@@ -935,8 +942,11 @@ export default function ProfileShowcase() {
                   <div>
                     <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">PROFIL</h2>
                         <div className="flex items-center gap-4 mt-4">
-                           <div className="px-4 py-2 rounded-xl bg-blue-500/20 border border-blue-500/30 backdrop-blur-md">
-                              <span className="text-xs font-black text-blue-400 uppercase tracking-widest">{displayUser.rank}</span>
+                           <div className={`px-4 py-2 rounded-xl border backdrop-blur-md ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-blue-500/20 border-blue-500/30'}`}>
+                              <span className={`text-xs font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 'text-blue-400'}`}>
+                                 {displayUser.is_elite && <Crown size={12} className="inline mr-1 mb-0.5 text-amber-400" />}
+                                 {displayUser.rank}
+                              </span>
                            </div>
                            <div className="h-4 w-px bg-white/10" />
                            <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Üye Özeti</div>

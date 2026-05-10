@@ -11,57 +11,56 @@ const AuthContext = createContext(null);
  * Yeni Kademeli Seviye ve Rütbe Hesaplama (AniPeak V4)
  */
 export function getLevelInfo(xp, is_elite = false) {
-  let level, rank, xpInLevel, xpForNext;
+  let level, rank, xpInLevel, xpForNext, rankColor;
   const val = Number(xp) || 0;
 
   if (val < 500) {
     level = Math.floor(val / 50) + 1;
-    rank = 'Yeni Okur';
+    rank = 'Manga Çırağı';
     xpInLevel = val % 50;
     xpForNext = 50;
   } else if (val < 2000) {
     level = 11 + Math.floor((val - 500) / 100);
-    rank = 'Okur';
+    rank = 'Manga Yolcusu';
     xpInLevel = (val - 500) % 100;
     xpForNext = 100;
   } else if (val < 5000) {
     level = 26 + Math.floor((val - 2000) / 200);
-    rank = 'Deneyimli Okur';
+    rank = 'Manga Savaşçısı';
     xpInLevel = (val - 2000) % 200;
     xpForNext = 200;
   } else if (val < 10000) {
     level = 41 + Math.floor((val - 5000) / 333);
-    rank = 'Kıdemli Okur';
+    rank = 'Manga Koruması';
     xpInLevel = (val - 5000) % 333;
     xpForNext = 333;
   } else if (val < 25000) {
     level = 56 + Math.floor((val - 10000) / 1000);
-    rank = 'Koleksiyoncu';
+    rank = 'Manga Koleksiyoncusu';
     xpInLevel = (val - 10000) % 1000;
     xpForNext = 1000;
   } else if (val < 50000) {
     level = 71 + Math.floor((val - 25000) / 1666);
-    rank = 'Usta Okur';
+    rank = 'Manga Ustası';
     xpInLevel = (val - 25000) % 1666;
     xpForNext = 1666;
   } else if (val < 100000) {
     level = 86 + Math.floor((val - 50000) / 3333);
-    rank = 'Efsanevi Okur';
+    rank = 'Manga Efsanesi';
     xpInLevel = (val - 50000) % 3333;
     xpForNext = 3333;
   } else {
     level = 100;
-    rank = 'Zirve Okur';
+    rank = 'Manga Hükümdarı';
     xpInLevel = 1;
     xpForNext = 1;
   }
 
   // Güvenlik kontrolleri
   if (level > 100) level = 100;
-  if (level === 100) rank = 'Zirve Okur';
 
   // [ELITE MODIFIER]
-  if (is_elite && rank !== 'Zirve Okur') {
+  if (is_elite) {
     rank = `Elite ${rank}`;
   }
 
@@ -71,7 +70,8 @@ export function getLevelInfo(xp, is_elite = false) {
     xpInLevel, 
     xpForNext, 
     progress: level === 100 ? 100 : (xpInLevel / xpForNext) * 100,
-    fullLabel: `Lv. ${level} ${rank}`
+    fullLabel: `Lv. ${level} ${rank}`,
+    rankStyle: is_elite ? 'elite-gold-glow' : 'normal-rank'
   };
 }
 
@@ -129,7 +129,7 @@ export function AuthProvider({ children }) {
       const userRole = data?.role || (isSystemOwner ? 'Baş Admin' : 'Kullanıcı');
       
       // Adminler otomatik olarak Elite sayılır
-      const is_elite = data?.is_elite || isSystemOwner || ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör'].includes(userRole);
+      const is_elite = data?.is_elite || isSystemOwner || ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(userRole);
 
       const merged = {
         ...authUser,

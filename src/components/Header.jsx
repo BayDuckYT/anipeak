@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles
+  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles, Gem
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -312,10 +312,14 @@ export default function Header({ onAuthOpen }) {
                     {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className={`text-xs font-semibold leading-tight ${
-                      user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 
-                      (user.rank === 'Ulusal Seviye Avcı' || user.premium) ? 'rank-glow-gold' : 'text-white'
-                    }`}>{user.username}</p>
+                    <p className={`text-xs font-black leading-tight uppercase tracking-tighter flex items-center gap-1 ${
+                      user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
+                      user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 'text-white'
+                    }`}>
+                      {user.is_elite && <Crown size={10} className="text-amber-400" />}
+                      {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
+                      {user.username}
+                    </p>
                   </div>
                   <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -341,12 +345,16 @@ export default function Header({ onAuthOpen }) {
                             {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                           </div>
                           <div className="min-w-0">
-                            <p className={`text-sm font-black truncate uppercase tracking-tight ${
-                              user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 
-                              (user.rank === 'Ulusal Seviye Avcı' || user.premium) ? 'rank-glow-gold' : 'text-white'
-                            }`}>{user.username}</p>
+                            <p className={`text-sm font-black truncate uppercase tracking-tighter flex items-center gap-1 ${
+                              user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
+                              user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 'text-white'
+                            }`}>
+                              {user.is_elite && <Crown size={12} className="text-amber-400" />}
+                              {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={12} className="text-cyan-400 animate-pulse" />}
+                              {user.username}
+                            </p>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                             <span className="text-[9px] font-black uppercase text-purple-400 tracking-widest">
+                             <span className={`text-[9px] font-black uppercase tracking-widest ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-purple-400'}`}>
                                {user.rank}
                              </span>
                                <span className="w-1 h-1 rounded-full bg-slate-700" />
