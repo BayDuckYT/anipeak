@@ -5,6 +5,7 @@
 /* ── Theme & Performance Overrides ── */
 .amoled-mode {
   background-color: #000000 !important;
+}
 .amoled-mode .bg-\[\#050507\],
 .amoled-mode .bg-\[\#0B0E14\],
 .amoled-mode .bg-zinc-900\/30 {
