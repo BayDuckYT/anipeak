@@ -117,8 +117,11 @@ export function AuthProvider({ children }) {
 
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
 
-      if (error && error.code !== 'PGRST116' && error.code !== 'TIMEOUT') {
-        console.warn('[Auth] Profil çekme uyarısı:', error.message);
+      if (error && error.code !== 'PGRST116') {
+        if (error.code !== 'TIMEOUT') {
+          console.warn('[Auth] Profil çekme uyarısı:', error.message);
+        }
+        throw new Error(error.message || 'Profil yüklenemedi');
       }
 
       // [YÖNETİCİ YETKİSİ] Güvenli Admin kontrolü
@@ -426,8 +429,11 @@ export function AuthProvider({ children }) {
         try {
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
             if (session?.user) {
-              // Sadece İLK girişte loading göster, arka plan yenilemelerinde (sekme değişimi vb) UI'ı dondurma
-              if (event === 'SIGNED_IN') setLoading(true); 
+              // Sekme değişimlerinde asla loading gösterme (UI'ı dondurma)
+              // Sadece kullanıcı gerçekten ilk defa giriş yapıyorsa (cache yoksa) göster
+              if (event === 'SIGNED_IN' && !localStorage.getItem('anipeak_user_cache')) {
+                setLoading(true);
+              }
               await fetchProfile(session.user);
               subscribeToProfile(session.user.id);
             }
