@@ -101,7 +101,7 @@ export default function AnimeAvatar({
     const rawSrc = effect.url || effect.src || effect.image || effect.asset;
     if (!rawSrc) return null;
 
-    const isVideo = rawSrc.endsWith('.webm') || effect.type === 'video';
+    const isVideo = rawSrc.toLowerCase().endsWith('.webm') || effect.type === 'video';
     
     const effectStyle = {
       position: 'absolute',
@@ -136,28 +136,22 @@ export default function AnimeAvatar({
       rawSrc.includes('/effects/') || 
       rawSrc.includes('/avatar-efekts/') ||
       rawSrc.includes('/decorations/');
-      
-    const willUseSpritesheet = isSpritesheet;
 
     // [PERFORMANS] Yerel PNG/Webp efektleri çok büyük boyutlu (1-3MB). Production'da sıkıştır.
     let optimizedSrc = rawSrc;
     if (rawSrc.startsWith('/') && typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      // Sadece spritesheet OLMAYANLARI (statik çerçeveler vb.) boyutlandır. 
-      // Spritesheet'ler boyutlandırılırsa kareler bozulur.
-      const resizeParam = !willUseSpritesheet ? '&w=150' : '';
+      const resizeParam = !isSpritesheet ? '&w=150' : '';
       optimizedSrc = `https://wsrv.nl/?url=https://anipeak.com.tr${encodeURIComponent(rawSrc)}${resizeParam}&output=webp&q=75`;
     }
     
-    // Webp olsa bile spritesheet olabilir, bu yüzden direkt AutoSpritesheet'e gönderiyoruz.
-    // AutoSpritesheet zaten kare sayısını hesaplayıp gerekirse düz img olarak render eder.
-    return <AutoSpritesheet src={optimizedSrc} style={effectStyle} isHovered={isHovered} forcePlay={forcePlay} label={effect.label} />;
-
+    // AutoSpritesheet akıllıdır; eğer resim bir şerit (strip) değilse otomatik olarak img tagı render eder.
     return (
-      <img 
-        src={optimizedSrc}
-        alt={effect.label || effect.name}
-        style={effectStyle}
-        className="max-w-none"
+      <AutoSpritesheet 
+        src={optimizedSrc} 
+        style={effectStyle} 
+        isHovered={isHovered} 
+        forcePlay={forcePlay} 
+        label={effect.label || 'Effect'} 
       />
     );
   };
@@ -165,7 +159,7 @@ export default function AnimeAvatar({
   return (
     <div 
       ref={containerRef}
-      onMouseEnter={() => setIsVisible(true) || setIsHovered(true)}
+      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`relative aspect-square flex-shrink-0 overflow-visible cursor-pointer grid place-items-center ${size} ${className}`}
     >
@@ -180,13 +174,12 @@ export default function AnimeAvatar({
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         )}
-        {/* İç Gölge ve Derinlik */}
         <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-full" />
       </div>
 
-      {/* KATMAN 2: EFEKT (Simetrik Render) */}
+      {/* KATMAN 2: EFEKT */}
       <AnimatePresence>
-        {(isHovered || forcePlay || !effect?.url?.endsWith('.webm')) && (
+        {(isHovered || forcePlay || isVisible) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -199,7 +192,7 @@ export default function AnimeAvatar({
         )}
       </AnimatePresence>
       
-      {/* Arka Plan Işıltısı (Glow) */}
+      {/* Glow */}
       <div className="absolute inset-0 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </div>
   );
