@@ -260,11 +260,38 @@ async function processSeries(seriesUrl, browser) {
   }
 }
 
+async function extractCatalogUrls(page, url) {
+  try {
+    console.log(`\x1b[33m[CATALOG]\x1b[0m >> Liste/Katalog Sayfası Taraniyor: ${url}`);
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 });
+    
+    // Aşağı kaydırarak lazy loading kapakları ve linkleri yükle
+    await page.evaluate(async () => {
+      for (let i = 0; i < 15; i++) {
+        window.scrollBy(0, window.innerHeight);
+        await new Promise(r => setTimeout(r, 200));
+      }
+    });
+
+    const links = await page.evaluate(() => {
+      // Madara temalı sitelerdeki genel liste/kart linkleri
+      const aTags = Array.from(document.querySelectorAll('.post-title a, .manga-title-badges, .item-summary a, .h5 a, .series-title a'));
+      return Array.from(new Set(aTags.map(a => a.href).filter(href => href && href.includes('/manga/') && href.split('/').length > 5)));
+    });
+    
+    console.log(`\x1b[32m[CATALOG]\x1b[0m >> ${links.length} adet potansiyel seri linki bulundu!`);
+    return links;
+  } catch (e) {
+    console.log(`\x1b[31m[CATALOG HATA]\x1b[0m >> Katalog çekilemedi: ${e.message}`);
+    return [];
+  }
+}
+
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ ANIPEAK V61: SPEED TITAN — HD R2 EDITION ⚡        ║');
-  console.log('\x1b[35m%s\x1b[0m', '║   90% WebP HD · No GitHub · Direct R2 · Ultra Fast    ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ ANIPEAK V62: OMNI-TITAN — MULTI-SITE EDITION ⚡      ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   Toplu Liste Tarama · Akıllı Algılama · Limit Kırıcı    ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
 
   let urlPath = path.resolve('scraper', 'url.txt');
@@ -275,15 +302,40 @@ async function main() {
   if (fs.existsSync(urlPath)) {
     console.log(`\x1b[32m[INFO]\x1b[0m >> url.txt bulundu, linkler okunuyor...`);
     const input = fs.readFileSync(urlPath, 'utf-8');
-    const targets = input.split('\n').map(t => t.trim()).filter(t => t.length > 5);
+    let targets = input.split('\n').map(t => t.trim()).filter(t => t.length > 5);
 
     const browser = await puppeteer.launch({
       headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
     });
 
+    // Katalog taraması için geçici sayfa
+    const catalogPage = await browser.newPage();
+    let finalTargets = [];
+
+    // Linkleri analiz et (Katalog mu, Tek Seri mi?)
     for (const target of targets) {
       const url = target.startsWith('http') ? target : `${CONFIG.BASE_URL}/manga/${target}`;
+      
+      // Eğer URL sonu direkt /manga, /manga/ veya /page/1/ gibi bitiyorsa bu bir katalogdur
+      const isCatalog = url.match(/\/manga\/?$/) || url.match(/\/liste\/?$/) || url.match(/\/page\/\d+/);
+      
+      if (isCatalog) {
+        const catalogLinks = await extractCatalogUrls(catalogPage, url);
+        finalTargets.push(...catalogLinks);
+      } else {
+        finalTargets.push(url);
+      }
+    }
+    
+    await catalogPage.close();
+    
+    // Benzersiz linkleri filtrele
+    finalTargets = Array.from(new Set(finalTargets));
+    console.log(`\x1b[36m[QUE]\x1b[0m >> Toplam işlenecek benzersiz seri sayısı: ${finalTargets.length}`);
+
+    // Tüm serileri sırayla işle
+    for (const url of finalTargets) {
       await processSeries(url, browser);
     }
     await browser.close();
