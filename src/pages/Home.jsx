@@ -302,8 +302,6 @@ export default function Home({ onAuthOpen }) {
               </div>
             </div>
 
-            </div>
-
           </aside>
 
         </div>
