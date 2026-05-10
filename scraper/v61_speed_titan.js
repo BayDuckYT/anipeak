@@ -176,9 +176,16 @@ async function processSeries(seriesUrl, browser) {
     const seriesData = await extractSeriesInfo(mainPage, seriesUrl);
     await mainPage.close();
 
-    if (!seriesData?.title) {
-      console.log(`\x1b[33m[SKIP]\x1b[0m >> Veri alınamadı: ${seriesUrl}`);
+    if (!seriesData?.title || seriesData.chapters.length === 0) {
+      console.log(`\x1b[33m[SKIP]\x1b[0m >> Veri alınamadı veya liste sayfası tespit edildi (Bölüm sayısı 0): ${seriesUrl}`);
       return;
+    }
+
+    // Liste sayfası koruması: Başlık çok genel ise atla
+    const blacklist = ['all mangas', 'manga listesi', 'seri listesi', 'tüm mangalar', 'manga list'];
+    if (blacklist.includes(seriesData.title.toLowerCase())) {
+       console.log(`\x1b[33m[SKIP]\x1b[0m >> Liste sayfası başlığı tespit edildi, atlanıyor: ${seriesData.title}`);
+       return;
     }
 
     console.log(`\x1b[36m[INFO]\x1b[0m >> ${seriesData.title}: HD İşlem Başlıyor...`);
