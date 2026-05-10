@@ -253,125 +253,121 @@ export default function Home({ onAuthOpen }) {
     ? (Array.isArray(featuredItem.genre) ? featuredItem.genre : [featuredItem.genre || 'Aksiyon']).join(', ')
     : '';
 
+  // ═══════════════════════════════════════════════════════════════
+  // LCP OPTİMİZASYONU: Hero görseli wsrv.nl proxy'sinden GEÇMEZ!
+  // wsrv.nl her istekte: indir → dönüştür → gönder yapar = 2-3 saniye ekstra.
+  // Hero için doğrudan R2 CDN URL'i kullanıyoruz.
+  // ═══════════════════════════════════════════════════════════════
+  const heroImageSrc = useMemo(() => {
+    if (!featuredItem) return '';
+    if (featuredItem.title === 'Solo Leveling') return '/solo_leveling_bg.jpg';
+    if (featuredItem.hero_bg) return featuredItem.hero_bg;
+    // Cover URL'ini doğrudan kullan — proxy YOK, sıfır gecikme
+    return featuredItem.cover || '';
+  }, [featuredItem]);
+
+  // Preload: tarayıcıya hero resmini erken keşfettir
+  useEffect(() => {
+    if (!heroImageSrc || heroImageSrc.startsWith('/')) return;
+    const existing = document.querySelector('link[data-hero-preload]');
+    if (existing) existing.remove();
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = heroImageSrc;
+    link.setAttribute('data-hero-preload', 'true');
+    link.setAttribute('fetchpriority', 'high');
+    document.head.appendChild(link);
+  }, [heroImageSrc]);
+
   return (
     <main className="min-h-screen portal-transition" id="home-top">
 
       {/* ── ══════════════ HERO SECTION (CAROUSEL) ══════════════ ── */}
+      {/* 🚀 PERFORMANS: AnimatePresence kaldırıldı — tarayıcının ilk boyayı (FCP) geciktiriyordu */}
       <section className="relative h-[520px] sm:h-[600px] overflow-hidden bg-[#050507]">
-        <AnimatePresence mode='wait'>
-          {featuredItem && (
-            <div
-              key={featuredItem.id}
-              className="absolute inset-0"
-            >
-              {/* Background image — LCP Element (eager + high priority + no fake delays) */}
-              <div className="absolute inset-0 bg-[#050507]">
-                <img
-                  src={
-                    featuredItem.title === 'Solo Leveling' ? '/solo_leveling_bg.jpg' :
-                    featuredItem.hero_bg ? featuredItem.hero_bg :
-                    getOptimizedImage(featuredItem.cover, 1200)
-                  }
-                  alt={featuredItem.title}
-                  aria-hidden="true"
-                  fetchpriority="high"
-                  loading="eager"
-                  decoding="sync"
-                  width="1440"
-                  height="600"
-                  sizes="100vw"
-                  className="w-full h-full object-cover"
-                  onError={handleImageError}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/40" />
-              </div>
+        {featuredItem && (
+          <div className="absolute inset-0">
+            {/* Background image — LCP Element (eager + high priority + NO animation wrapper) */}
+            <div className="absolute inset-0 bg-[#050507]">
+              <img
+                src={heroImageSrc}
+                alt=""
+                aria-hidden="true"
+                fetchpriority="high"
+                loading="eager"
+                decoding="sync"
+                width="1440"
+                height="600"
+                sizes="100vw"
+                className="w-full h-full object-cover"
+                onError={handleImageError}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/40" />
+            </div>
 
-              {/* Purple ambient glow */}
-              <div className="absolute bottom-0 left-0 w-[500px] h-[300px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
+            {/* Purple ambient glow */}
+            <div className="absolute bottom-0 left-0 w-[500px] h-[300px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
 
-              {/* Content */}
-              <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end pb-16 pt-20">
-                <div className="max-w-2xl">
-                  {/* Badge */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-4 backdrop-blur-md"
+            {/* Content — 🚀 motion.* delay'ler kaldırıldı, CSS transition ile anlık gösterim */}
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end pb-16 pt-20">
+              <div className="max-w-2xl">
+                {/* Badge */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-4 backdrop-blur-md">
+                  <Flame size={12} className="text-orange-400" aria-hidden="true" />
+                  <span className="text-[11px] text-purple-300 font-bold uppercase tracking-wider">Öne Çıkan</span>
+                </div>
+
+                {/* Title */}
+                <h1
+                  className="text-4xl sm:text-6xl lg:text-7xl font-black text-white uppercase tracking-tight leading-[1] mb-4 drop-shadow-2xl"
+                  style={{ textShadow: '0 4px 30px rgba(168,85,247,0.3)' }}
+                >
+                  {featuredItem.title}
+                </h1>
+
+                {/* Meta info */}
+                <div className="flex items-center gap-3 text-sm text-slate-300 mb-4 flex-wrap">
+                  <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
+                    <Star size={14} className="text-amber-400 fill-amber-400" /> {featuredItem.rating}
+                  </span>
+                  <span className="text-slate-400" aria-hidden="true">•</span>
+                  <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
+                    <BookOpen size={14} className="text-purple-400" /> {featuredChapterCount} Bölüm
+                  </span>
+                  <span className="text-slate-400" aria-hidden="true">•</span>
+                  <span className="text-slate-400 italic font-medium">
+                    {(Array.isArray(featuredItem.genre) ? featuredItem.genre : [featuredItem.genre || 'Aksiyon']).join(', ')}
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-8 line-clamp-2 max-w-lg">
+                  {featuredItem.description || `${featuredItem.title} serisini keşfet. Efsanevi bir hikaye seni bekliyor.`}
+                </p>
+
+                {/* Buttons */}
+                <div className="flex items-center gap-4">
+                  <Link
+                    to={`/manhwa/${featuredItem.id}`}
+                    className="flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple hover:scale-105 active:scale-95"
+                    aria-label={`${featuredItem.title} serisini okumaya başla`}
                   >
-                    <Flame size={12} className="text-orange-400 animate-pulse" />
-                    <span className="text-[11px] text-purple-300 font-bold uppercase tracking-wider">Öne Çıkan</span>
-                  </motion.div>
-
-                  {/* Title */}
-                  <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-4xl sm:text-6xl lg:text-7xl font-black text-white uppercase tracking-tight leading-[1] mb-4 drop-shadow-2xl"
-                    style={{ textShadow: '0 4px 30px rgba(168,85,247,0.3)' }}
+                    <Play size={16} className="fill-white" aria-hidden="true" /> Oku Şimdi
+                  </Link>
+                  <button
+                    onClick={() => { if (!user) { onAuthOpen('login'); } }}
+                    className="flex items-center gap-2 px-7 py-4 rounded-xl glass border border-white/10 text-white font-semibold text-sm hover:border-purple-500/40 hover:bg-purple-500/10 transition-all"
+                    aria-label={`${featuredItem.title} serisini listeye ekle`}
                   >
-                    {featuredItem.title}
-                  </motion.h1>
-
-                  {/* Meta info */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="flex items-center gap-3 text-sm text-slate-300 mb-4 flex-wrap"
-                  >
-                    <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
-                      <Star size={14} className="text-amber-400 fill-amber-400" /> {featuredItem.rating}
-                    </span>
-                    <span className="text-slate-400" aria-hidden="true">•</span>
-                    <span className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 backdrop-blur-sm">
-                      <BookOpen size={14} className="text-purple-400" /> {featuredChapterCount} Bölüm
-                    </span>
-                    <span className="text-slate-400" aria-hidden="true">•</span>
-                    <span className="text-slate-400 italic font-medium">
-                      {(Array.isArray(featuredItem.genre) ? featuredItem.genre : [featuredItem.genre || 'Aksiyon']).join(', ')}
-                    </span>
-                  </motion.div>
-
-                  {/* Description */}
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.45 }}
-                    className="text-slate-400 text-sm sm:text-base leading-relaxed mb-8 line-clamp-2 max-w-lg"
-                  >
-                    {featuredItem.description || `${featuredItem.title} serisini keşfet. Efsanevi bir hikaye seni bekliyor.`}
-                  </motion.p>
-
-                  {/* Buttons */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="flex items-center gap-4"
-                  >
-                    <Link
-                      to={`/manhwa/${featuredItem.id}`}
-                      className="flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple hover:scale-105 active:scale-95"
-                      aria-label={`${featuredItem.title} serisini okumaya başla`}
-                    >
-                      <Play size={16} className="fill-white" aria-hidden="true" /> Oku Şimdi
-                    </Link>
-                    <button
-                      onClick={() => { if (!user) { onAuthOpen('login'); } }}
-                      className="flex items-center gap-2 px-7 py-4 rounded-xl glass border border-white/10 text-white font-semibold text-sm hover:border-purple-500/40 hover:bg-purple-500/10 transition-all"
-                      aria-label={`${featuredItem.title} serisini listeye ekle`}
-                    >
-                      <Plus size={16} aria-hidden="true" /> Listeye Ekle
-                    </button>
-                  </motion.div>
+                    <Plus size={16} aria-hidden="true" /> Listeye Ekle
+                  </button>
                 </div>
               </div>
             </div>
-          )}
-        </AnimatePresence>
+          </div>
+        )}
 
         {/* Carousel Indicators */}
         <div className="absolute bottom-8 right-8 z-20 flex gap-2">

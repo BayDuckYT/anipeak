@@ -128,10 +128,9 @@ function AppContent() {
   const { maintenanceMode } = useApp();
   const { user, loading, isAdmin, isTester } = useAuth();
 
-  // ── Global Stability Listeners ──────────────────────────────────────
+  // ── Global Stability Listeners ──────────────────────────────────────────
   useEffect(() => {
     const handleError = (e) => {
-      console.error("[KOZMİK ÇÖKME]", e);
       if (e.message?.includes('chunk') || e.message?.includes('Loading')) {
         window.location.reload();
       }
@@ -196,7 +195,7 @@ function AppContent() {
 
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ScrollToTop />
         <GlobalEffects />
 

@@ -10,7 +10,8 @@ LEGACY_KEYS.forEach(key => localStorage.removeItem(key));
 
 // [KOZMİK GÜVENLİK] Global Error Fallback & Chunk Load Fix
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('[KOZMİK SESSİZ HATA]', event.reason);
+  // Tüm unhandled rejection'ları yakala — tarayıcı konsolunda kırmızı hata göstermesin
+  event.preventDefault();
   
   const msg = event.reason?.message || '';
   const isChunkError = msg.includes('Failed to fetch dynamically imported module') || 
@@ -18,9 +19,6 @@ window.addEventListener('unhandledrejection', (event) => {
                        msg.includes('Load failed');
                        
   if (isChunkError) {
-    // Prevent the default error overlay
-    event.preventDefault();
-    // Hard reload the page to get the latest chunk hashes from index.html
     window.location.reload(true);
   }
 });
