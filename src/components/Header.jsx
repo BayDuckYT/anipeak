@@ -304,7 +304,7 @@ export default function Header({ onAuthOpen }) {
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple relative">
                     <AnimeAvatar 
-                      src={user.avatar_url || null} 
+                      src={user.avatar_url ? getOptimizedImage(user.avatar_url, 100) : null} 
                       effect={userEffect}
                       size="w-8 h-8"
                       forcePlay={true}
@@ -333,7 +333,7 @@ export default function Header({ onAuthOpen }) {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-purple-500/20 relative">
                             <AnimeAvatar 
-                              src={user.avatar_url || null} 
+                              src={user.avatar_url ? getOptimizedImage(user.avatar_url, 100) : null} 
                               effect={userEffect}
                               size="w-10 h-10"
                               forcePlay={true}
