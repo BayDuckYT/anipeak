@@ -1,8 +1,8 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Star, BookOpen, ChevronRight, Flame, Play, Plus,
-  TrendingUp, Crown, Bell, Compass, Search, Zap
+  TrendingUp, Crown, Bell, Compass, Search, Zap, Trophy
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext.jsx';
@@ -10,6 +10,8 @@ import { useApp } from '../context/AppContext.jsx';
 import { handleImageError, getOptimizedImage } from '../utils/imageOpt.js';
 import VirtualHScroll from '../components/VirtualHScroll.jsx';
 import LazySection from '../components/LazySection.jsx';
+
+const ElitePodium = lazy(() => import('../components/ElitePodium.jsx'));
 
 // ── Sadeleştirilmiş Zaman Formatlayıcı ──
 function getTimeAgo(dateStr) {
@@ -137,7 +139,13 @@ export default function Home({ onAuthOpen }) {
       .slice(0, 12);
   }, [validSeries, chapters]);
   
-  const topRated = useMemo(() => [...validSeries].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 8), [validSeries]);
+  const mostPopular = useMemo(() => {
+    return [...validSeries].sort((a, b) => {
+      const ratingDiff = (b.rating || 0) - (a.rating || 0);
+      if (ratingDiff !== 0) return ratingDiff;
+      return (b.reads_num || 0) - (a.reads_num || 0);
+    }).slice(0, 10);
+  }, [validSeries]);
 
   useEffect(() => {
     if (location.hash === '#trendler' && trendRef.current) {
@@ -218,6 +226,21 @@ export default function Home({ onAuthOpen }) {
               )} />
             </section>
 
+            {/* En Popülerler Kürsüsü */}
+            <LazySection minHeight="400px">
+              <section id="populerler">
+                <div className="flex items-center justify-between mb-10">
+                  <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                    <Trophy size={24} className="text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" /> 
+                    En Popülerler
+                  </h2>
+                </div>
+                <Suspense fallback={<div className="h-[400px] bg-zinc-900/50 animate-pulse rounded-2xl border border-white/5" />}>
+                  <ElitePodium items={mostPopular} />
+                </Suspense>
+              </section>
+            </LazySection>
+
             {/* Yeni Bölümler */}
             <LazySection minHeight="240px">
               <section>
@@ -279,15 +302,6 @@ export default function Home({ onAuthOpen }) {
               </div>
             </div>
 
-            <div className="bg-[#0c0a10] border border-white/5 rounded-xl p-6">
-              <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-5 flex items-center gap-2">
-                <Star size={16} className="text-amber-400" /> En Yüksek Puanlılar
-              </h3>
-              <div className="flex flex-col">
-                {topRated.map((item, i) => (
-                  <SidebarItem key={item.id} item={item} rank={i + 1} />
-                ))}
-              </div>
             </div>
 
           </aside>

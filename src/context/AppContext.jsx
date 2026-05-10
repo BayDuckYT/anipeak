@@ -325,13 +325,27 @@ export function AppProvider({ children }) {
       .upsert({ series_id: seriesId, user_id: userId, value },
                { onConflict: 'series_id,user_id' });
 
-    // Recalculate global average
+    // 1. Yerel (Local) ortalamayı hesapla
     const { data: allRatings } = await supabase
       .from('ratings').select('value').eq('series_id', seriesId);
 
     if (allRatings?.length) {
-      const avg = allRatings.reduce((a, r) => a + r.value, 0) / allRatings.length;
-      await supabase.from('series').update({ rating: parseFloat(avg.toFixed(1)) }).eq('id', seriesId);
+      const localAvg = allRatings.reduce((a, r) => a + r.value, 0) / allRatings.length;
+      
+      // 2. Mevcut series verisini çek (global_rating için)
+      const { data: seriesData } = await supabase
+        .from('series').select('global_rating').eq('id', seriesId).single();
+        
+      const globalRating = seriesData?.global_rating || 8.0; // Varsayılan değer
+
+      // 3. Hibrit formülü uygula: (Global * %40) + (Local * %60)
+      const finalRating = (globalRating * 0.4) + (localAvg * 0.6);
+
+      // 4. Veritabanını güncelle
+      await supabase.from('series').update({ 
+        local_rating: parseFloat(localAvg.toFixed(1)),
+        rating: parseFloat(finalRating.toFixed(1)) 
+      }).eq('id', seriesId);
     }
   }, []);
 
