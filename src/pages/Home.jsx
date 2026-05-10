@@ -2,7 +2,7 @@ import { useEffect, useRef, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Star, BookOpen, ChevronRight, Flame, Play, Plus,
-  TrendingUp, Crown, Bell, Compass, Search
+  TrendingUp, Crown, Bell, Compass, Search, Zap
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext.jsx';
