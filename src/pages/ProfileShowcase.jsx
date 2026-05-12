@@ -1254,16 +1254,11 @@ export default function ProfileShowcase() {
                        </div>
                     </div>
                   )}
-              </div>
-                           </div>
-                         ))}
-                       </div>
-                    </div>
-                  )}
-               </motion.div>
-            </AnimatePresence>
-          </main>
-        </div>
+               </main>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <AnimatePresence>
          {toast && (
