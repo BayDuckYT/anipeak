@@ -14,14 +14,21 @@ export default function StarRating({ seriesId, initialRating }) {
     if (!user) return;
 
     const fetchUserRating = async () => {
-      const { data } = await supabase
-        .from('ratings')
-        .select('value')
-        .eq('series_id', seriesId)
-        .eq('user_id', user.id)
-        .single();
-      
-      if (data) setUserRating(data.value);
+      try {
+        const sid = parseInt(seriesId);
+        if (isNaN(sid)) return;
+
+        const { data, error } = await supabase
+          .from('ratings')
+          .select('value')
+          .eq('series_id', sid)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (!error && data) setUserRating(data.value);
+      } catch (err) {
+        console.warn("[RATINGS] Puan çekilemedi:", err);
+      }
     };
 
     fetchUserRating();

@@ -33,13 +33,18 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       const sid = parseInt(seriesId);
       if (isNaN(sid)) return;
 
-      // Fetch comments (including parent_id if it exists)
-      const { data: rawComments, error: commentError } = await supabase
+      // Fetch comments logic
+      let query = supabase
         .from('comments')
-        .select('*, profiles(*)')
-        .eq('series_id', sid)
-        .eq(chapterNum ? 'chapter_num' : 'series_id', chapterNum || sid) // Simple logic for series vs chapter
-        .order('created_at', { ascending: false });
+        .select('*, profiles(*)');
+      
+      if (chapterNum) {
+        query = query.eq('series_id', sid).eq('chapter_num', chapterNum);
+      } else {
+        query = query.eq('series_id', sid);
+      }
+
+      const { data: rawComments, error: commentError } = await query.order('created_at', { ascending: false });
 
       if (commentError) throw commentError;
       setComments(rawComments || []);
