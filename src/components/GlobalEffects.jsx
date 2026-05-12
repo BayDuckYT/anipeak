@@ -1,10 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { usePerformance } from '../context/PerformanceContext';
 
 export default function GlobalEffects() {
   const { user } = useAuth();
+  const { isLowPerformanceMode, isLowPowerMode } = usePerformance();
   const canvasRef = useRef(null);
   const mouse = useRef({ x: 0, y: 0 });
+
+  const isLowEnd = isLowPerformanceMode || isLowPowerMode;
 
   // [THEME & ANIMATION CONTROL]
   useEffect(() => {
@@ -19,12 +23,12 @@ export default function GlobalEffects() {
     }
 
     // Handle animations (e.g. reducing complexity)
-    if (!animations) {
+    if (!animations || isLowEnd) {
       document.body.classList.add('no-animations');
     } else {
       document.body.classList.remove('no-animations');
     }
-  }, [user?.appearance_settings]);
+  }, [user?.appearance_settings, isLowEnd]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -70,9 +74,9 @@ export default function GlobalEffects() {
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.4;
-        this.vy = (Math.random() - 0.5) * 0.4;
-        this.radius = Math.random() * 2 + 0.5;
+        this.vx = (Math.random() - 0.5) * (isLowEnd ? 0.2 : 0.4);
+        this.vy = (Math.random() - 0.5) * (isLowEnd ? 0.2 : 0.4);
+        this.radius = Math.random() * (isLowEnd ? 1.5 : 2.5) + 0.5;
         this.alpha = Math.random() * 0.3 + 0.1;
         // Animain colors: Purple or Blue
         this.color = Math.random() > 0.5 ? '#a855f7' : '#3b82f6';
@@ -97,19 +101,31 @@ export default function GlobalEffects() {
 
         ctx.beginPath();
         ctx.arc(this.x + px, this.y + py, this.radius, 0, Math.PI * 2);
+        
+        // Premium Glow Effect for high-end
+        if (!isLowEnd) {
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = this.color;
+        }
+
         ctx.fillStyle = this.color;
         ctx.globalAlpha = this.alpha;
         ctx.fill();
+        
+        if (!isLowEnd) ctx.shadowBlur = 0;
       }
     }
 
     function initParticles() {
       particles = [];
-      // Mobilde daha az parçacık — GPU yükü düşer, performans artar
       const isMobile = window.innerWidth < 768;
-      const divisor = isMobile ? 30000 : 15000;
-      const maxCount = isMobile ? 40 : 80;
+      // Mobilde ve düşük performans modunda daha az parçacık
+      let divisor = isMobile ? 35000 : 20000;
+      if (isLowEnd) divisor *= 2; 
+
+      const maxCount = isMobile ? (isLowEnd ? 20 : 35) : (isLowEnd ? 40 : 80);
       const count = Math.min(Math.floor((width * height) / divisor), maxCount);
+      
       for (let i = 0; i < count; i++) {
         particles.push(new Particle());
       }
@@ -120,7 +136,9 @@ export default function GlobalEffects() {
     resizeCanvas();
 
     const drawGrid = () => {
-      const spacing = 100;
+      if (isLowEnd) return; // Skip grid in low end for maximum performance
+
+      const spacing = 120;
       const px = (mouse.current.x - width / 2) * 0.005;
       const py = (mouse.current.y - height / 2) * 0.005;
 
@@ -129,20 +147,22 @@ export default function GlobalEffects() {
       ctx.globalAlpha = 1;
 
       ctx.beginPath();
-      for (let x = (px % spacing); x < width; x += spacing) {
+      const xOffset = px % spacing;
+      const yOffset = py % spacing;
+
+      for (let x = xOffset; x < width; x += spacing) {
         ctx.moveTo(x, 0);
         ctx.lineTo(x, height);
       }
-      for (let y = (py % spacing); y < height; y += spacing) {
+      for (let y = yOffset; y < height; y += spacing) {
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
       }
       ctx.stroke();
     };
 
-    // 30 FPS cap — görsel kalite aynı, CPU/GPU %50 daha az çalışır
     let lastTime = 0;
-    const FPS_CAP = 30;
+    const FPS_CAP = isLowEnd ? 20 : 30; // Further reduce FPS in low end mode
     const FRAME_INTERVAL = 1000 / FPS_CAP;
 
     const animate = (timestamp) => {
@@ -153,7 +173,6 @@ export default function GlobalEffects() {
       ctx.clearRect(0, 0, width, height);
       drawGrid();
 
-      ctx.shadowBlur = 0; // Reset once per frame, not per particle
       particles.forEach(p => {
         p.update();
         p.draw();
@@ -168,7 +187,7 @@ export default function GlobalEffects() {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [user]);
+  }, [user, isLowEnd]);
 
   return (
     <canvas
@@ -178,7 +197,7 @@ export default function GlobalEffects() {
       className={`fixed inset-0 pointer-events-none z-[-1] gpu-accelerated transition-colors duration-700 ${
         user?.appearance_settings?.theme === 'amoled' ? 'bg-black' : 'bg-[#050507]'
       }`}
-      style={{ opacity: 0.9 }}
+      style={{ opacity: 0.85 }}
     />
   );
 }
