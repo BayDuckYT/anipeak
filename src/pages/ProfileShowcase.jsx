@@ -1255,10 +1255,7 @@ export default function ProfileShowcase() {
                     </div>
                   )}
                </main>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            </div>
 
       <AnimatePresence>
          {toast && (
