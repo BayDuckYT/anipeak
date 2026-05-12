@@ -33,10 +33,10 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       const sid = parseInt(seriesId);
       if (isNaN(sid)) return;
 
-      // Fetch comments logic
+      // Fetch comments logic - Flattened for stability (using columns directly in comments table)
       let query = supabase
         .from('comments')
-        .select('*, profiles(*)');
+        .select('*'); // Removed profiles(*) join as it causes 400 errors if FK is missing
       
       if (chapterNum) {
         query = query.eq('series_id', sid).eq('chapter_num', chapterNum);
@@ -252,11 +252,10 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       <div className="flex flex-col gap-4">
         <AnimatePresence mode="popLayout">
           {comments.map((comment) => {
-            const profile = comment.profiles;
-            const mix = profile?.active_mix || {};
-            const isHukumdar = profile?.rank === 'Manga Hükümdarı' || (profile?.rank && profile.rank.includes('Hükümdar'));
-            const isElite = profile?.is_elite || (profile?.rank && profile.rank.includes('Elite'));
+            const isHukumdar = comment.rank === 'Manga Hükümdarı' || (comment.rank && comment.rank.includes('Hükümdar'));
+            const isElite = comment.is_elite || (comment.rank && comment.rank.includes('Elite'));
             const isOwner = user?.id === comment.user_id;
+            const mix = comment.active_mix || {};
 
             return (
               <motion.div
@@ -277,38 +276,38 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80" />
                   </div>
                 )}
-
+ 
                 <div className="relative z-10 p-5 flex gap-4 items-start">
-                  <div className="w-12 h-12 shrink-0 relative cursor-pointer" onClick={() => navigate(`/profil/${profile?.username}`)}>
+                  <div className="w-12 h-12 shrink-0 relative cursor-pointer" onClick={() => navigate(`/profil/${comment.username}`)}>
                     <AnimeAvatar 
-                      src={profile?.avatar_url} 
+                      src={comment.avatar_url} 
                       effect={mix.avatar ? effectsData.find(e => e.id === mix.avatar) : null}
                       size="w-12 h-12"
                       forcePlay={true}
                     />
                   </div>
-
+ 
                   <div className="flex-1 min-w-0">
                     <div className="space-y-3">
                        <div className="flex items-start justify-between gap-2">
                           <div className="flex flex-col min-w-0">
                              <div className="flex items-center gap-2 flex-wrap">
                                <span 
-                                 onClick={() => navigate(`/profil/${profile?.username}`)}
+                                 onClick={() => navigate(`/profil/${comment.username}`)}
                                  className={`font-black text-sm italic tracking-tight uppercase truncate cursor-pointer hover:underline ${
                                    isHukumdar ? 'text-purple-300' : isElite ? 'text-amber-300' : 'text-white'
                                  }`}
                                >
-                                 {profile?.username || 'Gezgin'}
+                                 {comment.username || 'Gezgin'}
                                </span>
                                
-                               <UserBadges user={profile} iconSize={14} />
-
+                               <UserBadges user={comment} iconSize={14} />
+ 
                                <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest backdrop-blur-xl ${
                                  isHukumdar ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 shadow-neon-purple' : 
                                  isElite ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-neon-gold' : 'bg-white/5 border-white/10 text-slate-500'
                                }`}>
-                                 {profile?.rank || 'Çaylak'}
+                                 {comment.rank || 'Çaylak'}
                                </div>
                              </div>
                              <div className="flex items-center gap-2 mt-1">
