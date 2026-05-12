@@ -88,8 +88,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
         series_id: parseInt(seriesId),
         chapter_num: chapterNum ? parseInt(chapterNum) : null,
         is_spoiler: isSpoiler,
-        parent_id: replyTo?.id || null,
-        likes: 0
+        parent_id: replyTo?.id || null
       }]);
 
       if (error) {
