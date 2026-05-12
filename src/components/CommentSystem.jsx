@@ -88,13 +88,15 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       
       const payload = {
         user_id: user.id,
+        username: user.username || 'Gezgin',
+        avatar_url: user.avatar_url || '',
         text: finalContent.trim(),
         series_id: parseInt(seriesId),
         chapter_num: chapterNum ? parseInt(chapterNum) : null,
         is_spoiler: isSpoiler
       };
 
-      console.log("[COMMENTS] Payload:", payload);
+      console.log("[COMMENTS] Payload (Verified Columns):", payload);
 
       const { data, error } = await supabase.from('comments').insert([payload]).select();
 
