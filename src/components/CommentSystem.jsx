@@ -36,7 +36,8 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       const sid = parseInt(seriesId);
       if (isNaN(sid)) return;
 
-      let query = supabase.from('comments').select('*');
+      // Explicitly list columns to avoid "parent_id" schema errors
+      let query = supabase.from('comments').select('id, user_id, series_id, chapter_num, text, is_spoiler, created_at, likes, username, avatar_url, rank');
       if (chapterNum) {
         query = query.eq('series_id', sid).eq('chapter_num', parseInt(chapterNum));
       } else {
