@@ -115,22 +115,29 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     finally { setSubmitting(false); }
   };
 
-  // ─── REPLY ────────────────────────────────────────
-  const handleReply = async (parent) => {
+  // ─── REPLY (Instagram-style: all replies go under ROOT comment) ─
+  const getRootParentId = (comment) => {
+    // If this comment is already a reply, find its root parent
+    if (comment.parent_id) return comment.parent_id;
+    return comment.id;
+  };
+
+  const handleReply = async (targetComment) => {
     if (!user || !replyText.trim()) return;
     setSubmitting(true);
     try {
-      const p = { user_id: user.id, username: user.username || 'Gezgin', avatar_url: user.avatar_url || '', text: replyText.trim(), series_id: parseInt(seriesId), parent_id: parent.id, is_spoiler: false };
+      const rootId = getRootParentId(targetComment);
+      const p = { user_id: user.id, username: user.username || 'Gezgin', avatar_url: user.avatar_url || '', text: replyText.trim(), series_id: parseInt(seriesId), parent_id: rootId, is_spoiler: false };
       if (chapterNum) p.chapter_num = parseInt(chapterNum);
       const { data: ins, error } = await supabase.from('comments').insert([p]).select();
       if (error) throw error;
-      // Notify parent author
-      if (parent.user_id && parent.user_id !== user.id) {
-        await supabase.from('notifications').insert([{ user_id: parent.user_id, from_user_id: user.id, from_username: user.username, type: 'reply', comment_id: parent.id, series_id: parseInt(seriesId), message: `${user.username} yorumuna yanıt verdi` }]).catch(() => {});
+      // Notify the person being replied to
+      if (targetComment.user_id && targetComment.user_id !== user.id) {
+        await supabase.from('notifications').insert([{ user_id: targetComment.user_id, from_user_id: user.id, from_username: user.username, type: 'reply', comment_id: targetComment.id, series_id: parseInt(seriesId), message: `${user.username} yorumuna yanıt verdi` }]).catch(() => {});
       }
       if (ins?.[0]) processMentions(ins[0]);
       setReplyText(''); setReplyingTo(null);
-      setExpandedReplies(prev => new Set([...prev, parent.id]));
+      setExpandedReplies(prev => new Set([...prev, rootId]));
       setTimeout(() => fetchComments(), 300);
     } catch (err) { alert('Hata: ' + err.message); }
     finally { setSubmitting(false); }
@@ -161,7 +168,17 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     } catch(e) { /* revert */ setLikedByMe(p => { const n = new Set(p); liked ? n.add(cid) : n.delete(cid); return n; }); }
   };
 
-  const handleDelete = async (id) => { if (!window.confirm('Silinsin mi?')) return; await supabase.from('comments').delete().eq('id', id); fetchComments(); };
+  const handleDelete = async (id) => {
+    if (!window.confirm('Bu yorumu silmek istiyor musun?')) return;
+    try {
+      const { error } = await supabase.from('comments').delete().eq('id', id);
+      if (error) throw error;
+      fetchComments();
+    } catch (err) {
+      console.error('[DELETE]', err);
+      alert('Yorum silinemedi: ' + err.message);
+    }
+  };
 
   // ─── DERIVED DATA ─────────────────────────────────
   const topLevel = comments.filter(c => !c.parent_id);
@@ -239,7 +256,12 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                 {lc > 0 && <span className="text-[10px] font-black">{lc}</span>}
               </button>
               {user && (
-                <button onClick={() => { setReplyingTo(comment); setReplyText(`@${prof?.username || comment.username || ''} `); setTimeout(() => replyRef.current?.focus(), 50); }} className={`flex items-center gap-1.5 text-slate-500 hover:text-white transition-all ${isReply ? 'text-[9px]' : 'text-[10px]'} font-black uppercase tracking-widest`}>
+                <button onClick={() => {
+                  const targetName = prof?.username || comment.username || '';
+                  setReplyingTo(comment);
+                  setReplyText(targetName ? `@${targetName} ` : '');
+                  setTimeout(() => replyRef.current?.focus(), 50);
+                }} className={`flex items-center gap-1.5 text-slate-500 hover:text-white transition-all ${isReply ? 'text-[9px]' : 'text-[10px]'} font-black uppercase tracking-widest`}>
                   <Reply size={isReply ? 14 : 16} /> Yanıtla
                 </button>
               )}
@@ -270,13 +292,13 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                     ref={replyRef}
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply(comment); } }}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply(replyingTo); } }}
                     placeholder="Yanıtını yaz..."
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50"
                   />
                   <div className="flex items-center gap-2 mt-2">
                     <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="px-3 py-1.5 text-[9px] font-black text-slate-500 uppercase tracking-widest hover:text-white">İptal</button>
-                    <button onClick={() => handleReply(comment)} disabled={submitting || !replyText.trim()} className="px-5 py-1.5 bg-purple-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 disabled:opacity-40 flex items-center gap-2">
+                    <button onClick={() => handleReply(replyingTo)} disabled={submitting || !replyText.trim()} className="px-5 py-1.5 bg-purple-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 disabled:opacity-40 flex items-center gap-2">
                       <Send size={11} /> Yanıtla
                     </button>
                   </div>

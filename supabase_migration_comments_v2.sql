@@ -49,3 +49,10 @@ CREATE INDEX IF NOT EXISTS idx_comment_likes_comment ON comment_likes(comment_id
 CREATE INDEX IF NOT EXISTS idx_comment_likes_user ON comment_likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(user_id, is_read);
+
+-- 8. Allow users to delete their own comments
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'comments_delete_own') THEN
+    CREATE POLICY "comments_delete_own" ON comments FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
