@@ -3,14 +3,14 @@
 -- Supabase Dashboard > SQL Editor > New Query > Paste & Run
 -- ═══════════════════════════════════════════════════════════
 
--- 1. Add parent_id to comments for reply threading
-ALTER TABLE comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES comments(id) ON DELETE CASCADE;
+-- 1. Add parent_id to comments for reply threading (BIGINT to match id column)
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE;
 
 -- 2. Create comment_likes table for toggle like/unlike
 CREATE TABLE IF NOT EXISTS comment_likes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL,
-  comment_id UUID NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+  comment_id BIGINT NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id, comment_id)
 );
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   from_user_id UUID,
   from_username TEXT,
   type TEXT NOT NULL DEFAULT 'reply',
-  comment_id UUID REFERENCES comments(id) ON DELETE CASCADE,
+  comment_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
   series_id BIGINT,
   message TEXT,
   is_read BOOLEAN DEFAULT FALSE,
@@ -43,7 +43,7 @@ CREATE POLICY "notifications_select" ON notifications FOR SELECT USING (auth.uid
 CREATE POLICY "notifications_insert" ON notifications FOR INSERT WITH CHECK (true);
 CREATE POLICY "notifications_update" ON notifications FOR UPDATE USING (auth.uid() = user_id);
 
--- 7. Index for performance
+-- 7. Performance indexes
 CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON comments(parent_id);
 CREATE INDEX IF NOT EXISTS idx_comment_likes_comment ON comment_likes(comment_id);
 CREATE INDEX IF NOT EXISTS idx_comment_likes_user ON comment_likes(user_id);

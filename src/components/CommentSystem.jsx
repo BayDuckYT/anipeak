@@ -56,7 +56,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
   const [likeCounts, setLikeCounts] = useState({});
 
   // ─── FETCH ─────────────────────────────────────────────────
-  const fetchComments = useCallback(async () => {
+  const fetchComments = async () => {
     try {
       const sid = parseInt(seriesId);
       if (isNaN(sid)) return;
@@ -76,27 +76,31 @@ export default function CommentSystem({ seriesId, chapterNum }) {
         profileMap = (profiles || []).reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
       }
 
-      // Like counts
+      // Like counts — safely handles case where table doesn't exist yet
       const commentIds = rawComments.map(c => c.id);
-      const { data: allLikes } = await supabase.from('comment_likes').select('comment_id, user_id').in('comment_id', commentIds);
-
-      const counts = {};
-      const myLikes = new Set();
-      (allLikes || []).forEach(l => {
-        counts[l.comment_id] = (counts[l.comment_id] || 0) + 1;
-        if (user && l.user_id === user.id) myLikes.add(l.comment_id);
-      });
-      setLikeCounts(counts);
-      setLikedByMe(myLikes);
+      try {
+        const { data: allLikes } = await supabase.from('comment_likes').select('comment_id, user_id').in('comment_id', commentIds);
+        const counts = {};
+        const myLikes = new Set();
+        (allLikes || []).forEach(l => {
+          counts[l.comment_id] = (counts[l.comment_id] || 0) + 1;
+          if (user && l.user_id === user.id) myLikes.add(l.comment_id);
+        });
+        setLikeCounts(counts);
+        setLikedByMe(myLikes);
+      } catch (likeErr) {
+        // comment_likes table might not exist yet — that's OK
+        console.warn('[COMMENTS] Likes query skipped:', likeErr.message);
+      }
 
       const merged = rawComments.map(c => ({ ...c, _profile: profileMap[c.user_id] || null }));
       setComments(merged);
     } catch (err) {
       console.error('[COMMENTS] unexpected:', err);
     }
-  }, [seriesId, chapterNum, user]);
+  };
 
-  useEffect(() => { fetchComments(); }, [fetchComments]);
+  useEffect(() => { fetchComments(); }, [seriesId, chapterNum]);
 
   // ─── SUBMIT (top-level) ────────────────────────────────────
   const handleSubmit = async (e) => {
