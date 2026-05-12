@@ -379,7 +379,7 @@ export default function ProfileShowcase() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
   const [isMixModalOpen, setIsMixModalOpen] = useState(false);
-  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' });
+  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none', hue: 0 });
   const [previewEffect, setPreviewEffect] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumToast, setPremiumToast] = useState(false);
@@ -630,13 +630,15 @@ export default function ProfileShowcase() {
     } catch (err) { console.error(err); }
   };
 
-  const decorationEffectsData = useMemo(() => effectsData.filter(e => e.category !== 'profile_effects'), []);
+  const decorationEffectsData = useMemo(() => effectsData, []);
   const categories = useMemo(() => ['Tümü', ...new Set(decorationEffectsData.map(d => d.category))], [decorationEffectsData]);
 
   const filteredDecorations = useMemo(() => {
-    return decorationCategory === 'Tümü' 
-      ? decorationEffectsData 
-      : decorationEffectsData.filter(d => d.category === decorationCategory);
+    if (decorationCategory === 'Tümü') return decorationEffectsData;
+    if (decorationCategory === 'Efektler') return decorationEffectsData.filter(d => d.category === 'profile_effects');
+    if (decorationCategory === 'Çerçeveler') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
+    if (decorationCategory === 'Plaketler') return nameplatesData.map(n => ({ id: n, label: n, url: n, category: 'nameplates' }));
+    return decorationEffectsData.filter(d => d.category === decorationCategory);
   }, [decorationCategory, decorationEffectsData]);
 
   const getSocialIcon = (platform) => {
@@ -728,14 +730,13 @@ export default function ProfileShowcase() {
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
             <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative">
                {/* Background Effect */}
-               {displayUser.active_mix?.profile_effect && displayUser.active_mix?.profile_effect !== 'none' && (
                  <div className="absolute inset-0 z-[-1] opacity-20">
                    <img 
                      src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
                      className="w-full h-full object-cover" 
+                     style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                    />
                  </div>
-               )}
 
                <div className="relative mb-8">
                   <div className="w-40 h-40 relative">
@@ -744,6 +745,7 @@ export default function ProfileShowcase() {
                         effect={selectedDecoration}
                         size="w-40 h-40"
                         className="rounded-full shadow-2xl"
+                        style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                      />
                   </div>
                </div>
@@ -760,13 +762,17 @@ export default function ProfileShowcase() {
                           muted 
                           loop 
                           playsInline 
-                          className="w-full h-full object-fill opacity-100" 
+                          className="w-full h-full object-fill opacity-100"
+                          style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                         />
                       </div>
                     )}
                     <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] z-10 flex items-center gap-2">
                       {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && (
                         <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                      )}
+                      {displayUser.is_elite && (
+                        <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
                       )}
                       {displayUser.username}
                     </h1>
@@ -927,15 +933,13 @@ export default function ProfileShowcase() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/40 to-transparent z-10" />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-transparent to-transparent z-10" />
                   
-                  {displayUser.active_mix?.profile_effect && displayUser.active_mix?.profile_effect !== 'none' && (
-                    <div className="absolute inset-0 z-20 opacity-30 mix-blend-screen pointer-events-none">
+                    <div className="absolute inset-0 z-20 opacity-30 mix-blend-screen pointer-events-none" style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}>
                       <img 
                         src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
                         className="w-full h-full object-cover animate-pulse" 
                         style={{ animationDuration: '8s' }}
                       />
                     </div>
-                  )}
                </div>
                
                <div className="relative z-30 p-10 lg:p-14 flex flex-col min-h-[450px] justify-between">
@@ -1154,33 +1158,97 @@ export default function ProfileShowcase() {
                                 <Award size={32} />
                              </div>
                              <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
-                             <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}</p>
-                          </div>
-                       ))}
-                    </div>
-                  )}
-
-                  {activeTab === 'customize' && (
+                             <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-2">{new Date(ua                   {activeTab === 'customize' && (
                     <div className="space-y-12">
-                       <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
-                          {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler'].map((f) => (
-                            <button 
-                              key={f} 
-                              onClick={() => setDecorationCategory(f)}
-                              className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-500 hover:text-white'}`}
-                            >
-                               {f}
-                            </button>
-                          ))}
+                       <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                         <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
+                            {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler'].map((f) => (
+                              <button 
+                                key={f} 
+                                onClick={() => setDecorationCategory(f)}
+                                className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-500 hover:text-white'}`}
+                              >
+                                 {f}
+                              </button>
+                            ))}
+                         </div>
+
+                         {/* Color Picker (Hue) */}
+                         <div className="flex items-center gap-4 bg-zinc-950 border border-white/5 p-4 rounded-[2rem] min-w-[250px]">
+                           <Paintbrush size={16} className="text-blue-400 shrink-0" />
+                           <div className="flex-1 space-y-1">
+                             <div className="flex justify-between items-center">
+                               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">RENK TONU</span>
+                               <span className="text-[10px] font-black text-white">{mixState.hue || 0}°</span>
+                             </div>
+                             <input 
+                               type="range" 
+                               min="0" 
+                               max="360" 
+                               value={mixState.hue || 0}
+                               onChange={(e) => {
+                                 const val = parseInt(e.target.value);
+                                 setMixState(prev => ({ ...prev, hue: val }));
+                                 updateProfile({ active_mix: { ...mixState, hue: val } });
+                               }}
+                               className="w-full h-1 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-blue-500"
+                             />
+                           </div>
+                         </div>
                        </div>
                        
-                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                         {decorationCategory === 'Çerçeveler' && decorationEffectsData.map(effect => (
-                           <div key={effect.id} onClick={() => { setMixState({...mixState, avatar: effect.id}); updateProfile({ active_mix: {...mixState, avatar: effect.id} }); }} className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${mixState.avatar === effect.id ? 'border-indigo-500 ring-2 ring-indigo-500/50' : 'border-white/5 hover:border-white/20'}`}>
-                              <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-24 h-24" forcePlay={true} className="mx-auto" />
-                              <div className="text-center mt-4">
-                                 <span className="text-[10px] font-black text-white uppercase tracking-tight">{effect.label}</span>
-                              </div>
+                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                         {filteredDecorations.map(effect => {
+                           const isNameplate = effect.category === 'nameplates';
+                           const isProfileEffect = effect.category === 'profile_effects';
+                           const isActive = isNameplate ? mixState.nameplate === effect.id : isProfileEffect ? mixState.profile_effect === effect.id : mixState.avatar === effect.id;
+
+                           return (
+                             <div 
+                               key={effect.id} 
+                               onClick={() => {
+                                 let newMix;
+                                 if (isNameplate) newMix = { ...mixState, nameplate: effect.id };
+                                 else if (isProfileEffect) newMix = { ...mixState, profile_effect: effect.id };
+                                 else newMix = { ...mixState, avatar: effect.id };
+                                 
+                                 setMixState(newMix);
+                                 updateProfile({ active_mix: newMix });
+                               }} 
+                               className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${isActive ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-white/5 hover:border-white/20'}`}
+                             >
+                                <div className="aspect-square relative flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 mb-4">
+                                  {isNameplate ? (
+                                    <video src={`/nameplates/${effect.id}`} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                                  ) : isProfileEffect ? (
+                                    <img src={effect.url} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-20 h-20" forcePlay={true} />
+                                  )}
+                                  
+                                  {/* Preview with Hue */}
+                                  <div className="absolute inset-0 pointer-events-none" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }}>
+                                     {/* This just overlays the hue in the preview area for visual feedback */}
+                                  </div>
+                                </div>
+                                
+                                <div className="text-center">
+                                   <div className="text-[10px] font-black text-white uppercase tracking-tight truncate mb-1">{effect.label}</div>
+                                   <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
+                                </div>
+                                
+                                {isActive && (
+                                  <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center shadow-lg">
+                                    <Check size={14} className="text-white" />
+                                  </div>
+                                )}
+                             </div>
+                           );
+                         })}
+                       </div>
+                    </div>
+                  )}
+              </div>
                            </div>
                          ))}
                        </div>

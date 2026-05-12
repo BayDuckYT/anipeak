@@ -91,6 +91,7 @@ export default function Reader() {
   const { user, addToHistory, updateXP, updateReadingProgress } = useAuth();
   const { series, getChapters } = useApp();
   const imageRefs = useRef([]);
+  const commentsRef = useRef(null);
   
   const handleFullscreen = () => {
     try {
@@ -291,9 +292,9 @@ export default function Reader() {
                 <Maximize2 size={16} />
               </button>
               <button
-                onClick={() => setIsChatOpen(!isChatOpen)}
-                className={`p-2 rounded-lg transition-all ${isChatOpen ? 'text-blue-400 bg-blue-500/10' : 'text-slate-400 hover:text-blue-400 hover:bg-blue-500/10'}`}
-                title="Canlı Sohbet"
+                onClick={() => commentsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
+                title="Yorumlara Git"
               >
                 <MessageSquare size={16} />
               </button>
@@ -441,7 +442,7 @@ export default function Reader() {
 
         {/* ── REAL-TIME COMMENTS SECTION ── */}
         {!zenMode && (
-          <div className="w-full max-w-2xl mx-auto pb-20 px-4">
+          <div ref={commentsRef} className="w-full max-w-2xl mx-auto pb-20 px-4">
              <CommentSystem seriesId={manhwa.id} chapterNum={chapter} />
           </div>
         )}

@@ -311,16 +311,19 @@ export default function Header({ onAuthOpen }) {
                     />
                     {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                   </div>
-                  <div className="hidden md:block text-left">
-                    <p className={`text-xs font-black leading-tight uppercase tracking-tighter flex items-center gap-1 ${
-                      user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
-                      user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 'text-white'
-                    }`}>
-                      {user.is_elite && <Crown size={10} className="text-amber-400" />}
-                      {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
-                      {user.username}
-                    </p>
-                  </div>
+                    <div className="flex flex-col">
+                      <p className={`text-xs font-black leading-tight uppercase tracking-tighter flex items-center gap-1 ${
+                        user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
+                        user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 'text-white'
+                      }`}>
+                        {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
+                        {user.username}
+                      </p>
+                      <span className={`text-[8px] font-black uppercase tracking-[0.2em] flex items-center gap-0.5 ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-slate-500'}`}>
+                        {user.is_elite && <Crown size={8} className="text-amber-400" />}
+                        {user.rank}
+                      </span>
+                    </div>
                   <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -345,18 +348,15 @@ export default function Header({ onAuthOpen }) {
                             {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                           </div>
                           <div className="min-w-0">
-                            <p className={`text-sm font-black truncate uppercase tracking-tighter flex items-center gap-1 ${
-                              user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
-                              user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 'text-white'
-                            }`}>
-                              {user.is_elite && <Crown size={12} className="text-amber-400" />}
-                              {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={12} className="text-cyan-400 animate-pulse" />}
-                              {user.username}
-                            </p>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                             <span className={`text-[9px] font-black uppercase tracking-widest ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-purple-400'}`}>
-                               {user.rank}
-                             </span>
+                            <p className="text-sm font-black truncate uppercase tracking-tighter text-white">
+                               {user.username}
+                             </p>
+                             <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-purple-400'}`}>
+                                {user.is_elite && <Crown size={10} className="text-amber-400" />}
+                                {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
+                                {user.rank}
+                              </span>
                                <span className="w-1 h-1 rounded-full bg-slate-700" />
                                <span className="text-[9px] font-bold text-slate-400 uppercase">XP: {user.xp || 0}</span>
                             </div>
