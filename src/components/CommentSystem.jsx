@@ -33,10 +33,8 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       const sid = parseInt(seriesId);
       if (isNaN(sid)) return;
 
-      // Fetch comments logic - Flattened for stability (using columns directly in comments table)
-      let query = supabase
-        .from('comments')
-        .select('*'); // Removed profiles(*) join as it causes 400 errors if FK is missing
+      // Step 1: Fetch comments (flat)
+      let query = supabase.from('comments').select('*');
       
       if (chapterNum) {
         query = query.eq('series_id', sid).eq('chapter_num', chapterNum);
@@ -45,9 +43,31 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       }
 
       const { data: rawComments, error: commentError } = await query.order('created_at', { ascending: false });
-
       if (commentError) throw commentError;
-      setComments(rawComments || []);
+
+      if (rawComments && rawComments.length > 0) {
+        // Step 2: Fetch associated profiles for these comments to restore "Old System" look
+        const userIds = [...new Set(rawComments.map(c => c.user_id).filter(Boolean))];
+        
+        const { data: profiles, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', userIds);
+
+        if (!profileError && profiles) {
+          // Merge profiles into comments
+          const profileMap = profiles.reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
+          const merged = rawComments.map(c => ({
+            ...c,
+            profiles: profileMap[c.user_id] || null
+          }));
+          setComments(merged);
+        } else {
+          setComments(rawComments);
+        }
+      } else {
+        setComments([]);
+      }
     } catch (err) {
       console.error('[COMMENTS] Yükleme hatası:', err);
     } finally {
@@ -254,10 +274,11 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       <div className="flex flex-col gap-4">
         <AnimatePresence mode="popLayout">
           {comments.map((comment) => {
-            const isHukumdar = comment.rank === 'Manga Hükümdarı' || (comment.rank && comment.rank.includes('Hükümdar'));
-            const isElite = comment.is_elite || (comment.rank && comment.rank.includes('Elite'));
+            const profile = comment.profiles;
+            const mix = profile?.active_mix || {};
+            const isHukumdar = profile?.rank === 'Manga Hükümdarı' || (profile?.rank && profile.rank.includes('Hükümdar'));
+            const isElite = profile?.is_elite || (profile?.rank && profile.rank.includes('Elite'));
             const isOwner = user?.id === comment.user_id;
-            const mix = comment.active_mix || {};
 
             return (
               <motion.div
@@ -280,9 +301,9 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                 )}
  
                 <div className="relative z-10 p-5 flex gap-4 items-start">
-                  <div className="w-12 h-12 shrink-0 relative cursor-pointer" onClick={() => navigate(`/profil/${comment.username}`)}>
+                  <div className="w-12 h-12 shrink-0 relative cursor-pointer" onClick={() => navigate(`/profil/${profile?.username || comment.username}`)}>
                     <AnimeAvatar 
-                      src={comment.avatar_url} 
+                      src={profile?.avatar_url || comment.avatar_url} 
                       effect={mix.avatar ? effectsData.find(e => e.id === mix.avatar) : null}
                       size="w-12 h-12"
                       forcePlay={true}
@@ -295,21 +316,21 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                           <div className="flex flex-col min-w-0">
                              <div className="flex items-center gap-2 flex-wrap">
                                <span 
-                                 onClick={() => navigate(`/profil/${comment.username}`)}
+                                 onClick={() => navigate(`/profil/${profile?.username || comment.username}`)}
                                  className={`font-black text-sm italic tracking-tight uppercase truncate cursor-pointer hover:underline ${
                                    isHukumdar ? 'text-purple-300' : isElite ? 'text-amber-300' : 'text-white'
                                  }`}
                                >
-                                 {comment.username || 'Gezgin'}
+                                 {profile?.username || comment.username || 'Gezgin'}
                                </span>
                                
-                               <UserBadges user={comment} iconSize={14} />
+                               <UserBadges user={profile || comment} iconSize={14} />
  
                                <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest backdrop-blur-xl ${
                                  isHukumdar ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 shadow-neon-purple' : 
                                  isElite ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-neon-gold' : 'bg-white/5 border-white/10 text-slate-500'
                                }`}>
-                                 {comment.rank || 'Çaylak'}
+                                 {profile?.rank || comment.rank || 'Çaylak'}
                                </div>
                              </div>
                              <div className="flex items-center gap-2 mt-1">
