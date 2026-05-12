@@ -76,30 +76,46 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     if (!text.trim()) return;
     if (loading) return;
 
+    console.log("[COMMENTS] Gönderim başlatıldı...", { seriesId, chapterNum, userId: user.id });
     setLoading(true);
     try {
       const finalContent = replyTo ? `@${replyTo.username} ${text}` : text;
       
-      const { error } = await supabase.from('comments').insert([{
+      const payload = {
         user_id: user.id,
         text: finalContent.trim(),
         series_id: parseInt(seriesId),
         chapter_num: chapterNum ? parseInt(chapterNum) : null,
         is_spoiler: isSpoiler
-      }]);
+      };
+
+      console.log("[COMMENTS] Payload:", payload);
+
+      const { data, error } = await supabase.from('comments').insert([payload]).select();
 
       if (error) {
-        alert("Yorum gönderilemedi: " + error.message);
+        console.error("[COMMENTS] DB Hatası:", error);
+        alert(`Gönderim Hatası: ${error.message} (${error.code})`);
         throw error;
       }
+
+      console.log("[COMMENTS] Başarıyla gönderildi:", data);
       
       setText('');
       setIsSpoiler(false);
       setReplyTo(null);
-      if (updateXP) updateXP(10);
+      
+      // XP update should not block the UI or the success state
+      try {
+        if (updateXP) updateXP(10);
+      } catch (xpErr) {
+        console.warn("[COMMENTS] XP güncellenirken hata oluştu (önemsiz):", xpErr);
+      }
+
       fetchComments();
     } catch (err) {
-      console.error("[COMMENTS] Gönderim hatası:", err);
+      console.error("[COMMENTS] Kritik Hata:", err);
+      alert("Sistem hatası oluştu, konsolu kontrol edin.");
     } finally {
       setLoading(false);
     }
