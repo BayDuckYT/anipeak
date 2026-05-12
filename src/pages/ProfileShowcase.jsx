@@ -1158,7 +1158,13 @@ export default function ProfileShowcase() {
                                 <Award size={32} />
                              </div>
                              <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
-                             <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-2">{new Date(ua                   {activeTab === 'customize' && (
+                             <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}</p>
+                          </div>
+                       ))}
+                    </div>
+                  )}
+
+                  {activeTab === 'customize' && (
                     <div className="space-y-12">
                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                          <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
