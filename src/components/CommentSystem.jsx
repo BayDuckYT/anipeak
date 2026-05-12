@@ -33,30 +33,28 @@ export default function CommentSystem({ seriesId, chapterNum }) {
   // 1. Veri Çekme (Manuel Join ile 400 Hatasız & Gerçek Kimlikli)
   const fetchComments = async () => {
     try {
+      // Step 1: Fetch comments with strict context filtering
+      let query = supabase.from('comments').select('id, user_id, series_id, chapter_num, text, is_spoiler, created_at, likes, username, avatar_url, rank');
+      
       const sid = parseInt(seriesId);
       if (isNaN(sid)) return;
 
-      // Explicitly list columns to avoid "parent_id" schema errors
-      let query = supabase.from('comments').select('id, user_id, series_id, chapter_num, text, is_spoiler, created_at, likes, username, avatar_url, rank');
       if (chapterNum) {
         query = query.eq('series_id', sid).eq('chapter_num', parseInt(chapterNum));
       } else {
-        query = query.eq('series_id', sid);
+        // Only show series-level comments on the main page (where chapter_num is null)
+        query = query.eq('series_id', sid).is('chapter_num', null);
       }
 
-      const { data: rawComments, error } = await query.order('created_at', { ascending: false });
-      if (error) throw error;
+      const { data: rawComments, error: commentError } = await query.order('created_at', { ascending: false });
+      if (commentError) throw commentError;
 
       if (rawComments && rawComments.length > 0) {
-        // Profil eşleştirme (Join hatası almamak için akıllı yöntem)
+        // Step 2: Fetch profiles to restore Ultra-Premium look
         const userIds = [...new Set(rawComments.map(c => c.user_id).filter(Boolean))];
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', userIds);
+        const { data: profiles } = await supabase.from('profiles').select('*').in('id', userIds);
 
         const profileMap = (profiles || []).reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
-        
         const merged = rawComments.map(c => ({
           ...c,
           profiles: profileMap[c.user_id] || null
@@ -96,7 +94,8 @@ export default function CommentSystem({ seriesId, chapterNum }) {
 
       setText('');
       setIsSpoiler(false);
-      fetchComments();
+      // Small delay to ensure DB consistency before refresh
+      setTimeout(() => fetchComments(), 500);
     } catch (err) {
       alert("Hata: " + err.message);
     } finally {
