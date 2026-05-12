@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Theme & Performance Overrides ── */
+/* ── Theme & Performance Overrides ── Deployment: 2026-05-12 14:57 ── */
 .amoled-mode {
   background-color: #000000 !important;
 }
