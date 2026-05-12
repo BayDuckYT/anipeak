@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Crown, Gem } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export default function UserBadges({ user, showCrown = true, showGem = true, className = '', iconSize = 12 }) {
+export default function UserBadges({ user, showCrown = false, showGem = true, className = '', iconSize = 12 }) {
   const navigate = useNavigate();
   if (!user) return null;
 

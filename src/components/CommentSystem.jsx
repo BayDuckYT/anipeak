@@ -42,8 +42,8 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       if (chapterNum) {
         query = query.eq('series_id', sid).eq('chapter_num', parseInt(chapterNum));
       } else {
-        // Only show series-level comments on the main page (where chapter_num is null)
-        query = query.eq('series_id', sid).is('chapter_num', null);
+        // Show ALL comments for this series on the main page
+        query = query.eq('series_id', sid);
       }
 
       const { data: rawComments, error: commentError } = await query.order('created_at', { ascending: false });
