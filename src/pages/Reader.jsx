@@ -124,28 +124,60 @@ export default function Reader() {
   // All chapters for this manhwa
   const contextChapters = useMemo(() => getChapters(manhwa?.id), [getChapters, manhwa?.id]);
 
+  const [chapterData, setChapterData] = useState(null);
+  const [loadingPages, setLoadingPages] = useState(true);
+
   // Update history & stats when chapter changes
   useEffect(() => {
     if (manhwa?.id) {
+      setLoadingPages(true);
+      
+      const syncChapter = async () => {
+        try {
+          // Önce AppContext'ten hızlıca bak (Eğer önceden tam yüklendiyse)
+          const local = contextChapters.find(c => Number(c.number) === Number(chapter));
+          
+          if (local && local.pages && local.pages.length > 0) {
+            setChapterData(local);
+            setLoadingPages(false);
+          } else {
+            // Eğer sayfalar yoksa (AppContext sadece liste verisini çektiyse), tam veriyi çek
+            const { data, error } = await supabase
+              .from('chapters')
+              .select('*')
+              .eq('series_id', manhwa.id)
+              .eq('number', chapter)
+              .single();
+            
+            if (!error && data) {
+              setChapterData(data);
+            }
+          }
+        } catch (err) {
+          console.error("[READER] Bölüm senkronizasyon hatası:", err);
+        } finally {
+          setLoadingPages(false);
+        }
+      };
+
+      syncChapter();
+
       if (user) {
         addToHistory(manhwa.id, chapter);
         updateReadingProgress(manhwa.id, chapter);
       }
-      // Increment reads_num (Global view count)
+      
+      // Increment reads_num
       const incrementReads = async () => {
         try {
-          const { error } = await supabase.rpc('increment_reads', { row_id: manhwa.id });
-          if (error) {
-            // Fallback if RPC fails or not defined
-            await supabase.from('series').update({ reads_num: (manhwa.reads_num || 0) + 1 }).eq('id', manhwa.id);
-          }
-        } catch (err) {
-          console.error("[READER] Increment reads failed:", err);
-        }
+          await supabase.rpc('increment_reads', { row_id: manhwa.id }).catch(() => {
+             supabase.from('series').update({ reads_num: (manhwa.reads_num || 0) + 1 }).eq('id', manhwa.id);
+          });
+        } catch (err) {}
       };
       incrementReads();
     }
-  }, [chapter, manhwa?.id, user, addToHistory, updateReadingProgress]);
+  }, [chapter, manhwa?.id, user, addToHistory, updateReadingProgress, contextChapters]);
 
   // Sync state if URL changes externally
   useEffect(() => {
@@ -355,37 +387,25 @@ export default function Reader() {
         className={`w-full mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)] ${isChatOpen ? 'max-w-2xl sm:mr-96' : 'max-w-3xl'}`}
       >
         <div className="flex flex-col">
-          {(() => {
-            const currentCh = contextChapters?.find(c => {
-              const n1 = parseFloat(String(c.number));
-              const n2 = parseFloat(String(chapter));
-              return n1 === n2;
-            });
-
-            if (!currentCh) {
-              if (contextChapters?.length > 0) {
-                console.warn(`[READER] Bölüm bulunamadı! Aranan: ${chapter}, Mevcutlar:`, contextChapters.map(c => c.number));
-              }
-              return null;
-            }
-
-            if (!currentCh.pages || currentCh.pages.length === 0) {
-              return (
-                <div className="py-40 text-center px-6">
-                   <Sun size={64} className="text-slate-800 mx-auto mb-6" />
-                   <h2 className="text-2xl font-black text-white mb-2">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
-                   <p className="text-slate-500 max-w-sm mx-auto">Henüz sayfalar yüklenmemiş veya beklenmeyen bir hata oluşmuş.</p>
-                   <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-8 text-purple-400 font-bold hover:text-purple-300">
-                      <ArrowLeft size={16} /> Seri Detayına Dön
-                   </Link>
-                </div>
-              );
-            }
-
-            return currentCh.pages.map((p, idx) => (
+          {loadingPages ? (
+            <div className="flex flex-col items-center justify-center py-40 gap-4">
+              <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+              <p className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] animate-pulse">Sayfalar Mühürleniyor...</p>
+            </div>
+          ) : !chapterData || !chapterData.pages || chapterData.pages.length === 0 ? (
+            <div className="py-40 text-center px-6">
+              <Sun size={64} className="text-slate-800 mx-auto mb-6 opacity-20" />
+              <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
+              <p className="text-slate-500 max-w-sm mx-auto text-xs font-bold uppercase tracking-widest leading-relaxed">Henüz sayfalar yüklenmemiş veya beklenmeyen bir hata oluşmuş. Lütfen daha sonra tekrar deneyin.</p>
+              <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-10 px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-purple-400 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+                <ArrowLeft size={14} /> Seri Detayına Dön
+              </Link>
+            </div>
+          ) : (
+            chapterData.pages.map((p, idx) => (
               <ReaderImage key={`${chapter}-${idx}`} src={p} alt={`Page ${idx + 1}`} idx={idx} chapter={chapter} />
-            ));
-          })()}
+            ))
+          )}
         </div>
 
         {/* Visibility Pivot for XP reward */}

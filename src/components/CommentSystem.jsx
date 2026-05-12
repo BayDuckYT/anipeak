@@ -82,13 +82,10 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       
       const { error } = await supabase.from('comments').insert([{
         user_id: user.id,
-        username: user.username,
-        avatar_url: user.avatar_url,
         text: finalContent.trim(),
         series_id: parseInt(seriesId),
         chapter_num: chapterNum ? parseInt(chapterNum) : null,
-        is_spoiler: isSpoiler,
-        parent_id: replyTo?.id || null
+        is_spoiler: isSpoiler
       }]);
 
       if (error) {
