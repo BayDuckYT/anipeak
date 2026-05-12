@@ -63,6 +63,13 @@ export default function CommentSystem({ seriesId, chapterNum }) {
   }, [seriesId, chapterNum]);
 
   // ── Actions
+  const toggleSpoiler = (id) => {
+    const newRevealed = new Set(revealedSpoilers);
+    if (newRevealed.has(id)) newRevealed.delete(id);
+    else newRevealed.add(id);
+    setRevealedSpoilers(newRevealed);
+  };
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!user) { alert("Yorum yapmak için giriş yapmalısın!"); return; }
@@ -75,19 +82,25 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       
       const { error } = await supabase.from('comments').insert([{
         user_id: user.id,
+        username: user.username,
+        avatar_url: user.avatar_url,
         text: finalContent.trim(),
         series_id: parseInt(seriesId),
         chapter_num: chapterNum ? parseInt(chapterNum) : null,
         is_spoiler: isSpoiler,
-        parent_id: replyTo?.id || null
+        parent_id: replyTo?.id || null,
+        likes: 0
       }]);
 
-      if (error) throw error;
+      if (error) {
+        alert("Yorum gönderilemedi: " + error.message);
+        throw error;
+      }
       
       setText('');
       setIsSpoiler(false);
       setReplyTo(null);
-      updateXP(10);
+      if (updateXP) updateXP(10);
       fetchComments();
     } catch (err) {
       console.error("[COMMENTS] Gönderim hatası:", err);
