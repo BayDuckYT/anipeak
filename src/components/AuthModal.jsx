@@ -92,7 +92,7 @@ export default function AuthModal({ mode, onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed top-0 left-0 w-full h-[100dvh] z-[1000] flex items-center justify-center px-4"
     >
       {/* Backdrop */}
       <motion.div 
@@ -105,14 +105,12 @@ export default function AuthModal({ mode, onClose }) {
 
       {/* Modal Content */}
       <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
+        initial={{ scale: 0.95, opacity: 0, y: 10 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 10 }}
         transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-        className="relative z-[1001] w-full max-w-md bg-[#0c0a10] sm:glass-strong rounded-t-[2rem] sm:rounded-2xl p-6 sm:p-8 shadow-2xl sm:border border-t border-purple-500/20 overflow-y-auto max-h-[95vh] sm:max-h-[90vh] no-scrollbar pb-8 sm:pb-8"
+        className="relative z-[1001] w-full max-w-[400px] bg-[#0c0a10] glass-strong rounded-[2rem] p-6 sm:p-8 shadow-[0_0_50px_rgba(168,85,247,0.15)] border border-white/10 overflow-y-auto max-h-[90dvh] no-scrollbar"
       >
-          {/* Mobile Handle (Sürükleme Çubuğu Hissi) */}
-          <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 sm:hidden" />
           {/* Glows */}
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
