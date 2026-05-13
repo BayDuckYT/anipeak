@@ -11,7 +11,6 @@ import Footer from './components/Footer.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import GlobalEffects from './components/GlobalEffects.jsx';
 import Loader from './components/Loader.jsx';
-import BottomNav from './components/BottomNav.jsx';
 
 // ANIPEAK_SİBER_GÜNCELLEME_V3_1741
 import ScrollToTop from './components/ScrollToTop.jsx';
@@ -224,7 +223,6 @@ function AppContent() {
                  <ErrorBoundary mini>
                    <AnimatedRoutes onAuthOpen={(mode) => setAuthModal(mode)} />
                    <Footer />
-                   <BottomNav onAuthOpen={(mode) => setAuthModal(mode)} />
                  </ErrorBoundary>
               </div>
             </>
