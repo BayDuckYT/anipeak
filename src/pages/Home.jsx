@@ -159,19 +159,19 @@ export default function Home({ onAuthOpen }) {
       
       {/* ── STATİK HERO SECTION (Sıfır Javascript Animasyonu, Maksimum Hız) ── */}
       {heroItem && (
-        <section className="relative pt-20 pb-16 lg:pt-28 lg:pb-24 border-b border-white/5 overflow-hidden">
-          {/* Arka Plan Gradient (Sadeleştirilmiş) */}
+        <section className="relative pt-20 pb-12 sm:pb-16 lg:pt-28 lg:pb-24 border-b border-white/5 overflow-hidden">
+          {/* Arka Plan Gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#0a0812] to-[#050507] pointer-events-none" />
           
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row items-center gap-10">
+            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-10">
               
               <div className="flex-1 text-center lg:text-left">
                 <span className="inline-block px-3 py-1 mb-4 text-[10px] font-bold tracking-widest text-purple-400 border border-purple-500/20 rounded-full uppercase">
                   Haftanın En İyisi
                 </span>
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none mb-4">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-tight sm:leading-none mb-4">
                   {heroItem.title}
                 </h1>
                 
@@ -179,19 +179,19 @@ export default function Home({ onAuthOpen }) {
                   <span className="flex items-center gap-1.5"><Star size={14} className="text-amber-400" /> {heroItem.rating} Puan</span>
                   <span>•</span>
                   <span className="flex items-center gap-1.5"><BookOpen size={14} /> {heroChapterCount} Bölüm</span>
-                  <span>•</span>
-                  <span>{Array.isArray(heroItem.genre) ? heroItem.genre[0] : heroItem.genre || 'Aksiyon'}</span>
+                  <span className="hidden sm:inline">•</span>
+                  <span className="hidden sm:inline">{Array.isArray(heroItem.genre) ? heroItem.genre[0] : heroItem.genre || 'Aksiyon'}</span>
                 </div>
                 
-                <p className="text-slate-300 text-sm leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8 line-clamp-3">
+                <p className="text-slate-300 text-sm leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8 line-clamp-3 px-2 sm:px-0">
                   {heroItem.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi."}
                 </p>
                 
-                <div className="flex items-center gap-4 justify-center lg:justify-start">
-                  <Link to={`/manhwa/${heroItem.id}`} className="px-8 py-3.5 bg-white text-black font-black text-sm rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                  <Link to={`/manhwa/${heroItem.id}`} className="w-full sm:w-auto px-10 py-3.5 bg-white text-black font-black text-sm rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
                     <Play size={16} className="fill-black" /> Oku Şimdi
                   </Link>
-                  <button onClick={() => { if (!user) onAuthOpen('login'); }} className="px-6 py-3.5 bg-white/5 text-white border border-white/10 font-bold text-sm rounded-lg hover:bg-white/10 transition-colors">
+                  <button onClick={() => { if (!user) onAuthOpen('login'); }} className="w-full sm:w-auto px-8 py-3.5 bg-white/5 text-white border border-white/10 font-bold text-sm rounded-xl hover:bg-white/10 transition-colors active:scale-95 touch-manipulation">
                     Listeme Ekle
                   </button>
                 </div>
@@ -208,19 +208,19 @@ export default function Home({ onAuthOpen }) {
         </section>
       )}
 
-      {/* ── İÇERİK IZGARASI (Sade ve Temiz) ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col xl:flex-row gap-12">
+      {/* ── İÇERİK IZGARASI ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="flex flex-col xl:flex-row gap-8 lg:gap-12">
           
-          <div className="flex-1 min-w-0 space-y-16">
+          <div className="flex-1 min-w-0 space-y-12 sm:space-y-16">
             
             {/* Trendler */}
             <section ref={trendRef} id="trendler">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
                   <Flame size={18} className="text-orange-500" /> Trend Seriler
                 </h2>
-                <Link to="/all-series" className="text-xs font-bold text-slate-400 hover:text-white transition-colors">Tümünü Gör</Link>
+                <Link to="/all-series" className="text-[10px] sm:text-xs font-bold text-slate-400 hover:text-white transition-colors">Tümünü Gör</Link>
               </div>
               <VirtualHScroll items={trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5)} itemWidth={160} gap={16} renderItem={(item, i) => (
                 <MinimalCard key={item.id} item={item} type="trending" rank={i + 1} />
@@ -230,8 +230,8 @@ export default function Home({ onAuthOpen }) {
             {/* En Popülerler Kürsüsü */}
             <LazySection minHeight="400px">
               <section id="populerler">
-                <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                <div className="flex items-center justify-between mb-8 sm:mb-10">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
                     <Trophy size={24} className="text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" /> 
                     En Popülerler
                   </h2>
@@ -246,27 +246,29 @@ export default function Home({ onAuthOpen }) {
             <LazySection minHeight="240px">
               <section>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
                     <Zap size={18} className="text-emerald-500" /> Yeni Eklenenler
                   </h2>
                 </div>
-                <VirtualHScroll items={newChapterSeries} itemWidth={160} gap={16} renderItem={(item) => (
-                  <MinimalCard key={item.id} item={item} type="new" chapters={chapters} />
-                )} />
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+                  {newChapterSeries.map((item) => (
+                    <MinimalCard key={item.id} item={item} type="new" chapters={chapters} />
+                  ))}
+                </div>
               </section>
             </LazySection>
 
-            {/* Sade Duyurular */}
+            {/* Duyurular */}
             {announcements.length > 0 && (
               <LazySection minHeight="100px">
-                <section className="bg-white/5 border border-white/5 rounded-xl p-6">
+                <section className="bg-white/5 border border-white/5 rounded-2xl p-5 sm:p-6 shadow-sm">
                   <h3 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
-                    <Bell size={16} /> Platform Duyuruları
+                    <Bell size={16} className="text-purple-400" /> Duyurular
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {announcements.slice(0, 3).map((ann) => (
-                      <div key={ann.id} className="flex items-start gap-3 text-sm text-slate-300 pb-3 border-b border-white/5 last:border-0 last:pb-0">
-                        <span className="text-purple-400 mt-0.5">•</span>
+                      <div key={ann.id} className="flex items-start gap-4 text-sm text-slate-300 pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 flex-shrink-0" />
                         <p className="flex-1 leading-relaxed">{ann.text}</p>
                       </div>
                     ))}
@@ -275,34 +277,37 @@ export default function Home({ onAuthOpen }) {
               </LazySection>
             )}
 
-            {/* Sade Premium CTA */}
-            <section className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/20 rounded-xl p-8 text-center">
-              <Crown size={28} className="text-purple-400 mx-auto mb-3" />
-              <h3 className="text-xl font-black text-white mb-2">Premium Ayrıcalıkları</h3>
-              <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">Reklamsız okuma, özel discord rolleri ve herkesten önce yeni bölümler.</p>
-              <Link to="/elite-upgrade" className="inline-block px-6 py-2.5 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-500 transition-colors">
-                Detayları İncele
-              </Link>
+            {/* Premium CTA */}
+            <section className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/20 rounded-2xl p-6 sm:p-10 text-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Crown size={120} />
+              </div>
+              <div className="relative z-10">
+                <Crown size={32} className="text-purple-400 mx-auto mb-4" />
+                <h3 className="text-xl sm:text-2xl font-black text-white mb-3 uppercase tracking-tight">Premium Ayrıcalıkları</h3>
+                <p className="text-slate-400 text-sm mb-8 max-w-sm mx-auto">Reklamsız okuma, özel discord rolleri, isim efektleri ve herkesten önce yeni bölümler!</p>
+                <Link to="/elite-upgrade" className="inline-block px-10 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-500 hover:to-indigo-500 transition-all shadow-lg shadow-purple-900/40 active:scale-95 touch-manipulation">
+                  HEMEN ELİTE OL
+                </Link>
+              </div>
             </section>
 
           </div>
 
-          {/* SAĞ SÜTUN (Sade Sidebar) */}
+          {/* SAĞ SÜTUN (Desktop Sidebar) */}
           <aside className="hidden xl:block w-[300px] flex-shrink-0 space-y-10">
-            
-            <div className="bg-[#0c0a10] border border-white/5 rounded-xl p-6">
-               <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-5 flex items-center gap-2">
-                <Search size={16} /> Keşfet
+            <div className="bg-[#0c0a10] border border-white/5 rounded-2xl p-6 sticky top-24">
+               <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
+                <Search size={16} className="text-slate-400" /> Tür Keşfet
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {['Aksiyon', 'Romantik', 'Fantezi', 'Okul', 'Komedi'].map(g => (
-                  <Link key={g} to={`/all-series?genre=${g}`} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
+              <div className="flex flex-wrap gap-2.5">
+                {['Aksiyon', 'Romantik', 'Fantezi', 'Okul', 'Komedi', 'Macera', 'Dram', 'Shounen', 'Seinen'].map(g => (
+                  <Link key={g} to={`/all-series?genre=${g}`} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-purple-500/20 hover:border-purple-500/30 transition-all">
                     {g}
                   </Link>
                 ))}
               </div>
             </div>
-
           </aside>
 
         </div>

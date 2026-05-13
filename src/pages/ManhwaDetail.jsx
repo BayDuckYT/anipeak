@@ -266,28 +266,28 @@ export default function ManhwaDetail({ onAuthOpen }) {
               <div className="flex flex-wrap gap-4">
                 <button
                   onClick={() => handleReadChapter(continueChapter || (filteredChapters[filteredChapters.length - 1]?.number))}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black text-sm hover:scale-105 transition-all shadow-neon-purple"
+                  className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black text-sm hover:scale-105 transition-all shadow-neon-purple active:scale-95 touch-manipulation"
                 >
                   <Play size={18} /> {continueChapter ? `Bölüm ${continueChapter}'den Devam Et` : 'Okumaya Başla'}
                 </button>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => user ? setShowListModal(true) : onAuthOpen('login')}
-                    className="flex items-center gap-2 px-6 py-4 rounded-2xl glass border border-white/10 text-slate-400 hover:text-white hover:border-purple-500/50 transition-all group"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-2xl glass border border-white/10 text-slate-400 hover:text-white hover:border-purple-500/50 transition-all group active:scale-95 touch-manipulation"
                   >
                     <ListPlus size={20} className="group-hover:scale-110 transition-transform" />
                     <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Listeye Ekle</span>
                   </button>
                   <button
                     onClick={() => user ? setBookmarked(!bookmarked) : onAuthOpen('login')}
-                    className={`p-4 rounded-2xl border transition-all ${bookmarked ? 'bg-purple-600 text-white border-purple-500 shadow-neon-purple' : 'glass border-white/10 text-slate-400 hover:text-white'}`}
+                    className={`flex-1 sm:flex-none p-4 rounded-2xl border transition-all active:scale-95 touch-manipulation flex items-center justify-center ${bookmarked ? 'bg-purple-600 text-white border-purple-500 shadow-neon-purple' : 'glass border-white/10 text-slate-400 hover:text-white'}`}
                   >
                     <Bookmark size={20} className={bookmarked ? 'fill-white' : ''} />
                   </button>
                   <button
                     onClick={() => user ? setLiked(!liked) : onAuthOpen('login')}
-                    className={`p-4 rounded-2xl border transition-all ${liked ? 'bg-pink-600 text-white border-pink-500 shadow-neon-pink' : 'glass border-white/10 text-slate-400 hover:text-white'}`}
+                    className={`flex-1 sm:flex-none p-4 rounded-2xl border transition-all active:scale-95 touch-manipulation flex items-center justify-center ${liked ? 'bg-pink-600 text-white border-pink-500 shadow-neon-pink' : 'glass border-white/10 text-slate-400 hover:text-white'}`}
                   >
                     <Heart size={20} className={liked ? 'fill-white' : ''} />
                   </button>

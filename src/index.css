@@ -664,6 +664,11 @@ body {
     -webkit-overflow-scrolling: touch;
     scroll-padding: 1rem;
   }
+
+  /* Prevent BottomNav overlap on mobile */
+  #main-content {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* ── SAFE AREA INSETS ── */
