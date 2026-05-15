@@ -39,8 +39,10 @@ export function AppProvider({ children }) {
       .order('reads_num',   { ascending: false });
     if (error) throw error;
     if (data) {
-      setSeries(data);
-      localStorage.setItem('anipeak_series_cache', JSON.stringify(data));
+      // Deduplicate series by title (case-insensitive) to prevent scraper dupes
+      const uniqueData = Array.from(new Map(data.map(item => [item.title?.toLowerCase().trim(), item])).values());
+      setSeries(uniqueData);
+      localStorage.setItem('anipeak_series_cache', JSON.stringify(uniqueData));
     }
   }, []);
 

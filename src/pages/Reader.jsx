@@ -72,6 +72,7 @@ function ReaderImage({ src, alt, idx, chapter }) {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: '400px' }}
         transition={{ duration: 0.3 }}
+        referrerPolicy="no-referrer"
         className="w-full block select-none pointer-events-none transition-opacity duration-300 bg-[#050507]"
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
