@@ -1,0 +1,1 @@
+System Connection Error: Both Cloud Gemini APIs and Local Ollama are offline. Details: timed out

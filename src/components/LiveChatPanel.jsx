@@ -114,9 +114,12 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                   
                   <div className={`flex flex-col relative z-10 ${isMe ? 'items-end' : 'items-start'} max-w-[80%]`}>
                     <div className={`flex items-center gap-2 mb-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <span className={`text-[11px] font-black uppercase tracking-tighter drop-shadow-[0_2px_8px_rgba(0,0,0,1)] ${
-                        msg.isElite ? 'rank-glow-gold text-amber-100' : 'text-slate-300'
-                      }`}>
+                      <span 
+                        className={`text-[11px] font-black uppercase tracking-tighter drop-shadow-[0_2px_8px_rgba(0,0,0,1)] ${
+                          msg.isElite ? 'rank-glow-gold text-amber-100' : 'text-slate-300'
+                        } ${msg.active_mix?.nametag && msg.active_mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
+                        style={msg.active_mix?.nametag && msg.active_mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === msg.active_mix.nametag)?.url})`, filter: `hue-rotate(${msg.active_mix.hue || 0}deg)` } : {}}
+                      >
                         {msg.user}
                       </span>
                       {msg.isElite && <EliteBadge className="!w-3 !h-3 text-[8px]" />}

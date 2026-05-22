@@ -639,7 +639,7 @@ export default function ProfileShowcase() {
     if (decorationCategory === 'Tümü') return decorationEffectsData;
     if (decorationCategory === 'Efektler') return decorationEffectsData.filter(d => d.category === 'profile_effects');
     if (decorationCategory === 'Çerçeveler') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
-    if (decorationCategory === 'Plaketler') return nameplatesData.map(n => ({ id: n, label: n, url: n, category: 'nameplates' }));
+    if (decorationCategory === 'Plaketler') return nameplatesData.map((n, i) => ({ id: n, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
     return decorationEffectsData.filter(d => d.category === decorationCategory);
   }, [decorationCategory, decorationEffectsData]);
 
@@ -769,7 +769,10 @@ export default function ProfileShowcase() {
                         />
                       </div>
                     )}
-                    <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] z-10 flex items-center gap-2">
+                    <h1 
+                      className={`text-4xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] z-10 flex items-center gap-2 ${displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
+                      style={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === displayUser.active_mix.nametag)?.url})`, filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` } : {}}
+                    >
                       {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && (
                         <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
                       )}
@@ -1225,11 +1228,11 @@ export default function ProfileShowcase() {
                                }} 
                                className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${isActive ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-white/5 hover:border-white/20'}`}
                              >
-                                <div className="aspect-square relative flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 mb-4">
+                                <div className={`${isNameplate ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 mb-4 p-2`}>
                                   {isNameplate ? (
-                                    <video src={`/nameplates/${effect.id}`} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                                    <video src={`/nameplates/${effect.id}`} className="w-full h-full object-contain drop-shadow-xl" muted loop autoPlay playsInline />
                                   ) : isProfileEffect ? (
-                                    <img src={effect.url} className="w-full h-full object-cover" />
+                                    <img src={effect.url} className="w-full h-full object-contain drop-shadow-xl" />
                                   ) : (
                                     <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-20 h-20" forcePlay={true} />
                                   )}
@@ -1389,6 +1392,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
   const parts = {
     aura: effectsData.filter(e => e.category === 'profile_effects'),
     avatar: effectsData.filter(e => e.category === 'avatar_decorations'),
+    nametag: effectsData.filter(e => e.category === 'name_effects'),
     nameplate: nameplatesData
   };
 
@@ -1443,6 +1447,27 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
                      key={eff.id}
                      onClick={() => setMixState(prev => ({ ...prev, avatar: eff.id }))}
                      className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.avatar === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                   >
+                      {eff.label}
+                   </button>
+                 ))}
+              </div>
+           </div>
+
+           <div className="space-y-6">
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">İSİM EFEKTİ</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <button 
+                   onClick={() => setMixState(prev => ({ ...prev, nametag: 'none' }))}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.nametag === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                 >
+                    HİÇ BİRİ
+                 </button>
+                 {parts.nametag.map(eff => (
+                   <button 
+                     key={eff.id}
+                     onClick={() => setMixState(prev => ({ ...prev, nametag: eff.id }))}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.nametag === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
                    >
                       {eff.label}
                    </button>

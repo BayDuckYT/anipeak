@@ -63,17 +63,13 @@ function ReaderImage({ src, alt, idx, chapter }) {
 
   return (
     <div className="relative w-full">
-      <motion.img
+      <img
         src={imgSrc}
         alt={alt}
         onError={handleError}
         loading={idx < 3 ? 'eager' : 'lazy'}
-        initial={{ opacity: idx < 3 ? 1 : 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '400px' }}
-        transition={{ duration: 0.3 }}
         referrerPolicy="no-referrer"
-        className="w-full block select-none pointer-events-none transition-opacity duration-300 bg-[#050507]"
+        className="w-full block select-none pointer-events-none bg-[#050507]"
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
         style={{ display: 'block', minHeight: '300px' }}

@@ -1,0 +1,7 @@
+@mixin hover-effect {
+  transition: all 0.3s ease-in-out;
+}
+
+@mixin neon-gradient($start, $end) {
+  background: linear-gradient(45deg, $start, $end);
+}

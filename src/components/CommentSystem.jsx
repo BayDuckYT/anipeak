@@ -216,7 +216,11 @@ export default function CommentSystem({ seriesId, chapterNum }) {
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name}`}>
+                  <span 
+                    onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} 
+                    className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
+                    style={mix.nametag && mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === mix.nametag)?.url})`, filter: `hue-rotate(${mix.hue || 0}deg)` } : {}}
+                  >
                     {prof?.username || comment.username || 'Gezgin'}
                   </span>
                   <UserBadges user={prof || comment} iconSize={isReply ? 12 : 14} />

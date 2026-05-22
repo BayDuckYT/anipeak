@@ -683,3 +683,13 @@ body {
   transform: translateY(-5px) scale(1.02);
 }
 
+/* Name Effect Utility */
+.name-effect-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  display: inline-block;
+  background-size: cover;
+  background-position: center;
+}
+

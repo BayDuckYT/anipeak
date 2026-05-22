@@ -2126,5 +2126,236 @@
     "label": "Devil",
     "category": "decorations",
     "emoji": ""
+  },
+  {
+    "id": "name_effect_swirl_2_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/swirl-2.webp",
+    "label": "Swirl 2",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_vortex_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/vortex.webp",
+    "label": "Vortex",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_square_dot_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/square-dot.webp",
+    "label": "Square dot",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_swirl_1_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/swirl-1.webp",
+    "label": "Swirl 1",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_snow_fall_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/snow-fall.webp",
+    "label": "Snow fall",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_shimmering_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/shimmering.webp",
+    "label": "Shimmering",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_red_liquid_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/red-liquid.webp",
+    "label": "Red liquid",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_sea_wave_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/sea-wave.webp",
+    "label": "Sea wave",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_purple_smoke_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/purple-smoke.webp",
+    "label": "Purple smoke",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_red_light_sphere_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/red-light-sphere.webp",
+    "label": "Red light sphere",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_purple_geometry_2_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/purple-geometry-2.webp",
+    "label": "Purple geometry 2",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_purple_geometry_1_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/purple-geometry-1.webp",
+    "label": "Purple geometry 1",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_noise_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/noise.webp",
+    "label": "Noise",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_neon_triangle_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/neon-triangle.webp",
+    "label": "Neon triangle",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_meteor_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/meteor.webp",
+    "label": "Meteor",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_mystic_blue_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/mystic-blue.webp",
+    "label": "Mystic blue",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_magical_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/magical.webp",
+    "label": "Magical",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_magic_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/magic.webp",
+    "label": "Magic",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_luxury_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/luxury.webp",
+    "label": "Luxury",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_magic_sword_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/magic-sword.webp",
+    "label": "Magic sword",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_lightning_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/lightning.webp",
+    "label": "Lightning",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_light_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/light.webp",
+    "label": "Light",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_illusion_2_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/illusion-2.webp",
+    "label": "Illusion 2",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_illusion_1_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/illusion-1.webp",
+    "label": "Illusion 1",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_green_lightning_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/green-lightning.webp",
+    "label": "Green lightning",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_flame_flicker_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/flame-flicker.webp",
+    "label": "Flame flicker",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_fireball_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/fireball.webp",
+    "label": "Fireball",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_fire_spark_2_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/fire-spark-2.webp",
+    "label": "Fire spark 2",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_fire_spark_1_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/fire-spark-1.webp",
+    "label": "Fire spark 1",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_falling_leaves_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/falling-leaves.webp",
+    "label": "Falling leaves",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_energy_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/energy.webp",
+    "label": "Energy",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_blue_flame_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/blue-flame.webp",
+    "label": "Blue flame",
+    "category": "name_effects",
+    "emoji": ""
+  },
+  {
+    "id": "name_effect_aurora_1779486441694",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/name-effects/aurora.webp",
+    "label": "Aurora",
+    "category": "name_effects",
+    "emoji": ""
   }
 ]
