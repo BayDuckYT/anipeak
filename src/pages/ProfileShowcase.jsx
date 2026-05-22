@@ -640,6 +640,7 @@ export default function ProfileShowcase() {
     if (decorationCategory === 'Efektler') return decorationEffectsData.filter(d => d.category === 'profile_effects');
     if (decorationCategory === 'Çerçeveler') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
     if (decorationCategory === 'Plaketler') return nameplatesData.map((n, i) => ({ id: n, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
+    if (decorationCategory === 'İsim Efektleri') return decorationEffectsData.filter(d => d.category === 'name_effects');
     return decorationEffectsData.filter(d => d.category === decorationCategory);
   }, [decorationCategory, decorationEffectsData]);
 
@@ -1173,7 +1174,7 @@ export default function ProfileShowcase() {
                     <div className="space-y-12">
                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                          <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
-                            {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler'].map((f) => (
+                            {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler', 'İsim Efektleri'].map((f) => (
                               <button 
                                 key={f} 
                                 onClick={() => setDecorationCategory(f)}
@@ -1212,7 +1213,8 @@ export default function ProfileShowcase() {
                          {filteredDecorations.map(effect => {
                            const isNameplate = effect.category === 'nameplates';
                            const isProfileEffect = effect.category === 'profile_effects';
-                           const isActive = isNameplate ? mixState.nameplate === effect.id : isProfileEffect ? mixState.profile_effect === effect.id : mixState.avatar === effect.id;
+                           const isNameEffect = effect.category === 'name_effects';
+                           const isActive = isNameplate ? mixState.nameplate === effect.id : isProfileEffect ? mixState.profile_effect === effect.id : isNameEffect ? mixState.nametag === effect.id : mixState.avatar === effect.id;
 
                            return (
                              <div 
@@ -1221,6 +1223,7 @@ export default function ProfileShowcase() {
                                  let newMix;
                                  if (isNameplate) newMix = { ...mixState, nameplate: effect.id };
                                  else if (isProfileEffect) newMix = { ...mixState, profile_effect: effect.id };
+                                 else if (isNameEffect) newMix = { ...mixState, nametag: effect.id };
                                  else newMix = { ...mixState, avatar: effect.id };
                                  
                                  setMixState(newMix);
@@ -1228,9 +1231,18 @@ export default function ProfileShowcase() {
                                }} 
                                className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${isActive ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-white/5 hover:border-white/20'}`}
                              >
-                                <div className={`${isNameplate ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 mb-4 p-2`}>
+                                <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/5 mb-4 p-2`}>
                                   {isNameplate ? (
                                     <video src={`/nameplates/${effect.id}`} className="w-full h-full object-contain drop-shadow-xl" muted loop autoPlay playsInline />
+                                  ) : isNameEffect ? (
+                                    <div className="flex items-center justify-center w-full h-full p-2">
+                                      <span 
+                                        className="text-xl font-black uppercase tracking-tighter name-effect-text"
+                                        style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.hue || 0}deg)` }}
+                                      >
+                                        {displayUser?.username || 'KULLANICI'}
+                                      </span>
+                                    </div>
                                   ) : isProfileEffect ? (
                                     <img src={effect.url} className="w-full h-full object-contain drop-shadow-xl" />
                                   ) : (
