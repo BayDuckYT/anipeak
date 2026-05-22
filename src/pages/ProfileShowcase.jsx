@@ -771,16 +771,18 @@ export default function ProfileShowcase() {
                       </div>
                     )}
                     <h1 
-                      className={`text-4xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] z-10 flex items-center gap-2`}
+                      className={`text-4xl font-black text-white uppercase tracking-tighter leading-none z-10 flex flex-row items-center gap-2 flex-nowrap whitespace-nowrap ${!(displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none') ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}
                     >
-                      {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && (
-                        <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
-                      )}
-                      {displayUser.is_elite && (
-                        <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
-                      )}
+                      <div className="flex flex-row items-center gap-1 shrink-0">
+                        {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && (
+                          <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" />
+                        )}
+                        {displayUser.is_elite && (
+                          <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />
+                        )}
+                      </div>
                       <span
-                        className={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? 'name-effect-text' : ''}
+                        className={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? 'name-effect-text' : 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]'}
                         style={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === displayUser.active_mix.nametag)?.url})`, filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` } : {}}
                       >
                         {displayUser.username}
