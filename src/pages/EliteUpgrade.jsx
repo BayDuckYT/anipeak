@@ -174,6 +174,7 @@ export default function EliteUpgrade() {
           <div className="flex flex-wrap justify-center gap-12 md:gap-24 mb-24 px-4">
             {[
               { val: nameplatesData.length, label: "İSİM PLAKASI" },
+              { val: effectsData.filter(e => e.category === 'name_effects').length, label: "İSİM EFEKTİ" },
               { val: effectsData.filter(e => e.category === 'decorations').length, label: "AVATAR EFEKTİ" },
               { val: effectsData.filter(e => e.category === 'profile_effects').length, label: "PROFİL EFEKTİ" },
               { val: effectsData.filter(e => e.category === 'flags').length, label: "ÜLKE BAYRAĞI" }
