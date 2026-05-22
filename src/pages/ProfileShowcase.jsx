@@ -755,7 +755,7 @@ export default function ProfileShowcase() {
 
                {/* SCREENSHOT 3 STYLE NAME AREA */}
                <div className="w-full text-center space-y-4 relative z-10">
-                  <div className="relative inline-flex items-center justify-center min-w-[240px] min-h-[60px] px-10 py-4">
+                  <div className="relative inline-flex items-center justify-center w-full max-w-[320px] min-h-[60px] px-10 py-4">
                     {/* Nameplate Background */}
                     {displayUser.active_mix?.nameplate && displayUser.active_mix?.nameplate !== 'none' && (
                       <div className="absolute inset-0 z-[-1] rounded-xl overflow-hidden shadow-2xl border border-white/10">
