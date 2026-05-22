@@ -688,6 +688,7 @@ body {
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
   display: inline-block;
   background-size: cover;
   background-position: center;
