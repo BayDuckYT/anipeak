@@ -132,7 +132,6 @@
     "category": "profile_effects",
     "emoji": ""
   },
-
   {
     "id": "custom_tembel_köpekmek",
     "url": "/effects/Tembel Köpekmek.webp",
@@ -161,7 +160,6 @@
     "category": "profile_effects",
     "emoji": ""
   },
-
   {
     "id": "custom_terazi",
     "url": "/effects/terazi.webp",
@@ -267,7 +265,6 @@
     "category": "decorations",
     "emoji": "<:custom_emoji:1352687727283273788>"
   },
-
   {
     "id": "1352687779103903754",
     "url": "/avatar-efekts/1352687779103903754.png",
@@ -1723,5 +1720,411 @@
     "category": "flags",
     "url": "/avatar-efekts/iraq.png",
     "emoji": "<emoji_iraq:1269814275225157684>"
+  },
+  {
+    "id": "avatar_a_af21a730b99ed414e520decfea99aa79_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_af21a730b99ed414e520decfea99aa79.png",
+    "label": "Kova",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_ccd03d145c6fcd94d189a7c534054de2_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_ccd03d145c6fcd94d189a7c534054de2.png",
+    "label": "Balık",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_6fbae3b212f21f50c242934b463d090d_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_6fbae3b212f21f50c242934b463d090d.png",
+    "label": "Akrep",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_250640ab00a8837a1d56f35879138177_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_250640ab00a8837a1d56f35879138177.png",
+    "label": "Su Parçacıkları",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_8f1c8cc41169bbba6482f506df2f10c4_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_8f1c8cc41169bbba6482f506df2f10c4.png",
+    "label": "Ruh Çiçeği Kaplıcaları Sett",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_98555e40cc6802bd3a4fed906af1d992_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_98555e40cc6802bd3a4fed906af1d992.png",
+    "label": "Bir Tutam Clove",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_7cf09c7e78d6eb35ae354acc1d5cc676_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_7cf09c7e78d6eb35ae354acc1d5cc676.png",
+    "label": "Sakura Savaşçısı",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_7960712f106f1b5594743f87d25c69a5_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_7960712f106f1b5594743f87d25c69a5.png",
+    "label": "Suguru Geto",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Asik_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Asik.png",
+    "label": "Aşık",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Yetenek_Farki_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Yetenek-Farki.png",
+    "label": "Beceriksiz",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Bedenden_cikan_ruh_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Bedenden-cikan-ruh.png",
+    "label": "Bedenden Çıkan Ruh",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_yoru_dimensional_drift_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/yoru_dimensional_drift.png",
+    "label": "Valorant Yoru",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_spirit_embers_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/spirit_embers.png",
+    "label": "Ruh Parçacıkları",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_sweat_drops_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/sweat_drops.png",
+    "label": "Ter Damlaları",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_13913a00bd9990ab4102a3bf069f0f3f_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_13913a00bd9990ab4102a3bf069f0f3f.png",
+    "label": "Sakura Mürekkebi",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_hologram_ejderha_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/hologram-ejderha.png",
+    "label": "Hologram Ejderha",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Megumi_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Megumi.png",
+    "label": "Fushiguro Megumi",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Sukuna_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Sukuna.png",
+    "label": "Sukuna’s Slashes",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Yuji_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Yuji.png",
+    "label": "Yuji’s Black Flash",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Gojo_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Gojo.png",
+    "label": "Satoru Gojo",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_Kizgin_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/Kizgin.png",
+    "label": "Kızgın",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_digital_sunrise_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/digital_sunrise.png",
+    "label": "Dijital Gündoğumu",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_dice_violet_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/dice_violet.png",
+    "label": "Mor Zar",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_dice_azure_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/dice_azure.png",
+    "label": "Mavi Zar",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_constellations_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/constellations.png",
+    "label": "Takımyıldızları",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_chillet_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/chillet.png",
+    "label": "Chillet",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_candlelight_dark_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/candlelight_dark.png",
+    "label": "Siyah Mum Işığı",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_candlelight_crimson_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/candlelight_crimson.png",
+    "label": "Kızıl Mum ışığı",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_bonsai_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/bonsai.png",
+    "label": "Bonsai",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_blue_gyroscope_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/blue_gyroscope.png",
+    "label": "Mavi Jiroskop",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_blade_storm_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/blade_storm.png",
+    "label": "Valorant Jett Bıçak",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_black_hole_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/black_hole.png",
+    "label": "Karadelik",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_balance_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/balance.png",
+    "label": "Denge",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_astral_aura_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/astral_aura.png",
+    "label": "Astral Aura",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_arcane_sigil_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/arcane_sigil.png",
+    "label": "Arcane Sigil",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_angela_avatar_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/angela_avatar.png",
+    "label": "Angela",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_afternoon_breeze_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/afternoon_breeze.png",
+    "label": "Afternoon",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_a_52fd31296f501c7875bd09b0c379c2dd_1_1_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/a_52fd31296f501c7875bd09b0c379c2dd-1-1.png",
+    "label": "Kızıl Kanat",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_stars_in_the_sea_1779485611730",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/stars-in-the-sea.webp",
+    "label": "Stars in the sea",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_the_ocean_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/the-ocean.webp",
+    "label": "The ocean",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_halloween_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/halloween.webp",
+    "label": "Halloween",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_glitch_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/glitch.webp",
+    "label": "Glitch",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_12_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-12.webp",
+    "label": "Floral 12",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_11_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-11.webp",
+    "label": "Floral 11",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_10_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-10.webp",
+    "label": "Floral 10",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_9_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-9.webp",
+    "label": "Floral 9",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_8_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-8.webp",
+    "label": "Floral 8",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_7_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-7.webp",
+    "label": "Floral 7",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_6_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-6.webp",
+    "label": "Floral 6",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_5_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-5.webp",
+    "label": "Floral 5",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_4_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-4.webp",
+    "label": "Floral 4",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_3_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-3.webp",
+    "label": "Floral 3",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_2_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-2.webp",
+    "label": "Floral 2",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_floral_1_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/floral-1.webp",
+    "label": "Floral 1",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_mythic_diamond_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/mythic-diamond.webp",
+    "label": "Mythic diamond",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_dark_origin_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/dark-origin.webp",
+    "label": "Dark origin",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_dragon_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/dragon.webp",
+    "label": "Dragon",
+    "category": "decorations",
+    "emoji": ""
+  },
+  {
+    "id": "avatar_devil_1779485611731",
+    "url": "https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev/avatar-frames/devil.webp",
+    "label": "Devil",
+    "category": "decorations",
+    "emoji": ""
   }
 ]
