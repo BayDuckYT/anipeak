@@ -168,11 +168,19 @@
     };
     check();
 
-    // 3. Konsolu sürekli temizle ve uyarı bas
+    // 3. Konsol fonksiyonlarını iptal et (Videoya çekip link okumasınlar diye)
+    var orjinalLog = console.log;
+    console.log = function() {};
+    console.warn = function() {};
+    console.error = function() {};
+    console.info = function() {};
+    console.dir = function() {};
+
+    // 4. Konsolu sürekli temizle ve uyarı bas
     setInterval(function() {
       console.clear();
-      console.log("%cDUR!", "color: red; font-size: 50px; font-weight: bold; text-shadow: 2px 2px 0 #000;");
-      console.log("%cBu alan AniPeak Siber Güvenlik sistemleri tarafından korunmaktadır. İzinsiz erişim yasaktır.", "color: white; font-size: 16px; background: #a855f7; padding: 10px; border-radius: 5px;");
+      orjinalLog("%cDUR!", "color: red; font-size: 50px; font-weight: bold; text-shadow: 2px 2px 0 #000;");
+      orjinalLog("%cBu alan AniPeak Siber Güvenlik sistemleri tarafından korunmaktadır. İzinsiz erişim yasaktır.", "color: white; font-size: 16px; background: #a855f7; padding: 10px; border-radius: 5px;");
     }, 1500);
   </script>
 </body>
