@@ -129,7 +129,7 @@ function SortablePage({ page, index, onDelete, onReplace }) {
         </div>
 
         {/* Thumbnail */}
-        <div className="aspect-[3/4] w-full overflow-hidden bg-slate-900 border-b border-black/40 relative">
+        <div className="aspect-[3/4] w-full overflow-hidden bg-card-navy border-b border-black/40 relative">
           {page.url ? (
             <img
               src={page.url}
@@ -193,7 +193,7 @@ function SortablePage({ page, index, onDelete, onReplace }) {
 // ──────────────────────────────────────────
 function PreviewModal({ pages, series, chapterNum, onClose }) {
   return (
-    <div className="fixed inset-0 z-[300] bg-[#050507] flex flex-col">
+    <div className="fixed inset-0 z-[300] bg-[#070511] flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 py-3.5 bg-black/85 backdrop-blur-xl border-b border-white/8 shrink-0">
         <div className="flex items-center gap-3">
@@ -244,7 +244,7 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
                     draggable={false}
                   />
                 ) : (
-                  <div className="w-full h-72 bg-slate-900/50 border border-white/5 flex items-center justify-center text-slate-400">
+                  <div className="w-full h-72 bg-card-navy/50 border border-white/5 flex items-center justify-center text-slate-400">
                     <div className="text-center">
                       <ImageIcon size={28} className="mx-auto mb-2 opacity-40" />
                       <p className="text-xs">Sayfa görseli yok</p>

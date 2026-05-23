@@ -64,7 +64,7 @@ export default function Contact() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050507] pt-32 pb-20 px-4">
+    <div className="min-h-screen bg-[#070511] pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <motion.h1 

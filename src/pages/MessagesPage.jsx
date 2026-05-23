@@ -537,7 +537,7 @@ export default function MessagesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#050507] text-white pt-16 font-sans overflow-hidden">
+    <div className="min-h-screen bg-[#070511] text-white pt-16 font-sans overflow-hidden">
       <div className="max-w-[1400px] mx-auto h-[calc(100vh-64px)] flex border-x border-white/5 bg-[#070709]/50 backdrop-blur-3xl overflow-hidden shadow-2xl relative">
         
         {/* SIDEBAR */}
@@ -622,10 +622,10 @@ export default function MessagesPage() {
                     }`}
                   >
                 <div className="relative flex-shrink-0">
-                      <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 bg-card-navy flex items-center justify-center">
                         <img src={partner?.avatar_url || '/default-avatar.png'} alt={`${partner?.username || 'Kullanıcı'} avatarı`} className="w-full h-full object-cover" />
                       </div>
-                      <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#0B0E14] ${
+                      <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#070511] ${
                         onlineUsers[partner?.id] ? 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-zinc-600'
                       }`} />
                     </div>
@@ -665,7 +665,7 @@ export default function MessagesPage() {
         </aside>
 
         {/* MAIN CHAT WINDOW */}
-        <main className={`flex-1 flex flex-col relative bg-[#0B0E14]/40 backdrop-blur-md ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
+        <main className={`flex-1 flex flex-col relative bg-[#070511]/40 backdrop-blur-md ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
           <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none" />
           {activeChat ? (
             <>
@@ -685,7 +685,7 @@ export default function MessagesPage() {
                     const partner = activeChat.user1_id === user.id ? activeChat.user2 : activeChat.user1;
                     return (
                       <>
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-card-navy border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                            <img 
                              src={partner?.avatar_url || '/default-avatar.png'} 
                              alt={`${partner?.username || 'Kullanıcı'} avatarı`}
@@ -795,7 +795,7 @@ export default function MessagesPage() {
                 <motion.div 
                   initial={{ scale: 0.8, rotate: -10 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  className="w-40 h-40 rounded-[4rem] bg-zinc-900/80 border border-white/10 flex items-center justify-center text-indigo-500 relative z-10 shadow-[0_0_50px_rgba(79,70,229,0.3)]"
+                  className="w-40 h-40 rounded-[4rem] bg-card-navy/80 border border-white/10 flex items-center justify-center text-indigo-500 relative z-10 shadow-[0_0_50px_rgba(79,70,229,0.3)]"
                 >
                   <SendHorizontal size={64} className="rotate-12 translate-x-1 -translate-y-1" />
                 </motion.div>
@@ -832,7 +832,7 @@ export default function MessagesPage() {
                 initial={{ scale: 0.9, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8 relative z-[101] shadow-2xl"
+                className="w-full max-w-md bg-card-navy border border-white/10 rounded-[2.5rem] p-8 relative z-[101] shadow-2xl"
               >
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-2xl font-black italic tracking-tighter uppercase text-indigo-500">Yeni Sohbet</h3>

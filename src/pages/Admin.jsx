@@ -1304,7 +1304,7 @@ export default function Admin() {
 
   // ── Loading Screen ───────────────────────────────────────────────────
   if (appLoading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050507]">
+    <div className="min-h-screen flex items-center justify-center bg-[#070511]">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
         <div className="text-purple-400 font-black tracking-widest animate-pulse uppercase text-xs">Veriler Senkronize Ediliyor...</div>
@@ -1317,7 +1317,7 @@ export default function Admin() {
   const roleConfig = ADMIN_ROLES[userRole];
 
   if (!user || !roleConfig) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050507] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#070511] p-4">
       <div className="glass border border-red-500/20 rounded-3xl p-10 max-w-md text-center shadow-[0_0_100px_rgba(239,68,68,0.1)]">
         <ShieldAlert size={64} className="text-red-500 mx-auto mb-6 opacity-90 animate-pulse" />
         <h2 className="text-2xl font-black text-white mb-2">Erişim Reddedildi</h2>
@@ -1355,7 +1355,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="flex min-h-screen pt-16 bg-[#050507]">
+    <div className="flex min-h-screen pt-16 bg-[#070511]">
       {/* ── SIDEBAR ── */}
       <motion.aside
         animate={{ width: sidebarOpen ? 260 : 64 }}

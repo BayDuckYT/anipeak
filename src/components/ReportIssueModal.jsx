@@ -69,7 +69,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
-        className="relative w-full max-w-lg glass border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.2)] bg-[#050507]"
+        className="relative w-full max-w-lg glass border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.2)] bg-[#070511]"
       >
         {/* Decorative background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-red-600/20 blur-[80px] pointer-events-none" />

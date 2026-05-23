@@ -22,7 +22,7 @@ function getStyle(profile) {
   const isElite = profile?.is_elite;
   if (isAdmin) return { name: 'text-red-400 drop-shadow-[0_0_12px_rgba(248,113,113,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-red-950/10 border border-red-500/20', badge: 'bg-red-500/20 border-red-500/40 text-red-300' };
   if (isElite) return { name: 'text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-amber-950/10 border border-amber-500/20', badge: 'bg-amber-500/20 border-amber-500/40 text-amber-300' };
-  return { name: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]', card: 'bg-zinc-900/60 border border-white/5', badge: 'bg-white/5 border-white/10 text-slate-500' };
+  return { name: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]', card: 'bg-card-navy/60 border border-white/5', badge: 'bg-white/5 border-white/10 text-slate-500' };
 }
 
 // ─── Loading Skeleton ───────────────────────────────
@@ -30,7 +30,7 @@ function CommentSkeleton() {
   return (
     <div className="animate-pulse space-y-5">
       {[1,2,3].map(i => (
-        <div key={i} className="bg-zinc-900/60 border border-white/5 rounded-[2.5rem] p-6 flex gap-5">
+        <div key={i} className="bg-card-navy/60 border border-white/5 rounded-[2.5rem] p-6 flex gap-5">
           <div className="w-14 h-14 rounded-full bg-zinc-800" />
           <div className="flex-1 space-y-3">
             <div className="h-4 bg-zinc-800 rounded w-1/4" />

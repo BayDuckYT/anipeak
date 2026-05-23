@@ -87,7 +87,7 @@ export default function Achievements() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050507] flex items-center justify-center">
+      <div className="min-h-screen bg-[#070511] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
           <p className="text-purple-400 font-black tracking-widest text-xs uppercase animate-pulse">Veriler Senkronize Ediliyor...</p>
@@ -97,7 +97,7 @@ export default function Achievements() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050507] pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#070511] pt-24 pb-20 px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
       <div className="max-w-7xl mx-auto mb-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">

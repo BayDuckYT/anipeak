@@ -79,7 +79,7 @@ export default function ScheduleSection() {
               className={`relative p-6 rounded-[2rem] border transition-all duration-500 text-center group overflow-hidden ${
                 isActive 
                 ? 'bg-gradient-to-br from-indigo-600 to-blue-500 border-indigo-400/50 shadow-2xl shadow-indigo-600/20' 
-                : 'bg-zinc-900/40 border-white/5 hover:border-white/10'
+                : 'bg-card-navy/40 border-white/5 hover:border-white/10'
               }`}
             >
               {isActive && (
@@ -121,7 +121,7 @@ export default function ScheduleSection() {
               className="grid gap-4"
             >
               {dailyPrograms.length > 0 ? dailyPrograms.map((item) => (
-                <div key={item.id} className="group relative glass bg-zinc-900/40 border border-white/5 rounded-3xl p-5 hover:border-indigo-500/30 transition-all flex items-center gap-6">
+                <div key={item.id} className="group relative glass bg-card-navy/40 border border-white/5 rounded-3xl p-5 hover:border-indigo-500/30 transition-all flex items-center gap-6">
                   <div className="flex flex-col items-center justify-center min-w-[80px] text-center border-r border-white/5 pr-6">
                     <span className="text-2xl font-black text-white">{item.release_time.slice(0, 5)}</span>
                     <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1">TÜRKİYE</span>
@@ -164,7 +164,7 @@ export default function ScheduleSection() {
 
         {/* Sidebar: Upcoming */}
         <div className="lg:col-span-4">
-          <div className="glass bg-zinc-900/60 border border-white/5 rounded-[2.5rem] p-8">
+          <div className="glass bg-card-navy/60 border border-white/5 rounded-[2.5rem] p-8">
             <div className="flex items-center gap-3 mb-8">
               <Clock className="text-indigo-400" size={20} />
               <h3 className="text-lg font-black text-white uppercase tracking-tight">Gelecek Yayınlar</h3>

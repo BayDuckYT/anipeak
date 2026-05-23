@@ -103,7 +103,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0B0E14] text-zinc-100 font-sans pt-20 pb-20">
+    <div className="min-h-screen bg-[#070511] text-zinc-100 font-sans pt-20 pb-20">
       
       {/* Toast Notification */}
       <AnimatePresence>
@@ -146,7 +146,7 @@ export default function SettingsPage() {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-4 px-6 py-3.5 rounded-2xl transition-all duration-300 group hover:scale-[1.02] active:scale-95 ${
                     activeTab === item.id 
-                      ? 'bg-zinc-900/50 text-white shadow-xl' 
+                      ? 'bg-card-navy/50 text-white shadow-xl' 
                       : 'text-zinc-500 hover:text-zinc-300'
                   }`}
                 >
@@ -165,7 +165,7 @@ export default function SettingsPage() {
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 w-full max-w-3xl bg-zinc-900/30 backdrop-blur-xl border border-zinc-800/50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl">
+          <main className="flex-1 w-full max-w-3xl bg-card-navy/30 backdrop-blur-xl border border-zinc-800/50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl">
              
              {activeTab === 'hesap' && (
                <div className="space-y-12">
@@ -177,7 +177,7 @@ export default function SettingsPage() {
 
                     <div className="p-6 md:p-8 rounded-[2rem] bg-zinc-950/50 border border-zinc-800/50 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:border-purple-500/20 transition-all">
                        <div className="relative group/avatar shrink-0">
-                          <div className="w-24 h-24 rounded-full bg-zinc-900 border-2 border-zinc-800 overflow-hidden flex items-center justify-center">
+                          <div className="w-24 h-24 rounded-full bg-card-navy border-2 border-zinc-800 overflow-hidden flex items-center justify-center">
                              {user?.avatar_url ? (
                                <img src={user.avatar_url} alt="Profil fotoğrafı" className="w-full h-full object-cover" />
                              ) : (
@@ -195,7 +195,7 @@ export default function SettingsPage() {
                           </h3>
                           <p className="text-sm text-zinc-500 font-medium">{user?.email}</p>
                           <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-                             <span className="px-3 py-1 rounded-full bg-zinc-900 text-[10px] font-black uppercase tracking-widest text-zinc-400 border border-zinc-800">{user?.role}</span>
+                             <span className="px-3 py-1 rounded-full bg-card-navy text-[10px] font-black uppercase tracking-widest text-zinc-400 border border-zinc-800">{user?.role}</span>
                              <span className="px-3 py-1 rounded-full bg-purple-500/10 text-[10px] font-black uppercase tracking-widest text-purple-400 border border-purple-500/20">LVL {user?.level}</span>
                           </div>
                        </div>
@@ -370,9 +370,9 @@ export default function SettingsPage() {
                          setAppearanceSettings(next);
                          handleSave({ appearance_settings: next });
                        }}
-                       className={`p-6 rounded-[2rem] border transition-all text-left space-y-3 ${appearanceSettings.theme === 'dark' ? 'bg-zinc-900 border-purple-500/50' : 'bg-zinc-950/50 border-zinc-800 hover:border-zinc-700'}`}
+                       className={`p-6 rounded-[2rem] border transition-all text-left space-y-3 ${appearanceSettings.theme === 'dark' ? 'bg-card-navy border-purple-500/50' : 'bg-zinc-950/50 border-zinc-800 hover:border-zinc-700'}`}
                      >
-                        <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
+                        <div className="w-10 h-10 rounded-xl bg-card-navy border border-zinc-800 flex items-center justify-center text-zinc-500">
                            <ImageIcon size={20} />
                         </div>
                         <p className="text-xs font-black uppercase tracking-widest text-white">Standart Koyu</p>

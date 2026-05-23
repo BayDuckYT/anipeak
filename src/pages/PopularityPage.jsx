@@ -30,7 +30,7 @@ export default function PopularityPage() {
   const remaining = popularSeries.slice(10);
 
   return (
-    <main className="min-h-screen bg-[#050507] pt-24 pb-20 relative overflow-hidden">
+    <main className="min-h-screen bg-[#070511] pt-24 pb-20 relative overflow-hidden">
       {/* Kozmik Arkaplan Efekti */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-yellow-900/20 via-orange-900/5 to-transparent pointer-events-none" />
       <div className="absolute -top-[200px] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-yellow-500/10 blur-[120px] rounded-full pointer-events-none" />
@@ -72,7 +72,7 @@ export default function PopularityPage() {
                   <div className="w-10 text-center text-xl font-black text-slate-400 group-hover:text-yellow-400 transition-colors">
                     {idx + 11}
                   </div>
-                  <div className="w-16 h-24 rounded-lg overflow-hidden bg-zinc-900 flex-shrink-0 shadow-lg">
+                  <div className="w-16 h-24 rounded-lg overflow-hidden bg-card-navy flex-shrink-0 shadow-lg">
                     <img 
                       src={getOptimizedImage(item.cover, 100)} 
                       alt={item.title} 

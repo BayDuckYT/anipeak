@@ -52,7 +52,7 @@ export default function ElitePodium({ items }) {
                   decoding="async"
                   style={{ aspectRatio: '2/3' }}
                 />
-                <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-orange-600 border-2 border-[#050507] flex items-center justify-center text-[10px] font-black text-white shadow-lg">3</div>
+                <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-orange-600 border-2 border-[#070511] flex items-center justify-center text-[10px] font-black text-white shadow-lg">3</div>
               </Link>
             </div>
             {/* 3D Base */}
@@ -85,7 +85,7 @@ export default function ElitePodium({ items }) {
                 <div className="absolute -top-3 -right-3">
                   <Trophy size={32} className="text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]" />
                 </div>
-                <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-yellow-500 border-2 border-[#050507] flex items-center justify-center text-xs font-black text-[#050507] shadow-lg">1</div>
+                <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-yellow-500 border-2 border-[#070511] flex items-center justify-center text-xs font-black text-[#070511] shadow-lg">1</div>
               </Link>
             </div>
             {/* 3D Base */}
@@ -115,7 +115,7 @@ export default function ElitePodium({ items }) {
                   decoding="async"
                   style={{ aspectRatio: '2/3' }}
                 />
-                <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-slate-300 border-2 border-[#050507] flex items-center justify-center text-[10px] font-black text-[#050507] shadow-lg">2</div>
+                <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-slate-300 border-2 border-[#070511] flex items-center justify-center text-[10px] font-black text-[#070511] shadow-lg">2</div>
               </Link>
             </div>
             {/* 3D Base */}
@@ -133,7 +133,7 @@ export default function ElitePodium({ items }) {
       {/* Rest of the list */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
         {rest.map((item, idx) => (
-          <Link key={item.id} to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-zinc-900/50 border border-white/5 hover:bg-zinc-800 transition-colors group">
+          <Link key={item.id} to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-card-navy/50 border border-white/5 hover:bg-zinc-800 transition-colors group">
              <div className="w-8 text-center text-sm font-black text-slate-500 group-hover:text-white transition-colors">{idx + 4}</div>
              <div className="w-10 h-14 rounded-md overflow-hidden bg-zinc-950 flex-shrink-0">
                <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" style={{ aspectRatio: '2/3' }} loading="lazy" decoding="async" />

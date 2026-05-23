@@ -164,13 +164,13 @@ export default function Home({ onAuthOpen }) {
   }, [location.hash]);
 
   return (
-    <main className="min-h-screen bg-[#050507]" id="home-top">
+    <main className="min-h-screen bg-[#070511]" id="home-top">
       
       {/* ── STATİK HERO SECTION (Sıfır Javascript Animasyonu, Maksimum Hız) ── */}
       {heroItem && (
         <section className="relative pt-20 pb-12 sm:pb-16 lg:pt-28 lg:pb-24 border-b border-white/5 overflow-hidden">
           {/* Arka Plan Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0812] to-[#050507] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0812] to-[#070511] pointer-events-none" />
           
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-10">
@@ -245,7 +245,7 @@ export default function Home({ onAuthOpen }) {
                     En Popülerler
                   </h2>
                 </div>
-                <Suspense fallback={<div className="h-[400px] bg-zinc-900/50 animate-pulse rounded-2xl border border-white/5" />}>
+                <Suspense fallback={<div className="h-[400px] bg-card-navy/50 animate-pulse rounded-2xl border border-white/5" />}>
                   <ElitePodium items={mostPopular} />
                 </Suspense>
               </section>

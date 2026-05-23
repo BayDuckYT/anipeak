@@ -249,7 +249,7 @@ export default function ListDetail() {
   if (loading) return <Loader text="Sayfa Yükleniyor..." />;
   
   if (!list) return (
-    <div className="min-h-screen bg-[#050507] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-[#070511] flex flex-col items-center justify-center p-6 text-center">
        <X size={80} className="text-red-500 mb-6 opacity-20" />
        <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Koleksiyon Bulunamadı</h1>
        <p className="text-zinc-500 text-sm mb-8">Aradığın liste mühürlenmiş veya silinmiş olabilir uşağım.</p>
@@ -258,10 +258,10 @@ export default function ListDetail() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050507] pt-24 pb-20 relative overflow-hidden text-zinc-300 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div className="min-h-screen bg-[#070511] pt-24 pb-20 relative overflow-hidden text-zinc-300 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
       {/* Immersive Background */}
       <div className="absolute top-0 left-0 w-full h-[800px] pointer-events-none overflow-hidden">
-         <div className="absolute inset-0 bg-gradient-to-b from-[#0B0E14] via-[#050507] to-transparent z-10" />
+         <div className="absolute inset-0 bg-gradient-to-b from-[#070511] via-[#070511] to-transparent z-10" />
          {listItems?.length > 0 && (
            <motion.div 
              initial={{ opacity: 0, scale: 1.1 }}
@@ -328,7 +328,7 @@ export default function ListDetail() {
               {isEditing && (
                 <div className="flex gap-4 mt-4">
                    <button onClick={handleUpdate} className="px-10 py-4 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all">Kaydet</button>
-                   <button onClick={() => setIsEditing(false)} className="px-10 py-4 bg-zinc-900 text-zinc-500 text-xs font-black uppercase tracking-widest rounded-2xl border border-white/5 transition-all">İptal</button>
+                   <button onClick={() => setIsEditing(false)} className="px-10 py-4 bg-card-navy text-zinc-500 text-xs font-black uppercase tracking-widest rounded-2xl border border-white/5 transition-all">İptal</button>
                 </div>
               )}
            </div>
@@ -472,7 +472,7 @@ export default function ListDetail() {
                                     <span className="text-sm font-black text-white">{s.rating || '0.0'}</span>
                                  </div>
                                  {item.user_score > 0 && (
-                                   <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-900/50 px-2 py-0.5 rounded-md border border-white/5">SİZ: {item.user_score}/10</span>
+                                   <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest bg-card-navy/50 px-2 py-0.5 rounded-md border border-white/5">SİZ: {item.user_score}/10</span>
                                  )}
                               </div>
                            </td>
@@ -571,7 +571,7 @@ export default function ListDetail() {
              />
              <motion.div 
                initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-               className="relative w-full max-w-xl bg-zinc-900 border border-white/10 rounded-[3rem] p-10 shadow-[0_0_80px_rgba(0,0,0,1)]"
+               className="relative w-full max-w-xl bg-card-navy border border-white/10 rounded-[3rem] p-10 shadow-[0_0_80px_rgba(0,0,0,1)]"
              >
                 <div className="flex items-center justify-between mb-8">
                    <h4 className="text-2xl font-black text-white uppercase tracking-tighter">Seri Mühürle</h4>

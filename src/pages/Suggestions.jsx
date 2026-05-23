@@ -40,7 +40,7 @@ export default function Suggestions() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050507] pt-32 pb-20 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#070511] pt-32 pb-20 px-4 relative overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />

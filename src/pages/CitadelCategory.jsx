@@ -27,7 +27,7 @@ export default function CitadelCategory() {
   // --- ELITE PROTECTION ---
   if (isEliteChamber && !user?.is_elite) {
     return (
-      <div className="min-h-screen bg-[#050507] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-[#070511] flex flex-col items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[100px]" />
         </div>
@@ -128,7 +128,7 @@ export default function CitadelCategory() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050507] pt-24 pb-20 relative">
+    <div className="min-h-screen bg-[#070511] pt-24 pb-20 relative">
       <div className="max-w-5xl mx-auto px-4 relative z-10">
         
         {/* Header */}

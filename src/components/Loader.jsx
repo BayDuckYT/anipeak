@@ -78,7 +78,7 @@ export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = tru
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#050507] flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] bg-[#070511] flex items-center justify-center">
       <div className="relative">
         {content}
       </div>

@@ -51,7 +51,7 @@ class ErrorBoundary extends React.Component {
       }
 
       return (
-        <div className="min-h-screen bg-[#050507] flex items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-[#070511] flex items-center justify-center p-6 text-center">
           <div className="glass-strong border border-red-500/20 rounded-3xl p-10 max-w-lg shadow-[0_0_100px_rgba(239,68,68,0.15)] relative overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-red-600/10 blur-3xl pointer-events-none" />
             

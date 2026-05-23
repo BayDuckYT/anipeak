@@ -69,8 +69,8 @@
   <!-- 4. Kritik Satır İçi CSS (Critical CSS) — İlk ekran "beyaz flash" olmadan yüklensin -->
   <style>
     /* Tarayıcı, React yüklenmeden önce bunu gösterir */
-    html { background: #050507; color-scheme: dark; }
-    body { margin: 0; background: #050507; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    html { background: #070511; color-scheme: dark; }
+    body { margin: 0; background: #070511; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     #root { min-height: 100vh; }
 
     /* Sayfa geçişlerinde "beyaz çakma" önleme */
@@ -107,7 +107,7 @@
 
   <!-- Yükleme ekranı (React başlamadan görünür — FCP hızlanır) -->
   <noscript>
-    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#050507;color:#a855f7;font-family:system-ui,sans-serif;text-align:center;padding:2rem;">
+    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#070511;color:#a855f7;font-family:system-ui,sans-serif;text-align:center;padding:2rem;">
       <div>
         <h1 style="font-size:1.5rem;font-weight:900;margin-bottom:1rem;">AniPeak</h1>
         <p style="color:#94a3b8;">Bu site JavaScript gerektirir. Lütfen tarayıcınızda JavaScript'i etkinleştirin.</p>
@@ -116,7 +116,7 @@
   </noscript>
   <div id="root">
     <style>
-      .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; min-height: 100vh; background: #050507; }
+      .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; min-height: 100vh; background: #070511; }
       .zap-wrapper { position: relative; width: 6rem; height: 6rem; display: flex; align-items: center; justify-content: center; }
       .zap-ring { position: absolute; inset: 0; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 50%; animation: pulse-ring 2s infinite ease-out; }
       .zap-ring:nth-child(2) { animation-delay: 0.6s; }

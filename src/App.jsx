@@ -92,7 +92,7 @@ function AnimatedRoutes({ onAuthOpen }) {
 
 function MaintenanceScreen({ onAuthOpen }) {
   return (
-    <div className="min-h-screen bg-[#050507] relative overflow-hidden font-sans flex items-center">
+    <div className="min-h-screen bg-[#070511] relative overflow-hidden font-sans flex items-center">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -112,14 +112,14 @@ function MaintenanceScreen({ onAuthOpen }) {
         <div className="flex items-center gap-3">
           {/* Exact AniPeak Logo SVG Match */}
           <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 4L4 32H13.6L20 20.8L26.4 32H36L20 4Z" fill="#5932EA"/>
+            <path d="M20 4L4 32H13.6L20 20.8L26.4 32H36L20 4Z" fill="#6D3DF5"/>
             <path d="M20 20.8L13.6 32H26.4L20 20.8Z" fill="#3B82F6"/>
             <path d="M11 20L4 32H11L14.5 26L11 20Z" fill="#3B82F6"/>
             <path d="M29 20L36 32H29L25.5 26L29 20Z" fill="#3B82F6"/>
           </svg>
           <span 
             style={{ fontFamily: "'Poppins', sans-serif" }} 
-            className="text-3xl font-semibold text-[#0B0F19] tracking-tight"
+            className="text-3xl font-semibold text-[#070511] tracking-tight"
           >
             AniPeak
           </span>
@@ -155,7 +155,7 @@ function MaintenanceScreen({ onAuthOpen }) {
           className="max-w-xl"
         >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#E5D5F5] border border-[#D5C1ED] text-[#5932EA] font-semibold text-sm mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#E5D5F5] border border-[#D5C1ED] text-[#6D3DF5] font-semibold text-sm mb-6 shadow-sm">
             <div className="text-[#6D28D9]">
                <Wrench size={16} />
             </div>
@@ -166,10 +166,10 @@ function MaintenanceScreen({ onAuthOpen }) {
           {/* Heading */}
           <h1 
             style={{ fontFamily: "'Clash Display', sans-serif" }}
-            className="text-6xl md:text-7xl font-bold text-[#0B0F19] tracking-tight leading-[1.1] mb-6"
+            className="text-6xl md:text-7xl font-bold text-[#070511] tracking-tight leading-[1.1] mb-6"
           >
             Sitemiz şu anda <br />
-            <span className="text-[#5932EA]">bakımda.</span>
+            <span className="text-[#6D3DF5]">bakımda.</span>
           </h1>
 
           {/* Paragraph */}
@@ -197,7 +197,7 @@ function MaintenanceScreen({ onAuthOpen }) {
       {/* Footer Copy */}
       <div className="absolute bottom-6 left-6 lg:left-12 z-20 flex items-center gap-3 text-[#475569] text-sm font-medium">
         <svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-80">
-            <path d="M20 4L4 32H13.6L20 20.8L26.4 32H36L20 4Z" fill="#5932EA"/>
+            <path d="M20 4L4 32H13.6L20 20.8L26.4 32H36L20 4Z" fill="#6D3DF5"/>
             <path d="M20 20.8L13.6 32H26.4L20 20.8Z" fill="#3B82F6"/>
             <path d="M11 20L4 32H11L14.5 26L11 20Z" fill="#3B82F6"/>
             <path d="M29 20L36 32H29L25.5 26L29 20Z" fill="#3B82F6"/>
@@ -286,7 +286,7 @@ function AppContent() {
         <ScrollToTop />
         <GlobalEffects />
 
-        <main id="main-content" className="min-h-screen bg-[#050507]">
+        <main id="main-content" className="min-h-screen bg-[#070511]">
           {isMaintenanceBlocked ? (
             <MaintenanceScreen onAuthOpen={(mode) => setAuthModal(mode)} />
           ) : (

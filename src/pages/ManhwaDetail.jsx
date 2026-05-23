@@ -190,7 +190,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
           className="absolute inset-0 h-[450px] bg-cover bg-center blur-3xl opacity-20 scale-105"
           style={{ backgroundImage: `url(${manhwa.cover})` }}
         />
-        <div className="absolute inset-0 h-[450px] bg-gradient-to-b from-[#050507]/40 via-[#050507]/60 to-[#050507]" />
+        <div className="absolute inset-0 h-[450px] bg-gradient-to-b from-[#070511]/40 via-[#070511]/60 to-[#070511]" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-0">
           <Link to="/" className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white text-sm mb-6 transition-colors group">

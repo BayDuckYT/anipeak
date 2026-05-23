@@ -8,10 +8,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        'deep-dark': '#050507',
+        'deep-dark': '#070511',
+        'primary-purple': '#6D3DF5',
         'neon-purple': '#a855f7',
         'neon-blue': '#3b82f6',
         'cyber-blue': '#06b6d4',
+        'light-glow': '#C084FC',
+        'card-navy': '#1A1038',
         'glass': 'rgba(255,255,255,0.05)',
       },
       boxShadow: {

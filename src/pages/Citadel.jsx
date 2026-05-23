@@ -59,7 +59,7 @@ export default function Citadel() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050507] pt-24 pb-20 relative">
+    <div className="min-h-screen bg-[#070511] pt-24 pb-20 relative">
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         
         {/* Header */}

@@ -71,7 +71,7 @@ function ReaderImage({ src, alt, idx, chapter }) {
         loading={idx === 0 ? 'eager' : 'lazy'}
         fetchpriority={idx === 0 ? 'high' : 'auto'}
         referrerPolicy="no-referrer"
-        className="w-full block select-none pointer-events-none bg-[#050507]"
+        className="w-full block select-none pointer-events-none bg-[#070511]"
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
         style={{ display: 'block', minHeight: '300px' }}
@@ -242,7 +242,7 @@ export default function Reader() {
 
   return (
     <div 
-      className="min-h-screen bg-[#050507] pt-24 pb-12 overflow-x-hidden relative"
+      className="min-h-screen bg-[#070511] pt-24 pb-12 overflow-x-hidden relative"
       style={{ filter: `brightness(${brightness}%)` }}
     >
       {/* ── REPORTS MODAL (MOVED TO TOP FOR ABSOLUTE VISIBILITY) ── */}
