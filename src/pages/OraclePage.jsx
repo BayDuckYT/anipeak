@@ -454,6 +454,7 @@ export default function OraclePage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
 
       </div>
     </div>
