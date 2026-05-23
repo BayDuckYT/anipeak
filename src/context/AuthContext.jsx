@@ -108,7 +108,7 @@ export function AuthProvider({ children }) {
         .from('profiles')
         .select('*')
         .eq('id', authUser.id)
-        .single();
+        .maybeSingle();
         
       // PROFIL ÇEKME İŞLEMİNE 5 SN TIMEOUT EKLENDİ (DAHA GÜVENLİ)
       const timeoutPromise = new Promise((resolve) => 

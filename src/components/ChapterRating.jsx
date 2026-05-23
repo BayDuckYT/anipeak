@@ -38,7 +38,7 @@ export default function ChapterRating({ seriesId, chapterNum }) {
       .eq('series_id', seriesId)
       .eq('chapter_num', chapterNum)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
     
     if (data) {
       setRating(data.value);

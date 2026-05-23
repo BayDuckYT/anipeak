@@ -20,9 +20,9 @@ function RenderText({ text, navigate }) {
 function getStyle(profile) {
   const isAdmin = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(profile?.role);
   const isElite = profile?.is_elite;
-  if (isAdmin) return { name: 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.6)]', card: 'bg-red-950/10 border border-red-500/20', badge: 'bg-red-500/20 border-red-500/40 text-red-300' };
-  if (isElite) return { name: 'text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]', card: 'bg-amber-950/10 border border-amber-500/20', badge: 'bg-amber-500/20 border-amber-500/40 text-amber-300' };
-  return { name: 'text-white', card: 'bg-zinc-900/60 border border-white/5', badge: 'bg-white/5 border-white/10 text-slate-500' };
+  if (isAdmin) return { name: 'text-red-400 drop-shadow-[0_0_12px_rgba(248,113,113,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-red-950/10 border border-red-500/20', badge: 'bg-red-500/20 border-red-500/40 text-red-300' };
+  if (isElite) return { name: 'text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-amber-950/10 border border-amber-500/20', badge: 'bg-amber-500/20 border-amber-500/40 text-amber-300' };
+  return { name: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]', card: 'bg-zinc-900/60 border border-white/5', badge: 'bg-white/5 border-white/10 text-slate-500' };
 }
 
 // ─── Loading Skeleton ───────────────────────────────
@@ -201,9 +201,8 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       <div key={comment.id} className={`relative overflow-hidden transition-all duration-300 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : s.card}`}>
         {/* Nameplate */}
         {!isReply && mix.nameplate && mix.nameplate !== 'none' && (
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-30 group-hover:opacity-50 transition-opacity duration-700">
-            <video src={`/nameplates/${mix.nameplate}`} autoPlay muted loop playsInline className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80" />
+          <div className="absolute right-0 top-0 bottom-0 w-2/3 md:w-1/2 z-0 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 flex justify-end items-center pr-4" style={{ maskImage: 'linear-gradient(to right, transparent, black 40%)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 40%)' }}>
+            <video src={`/nameplates/${mix.nameplate}`} autoPlay muted loop playsInline className="h-[80%] w-auto object-contain object-right opacity-80 mix-blend-screen mix-blend-lighten drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
           </div>
         )}
 
