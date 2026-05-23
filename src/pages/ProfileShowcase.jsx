@@ -957,7 +957,8 @@ export default function ProfileShowcase() {
                     alt="Profil arkaplanı"
                     width={800}
                     height={600}
-                    loading="lazy"
+                    loading="eager"
+                    fetchpriority="high"
                     decoding="async"
                     className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[10s]" 
                   />
@@ -967,6 +968,7 @@ export default function ProfileShowcase() {
                     <div className="absolute inset-0 z-20 opacity-30 mix-blend-screen pointer-events-none" style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}>
                       <img 
                         src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
+                        alt="Profile Effect Detail"
                         className="w-full h-full object-cover animate-pulse" 
                         style={{ animationDuration: '8s' }}
                       />
