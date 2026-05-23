@@ -248,8 +248,9 @@ export default function OraclePage() {
           </motion.p>
         </div>
 
-        <AnimatePresence mode="wait">
-          {analyzing ? (
+        <div className="min-h-[80vh]">
+          <AnimatePresence mode="wait">
+            {analyzing ? (
             <motion.div 
               key="loader"
               initial={{ opacity: 0 }}
@@ -420,7 +421,7 @@ export default function OraclePage() {
                 </div>
 
                 <div className="relative group p-8 rounded-3xl bg-gradient-to-br from-cyan-600/20 to-purple-600/20 border border-white/5 overflow-hidden text-center">
-                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.05)_0%,_transparent_100%)] mix-blend-overlay" />
                   <div className="relative z-10">
                     {user?.discord_id ? (
                       <>

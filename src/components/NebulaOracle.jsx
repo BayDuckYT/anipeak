@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Compass, Zap, Ghost, Eye, Terminal } from 'lucide-react';
+import { getOptimizedImage } from '../utils/imageOpt.js';
 
 /**
  * Nebula Background Effect
@@ -26,7 +27,7 @@ export const NebulaBackground = () => (
       transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
       className="absolute -bottom-1/2 -right-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,_rgba(0,255,255,0.1)_0%,_transparent_50%)]"
     />
-    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.03)_0%,_transparent_100%)] mix-blend-overlay" />
   </div>
 );
 
@@ -99,7 +100,7 @@ export const OracleCard = ({ manga, matchScore, prophecy, idx = 0 }) => {
 
       <div className="relative aspect-[2/3] overflow-hidden">
         <img 
-          src={manga.cover} 
+          src={getOptimizedImage(manga.cover, 400)} 
           alt={manga.title}
           width={400}
           height={600}
