@@ -86,8 +86,8 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
   } catch (err) { throw err; }
 };
 
-const COOL_PREFIXES = ["Gölge", "Karanlık", "Alev", "Buzul", "Zehir", "Ruh", "Kan", "Yıldız", "Galaksi", "Neon", "Siber", "Kristal", "Gök", "Cehennem", "Hayalet", "Kadim", "Ejder", "Kozmik", "Kaos", "Saf"];
-const COOL_SUFFIXES = ["Ateşi", "Halesi", "Mührü", "Kılıcı", "Gözyaşı", "Sarmaşığı", "Ağı", "Tozu", "Fırtınası", "Rüzgarı", "Işığı", "Gölgesi", "Çekirdeği", "Yankısı", "Laneti", "Büyüsü", "Tılsımı"];
+const COOL_PREFIXES = ["Kızıl", "Gümüş", "Altın", "Kara", "Beyaz", "Buz", "Alev", "Gölge", "Ruh", "Yıldırım", "Işık", "Karanlık", "Yakut", "Zümrüt", "Safir", "Kristal", "Gece", "Gündüz", "Şafak", "Gökyüzü", "Okyanus", "Orman", "Çöl", "Kış", "Bahar", "Ejder", "Anka", "Kurt", "Şahin", "Kaplan"];
+const COOL_SUFFIXES = ["Plakası", "Nişanı", "Mührü", "Arması", "Simgesi", "Dokunuşu", "İzi", "Halesi", "Rüzgarı", "Işıltısı", "Ateşi", "Gölgesi", "Büyüsü", "Tılsımı", "Dalgası"];
 
 const generateCoolNameplateName = (filename) => {
   let hash = 0;
