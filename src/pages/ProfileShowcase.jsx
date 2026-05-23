@@ -678,6 +678,17 @@ export default function ProfileShowcase() {
     }
   };
 
+  if (loadingProfile) {
+    return (
+      <div className="min-h-screen pt-24 pb-12 flex items-center justify-center bg-[#020203]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
+          <p className="text-zinc-400 font-black tracking-widest text-xs uppercase animate-pulse">Profil Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen text-zinc-100 font-sans selection:bg-purple-500/30 pt-24 pb-12 bg-[#020203]">
       
