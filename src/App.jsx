@@ -30,7 +30,7 @@ const StaticPage = lazy(() => import('./pages/StaticPage.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const Suggestions = lazy(() => import('./pages/Suggestions.jsx'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
-const MessagesPage = lazy(() => import('./pages/MessagesPage.jsx'));
+
 const EliteUpgrade = lazy(() => import('./pages/EliteUpgrade.jsx'));
 const ListDetail = lazy(() => import('./pages/ListDetail.jsx'));
 const Achievements = lazy(() => import('./pages/Achievements.jsx'));
@@ -60,7 +60,7 @@ function ProfileRedirect() {
 function AnimatedRoutes({ onAuthOpen }) {
   const location = useLocation();
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="sync" initial={false}>
       <Suspense fallback={<Loader fullScreen={false} text="Sayfa Yükleniyor..." />}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home onAuthOpen={onAuthOpen} />} />
@@ -75,7 +75,7 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/oneriler" element={<Suggestions />} />
-          <Route path="/messages" element={<PrivateRoute><MessagesPage /></PrivateRoute>} />
+
           <Route path="/elite-upgrade" element={<EliteUpgrade />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/takvim" element={<SchedulePage />} />

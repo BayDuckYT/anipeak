@@ -222,15 +222,6 @@ export default function Header({ onAuthOpen }) {
               <Shield size={14} /> <span className="hidden lg:inline">Yönetim Paneli</span>
             </Link>
 
-            {/* Messages - Paper Airplane */}
-            <Link 
-              to="/messages" 
-              className="relative p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
-              aria-label="Mesajlar"
-            >
-              <SendHorizontal size={18} aria-hidden="true" />
-              {/* Optional: Add unread DM count here if available */}
-            </Link>
 
           {/* Notifications Bell - Always Visible */}
           <div className="relative" ref={notifRef}>
@@ -498,7 +489,7 @@ export default function Header({ onAuthOpen }) {
                 )}
               </div>
               <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-h-[44px]"><Compass size={16} /> Keşfet</Link>
-              <Link to="/messages" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-h-[44px]"><SendHorizontal size={16} /> Mesajlar</Link>
+
               <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all min-h-[44px]"><Crown size={16} /> Premium</Link>
               <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Shield size={16} /> Yönetim Paneli</Link>
               <Link to="/achievements" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Award size={16} /> Başarımlar</Link>

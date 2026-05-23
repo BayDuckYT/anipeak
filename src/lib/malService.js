@@ -24,8 +24,8 @@ export async function fetchMALList(username, type = 'mangalist') {
     const data = await response.json();
     return data.data || [];
   } catch (err) {
-    console.error(`[MAL Service] Fetch error (${type}):`, err);
-    throw err;
+    // Expected 404 errors silently fail so it doesn't clutter the console
+    return [];
   }
 }
 
@@ -42,7 +42,7 @@ export async function fetchMALProfile(username) {
     const data = await response.json();
     return data.data;
   } catch (err) {
-    console.error('[MAL Service] Profile fetch error:', err);
+    // Expected 404 errors silently fail so it doesn't clutter the console
     return null;
   }
 }

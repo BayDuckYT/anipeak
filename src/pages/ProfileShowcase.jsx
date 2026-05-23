@@ -247,8 +247,8 @@ export default function ProfileShowcase() {
     const { count: cCount } = await supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', userId);
     setCommentsCount(cCount || 0);
 
-    const { count: favCount } = await supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', userId);
-    setFavoritesCount(favCount || 0);
+    // favorites tablosu mevcut olmadığı için 404 hatasını önlemek adına sorgu kaldırıldı
+    setFavoritesCount(0);
   };
 
   const fetchSocialData = async (userId, malUsername) => {
@@ -946,7 +946,12 @@ export default function ProfileShowcase() {
             <div className="relative rounded-[3rem] overflow-hidden bg-[#050507] border border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.5)] group">
                <div className="absolute inset-0 z-0">
                   <img 
-                    src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2670&auto=format&fit=crop" 
+                    src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800&auto=format&fit=crop" 
+                    alt="Profil arkaplanı"
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[10s]" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/40 to-transparent z-10" />
