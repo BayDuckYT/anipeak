@@ -952,170 +952,168 @@ export default function ProfileShowcase() {
             </div>
           </aside>
 
-          {/* ── MAIN CONTENT AREA ── */}
-          <main className="flex-1 min-w-0 space-y-10">
+          {/* ── MAIN CONTENT AREA (ELITE REDESIGN) ── */}
+          <main className="flex-1 min-w-0 space-y-8 sm:space-y-10 w-full">
             
-            <div className="relative rounded-[3rem] overflow-hidden bg-[#070511] border border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.5)] group">
+            {/* 1. PREMIUM BANNER ALANI */}
+            <div className="relative w-full rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden bg-[#070511] border border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.5)] group h-[300px] sm:h-[450px]">
                <div className="absolute inset-0 z-0">
                   <img 
-                    src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800&auto=format&fit=crop" 
+                    src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix?.profile_effect)?.url || "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800&auto=format&fit=crop", 800)} 
                     alt="Profil arkaplanı"
-                    width={800}
-                    height={600}
                     loading="eager"
-                    fetchpriority="high"
-                    decoding="async"
-                    className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[10s]" 
+                    className="w-full h-full object-cover opacity-50 mix-blend-screen group-hover:scale-105 transition-transform duration-[10s]" 
+                    style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/40 to-transparent z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-transparent to-transparent z-10" />
-                  
-                    <div className="absolute inset-0 z-20 opacity-30 mix-blend-screen pointer-events-none" style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}>
-                      <img 
-                        src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url, 800)} 
-                        alt="Profile Effect Detail"
-                        className="w-full h-full object-cover animate-pulse" 
-                        style={{ animationDuration: '8s' }}
-                      />
-                    </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/60 to-transparent z-10" />
                </div>
                
-               <div className="relative z-30 p-10 lg:p-14 flex flex-col min-h-[450px] justify-between">
+               <div className="relative z-30 p-6 sm:p-10 lg:p-14 flex flex-col h-full justify-between">
                   <div>
-                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">PROFIL</h2>
-                        <div className="flex items-center gap-4 mt-4">
-                           <div className={`px-4 py-2 rounded-xl border backdrop-blur-md ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-blue-500/20 border-blue-500/30'}`}>
-                              <span className={`text-xs font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 'text-blue-400'}`}>
-                                 {displayUser.is_elite && <Crown size={12} className="inline mr-1 mb-0.5 text-amber-400" />}
+                    <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">PROFIL</h2>
+                        <div className="flex flex-wrap items-center gap-3 mt-4">
+                           <div className={`px-4 py-2 rounded-xl backdrop-blur-md border ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/20 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'bg-white/5 border-white/10'}`}>
+                              <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-400' : 'text-zinc-300'}`}>
+                                 {displayUser.is_elite && <Crown size={12} className="inline mr-1 mb-0.5" />}
                                  {displayUser.rank}
                               </span>
                            </div>
-                           <div className="h-4 w-px bg-white/10" />
-                           <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Üye Özeti</div>
+                           {displayUser.is_elite && (
+                             <div className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center gap-2">
+                               <Sparkles size={12} className="text-rose-400 animate-pulse" />
+                               <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Premium Aktif</span>
+                             </div>
+                           )}
                         </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-12 mt-12">
+                  {/* Mobil ve Web İstatistikler */}
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 sm:gap-12 mt-auto">
                      {[
-                        { label: 'SERİ', value: readHistory.length, icon: BookOpen, color: 'text-blue-500' },
-                        { label: 'FAVORİ', value: favoritesCount, icon: Star, color: 'text-amber-500' },
-                        { label: 'YORUM', value: commentsCount, icon: MessageSquare, color: 'text-purple-500' },
-                        { label: 'TAKİPÇİ', value: followersCount, icon: UserPlus, color: 'text-emerald-500' },
+                        { label: 'SERİ', value: readHistory.length, icon: BookOpen, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+                        { label: 'FAVORİ', value: favoritesCount, icon: Star, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+                        { label: 'YORUM', value: commentsCount, icon: MessageSquare, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+                        { label: 'TAKİPÇİ', value: followersCount, icon: UserPlus, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
                      ].map((stat, i) => (
-                        <div key={i} className="space-y-1">
-                           <div className="flex items-center gap-2">
-                             <stat.icon size={16} className={stat.color} />
-                             <span className="text-3xl font-black text-white tracking-tighter">{stat.value}</span>
+                        <div key={i} className={`flex items-center gap-4 p-3 sm:p-0 rounded-2xl sm:rounded-none sm:bg-transparent border sm:border-transparent ${stat.bg} border-white/5`}>
+                           <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${stat.bg} flex items-center justify-center shrink-0`}>
+                             <stat.icon size={18} className={stat.color} />
                            </div>
-                           <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{stat.label}</div>
+                           <div>
+                             <span className="block text-xl sm:text-3xl font-black text-white tracking-tighter leading-none">{stat.value}</span>
+                             <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{stat.label}</span>
+                           </div>
                         </div>
                      ))}
                   </div>
                </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 rounded-3xl bg-zinc-950 border border-white/5 shadow-2xl overflow-x-auto no-scrollbar">
+            {/* 2. SEKMELER (TABS) - GLASSMORPHISM */}
+            <div className="flex items-center gap-2 p-2 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/5 backdrop-blur-xl overflow-x-auto no-scrollbar shadow-inner">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${
                     activeTab === tab.id 
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
-                      : 'text-zinc-400 hover:text-zinc-300 hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-[0_0_20px_rgba(79,70,229,0.3)]' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <tab.icon size={16} />
+                  <tab.icon size={14} className={activeTab === tab.id ? 'text-white' : 'text-zinc-500'} />
                   {tab.label}
                 </button>
               ))}
             </div>
 
+            {/* 3. SEKME İÇERİKLERİ */}
             <AnimatePresence mode="wait">
                <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4, ease: "circOut" }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full"
                >
                   {activeTab === 'okunanlar' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                       <div className="lg:col-span-7 space-y-8">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
-                              <History size={16} className="text-blue-500" /> SON OKUNANLAR
-                            </h3>
-                          </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                       {/* Sol Kısım - Okunanlar */}
+                       <div className="lg:col-span-7 space-y-6 sm:space-y-8">
+                          <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
+                            <History size={16} className="text-purple-400" /> SON OKUNANLAR
+                          </h3>
 
                           <div className="space-y-4">
                              {readHistory.length > 0 ? readHistory.slice(0, 5).map((h, i) => (
                                <Link 
                                  key={i} 
                                  to={`/manhwa/${h.series_id}`}
-                                 className="group flex gap-6 p-6 rounded-[2rem] glass-strong bg-card-navy/40 border border-white/5 hover:border-blue-500/30 transition-all"
+                                 className="group flex gap-4 sm:gap-6 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-purple-500/30 transition-all backdrop-blur-md"
                                >
-                                  <div className="w-24 h-32 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-white/5">
-                                     <img src={getOptimizedImage(h.series?.cover, 150)} alt={h.series?.title || 'Okunan Seri'} width={96} height={128} loading={i < 4 ? 'eager' : 'lazy'} fetchpriority={i < 4 ? 'high' : 'auto'} decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                  <div className="w-20 h-28 sm:w-24 sm:h-32 rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-lg">
+                                     <img src={getOptimizedImage(h.series?.cover, 150)} alt={h.series?.title || 'Okunan Seri'} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                   </div>
-                                  <div className="flex-1 flex flex-col justify-center py-1">
-                                     <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{h.series?.title}</h4>
-                                     <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-6">Bölüm {h.last_read_chapter}</p>
+                                  <div className="flex-1 flex flex-col justify-center">
+                                     <h4 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-2 group-hover:text-purple-400 transition-colors">{h.series?.title}</h4>
+                                     <p className="text-[9px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4 sm:mb-6">Bölüm {h.last_read_chapter}</p>
                                      
-                                     <div className="flex items-center justify-between">
-                                        <div className="flex -space-x-2">
-                                           {[1,2,3].map(p => <div key={p} className="w-6 h-6 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center"><User size={10} className="text-zinc-400" /></div>)}
+                                     <div className="flex items-center justify-between mt-auto">
+                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[9px] font-black uppercase tracking-widest">
+                                           <Play size={10} /> DEVAM ET
                                         </div>
-                                        <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">DEVAM ET</span>
                                      </div>
                                   </div>
                                </Link>
                              )) : (
-                               <div className="py-20 text-center glass rounded-[2rem] border border-dashed border-white/5">
-                                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
+                               <div className="py-16 text-center rounded-[2rem] bg-white/[0.02] border border-dashed border-white/10">
+                                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
                                </div>
                              )}
                           </div>
                        </div>
 
-                       <div className="lg:col-span-5 space-y-8">
-                          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-indigo-600/20 to-blue-600/20 border border-white/5 shadow-2xl relative overflow-hidden">
-                             <div className="absolute top-0 right-0 p-4 opacity-10"><Zap size={100} /></div>
-                             <h3 className="text-sm font-black text-white uppercase tracking-widest mb-8">VERİ ANALİZİ</h3>
-                             <div className="space-y-6">
+                       {/* Sağ Kısım - İstatistik & Koleksiyon */}
+                       <div className="lg:col-span-5 space-y-6 sm:space-y-8">
+                          <div className="p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/20 shadow-[0_0_40px_rgba(168,85,247,0.1)] relative overflow-hidden backdrop-blur-xl">
+                             <div className="absolute top-0 right-0 p-4 opacity-20"><Zap size={80} className="text-purple-400" /></div>
+                             <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-widest mb-6 sm:mb-8 relative z-10">VERİ ANALİZİ</h3>
+                             <div className="space-y-5 sm:space-y-6 relative z-10">
                                 {[
-                                   { label: 'HAFTALIK OKUMA', value: '42 Bölüm', progress: 75, color: 'bg-blue-500' },
-                                   { label: 'TAMAMLANAN GÖREV', value: '12/15', progress: 85, color: 'bg-purple-500' },
-                                   { label: 'XP', value: '8,420', progress: 60, color: 'bg-emerald-500' },
+                                   { label: 'HAFTALIK OKUMA', value: '42 Bölüm', progress: 75, color: 'bg-purple-500' },
+                                   { label: 'TAMAMLANAN GÖREV', value: '12/15', progress: 85, color: 'bg-blue-500' },
+                                   { label: 'XP', value: '8,420', progress: 60, color: 'bg-rose-500' },
                                 ].map((item, i) => (
                                    <div key={i} className="space-y-2">
-                                      <div className="flex justify-between text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                                      <div className="flex justify-between text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest">
                                          <span>{item.label}</span>
                                          <span className="text-white">{item.value}</span>
                                       </div>
-                                      <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden p-[1px]">
-                                         <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.progress}%` }} />
+                                      <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden">
+                                         <div className={`h-full ${item.color} rounded-full shadow-[0_0_10px_currentColor]`} style={{ width: `${item.progress}%` }} />
                                       </div>
                                    </div>
                                 ))}
                              </div>
                           </div>
 
-                          <div className="p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 space-y-6">
+                          <div className="p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] bg-white/[0.02] border border-white/5 backdrop-blur-md space-y-4 sm:space-y-6">
                              <div className="flex justify-between items-center">
-                                <h3 className="text-sm font-black text-white uppercase tracking-widest">KOLEKSİYONLARIM</h3>
-                                <button onClick={() => setActiveTab('listeler')} className="text-[9px] font-black text-zinc-400 hover:text-white uppercase">Tümü</button>
+                                <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-widest">KOLEKSİYONLARIM</h3>
+                                <button onClick={() => setActiveTab('listeler')} className="text-[9px] font-black text-purple-400 hover:text-purple-300 uppercase">Tümü</button>
                              </div>
-                             <div className="space-y-4">
+                             <div className="space-y-3 sm:space-y-4">
                                 {customLists.slice(0, 3).map((list, i) => (
-                                   <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group">
-                                      <div className="flex items-center gap-4">
-                                         <div className="w-10 h-10 rounded-xl bg-card-navy border border-white/5 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                                            <BookOpen size={16} />
+                                   <div key={i} className="flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-black/40 border border-white/5 hover:border-purple-500/30 transition-all cursor-pointer group">
+                                      <div className="flex items-center gap-3 sm:gap-4">
+                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all shrink-0">
+                                            <BookOpen size={14} />
                                          </div>
-                                         <span className="text-[11px] font-black text-white uppercase truncate">{list.name}</span>
+                                         <span className="text-[10px] sm:text-[11px] font-black text-zinc-300 uppercase truncate max-w-[120px] sm:max-w-[200px]">{list.name}</span>
                                       </div>
-                                      <ChevronRight size={14} className="text-zinc-400 group-hover:text-white" />
+                                      <ChevronRight size={14} className="text-zinc-500 group-hover:text-purple-400" />
                                    </div>
                                 ))}
                              </div>
@@ -1125,33 +1123,33 @@ export default function ProfileShowcase() {
                   )}
 
                   {activeTab === 'mal' && (
-                    <div className="space-y-10">
-                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="space-y-8 sm:space-y-10">
+                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
                           {malLoading ? (
-                            Array.from({ length: 10 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-[2rem] bg-card-navy animate-pulse" />)
+                            Array.from({ length: 10 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-[1.5rem] bg-white/5 animate-pulse" />)
                           ) : malList.length > 0 ? (
                             malList.map((item, idx) => (
-                              <div key={idx} className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 hover:border-blue-500/40 transition-all shadow-2xl">
+                              <div key={idx} className="group relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-white/[0.02] border border-white/5 hover:border-blue-500/40 transition-all shadow-xl">
                                  <div className="aspect-[2/3] relative">
-                                    <img src={getOptimizedImage(item.node?.main_picture?.medium, 300)} alt={item.node?.title || 'Anime Cover'} width={200} height={300} loading={idx < 4 ? 'eager' : 'lazy'} fetchpriority={idx < 4 ? 'high' : 'auto'} decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                                    <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-white/10 text-[10px] font-black text-blue-400">
+                                    <img src={getOptimizedImage(item.node?.main_picture?.medium, 300)} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/20 to-transparent" />
+                                    <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 text-[9px] font-black text-blue-400">
                                        {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
                                     </div>
                                  </div>
-                                 <div className="p-4 space-y-2">
-                                    <h4 className="text-[11px] font-black text-white uppercase truncate tracking-tighter">{item.node?.title}</h4>
+                                 <div className="absolute bottom-0 inset-x-0 p-3 sm:p-4 bg-gradient-to-t from-black via-black/80 to-transparent">
+                                    <h4 className="text-[9px] sm:text-[11px] font-black text-white uppercase truncate tracking-tighter mb-1">{item.node?.title}</h4>
                                     <div className="flex items-center justify-between">
-                                       <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
-                                       <span className="text-[8px] font-black text-blue-500 uppercase">{item.list_status?.num_episodes_watched || item.list_status?.num_chapters_read} / {item.node?.num_episodes || item.node?.num_chapters || '?'}</span>
+                                       <span className="text-[7px] sm:text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
+                                       <span className="text-[7px] sm:text-[8px] font-black text-blue-400 uppercase">{item.list_status?.num_episodes_watched || item.list_status?.num_chapters_read} / {item.node?.num_episodes || item.node?.num_chapters || '?'}</span>
                                     </div>
                                  </div>
                               </div>
                             ))
                           ) : (
-                            <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5">
-                               <Tv size={64} className="text-zinc-800 mx-auto opacity-10 mb-4" />
-                               <p className="text-white font-black uppercase text-xs tracking-[0.2em]">Listeye erişilemedi</p>
+                            <div className="col-span-full py-16 sm:py-24 text-center bg-white/[0.02] rounded-[2rem] sm:rounded-[3rem] border border-dashed border-white/10">
+                               <Tv size={48} className="text-zinc-600 mx-auto mb-4 opacity-50" />
+                               <p className="text-zinc-400 font-black uppercase text-[10px] sm:text-xs tracking-[0.2em]">Listeye erişilemedi</p>
                             </div>
                           )}
                        </div>
@@ -1159,27 +1157,27 @@ export default function ProfileShowcase() {
                   )}
 
                   {activeTab === 'listeler' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                        {customLists.map((list, i) => (
                          <div 
                            key={i} 
                            onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
-                           className="group glass-strong border border-white/5 rounded-[3rem] p-10 bg-zinc-950 hover:border-indigo-500/40 transition-all cursor-pointer relative overflow-hidden shadow-2xl"
+                           className="group border border-white/5 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-purple-500/30 transition-all cursor-pointer relative overflow-hidden shadow-xl backdrop-blur-sm"
                          >
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                            <div className="flex justify-between items-start mb-10 relative z-10">
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                            <div className="flex justify-between items-start mb-8 sm:mb-10 relative z-10">
                                <div>
-                                  <h4 className="text-3xl font-black text-white uppercase tracking-tighter group-hover:text-indigo-400 transition-colors leading-none">{list.name}</h4>
-                                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ</p>
+                                  <h4 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tighter group-hover:text-purple-400 transition-colors leading-none">{list.name}</h4>
+                                  <p className="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] mt-2 sm:mt-3">{list.custom_list_items?.length || 0} SERİ</p>
                                </div>
-                               <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                                  <ArrowRight size={20} />
+                               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all shrink-0">
+                                  <ArrowRight size={18} />
                                </div>
                             </div>
-                            <div className="flex -space-x-6 relative z-10">
+                            <div className="flex -space-x-4 sm:-space-x-6 relative z-10">
                                {list.custom_list_items?.slice(0, 4).map((item, idx) => {
                                  const s = series?.find(ser => String(ser.id) === String(item.series_id));
-                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-card-navy shadow-2xl"><img src={getOptimizedImage(s?.cover || '/placeholder.png', 150)} alt={s?.title || "Seri kapak"} width={80} height={128} loading={idx < 4 ? 'eager' : 'lazy'} decoding="async" className="w-full h-full object-cover" /></div>;
+                                 return <div key={idx} className="w-16 h-24 sm:w-20 sm:h-32 rounded-xl sm:rounded-2xl border-2 sm:border-4 border-[#070511] overflow-hidden bg-black shadow-2xl shrink-0"><img src={getOptimizedImage(s?.cover || '/placeholder.png', 150)} loading="lazy" className="w-full h-full object-cover" /></div>;
                                })}
                             </div>
                          </div>
@@ -1188,60 +1186,60 @@ export default function ProfileShowcase() {
                   )}
 
                   {activeTab === 'basarimlar' && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
                        {userAchievements.map((ua, i) => (
-                          <div key={i} className="group relative p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 hover:border-amber-500/40 transition-all text-center shadow-2xl overflow-hidden">
+                          <div key={i} className="group relative p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-amber-500/40 transition-all text-center shadow-xl overflow-hidden backdrop-blur-md">
                              <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                             <div className="w-16 h-16 mx-auto rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-zinc-950 shadow-xl mb-4 group-hover:rotate-12 transition-transform">
-                                <Award size={32} />
+                             <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-xl sm:rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-black shadow-[0_0_20px_rgba(245,158,11,0.3)] mb-4 group-hover:scale-110 transition-transform">
+                                <Award size={24} className="sm:w-8 sm:h-8" />
                              </div>
-                             <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
-                             <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')} {/* Build Fix Marker */}</p>
+                             <h4 className="text-[9px] sm:text-[11px] font-black text-white uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
+                             <p className="text-[7px] sm:text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}</p>
                           </div>
                        ))}
                     </div>
                   )}
 
                   {activeTab === 'customize' && (
-                    <div className="space-y-12">
-                       <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                         <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
+                    <div className="space-y-8 sm:space-y-12">
+                       <div className="flex flex-col xl:flex-row items-center justify-between gap-4 sm:gap-6">
+                         {/* Özelleştirme Menüsü */}
+                         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-2 rounded-2xl sm:rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-xl w-full xl:w-auto">
                             {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler', 'İsim Efektleri'].map((f) => (
                               <button 
                                 key={f} 
                                 onClick={() => setDecorationCategory(f)}
-                                className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-400 hover:text-white'}`}
+                                className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${decorationCategory === f ? 'bg-rose-600 text-white shadow-[0_0_15px_rgba(225,29,72,0.4)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
                               >
                                  {f}
                               </button>
                             ))}
                          </div>
 
-                         {/* Color Picker (Hue) */}
-                         <div className="flex items-center gap-4 bg-zinc-950 border border-white/5 p-4 rounded-[2rem] min-w-[250px]">
-                           <Paintbrush size={16} className="text-blue-400 shrink-0" />
-                           <div className="flex-1 space-y-1">
+                         {/* Renk Seçici */}
+                         <div className="flex items-center gap-3 sm:gap-4 bg-white/[0.02] border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-[2rem] backdrop-blur-xl w-full xl:w-auto min-w-0 xl:min-w-[300px]">
+                           <div className="p-2 rounded-lg bg-blue-500/10 shrink-0">
+                             <Paintbrush size={14} className="text-blue-400" />
+                           </div>
+                           <div className="flex-1 space-y-1 sm:space-y-2">
                              <div className="flex justify-between items-center">
-                               <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">RENK TONU</span>
-                               <span className="text-[10px] font-black text-white">{mixState.hue || 0}°</span>
+                               <span className="text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-widest">AURA RENGİ</span>
+                               <span className="text-[9px] sm:text-[10px] font-black text-white">{mixState.hue || 0}°</span>
                              </div>
                              <input 
-                               type="range" 
-                               min="0" 
-                               max="360" 
-                               value={mixState.hue || 0}
+                               type="range" min="0" max="360" value={mixState.hue || 0}
                                onChange={(e) => {
                                  const val = parseInt(e.target.value);
                                  setMixState(prev => ({ ...prev, hue: val }));
                                  updateProfile({ active_mix: { ...mixState, hue: val } });
                                }}
-                               className="w-full h-1 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-blue-500"
+                               className="w-full h-1 sm:h-1.5 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-blue-500"
                              />
                            </div>
                          </div>
                        </div>
                        
-                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
                          {filteredDecorations.map(effect => {
                            const isNameplate = effect.category === 'nameplates';
                            const isProfileEffect = effect.category === 'profile_effects';
@@ -1261,47 +1259,34 @@ export default function ProfileShowcase() {
                                  setMixState(newMix);
                                  updateProfile({ active_mix: newMix });
                                }} 
-                               className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${isActive ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-white/5 hover:border-white/20'}`}
+                               className={`group relative p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] bg-black/40 backdrop-blur-md transition-all cursor-pointer border ${isActive ? 'border-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.2)]' : 'border-white/5 hover:border-white/20 hover:bg-white/[0.02]'}`}
                              >
-                                <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-card-navy/80 border border-white/5 mb-4 ${isNameplate ? '' : 'p-2'}`}>
+                                <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-xl sm:rounded-2xl bg-black/50 border border-white/5 mb-3 sm:mb-4 ${isNameplate ? '' : 'p-2'}`}>
                                   {isNameplate ? (
-                                    <video 
-                                      src={`/nameplates/${effect.id}`}
-                                      className="w-full h-full object-cover" 
-                                      muted 
-                                      loop 
-                                      autoPlay 
-                                      playsInline 
-                                    />
+                                    <video src={`/nameplates/${effect.id}`} className="w-full h-full object-cover" muted loop autoPlay playsInline />
                                   ) : isNameEffect ? (
                                     <div className="flex items-center justify-center w-full h-full p-2">
-                                      <span 
-                                        className="text-xl font-black uppercase tracking-tighter name-effect-text"
-                                        style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.hue || 0}deg)` }}
-                                      >
+                                      <span className="text-[10px] sm:text-sm font-black uppercase tracking-tighter name-effect-text" style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.hue || 0}deg)` }}>
                                         {displayUser?.username || 'KULLANICI'}
                                       </span>
                                     </div>
                                   ) : isProfileEffect ? (
-                                    <img src={getOptimizedImage(effect.url, 200)} alt="Profil Efekti" className="w-full h-full object-contain drop-shadow-xl" />
+                                    <img src={getOptimizedImage(effect.url, 200)} loading="lazy" className="w-full h-full object-contain drop-shadow-xl" />
                                   ) : (
-                                    <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-20 h-20" forcePlay={true} />
+                                    <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-12 h-12 sm:w-16 sm:h-16" forcePlay={true} />
                                   )}
                                   
-                                  {/* Preview with Hue */}
-                                  <div className="absolute inset-0 pointer-events-none" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }}>
-                                     {/* This just overlays the hue in the preview area for visual feedback */}
-                                  </div>
+                                  <div className="absolute inset-0 pointer-events-none" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
                                 </div>
                                 
                                 <div className="text-center">
-                                   <div className="text-[10px] font-black text-white uppercase tracking-tight truncate mb-1">{effect.label}</div>
-                                   <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
+                                   <div className="text-[9px] sm:text-[10px] font-black text-white uppercase tracking-tight truncate mb-1">{effect.label}</div>
+                                   <div className="text-[7px] sm:text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
                                 </div>
                                 
                                 {isActive && (
-                                  <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center shadow-lg">
-                                    <Check size={14} className="text-white" />
+                                  <div className="absolute top-2 right-2 sm:top-4 sm:right-4 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-rose-500 flex items-center justify-center shadow-lg">
+                                    <Check size={12} className="text-white" />
                                   </div>
                                 )}
                              </div>
