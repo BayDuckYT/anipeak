@@ -59,24 +59,19 @@ function calculateMatchScore(manga, userTopGenres) {
 export default function OraclePage() {
   const { sortedSeries, chapters } = useApp();
   const { user } = useAuth();
-  const [analyzing, setAnalyzing] = useState(true);
-  const [soulProfile, setSoulProfile] = useState(null);
-  const [userStats, setUserStats] = useState(null);
-
+  
   useSEO({
     title: 'Oracle',
     description: 'AniPeak Oracle - Yapay zeka destekli kişisel manhwa ve webtoon önerileri.',
     url: 'https://anipeak.com.tr/oracle'
   });
 
-  // ─── GERÇEK VERİ ANALİZİ (SAHTE DEĞİL) ───────────────────────────
-  const analyzeUser = useCallback(async () => {
+  const { soulProfile, userStats } = useMemo(() => {
     // 1. Kullanıcının favori serilerini çek (gerçek veri)
     let favoriteGenres = [];
     let favCount = 0;
     
     if (user?.id) {
-      // favorites tablosu mevcut olmadığı için ağ hatasını önlemek adına kaldırıldı
       favCount = 0;
       favoriteGenres = [];
     }
@@ -154,7 +149,7 @@ export default function OraclePage() {
       99.9
     ).toFixed(1);
     
-    setSoulProfile({
+    const calculatedSoulProfile = {
       ...bestSoulMatch,
       dnaScore,
       readingRhythm,
@@ -162,27 +157,19 @@ export default function OraclePage() {
       cosmicDistribution: cosmicDistribution.length > 0 ? cosmicDistribution : [
         { label: 'Henüz Veri Yok', value: 100 }
       ]
-    });
+    };
     
-    setUserStats({
+    const calculatedUserStats = {
       totalChaptersRead,
       totalSeries,
       favCount,
       xp,
       levelInfo,
       topGenres: topGenres.map(([name]) => name),
-    });
+    };
     
-    setAnalyzing(false);
+    return { soulProfile: calculatedSoulProfile, userStats: calculatedUserStats };
   }, [user, sortedSeries, chapters]);
-
-  useEffect(() => {
-    // Gerçek analiz: minimum 1.5s animasyon + veri çekme
-    const timer = setTimeout(() => {
-      analyzeUser();
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [analyzeUser]);
 
   // ─── GERÇEK VERİYE DAYALI ÖNERİLER ───────────────────────────────
   const recommendedSeries = useMemo(() => {
@@ -249,35 +236,11 @@ export default function OraclePage() {
         </div>
 
         <div className="min-h-[80vh]">
-          <AnimatePresence mode="wait">
-            {analyzing ? (
-            <motion.div 
-              key="loader"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20"
-            >
-              <div className="relative w-24 h-24">
-                <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-full" />
-                <div className="absolute inset-0 border-4 border-t-cyan-500 rounded-full animate-spin" />
-              </div>
-              <motion.p 
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="mt-8 text-cyan-400 font-mono tracking-widest uppercase text-sm"
-              >
-                Gerçek Veriler Analiz Ediliyor...
-              </motion.p>
-              <p className="mt-2 text-gray-500 text-xs font-mono">
-                XP: {user?.xp || 0} · Seriler: {sortedSeries.length} · Bölümler taranıyor...
-              </p>
-            </motion.div>
-          ) : (
             <motion.div
               key="results"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8"
             >
               {/* Soul Mirror Section */}
@@ -452,8 +415,6 @@ export default function OraclePage() {
               </div>
 
             </motion.div>
-          )}
-        </AnimatePresence>
         </div>
 
       </div>
