@@ -1,7 +1,7 @@
 import { Suspense, lazy, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ShieldAlert, Zap } from 'lucide-react';
+import { ShieldAlert, Zap, Lock, Wrench, Calendar, Clock, Instagram } from 'lucide-react';
 
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { AppProvider, useApp } from './context/AppContext.jsx';
@@ -92,33 +92,102 @@ function AnimatedRoutes({ onAuthOpen }) {
 
 function MaintenanceScreen({ onAuthOpen }) {
   return (
-    <div className="min-h-screen bg-[#050507] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Top Right Admin Door */}
-      <div className="absolute top-6 right-6 z-50">
-        <button onClick={() => onAuthOpen('login')} className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-amber-500/20 text-amber-400 font-bold text-sm hover:bg-amber-500/10 hover:border-amber-500/40 transition-all shadow-[0_0_15px_rgba(245,158,11,0.15)] group">
-          <ShieldAlert size={16} className="group-hover:scale-110 transition-transform" /> Yetkili Girişi
-        </button>
+    <div className="min-h-screen bg-[#050507] relative overflow-hidden font-sans flex items-center">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/bakim_arkaplan.jpg" 
+          alt="Bakım" 
+          className="w-full h-full object-cover object-right lg:object-center"
+        />
       </div>
 
-      <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-orange-600/10 rounded-full blur-[100px]" />
+      {/* Gradient Overlay for Text Readability */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#E3D9F8] via-[#E3D9F8]/80 to-transparent lg:w-[60%] w-full" />
+
+      {/* Top Header */}
+      <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-6 lg:px-12">
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#5932EA] rounded-lg flex items-center justify-center transform -rotate-12">
+             <div className="w-0 h-0 border-l-[8px] border-l-transparent border-b-[14px] border-b-white border-r-[8px] border-r-transparent transform rotate-12" />
+          </div>
+          <span className="text-2xl font-black text-[#1A1A2E] tracking-tight">AniPeak</span>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => onAuthOpen('login')} 
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1A1A2E]/80 backdrop-blur-md border border-white/10 text-white font-semibold text-sm hover:bg-[#1A1A2E] transition-all"
+          >
+            <Lock size={16} className="text-purple-400" /> Yetkili Girişi
+          </button>
+          
+          <a href="https://discord.gg/anipeak" target="_blank" rel="noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1A1A2E]/80 backdrop-blur-md border border-white/10 text-white hover:bg-[#1A1A2E] transition-all">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+               <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+            </svg>
+          </a>
+          
+          <a href="https://instagram.com/anipeak" target="_blank" rel="noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1A1A2E]/80 backdrop-blur-md border border-white/10 text-white hover:bg-[#1A1A2E] transition-all">
+            <Instagram size={20} />
+          </a>
+        </div>
       </div>
-      
-      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-strong border border-red-500/20 rounded-3xl p-10 max-w-lg text-center relative z-10 shadow-[0_0_100px_rgba(239,68,68,0.15)]">
-         <ShieldAlert size={80} className="text-red-500 mx-auto mb-6 opacity-90 animate-pulse" />
-         <h1 className="text-4xl font-black text-white mb-2 tracking-tight">SİSTEM BAKIMDA</h1>
-         <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-orange-500 mx-auto rounded-full mb-6" />
-         
-         <p className="text-lg text-slate-300 font-semibold mb-4 leading-relaxed">
-           Şu anda altyapımızda kapsamlı bir bakım çalışması yapıyoruz.
-         </p>
-         
-         <p className="text-sm text-slate-400 mb-8 p-4 bg-white/5 rounded-xl border border-white/10">
-           En yakın zamanda tekrar kullanıma açılacaktır.<br/><br/>
-           <strong className="text-slate-300">İyi okumalar dileriz!</strong>
-         </p>
-      </motion.div>
+
+      {/* Main Content */}
+      <div className="relative z-20 w-full px-6 lg:px-20 max-w-7xl mx-auto flex flex-col justify-center h-full">
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-xl"
+        >
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E5D5F5] border border-[#D5C1ED] text-[#5932EA] font-semibold text-sm mb-8 shadow-sm">
+            <div className="bg-[#5932EA] p-1 rounded-md text-white">
+               <Wrench size={14} />
+            </div>
+            Bakımda
+            <div className="w-2 h-2 rounded-full bg-[#5932EA] ml-1" />
+          </div>
+
+          {/* Heading */}
+          <h1 className="text-6xl md:text-7xl font-black text-[#1A1A2E] tracking-tight leading-[1.1] mb-6">
+            Sitemiz şu anda <br />
+            <span className="text-[#5932EA]">bakımda.</span>
+          </h1>
+
+          {/* Paragraph */}
+          <p className="text-[#475569] text-lg font-medium leading-relaxed mb-10 max-w-md">
+            Daha iyi bir deneyim sunabilmek için sitemizde güncelleme çalışmaları yapıyoruz. 
+            Kısa süre içinde geri döneceğiz.
+          </p>
+
+          {/* Calendar Card */}
+          <div className="inline-flex items-center gap-6 p-4 pr-12 rounded-2xl bg-[#1A1A2E] text-white shadow-xl shadow-purple-900/10 border border-white/5">
+            <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center relative border border-white/10">
+              <Calendar size={28} className="text-purple-400" />
+              <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-purple-500 border-4 border-[#1A1A2E] flex items-center justify-center">
+                <Clock size={12} className="text-white" />
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-zinc-400 text-sm font-medium mb-0.5">Açılış Yılımız</span>
+              <span className="text-2xl font-bold tracking-tight">2026</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Footer Copy */}
+      <div className="absolute bottom-6 left-6 lg:left-12 z-20 flex items-center gap-3 text-[#475569] text-sm font-medium">
+        <div className="w-6 h-6 bg-[#5932EA] rounded-md flex items-center justify-center transform -rotate-12 opacity-80">
+          <div className="w-0 h-0 border-l-[4px] border-l-transparent border-b-[8px] border-b-white border-r-[4px] border-r-transparent transform rotate-12" />
+        </div>
+        <span>© 2026 AniPeak. Tüm hakları saklıdır.</span>
+      </div>
     </div>
   );
 }
