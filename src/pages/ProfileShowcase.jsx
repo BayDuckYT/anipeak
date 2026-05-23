@@ -742,11 +742,16 @@ export default function ProfileShowcase() {
             <div className="glass bg-zinc-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative">
                {/* Background Effect */}
                  <div className="absolute inset-0 z-[-1] opacity-20">
-                   <img 
-                     src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
-                     className="w-full h-full object-cover" 
-                     style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
-                   />
+                   {effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url && (
+                     <img 
+                       src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
+                       className="w-full h-full object-cover" 
+                       width={320} height={500}
+                       loading="eager" fetchpriority="high" decoding="async"
+                       style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
+                       alt="Profile Effect"
+                     />
+                   )}
                  </div>
 
                <div className="relative mb-8">

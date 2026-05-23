@@ -38,7 +38,7 @@ const SORT_OPTIONS = [
 ];
 
 // ── Series Card ──
-function SeriesCard({ item }) {
+function SeriesCard({ item, idx = 0 }) {
   const { getChapters } = useApp();
   const chapterCount = getChapters(item.id).length;
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
@@ -47,7 +47,7 @@ function SeriesCard({ item }) {
     <Link to={`/manhwa/${item.id}`} className="group block">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] transition-all duration-300">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" width={200} height={267}
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading={idx < 10 ? 'eager' : 'lazy'} fetchpriority={idx < 5 ? 'high' : 'auto'} decoding="async" width={200} height={267}
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           {/* Rating badge */}
@@ -72,14 +72,14 @@ function SeriesCard({ item }) {
 }
 
 // ── List View Card ──
-function SeriesListItem({ item }) {
+function SeriesListItem({ item, idx = 0 }) {
   const { getChapters } = useApp();
   const chapterCount = getChapters(item.id).length;
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
 
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all group">
-      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy" decoding="async" width={48} height={64}
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading={idx < 10 ? 'eager' : 'lazy'} fetchpriority={idx < 5 ? 'high' : 'auto'} decoding="async" width={48} height={64}
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <h3 className="text-white text-sm font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
@@ -97,14 +97,14 @@ function SeriesListItem({ item }) {
 }
 
 // ── Popularity Sidebar Item ──
-function PopularItem({ item, rank }) {
+function PopularItem({ item, rank, idx = 0 }) {
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-white/5 transition-all group">
       <span className={`text-lg font-black w-6 text-center flex-shrink-0 ${
         rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-orange-400' : 'text-slate-400'
       }`}>{rank}</span>
-      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy" decoding="async" width={40} height={56}
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading={idx < 5 ? 'eager' : 'lazy'} fetchpriority={idx < 3 ? 'high' : 'auto'} decoding="async" width={40} height={56}
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
@@ -334,7 +334,7 @@ export default function AllSeries() {
                   {filtered.map((item, i) => (
                     <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                       transition={{ duration: 0.2 }}>
-                      <SeriesCard item={item} />
+                      <SeriesCard item={item} idx={i} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -345,7 +345,7 @@ export default function AllSeries() {
                   {filtered.map((item, i) => (
                     <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                       transition={{ duration: 0.2 }}>
-                      <SeriesListItem item={item} />
+                      <SeriesListItem item={item} idx={i} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -369,7 +369,7 @@ export default function AllSeries() {
               </h3>
               <div className="space-y-1">
                 {popular5.map((item, i) => (
-                  <PopularItem key={item.id} item={item} rank={i + 1} />
+                  <PopularItem key={item.id} item={item} rank={i + 1} idx={i} />
                 ))}
               </div>
               <Link to="/popular" className="flex items-center justify-center gap-1 mt-4 py-2.5 rounded-xl bg-white/5 border border-white/8 text-xs text-slate-400 font-bold hover:text-purple-400 hover:border-purple-500/30 transition-all">

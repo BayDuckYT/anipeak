@@ -152,7 +152,7 @@ export default function Reader() {
               .select('*')
               .eq('series_id', manhwa.id)
               .eq('number', chapter)
-              .single();
+              .maybeSingle();
             
             if (!error && data) {
               setChapterData(data);

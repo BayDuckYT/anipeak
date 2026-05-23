@@ -168,7 +168,7 @@ export default function SchedulePage() {
 
                 {/* Series Info */}
                 <div className="flex items-center gap-4">
-                  <img src={item.poster_url} alt={item.series_name} className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg object-cover border border-white/10 group-hover:scale-105 transition-transform" width={56} height={80} decoding="async" loading="lazy"
+                  <img src={item.poster_url} alt={item.series_name} className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg object-cover border border-white/10 group-hover:scale-105 transition-transform" width={56} height={80} decoding="async" loading={idx < 5 ? 'eager' : 'lazy'} fetchpriority={idx < 3 ? 'high' : 'auto'}
                     onError={(e) => { e.target.src = 'https://via.placeholder.com/64x96?text='; }} />
                   <div className="min-w-0">
                     <h3 className="text-white font-bold text-sm sm:text-base truncate group-hover:text-purple-400 transition-colors">
