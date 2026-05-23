@@ -275,7 +275,7 @@ export default function ProfileShowcase() {
     setUserAchievements(achData || []);
 
     // 4. MAL List (if provided)
-    if (malUsername) {
+    if (malUsername && malUsername.toLowerCase() !== 'anipeak') {
       setMalLoading(true);
       setMalError(null);
       try {
@@ -283,15 +283,16 @@ export default function ProfileShowcase() {
         setMalList(data || []);
         if (!data || data.length === 0) {
           // If anime is empty, try manga
-          const mData = await fetchMALList(malUsername, 'mangalist');
-          setMalList(mData || []);
+          const mangaData = await fetchMALList(malUsername, 'mangalist');
+          setMalList(mangaData || []);
         }
       } catch (err) {
-        console.error("Fetch social error:", err);
-        setMalError(err.message || "MAL verisi alınamadı.");
+        setMalError('MAL listesi alınamadı.');
       } finally {
         setMalLoading(false);
       }
+    } else {
+      setMalList([]);
     }
   };
 
@@ -709,7 +710,7 @@ export default function ProfileShowcase() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPremiumModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-5xl bg-zinc-950 border border-amber-500/30 rounded-[3rem] p-10 overflow-hidden shadow-[0_0_100px_rgba(245,158,11,0.15)]">
               <div className="absolute top-0 right-0 p-6">
-                <button onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-zinc-900 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
+                <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-zinc-900 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
               </div>
               <div className="text-center mb-12">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÜYELİK</div>
@@ -899,7 +900,7 @@ export default function ProfileShowcase() {
                       <button onClick={handleFollow} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isFollowing ? 'bg-zinc-800 text-zinc-400' : 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'}`}>
                         {isFollowing ? 'TAKİPTEN ÇIK' : 'TAKİP ET'}
                       </button>
-                      <button onClick={handleStartChat} className="p-4 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-white transition-all"><MessageSquare size={16} /></button>
+                      <button aria-label="Mesaj gönder" onClick={handleStartChat} className="p-4 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-white transition-all"><MessageSquare size={16} /></button>
                     </div>
                   )}
                </div>
@@ -1309,7 +1310,7 @@ export default function ProfileShowcase() {
                 <div className="text-[10px] font-black uppercase tracking-widest">Sistem Bildirimi</div>
                 <div className="text-xs font-bold text-white/90">{toast}</div>
               </div>
-              <button onClick={() => setToast(null)} className="ml-4 p-2 rounded-full hover:bg-white/10 transition-all">
+              <button aria-label="Bildirimi kapat" onClick={() => setToast(null)} className="ml-4 p-2 rounded-full hover:bg-white/10 transition-all">
                 <X size={16} />
               </button>
            </motion.div>
@@ -1354,7 +1355,7 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
             <h3 className="text-2xl font-black text-white uppercase tracking-tight">SOSYAL MEDYA</h3>
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Hesaplarını bağla</p>
           </div>
-          <button onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all border border-white/5"><X size={24} /></button>
+          <button aria-label="Bağlantı penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all border border-white/5"><X size={24} /></button>
         </div>
 
         <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-2 mb-10">
@@ -1369,7 +1370,7 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
               <div className="relative flex-1 w-full">
                 <input type="text" placeholder={link.type === 'username' ? "Kullanıcı Adı" : "URL Adresi"} value={link.value} onChange={(e) => updateRow(idx, 'value', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all outline-none" />
               </div>
-              <button onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
+              <button aria-label="Bağlantıyı sil" onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
             </div>
           ))}
           <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-zinc-900 border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-500 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
@@ -1438,7 +1439,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
               <h3 className="text-2xl font-black text-white uppercase tracking-tight">GÖRÜNÜM</h3>
               <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini düzenle</p>
            </div>
-           <button onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all"><X size={24} /></button>
+           <button aria-label="Profil düzenleme penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all"><X size={24} /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
