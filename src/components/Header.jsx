@@ -392,14 +392,7 @@ export default function Header({ onAuthOpen }) {
                             <span className="text-xs font-bold text-white">{user.aura ? user.aura.toLocaleString('tr-TR') : '0'}</span>
                           </div>
                         </Link>
-                        <Link
-                          to="/global-nexus"
-                          onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
-                        >
-                          <span className="text-[15px] leading-none group-hover:scale-110 transition-transform">🌍</span>
-                          Harita
-                        </Link>
+
                         <Link
                           to="/profile"
                           onClick={() => setProfileOpen(false)}

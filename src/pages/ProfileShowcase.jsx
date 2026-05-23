@@ -784,7 +784,7 @@ export default function ProfileShowcase() {
                           muted 
                           loop 
                           playsInline 
-                          className="w-full h-full object-fill opacity-100"
+                          className="w-full h-full object-fill"
                           style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                         />
                       </div>

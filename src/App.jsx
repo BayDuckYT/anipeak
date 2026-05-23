@@ -37,7 +37,6 @@ const ListDetail = lazy(() => import('./pages/ListDetail.jsx'));
 const Achievements = lazy(() => import('./pages/Achievements.jsx'));
 const SchedulePage = lazy(() => import('./pages/SchedulePage.jsx'));
 const OraclePage = lazy(() => import('./pages/OraclePage.jsx'));
-const GlobalNexus = lazy(() => import('./pages/GlobalNexus.jsx'));
 const PopularityPage = lazy(() => import('./pages/PopularityPage.jsx'));
 
 // Role-based Route Protection
@@ -82,7 +81,6 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/takvim" element={<SchedulePage />} />
           <Route path="/oracle" element={<OraclePage />} />
-          <Route path="/global-nexus" element={<GlobalNexus />} />
           <Route path="/popular" element={<PopularityPage />} />
           <Route path="/:username/liste/:listId" element={<ListDetail />} />
           <Route path="/:slug" element={<StaticPage />} />
