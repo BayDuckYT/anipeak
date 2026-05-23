@@ -117,7 +117,12 @@ function MaintenanceScreen({ onAuthOpen }) {
             <path d="M11 20L4 32H11L14.5 26L11 20Z" fill="#3B82F6"/>
             <path d="M29 20L36 32H29L25.5 26L29 20Z" fill="#3B82F6"/>
           </svg>
-          <span className="text-3xl font-black text-[#0B0F19] tracking-tight">AniPeak</span>
+          <span 
+            style={{ fontFamily: "'Poppins', sans-serif" }} 
+            className="text-3xl font-semibold text-[#0B0F19] tracking-tight"
+          >
+            AniPeak
+          </span>
         </div>
 
         {/* Action Buttons */}
