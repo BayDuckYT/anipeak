@@ -86,20 +86,6 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
   } catch (err) { throw err; }
 };
 
-const COOL_PREFIXES = ["Kızıl", "Gümüş", "Altın", "Kara", "Beyaz", "Buz", "Alev", "Gölge", "Ruh", "Yıldırım", "Işık", "Karanlık", "Yakut", "Zümrüt", "Safir", "Kristal", "Gece", "Gündüz", "Şafak", "Gökyüzü", "Okyanus", "Orman", "Çöl", "Kış", "Bahar", "Ejder", "Anka", "Kurt", "Şahin", "Kaplan"];
-const COOL_SUFFIXES = ["Plakası", "Nişanı", "Mührü", "Arması", "Simgesi", "Dokunuşu", "İzi", "Halesi", "Rüzgarı", "Işıltısı", "Ateşi", "Gölgesi", "Büyüsü", "Tılsımı", "Dalgası"];
-
-const generateCoolNameplateName = (filename) => {
-  let hash = 0;
-  for (let i = 0; i < filename.length; i++) {
-    hash = filename.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const prefix = COOL_PREFIXES[Math.abs(hash) % COOL_PREFIXES.length];
-  const suffix = COOL_SUFFIXES[Math.abs(hash * 31) % COOL_SUFFIXES.length];
-  return `${prefix} ${suffix}`;
-};
-
-
 /**
  * ProfileEffectSpritesheet — Otomatik kare sayısı tespiti.
  * Discord tarzı spritesheet'ler yatay şeritlerdir: width / height = kare sayısı.
@@ -662,7 +648,7 @@ export default function ProfileShowcase() {
     if (decorationCategory === 'Tümü') return decorationEffectsData;
     if (decorationCategory === 'Efektler') return decorationEffectsData.filter(d => d.category === 'profile_effects');
     if (decorationCategory === 'Çerçeveler') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
-    if (decorationCategory === 'Plaketler') return nameplatesData.map((n) => ({ id: n, label: generateCoolNameplateName(n), url: n, category: 'nameplates' }));
+    if (decorationCategory === 'Plaketler') return nameplatesData.map((n, i) => ({ id: n, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
     if (decorationCategory === 'İsim Efektleri') return decorationEffectsData.filter(d => d.category === 'name_effects');
     return decorationEffectsData.filter(d => d.category === decorationCategory);
   }, [decorationCategory, decorationEffectsData]);
@@ -1280,11 +1266,14 @@ export default function ProfileShowcase() {
                                 <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-card-navy/80 border border-white/5 mb-4 p-2`}>
                                   {isNameplate ? (
                                     <>
-                                      <div className="absolute inset-0 z-0">
-                                        <video className="w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90" muted loop autoPlay playsInline>
-                                          <source src={`/nameplates/${effect.id}`} type="video/webm" />
-                                        </video>
-                                      </div>
+                                      <video 
+                                        src={`/nameplates/${effect.id}`}
+                                        className="absolute inset-0 w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90 pointer-events-none z-0" 
+                                        muted 
+                                        loop 
+                                        autoPlay 
+                                        playsInline 
+                                      />
                                       <span className="relative z-10 text-[11px] font-black uppercase text-white tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">KULLANICI</span>
                                     </>
                                   ) : isNameEffect ? (
@@ -1432,17 +1421,14 @@ function NameplateItem({ filename, isActive, onSelect }) {
     >
       {isVideo ? (
         <>
-          <div className="absolute inset-0 z-0">
-            <video 
-              autoPlay 
-              muted 
-              loop 
-              playsInline 
-              className="w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90" 
-            >
-              <source src={`/nameplates/${filename}`} type="video/webm" />
-            </video>
-          </div>
+          <video 
+            src={`/nameplates/${filename}`}
+            autoPlay 
+            muted 
+            loop 
+            playsInline 
+            className="absolute inset-0 w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90 pointer-events-none z-0" 
+          />
           <span className="relative z-10 text-[11px] font-black uppercase text-white tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">KULLANICI</span>
         </>
       ) : (
