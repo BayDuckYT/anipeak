@@ -78,21 +78,6 @@
     /* Görsel yüklenirken yer tutucu — Layout Shift sıfır olsun (CLS=0) */
     img { display: block; max-width: 100%; }
 
-    /* Skip Navigation Link (Erişilebilirlik + CLS Önleme) */
-    .skip-to-main {
-      position: absolute;
-      top: -100%;
-      left: 1rem;
-      z-index: 9999;
-      padding: 0.75rem 1.5rem;
-      background: #a855f7;
-      color: white;
-      font-weight: 700;
-      border-radius: 0 0 0.5rem 0.5rem;
-      text-decoration: none;
-      transition: top 0.2s;
-    }
-    .skip-to-main:focus { top: 0; }
   </style>
 
   <!-- 5. Structured Data (JSON-LD) — Google'a platform hakkında zengin bilgi ver -->
@@ -118,8 +103,6 @@
 </head>
 
 <body>
-  <!-- Skip Navigation — Klavye/Ekran Okuyucu Erişilebilirliği -->
-  <a href="#main-content" class="skip-to-main">Ana İçeriğe Geç</a>
 
   <!-- Yükleme ekranı (React başlamadan görünür — FCP hızlanır) -->
   <noscript>
