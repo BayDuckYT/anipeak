@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, MessageSquare, Mail, User } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useSEO } from '../hooks/useSEO';
 
 export default function Suggestions() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useSEO({
+    title: 'Öneriler',
+    description: 'AniPeak için manhwa ve webtoon önerilerinizi gönderin.',
+    url: 'https://anipeak.com.tr/oneriler'
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +104,7 @@ export default function Suggestions() {
                     </label>
                     <input 
                       required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-700"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-400"
                       placeholder="Adınız veya kullanıcı adınız"
                     />
                   </div>
@@ -107,10 +114,10 @@ export default function Suggestions() {
                     </label>
                     <input 
                       required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-700"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-400"
                       placeholder="eposta@adresiniz.com"
                     />
-                    <p className="text-[9px] text-slate-600 ml-1 italic">* Sizinle iletişime geçebilmemiz için gereklidir.</p>
+                    <p className="text-[9px] text-slate-400 ml-1 italic">* Sizinle iletişime geçebilmemiz için gereklidir.</p>
                   </div>
                 </div>
 
@@ -121,7 +128,7 @@ export default function Suggestions() {
                     value={formData.message}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
                     rows={6}
-                    className="w-full glass border border-white/10 rounded-2xl p-4 text-white placeholder-slate-600 focus:border-purple-500 outline-none transition-all resize-none"
+                    className="w-full glass border border-white/10 rounded-2xl p-4 text-white placeholder-slate-400 focus:border-purple-500 outline-none transition-all resize-none"
                     placeholder="AniPeak'te hangi özellikleri görmek istersiniz? Fikirlerinizi bizimle paylaşın..."
                   />
                 </div>
@@ -144,7 +151,7 @@ export default function Suggestions() {
         </motion.div>
 
         {/* Footer Info */}
-        <div className="mt-12 flex items-center justify-center gap-8 text-slate-600 font-bold text-[10px] uppercase tracking-widest">
+        <div className="mt-12 flex items-center justify-center gap-8 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
            <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-purple-500" /> %100 GÜVENLİ
            </div>

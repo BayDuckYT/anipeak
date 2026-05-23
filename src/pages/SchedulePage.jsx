@@ -3,10 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { Star, Bell, BellRing, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useSEO } from '../hooks/useSEO';
 
 export default function SchedulePage() {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useSEO({
+    title: 'Yayın Takvimi',
+    description: 'AniPeak yayın takvimi. Hangi manhwa ve webtoonların hangi gün yeni bölüm yayınlayacağını takip et.',
+    url: 'https://anipeak.com.tr/takvim'
+  });
 
   // Weekly Calendar State
   const getLocalDateString = (date) => {
@@ -90,7 +97,7 @@ export default function SchedulePage() {
         {/* Days Tabs (Functional Weekly Calendar) */}
         <div className="relative z-10 border-t border-white/10 p-4 sm:px-8">
           <div className="flex items-center gap-2 sm:gap-4">
-            <button onClick={handlePrevWeek} className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
+            <button onClick={handlePrevWeek} aria-label="Önceki hafta" className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
               <ChevronLeft size={20} />
             </button>
             
@@ -124,7 +131,7 @@ export default function SchedulePage() {
               })}
             </div>
 
-            <button onClick={handleNextWeek} className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
+            <button onClick={handleNextWeek} aria-label="Sonraki hafta" className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
               <ChevronRight size={20} />
             </button>
           </div>
@@ -161,7 +168,7 @@ export default function SchedulePage() {
 
                 {/* Series Info */}
                 <div className="flex items-center gap-4">
-                  <img src={item.poster_url} alt={item.series_name} className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg object-cover border border-white/10 group-hover:scale-105 transition-transform" 
+                  <img src={item.poster_url} alt={item.series_name} className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg object-cover border border-white/10 group-hover:scale-105 transition-transform" width={56} height={80} decoding="async" loading="lazy"
                     onError={(e) => { e.target.src = 'https://via.placeholder.com/64x96?text='; }} />
                   <div className="min-w-0">
                     <h3 className="text-white font-bold text-sm sm:text-base truncate group-hover:text-purple-400 transition-colors">
@@ -204,7 +211,7 @@ export default function SchedulePage() {
 
                 {/* Notification Bell */}
                 <div className="flex justify-center">
-                  <button className="text-slate-500 hover:text-white hover:scale-110 transition-all">
+                  <button aria-label={`${item.series_name} için bildirim aç`} className="text-slate-500 hover:text-white hover:scale-110 transition-all">
                     <Bell size={18} />
                   </button>
                 </div>
@@ -215,7 +222,7 @@ export default function SchedulePage() {
                 animate={{ opacity: 1 }}
                 className="py-20 text-center"
               >
-                <Bell size={40} className="text-slate-700 mx-auto mb-4" />
+                <Bell size={40} className="text-slate-400 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-white mb-2">Bu gün için yayın yok</h3>
                 <p className="text-slate-500 text-sm">Diğer günleri kontrol edebilirsin.</p>
               </motion.div>

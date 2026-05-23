@@ -27,6 +27,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import Loader from '../components/Loader';
+import { useSEO } from '../hooks/useSEO';
 
 export default function ListDetail() {
   const { listId } = useParams();
@@ -49,6 +50,12 @@ export default function ListDetail() {
   const [toast, setToast] = useState(null);
 
   const isOwner = currentUser?.id === list?.user_id;
+
+  useSEO({
+    title: list?.name ? `${list.name} - Koleksiyon` : 'Koleksiyon Detayı',
+    description: list?.description || 'AniPeak koleksiyon detay sayfası.',
+    url: `https://anipeak.com.tr/list/${listId}`
+  });
 
   const showToast = (msg) => {
     setToast(msg);
@@ -263,7 +270,7 @@ export default function ListDetail() {
            >
               {listItems?.slice(0, 12).map((item, idx) => {
                 const s = item.series || series?.find(ser => String(ser.id) === String(item.series_id));
-                return s ? <img key={idx} src={s.cover} className="w-1/4 h-1/2 object-cover" /> : null;
+                return s ? <img key={idx} src={s.cover} alt="" className="w-1/4 h-1/2 object-cover" loading="lazy" /> : null;
               })}
            </motion.div>
          )}
@@ -330,7 +337,7 @@ export default function ListDetail() {
            <div className="w-full md:w-auto min-w-[320px] p-8 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-3xl border border-white/5 shadow-2xl space-y-8">
               <div className="flex items-center justify-between">
                  <div className="flex items-center gap-3">
-                    <img src={list.profiles?.avatar_url} className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500/20 shadow-lg" />
+                    <img src={list.profiles?.avatar_url} alt={`${list.profiles?.username || 'Kullanıcı'} avatarı`} className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500/20 shadow-lg" />
                     <div className="flex flex-col">
                        <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Oluşturan</span>
                        <Link to={`/profil/${list.profiles?.username}`} className="text-[11px] font-black text-white hover:text-indigo-400 transition-colors">@{list.profiles?.username}</Link>
@@ -356,6 +363,7 @@ export default function ListDetail() {
               <div className="flex gap-3">
                  <button 
                    onClick={handleToggleLike}
+                   aria-label="Beğen"
                    className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl border transition-all ${
                      isLiked 
                        ? 'bg-rose-500 border-rose-400 text-white shadow-xl shadow-rose-500/30' 
@@ -367,6 +375,7 @@ export default function ListDetail() {
                  </button>
                  <button 
                    onClick={handleShare}
+                   aria-label="Paylaş"
                    className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:scale-105 transition-all"
                  >
                     <Share2 size={18} />
@@ -384,6 +393,7 @@ export default function ListDetail() {
                     </button>
                     <button 
                       onClick={handleDeleteList}
+                      aria-label="Listeyi sil"
                       className="p-3 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
                     >
                        <X size={16} />
@@ -440,7 +450,7 @@ export default function ListDetail() {
                            <td className="px-4 py-4 border-y border-white/5">
                               <div className="flex items-center gap-6">
                                  <div className="relative w-16 h-24 rounded-xl overflow-hidden border border-white/10 shadow-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
-                                    <img src={s.cover} className="w-full h-full object-cover" />
+                                    <img src={s.cover} alt={s.title} className="w-full h-full object-cover" loading="lazy" decoding="async" width={64} height={96} />
                                     <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/20 transition-all" />
                                  </div>
                                  <div className="flex flex-col gap-1">
@@ -462,7 +472,7 @@ export default function ListDetail() {
                                     <span className="text-sm font-black text-white">{s.rating || '0.0'}</span>
                                  </div>
                                  {item.user_score > 0 && (
-                                   <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest bg-zinc-900/50 px-2 py-0.5 rounded-md border border-white/5">SİZ: {item.user_score}/10</span>
+                                   <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-900/50 px-2 py-0.5 rounded-md border border-white/5">SİZ: {item.user_score}/10</span>
                                  )}
                               </div>
                            </td>
@@ -482,17 +492,18 @@ export default function ListDetail() {
                                  <div className="flex items-center gap-4">
                                     <div className="flex flex-col items-center">
                                        <span className="text-sm font-black text-white tracking-tighter">{item.read_chapters || 0}</span>
-                                       <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Bölüm</span>
+                                       <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Bölüm</span>
                                     </div>
                                     <div className="h-6 w-px bg-zinc-800" />
                                     <div className="flex flex-col items-center">
                                        <span className="text-sm font-black text-zinc-500 tracking-tighter">?</span>
-                                       <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Toplam</span>
+                                       <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Toplam</span>
                                     </div>
                                  </div>
                                  {isOwner && (
                                    <button 
                                      onClick={() => handleIncrementProgress(item.id, item.read_chapters)}
+                                     aria-label="Bölüm artır"
                                      className="w-10 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20"
                                    >
                                       <Plus size={14} />
@@ -519,6 +530,7 @@ export default function ListDetail() {
                               {isOwner ? (
                                 <button 
                                   onClick={() => handleRemoveItem(item.id)}
+                                  aria-label="Kaldır"
                                   className="w-10 h-10 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
                                 >
                                    <Minus size={16} />
@@ -563,7 +575,7 @@ export default function ListDetail() {
              >
                 <div className="flex items-center justify-between mb-8">
                    <h4 className="text-2xl font-black text-white uppercase tracking-tighter">Seri Mühürle</h4>
-                   <button onClick={() => setShowAddModal(false)} className="p-2 text-zinc-500 hover:text-white transition-all"><X /></button>
+                   <button onClick={() => setShowAddModal(false)} aria-label="Kapat" className="p-2 text-zinc-500 hover:text-white transition-all"><X /></button>
                 </div>
 
                 <div className="relative mb-8">
@@ -585,13 +597,13 @@ export default function ListDetail() {
                        className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-indigo-600/10 border border-transparent hover:border-indigo-500/30 transition-all text-left group"
                      >
                         <div className="w-14 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-white/5 shadow-lg">
-                           <img src={s.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                           <img src={s.cover} alt={s.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" decoding="async" width={56} height={80} />
                         </div>
                         <div className="flex-1">
                            <p className="text-sm font-black text-white uppercase tracking-tight line-clamp-1">{s.title}</p>
                            <p className="text-[10px] text-zinc-500 font-bold uppercase mt-1">{s.genre?.[0] || 'Aksiyon'}</p>
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-zinc-600 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-all">
                            <Plus size={18} />
                         </div>
                      </button>

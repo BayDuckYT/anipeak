@@ -201,7 +201,7 @@ function AppContent() {
         <ScrollToTop />
         <GlobalEffects />
 
-        <div id="main-content" className="min-h-screen bg-[#050507]">
+        <main id="main-content" className="min-h-screen bg-[#050507]">
           {isMaintenanceBlocked ? (
             <MaintenanceScreen onAuthOpen={(mode) => setAuthModal(mode)} />
           ) : (
@@ -237,7 +237,7 @@ function AppContent() {
               />
             )}
           </AnimatePresence>
-        </div>
+        </main>
       </BrowserRouter>
     </>
   );

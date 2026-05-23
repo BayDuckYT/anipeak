@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, ShieldCheck, Eye, EyeOff, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useSEO } from '../hooks/useSEO';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -11,6 +12,12 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useSEO({
+    title: 'Şifre Sıfırla',
+    description: 'AniPeak hesap şifrenizi sıfırlayın.',
+    url: 'https://anipeak.com.tr/reset-password'
+  });
   
   const { updatePassword } = useAuth();
   const navigate = useNavigate();
@@ -97,12 +104,13 @@ export default function ResetPassword() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       placeholder="••••••••"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-slate-700 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all"
                     />
                     <button 
                       type="button" 
                       onClick={() => setShowPass(!showPass)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                      aria-label={`Şifreyi ${showPass ? 'gizle' : 'göster'}`}
                     >
                       {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -117,7 +125,7 @@ export default function ResetPassword() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-slate-700 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all"
                   />
                 </div>
               </div>

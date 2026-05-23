@@ -92,7 +92,7 @@ export default function ScheduleSection() {
                 {dayCount > 0 ? `${dayCount} Seri` : 'Boş'}
               </span>
               <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-black ${
-                isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-zinc-600'
+                isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-zinc-400'
               }`}>
                 {dayCount}
               </div>
@@ -186,7 +186,7 @@ export default function ScheduleSection() {
                 </div>
               ))}
               {upcomingPrograms.length === 0 && (
-                <p className="text-[10px] text-zinc-600 text-center italic font-bold uppercase tracking-widest py-4">Sırada yayın yok</p>
+                <p className="text-[10px] text-zinc-400 text-center italic font-bold uppercase tracking-widest py-4">Sırada yayın yok</p>
               )}
             </div>
 

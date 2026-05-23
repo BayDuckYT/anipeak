@@ -69,7 +69,7 @@ class ErrorBoundary extends React.Component {
               Ana Sayfaya Dön
             </button>
             
-            <div className="mt-8 text-[10px] text-slate-600 font-mono opacity-50">
+            <div className="mt-8 text-[10px] text-slate-400 font-mono opacity-50">
               Hata Kodu: {this.state.error?.message || 'Bilinmeyen Hata'}
             </div>
           </div>

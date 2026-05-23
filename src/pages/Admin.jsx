@@ -418,7 +418,7 @@ function PlanManager({ showToast }) {
               </div>
             </div>
           ))}
-          {plans.length === 0 && <div className="py-20 text-center text-slate-600 font-bold italic">Henüz paket eklenmemiş uşağım.</div>}
+          {plans.length === 0 && <div className="py-20 text-center text-slate-400 font-bold italic">Henüz paket eklenmemiş uşağım.</div>}
         </div>
       </div>
     </div>
@@ -570,7 +570,7 @@ function QuickAddForm({ seriesList, showToast }) {
     }
   };
 
-  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-all';
+  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all';
 
   return (
     <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -932,7 +932,7 @@ function UsersPanel({ showToast }) {
           <div className="relative">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input type="text" placeholder="İsim veya e-posta ara..." value={search} onChange={e => setSearch(e.target.value)}
-              className="bg-[#0a0a14] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all w-full sm:w-64" />
+              className="bg-[#0a0a14] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all w-full sm:w-64" />
           </div>
         </div>
         <div className="overflow-x-auto">

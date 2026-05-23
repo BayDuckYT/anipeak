@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Lock, Crown, Plus, Image as ImageIcon, Code, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import EliteBadge from '../components/EliteBadge';
+import { useSEO } from '../hooks/useSEO';
 
 import DOMPurify from 'dompurify';
 
@@ -12,6 +13,12 @@ export default function CitadelCategory() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isEliteChamber = category === 'elite-odasi';
+
+  useSEO({
+    title: `Citadel - ${category ? category.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Forum'}`,
+    description: 'AniPeak Citadel topluluk tartışmaları.',
+    url: `https://anipeak.com.tr/citadel/${category}`
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -143,20 +150,20 @@ export default function CitadelCategory() {
              value={newPostTitle}
              onChange={(e) => setNewPostTitle(e.target.value)}
              placeholder="Konu Başlığı..." 
-             className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors mb-3 font-bold"
+             className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors mb-3 font-bold"
            />
            <textarea 
              ref={textareaRef}
              value={newPostContent}
              onChange={(e) => setNewPostContent(e.target.value)}
              placeholder="Düşüncelerini buraya dök..." 
-             className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors mb-4 resize-none h-32"
+             className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors mb-4 resize-none h-32"
            />
            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <button onClick={() => insertTextAtCursor('```\n\n```')} className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-blue-400 transition-colors" title="Kod Ekle"><Code size={18}/></button>
-                <button onClick={() => insertTextAtCursor('![Resim Açıklaması](resim_linki)')} className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-purple-400 transition-colors" title="Görsel Ekle"><ImageIcon size={18}/></button>
-                <button onClick={() => insertTextAtCursor('||gizli metin||')} className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-red-400 transition-colors" title="Spoiler Gizle"><EyeOff size={18}/></button>
+                <button onClick={() => insertTextAtCursor('```\n\n```')} aria-label="Kod ekle" className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-blue-400 transition-colors" title="Kod Ekle"><Code size={18}/></button>
+                <button onClick={() => insertTextAtCursor('![Resim Açıklaması](resim_linki)')} aria-label="Görsel ekle" className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-purple-400 transition-colors" title="Görsel Ekle"><ImageIcon size={18}/></button>
+                <button onClick={() => insertTextAtCursor('||gizli metin||')} aria-label="Spoiler gizle" className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-red-400 transition-colors" title="Spoiler Gizle"><EyeOff size={18}/></button>
               </div>
               <button 
                 onClick={handlePostSubmit}
@@ -190,7 +197,7 @@ export default function CitadelCategory() {
                   <div className="flex items-center gap-2 mt-2">
                     <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
                       {post.avatar_url ? (
-                        <img src={post.avatar_url} alt="" className="w-full h-full object-cover" />
+                        <img src={post.avatar_url} alt={`${post.author} avatarı`} className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-[10px] font-bold text-white">{post.author?.charAt(0).toUpperCase()}</span>
                       )}
@@ -199,7 +206,7 @@ export default function CitadelCategory() {
                       {post.author}
                     </span>
                     {post.isElite && <EliteBadge className="!w-4 !h-4 text-[9px]" />}
-                    <span className="text-xs text-slate-600">• 2 saat önce</span>
+                    <span className="text-xs text-slate-400">• 2 saat önce</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-6 text-sm font-bold text-slate-500">
@@ -225,7 +232,7 @@ export default function CitadelCategory() {
                     <input 
                       type="text" 
                       placeholder="Bu konuya cevap yaz..." 
-                      className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors"
+                      className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-colors"
                     />
                     <button className="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-bold shadow-neon-purple hover:bg-purple-500 transition-colors">Yanıtla</button>
                   </div>

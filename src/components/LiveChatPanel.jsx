@@ -155,7 +155,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder={user.is_elite ? "Elite olarak yaz..." : "Mesajını yaz..."}
-                  className={`w-full bg-black/50 border rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-slate-500 focus:outline-none transition-colors ${
+                  className={`w-full bg-black/50 border rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-slate-400 focus:outline-none transition-colors ${
                     user.is_elite ? 'border-red-500/30 focus:border-red-500' : 'border-white/10 focus:border-purple-500'
                   }`}
                 />

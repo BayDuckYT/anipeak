@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { syncAllAchievements } from '../lib/achievementService';
+import { useSEO } from '../hooks/useSEO';
 
 const CATEGORY_ICONS = {
   'Okuma': <Book size={20} />,
@@ -20,6 +21,13 @@ const CATEGORY_ICONS = {
 
 export default function Achievements() {
   const { user } = useAuth();
+
+  useSEO({
+    title: 'Başarımlar',
+    description: 'AniPeak başarım sistemi. Rozetler kazanın ve profilinizde sergileyin.',
+    url: 'https://anipeak.com.tr/achievements'
+  });
+
   const [achievements, setAchievements] = useState([]);
   const [userAchievements, setUserAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,7 +128,7 @@ export default function Achievements() {
           >
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Tamamlanan</p>
-              <p className="text-2xl font-black text-white">{stats.unlocked} <span className="text-slate-600 text-sm">/ {stats.total}</span></p>
+              <p className="text-2xl font-black text-white">{stats.unlocked} <span className="text-slate-400 text-sm">/ {stats.total}</span></p>
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div className="relative">
@@ -162,6 +170,7 @@ export default function Achievements() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-12 pr-6 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500/50 w-full sm:w-64 transition-all"
+              aria-label="Başarım ara"
             />
           </div>
         </div>
@@ -191,7 +200,7 @@ export default function Achievements() {
                       <Sparkles size={12} className="text-purple-400" />
                     </div>
                   ) : (
-                    <Lock size={12} className="text-slate-600" />
+                    <Lock size={12} className="text-slate-400" />
                   )}
                 </div>
 
@@ -199,12 +208,12 @@ export default function Achievements() {
                   <div className={`p-3 rounded-2xl transition-all duration-500 ${
                     isUnlocked 
                     ? 'bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] rotate-0 scale-110' 
-                    : 'bg-white/5 text-slate-600 rotate-12'
+                    : 'bg-white/5 text-slate-400 rotate-12'
                   }`}>
                     {ach.category === 'Efsanevi' ? <Star size={24} /> : CATEGORY_ICONS[ach.category] || <Award size={24} />}
                   </div>
                   <div>
-                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isUnlocked ? 'text-purple-400' : 'text-slate-600'}`}>
+                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isUnlocked ? 'text-purple-400' : 'text-slate-400'}`}>
                       {ach.category}
                     </p>
                     <h3 className="text-white font-black text-sm group-hover:text-purple-400 transition-colors uppercase leading-tight">
@@ -220,7 +229,7 @@ export default function Achievements() {
                 {isUnlocked && unlockData && (
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <span className="text-[10px] font-black text-purple-500/50 uppercase tracking-widest">Açıldı</span>
-                    <span className="text-[10px] font-bold text-slate-600">
+                    <span className="text-[10px] font-bold text-slate-400">
                       {new Date(unlockData.unlocked_at).toLocaleDateString('tr-TR')}
                     </span>
                   </div>
@@ -228,8 +237,8 @@ export default function Achievements() {
                 
                 {!isUnlocked && (
                   <div className="flex items-center gap-2 pt-4 border-t border-white/5 group-hover:border-white/10 transition-colors">
-                    <Info size={12} className="text-slate-600" />
-                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                    <Info size={12} className="text-slate-400" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                       {ach.requirement_type.replace('_', ' ')}: {ach.requirement_value}
                     </span>
                   </div>

@@ -202,7 +202,7 @@ export default function AuthModal({ mode, onClose }) {
                       type="text"
                       required
                       placeholder="galaksi_okuyucu"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all"
                     />
                   </div>
                 )}
@@ -215,7 +215,7 @@ export default function AuthModal({ mode, onClose }) {
                     type="email"
                     required
                     placeholder="sen@anipeak.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_12px_rgba(59,130,246,0.4)] transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_12px_rgba(59,130,246,0.4)] transition-all"
                   />
                 </div>
                 {tab !== 'forgot' && (
@@ -229,7 +229,7 @@ export default function AuthModal({ mode, onClose }) {
                         type={showPass ? 'text' : 'password'}
                         required
                         placeholder="••••••••"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all"
                       />
                       <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                         {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -248,7 +248,7 @@ export default function AuthModal({ mode, onClose }) {
                         type={showPass ? 'text' : 'password'}
                         required
                         placeholder="••••••••"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_12px_rgba(59,130,246,0.4)] transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_12px_rgba(59,130,246,0.4)] transition-all"
                       />
                       <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                         {showPass ? <EyeOff size={16} /> : <Eye size={16} />}

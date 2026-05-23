@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ShieldAlert, MessageSquare, Zap, Flame, Crown, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useSEO } from '../hooks/useSEO';
 
 const FORUM_CATEGORIES = [
   {
@@ -46,6 +47,12 @@ const FORUM_CATEGORIES = [
 
 export default function Citadel() {
   const { user } = useAuth();
+
+  useSEO({
+    title: 'Citadel Forum',
+    description: 'AniPeak Citadel - Topluluk forum ve tartışma platformu.',
+    url: 'https://anipeak.com.tr/citadel'
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabaseClient';
 import AnimeAvatar from '../components/AnimeAvatar';
 import effectsData from '../data/effects.json';
 import nameplatesData from '../data/nameplates.json';
+import { useSEO } from '../hooks/useSEO';
 
 export default function EliteUpgrade() {
   const { user, upgradeToElite } = useAuth();
@@ -19,6 +20,12 @@ export default function EliteUpgrade() {
   const [isYearly, setIsYearly] = useState(false);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useSEO({
+    title: 'Elite Premium',
+    description: 'AniPeak Elite Premium üyelik. Özel dekorasyonlar, rozetler ve ayrıcalıklı özellikler.',
+    url: 'https://anipeak.com.tr/elite-upgrade'
+  });
 
   // Character Image (Generated Solo Leveling)
   const heroChar = "/premium_hero.png";
@@ -154,7 +161,7 @@ export default function EliteUpgrade() {
             className="flex-1 relative w-full max-w-[400px] md:max-w-none"
           >
              <div className="absolute inset-0 bg-purple-600/20 blur-[100px] rounded-full scale-75 animate-pulse" />
-             <img src={heroChar} className="w-full relative z-10 drop-shadow-[0_0_80px_rgba(147,51,234,0.3)]" alt="Premium Hero" />
+             <img src={heroChar} className="w-full relative z-10 drop-shadow-[0_0_80px_rgba(147,51,234,0.3)]" alt="Premium Hero" width={600} height={600} loading="eager" decoding="async" />
           </motion.div>
         </section>
 
@@ -262,7 +269,7 @@ export default function EliteUpgrade() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.15 }}
+                transition={{ delay: idx * 0.05 }}
                 className={`relative p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] flex flex-col border-2 transition-all duration-700 group ${
                   plan.is_popular 
                   ? 'bg-gradient-to-br from-purple-900/40 via-black to-indigo-900/40 border-purple-500/50 md:scale-105 z-20 shadow-[0_40px_80px_rgba(168,85,247,0.2)]' 
@@ -322,7 +329,7 @@ export default function EliteUpgrade() {
                     : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="relative z-10">PLANI SEÇ</span>
+                  <span className="relative z-10">{plan.name} PLANI SEÇ</span>
                   {plan.is_popular && <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-indigo-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />}
                 </button>
               </motion.div>
@@ -340,7 +347,7 @@ export default function EliteUpgrade() {
              <div className="w-px h-8 bg-white/20" />
              <Users size={32} className="text-white" />
            </div>
-           <p className="text-[11px] font-black text-slate-700 uppercase tracking-[0.5em]">Güvenli Siber Ödeme Altyapısı</p>
+           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.5em]">Güvenli Siber Ödeme Altyapısı</p>
         </div>
 
       </div>

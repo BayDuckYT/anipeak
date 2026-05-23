@@ -5,9 +5,16 @@ import { Trophy, Star, Eye, Flame, Crown } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { getOptimizedImage, handleImageError } from '../utils/imageOpt.js';
 import ElitePodium from '../components/ElitePodium.jsx';
+import { useSEO } from '../hooks/useSEO';
 
 export default function PopularityPage() {
   const { sortedSeries } = useApp();
+
+  useSEO({
+    title: 'Popüler Seriler',
+    description: 'AniPeak üzerindeki en popüler manhwa ve webtoon serileri.',
+    url: 'https://anipeak.com.tr/popular'
+  });
 
   // Sıralama Mantığı: Puanı yüksek olanlar, puanı eşitse okunma sayısı yüksek olanlar
   const popularSeries = useMemo(() => {
@@ -62,7 +69,7 @@ export default function PopularityPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {remaining.map((item, idx) => (
                 <Link key={item.id} to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-yellow-500/30 transition-all group">
-                  <div className="w-10 text-center text-xl font-black text-slate-600 group-hover:text-yellow-400 transition-colors">
+                  <div className="w-10 text-center text-xl font-black text-slate-400 group-hover:text-yellow-400 transition-colors">
                     {idx + 11}
                   </div>
                   <div className="w-16 h-24 rounded-lg overflow-hidden bg-zinc-900 flex-shrink-0 shadow-lg">
@@ -71,6 +78,9 @@ export default function PopularityPage() {
                       alt={item.title} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                       loading="lazy" 
+                      decoding="async"
+                      width={64}
+                      height={96}
                       onError={handleImageError} 
                     />
                   </div>

@@ -61,6 +61,7 @@ import { renderCanvasEffect } from '../lib/canvasEffects';
 import SiberVideo from '../components/SiberVideo';
 import { usePerformance } from '../context/PerformanceContext';
 import { fetchMALList } from '../lib/malService';
+import { useSEO } from '../hooks/useSEO';
 
 // Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -144,6 +145,12 @@ export default function ProfileShowcase() {
   const navigate = useNavigate();
   
   const isOwnProfile = currentUser?.username === username;
+
+  useSEO({
+    title: `${username} - Profil`,
+    description: `${username} kullanıcısının AniPeak profil sayfası.`,
+    url: `https://anipeak.com.tr/profil/${username}`
+  });
   
   // Mock/Fallback data
 
@@ -907,7 +914,7 @@ export default function ProfileShowcase() {
                                  {getSocialIcon(link.platform)}
                                  <span className="text-[10px] font-black text-zinc-300 uppercase">{link.platform}</span>
                               </div>
-                              <ChevronRight size={12} className="text-zinc-600 group-hover:text-blue-400 transition-colors" />
+                              <ChevronRight size={12} className="text-zinc-400 group-hover:text-blue-400 transition-colors" />
                            </a>
                         ))}
                         {isOwnProfile && userLinks.length === 0 && (
@@ -1038,7 +1045,7 @@ export default function ProfileShowcase() {
                                      
                                      <div className="flex items-center justify-between">
                                         <div className="flex -space-x-2">
-                                           {[1,2,3].map(p => <div key={p} className="w-6 h-6 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center"><User size={10} className="text-zinc-600" /></div>)}
+                                           {[1,2,3].map(p => <div key={p} className="w-6 h-6 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center"><User size={10} className="text-zinc-400" /></div>)}
                                         </div>
                                         <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">DEVAM ET</span>
                                      </div>
@@ -1046,7 +1053,7 @@ export default function ProfileShowcase() {
                                </Link>
                              )) : (
                                <div className="py-20 text-center glass rounded-[2rem] border border-dashed border-white/5">
-                                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
+                                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
                                </div>
                              )}
                           </div>
@@ -1089,7 +1096,7 @@ export default function ProfileShowcase() {
                                          </div>
                                          <span className="text-[11px] font-black text-white uppercase truncate">{list.name}</span>
                                       </div>
-                                      <ChevronRight size={14} className="text-zinc-600 group-hover:text-white" />
+                                      <ChevronRight size={14} className="text-zinc-400 group-hover:text-white" />
                                    </div>
                                 ))}
                              </div>

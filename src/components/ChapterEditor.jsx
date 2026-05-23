@@ -118,7 +118,7 @@ function SortablePage({ page, index, onDelete, onReplace }) {
           <button
             {...attributes}
             {...listeners}
-            className="p-1 rounded text-slate-600 hover:text-slate-300 cursor-grab active:cursor-grabbing transition-colors touch-none"
+            className="p-1 rounded text-slate-400 hover:text-slate-300 cursor-grab active:cursor-grabbing transition-colors touch-none"
             title="Sürükle"
           >
             <GripVertical size={13} />
@@ -138,7 +138,7 @@ function SortablePage({ page, index, onDelete, onReplace }) {
               draggable={false}
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-slate-700 gap-1">
+            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1">
               <ImageIcon size={18} />
               <span className="text-[9px]">Görsel yok</span>
             </div>
@@ -227,7 +227,7 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto">
           {pages.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-slate-600">
+            <div className="h-64 flex items-center justify-center text-slate-400">
               <div className="text-center">
                 <Layers size={36} className="mx-auto mb-3 opacity-30" />
                 <p className="text-sm">Önizlenecek sayfa yok</p>
@@ -244,7 +244,7 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
                     draggable={false}
                   />
                 ) : (
-                  <div className="w-full h-72 bg-slate-900/50 border border-white/5 flex items-center justify-center text-slate-600">
+                  <div className="w-full h-72 bg-slate-900/50 border border-white/5 flex items-center justify-center text-slate-400">
                     <div className="text-center">
                       <ImageIcon size={28} className="mx-auto mb-2 opacity-40" />
                       <p className="text-xs">Sayfa görseli yok</p>
@@ -264,7 +264,7 @@ function PreviewModal({ pages, series, chapterNum, onClose }) {
               <Check size={26} className="text-white" />
             </div>
             <p className="text-slate-300 font-black text-sm">Bölüm Sonu</p>
-            <p className="text-slate-600 text-xs">Önizleme tamamlandı</p>
+            <p className="text-slate-400 text-xs">Önizleme tamamlandı</p>
           </div>
         </div>
       </div>
@@ -459,7 +459,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
       </div>
 
       <div className="glass border border-white/8 rounded-2xl p-5">
-        <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-4">
+        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-4">
           Bölüm Tanımı
         </p>
         <div className="grid sm:grid-cols-3 gap-4">
@@ -489,7 +489,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
               value={chapterNum}
               onChange={e => setChapterNum(e.target.value)}
               placeholder="188, Özel, vb."
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all"
             />
           </div>
           <div>
@@ -501,7 +501,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
               value={chapterTitle}
               onChange={e => setChapterTitle(e.target.value)}
               placeholder="İsteğe bağlı..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-all"
             />
           </div>
         </div>
@@ -592,7 +592,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
                 ? '⚡ Bırak! Sayfaları Alıyorum...'
                 : 'JPG / PNG Sayfalarını Buraya Sürükle & Bırak'}
             </p>
-            <p className="text-slate-600 text-sm mt-1.5">
+            <p className="text-slate-400 text-sm mt-1.5">
               veya tıkla ve seç &nbsp;•&nbsp; Dosya ismine göre otomatik sıralanır (01, 02, 03...)
             </p>
           </div>
@@ -672,7 +672,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
                 onChange={e => setUrlInput(e.target.value)}
                 rows={4}
                 placeholder={`https://cdn.anipeak.com/series/1/ch188/01.jpg\nhttps://cdn.anipeak.com/series/1/ch188/02.jpg`}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-all resize-none font-mono"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all resize-none font-mono"
               />
               <div className="flex gap-3 mt-3">
                 <button
@@ -697,7 +697,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
         <div className="glass border border-white/8 rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <h3 className="text-white font-black text-sm">Sayfa Sıralama Editörü</h3>
-            <span className="text-[10px] text-slate-600 bg-white/5 border border-white/8 px-2.5 py-1 rounded-full">
+            <span className="text-[10px] text-slate-400 bg-white/5 border border-white/8 px-2.5 py-1 rounded-full">
               {pages.length} Sayfa
             </span>
             <div className="flex items-center gap-1.5 text-[10px] text-purple-400/60 ml-1">
@@ -747,7 +747,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
                       draggable={false}
                     />
                   ) : (
-                    <div className="w-full aspect-[3/4] bg-slate-800 flex items-center justify-center text-slate-600">
+                    <div className="w-full aspect-[3/4] bg-slate-800 flex items-center justify-center text-slate-400">
                       <ImageIcon size={20} />
                     </div>
                   )}
@@ -759,7 +759,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
       )}
 
       {pages.length === 0 && (
-        <div className="text-center py-6 text-slate-700">
+        <div className="text-center py-6 text-slate-400">
           <Layers size={34} className="mx-auto mb-3 opacity-25" />
           <p className="text-sm">Sayfaları yüklemek için yukarıdaki alana sürükle veya tıkla</p>
         </div>

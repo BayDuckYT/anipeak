@@ -15,6 +15,7 @@ import {
   OracleCard, 
   MetricBox 
 } from '../components/NebulaOracle.jsx';
+import { useSEO } from '../hooks/useSEO';
 
 // ─── GERÇEK VERİ BAZLI RUH TİPLERİ ───────────────────────────────────
 const SOUL_TYPES = [
@@ -61,6 +62,12 @@ export default function OraclePage() {
   const [analyzing, setAnalyzing] = useState(true);
   const [soulProfile, setSoulProfile] = useState(null);
   const [userStats, setUserStats] = useState(null);
+
+  useSEO({
+    title: 'Oracle',
+    description: 'AniPeak Oracle - Yapay zeka destekli kişisel manhwa ve webtoon önerileri.',
+    url: 'https://anipeak.com.tr/oracle'
+  });
 
   // ─── GERÇEK VERİ ANALİZİ (SAHTE DEĞİL) ───────────────────────────
   const analyzeUser = useCallback(async () => {

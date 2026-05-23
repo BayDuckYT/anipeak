@@ -229,12 +229,12 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <Clock size={10} className="text-slate-600" />
-                  <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{new Date(comment.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                  <Clock size={10} className="text-slate-400" />
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{new Date(comment.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                 </div>
               </div>
               {(isOwner || user?.role === 'Baş Admin' || user?.role === 'Yönetici') && (
-                <button onClick={() => handleDelete(comment.id)} className="p-2 text-slate-600 hover:text-red-500 rounded-xl transition-all opacity-0 group-hover:opacity-100">
+                <button onClick={() => handleDelete(comment.id)} className="p-2 text-slate-400 hover:text-red-500 rounded-xl transition-all opacity-0 group-hover:opacity-100">
                   <Trash2 size={13} />
                 </button>
               )}
@@ -348,7 +348,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                 <button type="button" onClick={() => setIsSpoiler(!isSpoiler)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isSpoiler ? 'bg-red-500 text-white' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}>
                   <AlertTriangle size={13} /> {isSpoiler ? 'SPOILER AKTİF' : 'SPOILER'}
                 </button>
-                <span className="text-slate-600 text-[9px] font-bold flex items-center gap-1"><AtSign size={12} />etiketle</span>
+                <span className="text-slate-400 text-[9px] font-bold flex items-center gap-1"><AtSign size={12} />etiketle</span>
               </div>
               <button type="submit" disabled={submitting || !text.trim()} className="flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-40">
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <><Send size={13} /> GÖNDER</>}

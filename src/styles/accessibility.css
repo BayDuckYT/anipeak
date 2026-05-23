@@ -1,11 +1,12 @@
 /**
  * ═══════════════════════════════════════════════════════════════
  * AniPeak Global Erişilebilirlik (Accessibility) Düzeltici
+ * Lighthouse 100/100 Hedefli
  * ═══════════════════════════════════════════════════════════════
  */
 
 /* ── Odak Halkası (Focus Ring) — Klavye Navigasyonu ── */
-.focus-ring:focus-visible {
+*:focus-visible {
   outline: 2px solid #a855f7;
   outline-offset: 2px;
   border-radius: 0.5rem;
@@ -25,23 +26,17 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   KONTRAST DÜZELTMESİ (WCAG AA)
+   KONTRAST DÜZELTMESİ (WCAG AA — 4.5:1 minimum)
    Koyu arka plan (#050507) üzerinde:
-   - slate-600 (#475569) → 2.1:1 kontrast (FAIL)
-   - slate-500 (#64748b) → 3.0:1 kontrast (FAIL)
-   - slate-400 (#94a3b8) → 4.6:1 kontrast (PASS ✓)
+   - slate-600 (#475569) → 2.1:1 kontrast ❌ FAIL
+   - slate-500 (#64748b) → 3.0:1 kontrast ❌ FAIL  
+   - slate-400 (#94a3b8) → 4.6:1 kontrast ✅ PASS
+   - slate-300 (#cbd5e1) → 8.4:1 kontrast ✅ PASS
+   
+   NOT: !important ile global override KALDIRILDI.
+   Düşük kontrastlı text'ler doğrudan JSX'te text-slate-400 
+   veya text-slate-300 ile düzeltilecek.
    ═══════════════════════════════════════════════════════════════ */
-.text-slate-600 {
-  color: #94a3b8 !important;
-}
-.text-slate-500 {
-  color: #94a3b8 !important;
-}
-/* Placeholder renkleri de düzelt */
-.placeholder-slate-600::placeholder,
-.placeholder-slate-500::placeholder {
-  color: #94a3b8 !important;
-}
 
 /* ── Yüksek Kontrast Modu Desteği ── */
 @media (prefers-contrast: high) {
@@ -68,6 +63,12 @@
 .animate-pulse,
 .animate-pulse-glow {
   will-change: opacity;
+  transform: translateZ(0);
+}
+
+/* Tüm animate-ping elementleri GPU-accelerated olsun */
+.animate-ping {
+  will-change: transform, opacity;
   transform: translateZ(0);
 }
 

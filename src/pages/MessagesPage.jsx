@@ -26,6 +26,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { supabase } from '../lib/supabaseClient';
 import AnimeAvatar from '../components/AnimeAvatar.jsx';
+import { useSEO } from '../hooks/useSEO';
 
 import CryptoJS from 'crypto-js';
 
@@ -161,7 +162,7 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
               mix={mix} 
             />
           </div>
-          <span className="text-[9px] text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[9px] text-slate-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
             {new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
@@ -206,6 +207,13 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
 export default function MessagesPage() {
   const { user } = useAuth();
   const { registeredUsers } = useApp();
+
+  useSEO({
+    title: 'Mesajlar',
+    description: 'AniPeak özel mesajlaşma sistemi.',
+    url: 'https://anipeak.com.tr/messages'
+  });
+
   const [activeTab, setActiveTab] = useState('dm'); // 'dm', 'group', 'community', 'friends'
   const [searchParams] = useSearchParams();
   const userIdFromUrl = searchParams.get('user_id');
@@ -545,6 +553,7 @@ export default function MessagesPage() {
               </div>
               <button 
                 onClick={() => setShowNewChat(true)}
+                aria-label="Yeni sohbet başlat"
                 className="p-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
               >
                 <Plus size={20} />
@@ -557,7 +566,7 @@ export default function MessagesPage() {
                 <input 
                 type="text" 
                 placeholder="Arkadaşlarını veya grupları ara..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-white placeholder-slate-600 focus:border-indigo-500/50 outline-none transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-white placeholder-slate-400 focus:border-indigo-500/50 outline-none transition-all"
               />
             </div>
 
@@ -614,7 +623,7 @@ export default function MessagesPage() {
                   >
                 <div className="relative flex-shrink-0">
                       <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 flex items-center justify-center">
-                        <img src={partner?.avatar_url || '/default-avatar.png'} className="w-full h-full object-cover" />
+                        <img src={partner?.avatar_url || '/default-avatar.png'} alt={`${partner?.username || 'Kullanıcı'} avatarı`} className="w-full h-full object-cover" />
                       </div>
                       <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#0B0E14] ${
                         onlineUsers[partner?.id] ? 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-zinc-600'
@@ -625,7 +634,7 @@ export default function MessagesPage() {
                         <h4 className="text-sm font-black truncate text-slate-100 group-hover:text-white">
                           {partner?.username || 'Bilinmeyen'}
                         </h4>
-                        <span className="text-[9px] text-slate-600 font-bold uppercase">
+                        <span className="text-[9px] text-slate-400 font-bold uppercase">
                           {new Date(chat.updated_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -666,6 +675,7 @@ export default function MessagesPage() {
                   {/* Mobile Back Button */}
                   <button 
                     onClick={() => setActiveChat(null)}
+                    aria-label="Sohbet listesine dön"
                     className="md:hidden p-2 -ml-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-all"
                   >
                     <ArrowLeft size={20} />
@@ -678,6 +688,7 @@ export default function MessagesPage() {
                         <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                            <img 
                              src={partner?.avatar_url || '/default-avatar.png'} 
+                             alt={`${partner?.username || 'Kullanıcı'} avatarı`}
                              className="w-full h-full object-cover" 
                              loading="lazy"
                            />
@@ -698,8 +709,8 @@ export default function MessagesPage() {
                   })()}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><Info size={18} /></button>
-                  <button className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><MoreVertical size={18} /></button>
+                  <button aria-label="Sohbet bilgisi" className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><Info size={18} /></button>
+                  <button aria-label="Diğer seçenekler" className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><MoreVertical size={18} /></button>
                 </div>
               </div>
 
@@ -734,7 +745,7 @@ export default function MessagesPage() {
                   <div className="flex-1 h-[1px] bg-white/10" />
                 </div>
 
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence mode="sync">
                   {messages.map((msg) => (
                     <MessageItem 
                       key={msg.id} 
@@ -753,18 +764,18 @@ export default function MessagesPage() {
                   onSubmit={handleSendMessage}
                   className="max-w-5xl mx-auto relative flex items-center gap-4 bg-white/5 border border-white/10 p-3 pl-6 rounded-[2rem] focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all group"
                 >
-                  <button type="button" className="text-slate-500 hover:text-indigo-400 transition-colors"><Smile size={22} /></button>
+                  <button type="button" aria-label="Emoji ekle" className="text-slate-500 hover:text-indigo-400 transition-colors"><Smile size={22} /></button>
                   <input 
                     type="text" 
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder="Bir mesaj yaz uşağım..."
                     autoFocus
-                    className="flex-1 bg-transparent border-none text-white text-sm font-bold focus:ring-0 outline-none placeholder:text-slate-700"
+                    className="flex-1 bg-transparent border-none text-white text-sm font-bold focus:ring-0 outline-none placeholder:text-slate-400"
                   />
                   <div className="flex items-center gap-1 pr-1">
-                    <button type="button" className="p-2.5 text-slate-500 hover:text-blue-400 transition-all"><Paperclip size={20} /></button>
-                    <button type="button" className="p-2.5 text-slate-500 hover:text-emerald-400 transition-all"><ImageIcon size={20} /></button>
+                    <button type="button" aria-label="Dosya ekle" className="p-2.5 text-slate-500 hover:text-blue-400 transition-all"><Paperclip size={20} /></button>
+                    <button type="button" aria-label="Resim ekle" className="p-2.5 text-slate-500 hover:text-emerald-400 transition-all"><ImageIcon size={20} /></button>
                     <div className="w-[1px] h-6 bg-white/10 mx-1" />
                     <button 
                       type="submit"
@@ -833,7 +844,7 @@ export default function MessagesPage() {
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Kullanıcı Ara</label>
                     <div className="relative">
-                      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
+                      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input 
                         type="text" 
                         placeholder="Kullanıcı adı girin..."
@@ -861,7 +872,7 @@ export default function MessagesPage() {
                             }`}
                           >
                             <div className="w-10 h-10 rounded-xl overflow-hidden bg-zinc-800 border border-white/5">
-                              {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full object-cover" /> : <User className="w-full h-full p-2 text-slate-600" />}
+                              {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full object-cover" /> : <User className="w-full h-full p-2 text-slate-400" />}
                             </div>
                             <div className="flex-1 text-left">
                               <div className="text-xs font-black text-white">{u.username}</div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Globe2, Map, Activity, Zap, TrendingUp, Users } from 'lucide-react';
-import createGlobe from 'cobe';
+import { useSEO } from '../hooks/useSEO';
 
 const WORLD_NODES = [
   { name: 'Tokyo', country: 'Japonya', flag: '🇯🇵', reads: '1.2M', latLon: [35.68, 139.69], size: 0.08, color: '#10b981' },
@@ -61,21 +61,26 @@ function NexusGlobe3D({ nodes }) {
   useEffect(() => {
     let current = canvasRef.current;
     if (!current) return;
+    let globe;
+    let destroyed = false;
 
     current.style.willChange = 'transform';
     const size = Math.min(current.offsetWidth, 520);
-    const pixelRatio = window.devicePixelRatio > 1 ? 2 : 1; // Performans için max 2 sınırla
+    const pixelRatio = 1; // Lighthouse mobile optimizasyonu: her zaman 1
 
-    const globe = createGlobe(current, {
-      devicePixelRatio: pixelRatio,
-      width: size * pixelRatio,
-      height: size * pixelRatio,
-      phi: 0,
-      theta: 0.3,
-      dark: 1,
-      diffuse: 2.0,
-      mapSamples: 8000, // Lighthouse Optimizasyonu: 16000'den 8000'e çekildi (Görsel fark minimal, JS yükü %50 azaldı)
-      mapBrightness: 8,
+    // Dynamic import — cobe sadece bu sayfa açıldığında yüklenir
+    import('cobe').then(({ default: createGlobe }) => {
+      if (destroyed) return;
+      globe = createGlobe(current, {
+        devicePixelRatio: pixelRatio,
+        width: size * pixelRatio,
+        height: size * pixelRatio,
+        phi: 0,
+        theta: 0.3,
+        dark: 1,
+        diffuse: 2.0,
+        mapSamples: 4000,
+        mapBrightness: 8,
       baseColor: [0.1, 0.05, 0.2], 
       markerColor: [0.1, 0.9, 0.7],
       glowColor: [0.5, 0.2, 0.8],
@@ -85,8 +90,8 @@ function NexusGlobe3D({ nodes }) {
         state.phi = phiRef.current;
       },
     });
-
-    setReady(true);
+      setReady(true);
+    });
 
     const onDown = (e) => {
       pointerRef.current.down = true;
@@ -108,7 +113,8 @@ function NexusGlobe3D({ nodes }) {
     current.addEventListener('touchend', onUp, { passive: true });
 
     return () => {
-      globe.destroy();
+      destroyed = true;
+      if (globe) globe.destroy();
       current.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
@@ -147,8 +153,9 @@ function NexusMap2D({ nodes }) {
         className="absolute inset-0 w-full h-full object-contain pointer-events-none"
         style={{ opacity: 0.15, filter: 'invert(1) sepia(1) hue-rotate(240deg) saturate(3)' }}
         loading="lazy"
-        width="100%"
-        height="100%"
+        decoding="async"
+        width={900}
+        height={450}
       />
 
       {/* Modern Grid Overlay */}
@@ -238,6 +245,12 @@ export default function GlobalNexus() {
   const mapRef = useRef(null);
   const mapInView = useInView(mapRef);
 
+  useSEO({
+    title: 'Global Nexus',
+    description: 'AniPeak Global Nexus - Dünya genelinde manhwa okuma istatistikleri ve interaktif harita.',
+    url: 'https://anipeak.com.tr/global-nexus'
+  });
+
   // Canlı okuyucu simülasyonu
   useEffect(() => {
     const t = setInterval(() => setLiveCount(n => n + Math.floor(Math.random() * 7) - 2), 2500);
@@ -281,7 +294,7 @@ export default function GlobalNexus() {
               { id: '3D', icon: Globe2, label: '3D Küre', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.3)]' },
               { id: '2D', icon: Map, label: '2D Harita', glow: 'shadow-[0_0_20px_rgba(6,182,212,0.3)]' },
             ].map(({ id, icon: Icon, label, glow }) => (
-              <button key={id} onClick={() => setMode(id)}
+              <button key={id} onClick={() => setMode(id)} aria-label={`${label} görünümüne geç`}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${mode === id ? `bg-white/10 text-white ${glow}` : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
                 <Icon size={18} /> {label}
               </button>
@@ -337,7 +350,7 @@ export default function GlobalNexus() {
                 {topNodes.map((node, idx) => (
                   <li key={idx} className="flex items-center justify-between p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 group">
                     <div className="flex items-center gap-3">
-                      <div className={`w-6 text-center text-sm font-black ${idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-slate-300' : idx === 2 ? 'text-orange-400' : 'text-slate-600'}`}>
+                      <div className={`w-6 text-center text-sm font-black ${idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-slate-300' : idx === 2 ? 'text-orange-400' : 'text-slate-400'}`}>
                         #{idx + 1}
                       </div>
                       <span className="text-xl filter drop-shadow-md">{node.flag}</span>

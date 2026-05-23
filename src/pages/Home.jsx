@@ -10,6 +10,7 @@ import { useApp } from '../context/AppContext.jsx';
 import { handleImageError, getOptimizedImage } from '../utils/imageOpt.js';
 import VirtualHScroll from '../components/VirtualHScroll.jsx';
 import LazySection from '../components/LazySection.jsx';
+import { useSEO } from '../hooks/useSEO';
 
 const ElitePodium = lazy(() => import('../components/ElitePodium.jsx'));
 
@@ -74,7 +75,7 @@ function SidebarItem({ item, rank }) {
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 py-2.5 group border-b border-white/5 last:border-0" aria-label={`${item.title} keşfet`}>
       <span className="text-slate-400 font-mono font-bold w-4 text-center group-hover:text-purple-400">{rank}</span>
       <div className="w-10 h-14 flex-shrink-0 rounded bg-white/5 overflow-hidden">
-        <img src={getOptimizedImage(item.cover, 100)} alt="" className="w-full h-full object-cover opacity-90 group-hover:opacity-100" loading="lazy" decoding="async" onError={handleImageError} />
+        <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" loading="lazy" decoding="async" width={40} height={56} onError={handleImageError} />
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="text-slate-200 text-sm font-bold truncate group-hover:text-purple-300">{item.title}</h3>
@@ -95,6 +96,12 @@ export default function Home({ onAuthOpen }) {
   const location = useLocation();
   const { user } = useAuth();
   const { sortedSeries, announcements, chapters, getChapters } = useApp();
+
+  useSEO({
+    title: 'Ana Sayfa',
+    description: 'AniPeak - Premium Manhwa ve Webtoon okuma platformu. En popüler manhwaları keşfet, oku ve eğlen.',
+    url: 'https://anipeak.com.tr/'
+  });
 
   // Performans: Sadece 500 seri üzerinden işlem yap
   const validSeries = useMemo(() => {
@@ -191,7 +198,7 @@ export default function Home({ onAuthOpen }) {
                   <Link to={`/manhwa/${heroItem.id}`} className="w-full sm:w-auto px-10 py-3.5 bg-white text-black font-black text-sm rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 active:scale-95 touch-manipulation">
                     <Play size={16} className="fill-black" /> Oku Şimdi
                   </Link>
-                  <button onClick={() => { if (!user) onAuthOpen('login'); }} className="w-full sm:w-auto px-8 py-3.5 bg-white/5 text-white border border-white/10 font-bold text-sm rounded-xl hover:bg-white/10 transition-colors active:scale-95 touch-manipulation">
+                  <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-3.5 bg-white/5 text-white border border-white/10 font-bold text-sm rounded-xl hover:bg-white/10 transition-colors active:scale-95 touch-manipulation">
                     Listeme Ekle
                   </button>
                 </div>
@@ -199,7 +206,7 @@ export default function Home({ onAuthOpen }) {
 
               <div className="hidden lg:block w-[280px] flex-shrink-0">
                 <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                  <img src={heroImageSrc} alt={heroItem.title} className="w-full h-auto object-cover" loading="eager" fetchpriority="high" decoding="async" />
+                  <img src={heroImageSrc} alt={heroItem.title} className="w-full h-auto object-cover" loading="eager" fetchpriority="high" decoding="async" width={280} height={373} />
                 </div>
               </div>
 

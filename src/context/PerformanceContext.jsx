@@ -57,15 +57,12 @@ export function PerformanceProvider({ children }) {
   // Battery Status API Tracker
   useEffect(() => {
     let batteryInstance = null;
+    let onLevelChange = null;
+    let onChargingChange = null;
 
     const updateBatteryStatus = (battery) => {
       const isLowAndNotCharging = battery.level <= 0.20 && !battery.charging;
-      
-      if (isLowAndNotCharging) {
-        setIsLowPowerMode(true);
-      } else {
-        setIsLowPowerMode(false);
-      }
+      setIsLowPowerMode(isLowAndNotCharging);
     };
 
     if ('getBattery' in navigator) {
@@ -73,18 +70,17 @@ export function PerformanceProvider({ children }) {
         batteryInstance = battery;
         updateBatteryStatus(battery);
 
-        // Listen for changes
-        battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
-        battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
-      }).catch(err => {
-        // Sessizce hatayı geç
-      });
+        onLevelChange = () => updateBatteryStatus(battery);
+        onChargingChange = () => updateBatteryStatus(battery);
+        battery.addEventListener('levelchange', onLevelChange);
+        battery.addEventListener('chargingchange', onChargingChange);
+      }).catch(() => {});
     }
 
     return () => {
       if (batteryInstance) {
-        batteryInstance.removeEventListener('levelchange', () => updateBatteryStatus(batteryInstance));
-        batteryInstance.removeEventListener('chargingchange', () => updateBatteryStatus(batteryInstance));
+        if (onLevelChange) batteryInstance.removeEventListener('levelchange', onLevelChange);
+        if (onChargingChange) batteryInstance.removeEventListener('chargingchange', onChargingChange);
       }
     };
   }, []);

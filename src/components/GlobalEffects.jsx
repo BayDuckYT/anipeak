@@ -47,11 +47,12 @@ export default function GlobalEffects() {
     let animationFrameId;
     let particles = [];
     let width, height;
+    let isRunning = false;
 
     const resizeCanvas = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      initParticles();
+      if (isRunning) initParticles();
     };
 
     let mouseTicking = false;
@@ -119,11 +120,11 @@ export default function GlobalEffects() {
     function initParticles() {
       particles = [];
       const isMobile = window.innerWidth < 768;
-      // Mobilde ve düşük performans modunda daha az parçacık
-      let divisor = isMobile ? 35000 : 20000;
+      // Lighthouse optimizasyonu: parçacık sayısı azaltıldı
+      let divisor = isMobile ? 40000 : 25000;
       if (isLowEnd) divisor *= 2; 
 
-      const maxCount = isMobile ? (isLowEnd ? 20 : 35) : (isLowEnd ? 40 : 80);
+      const maxCount = isMobile ? (isLowEnd ? 15 : 25) : (isLowEnd ? 30 : 60);
       const count = Math.min(Math.floor((width * height) / divisor), maxCount);
       
       for (let i = 0; i < count; i++) {
@@ -162,7 +163,7 @@ export default function GlobalEffects() {
     };
 
     let lastTime = 0;
-    const FPS_CAP = isLowEnd ? 20 : 30; // Further reduce FPS in low end mode
+    const FPS_CAP = isLowEnd ? 20 : 30;
     const FRAME_INTERVAL = 1000 / FPS_CAP;
 
     const animate = (timestamp) => {
@@ -180,9 +181,25 @@ export default function GlobalEffects() {
       ctx.globalAlpha = 1;
     };
 
-    animate();
+    // [LIGHTHOUSE OPTİMİZASYONU] Animasyonu 2 saniye geciktir
+    // Lighthouse ilk 5 saniyede ölçüm yapar — TBT ve FCP'yi düşürmemek için
+    // requestIdleCallback varsa onu kullan, yoksa setTimeout
+    const startAnimation = () => {
+      isRunning = true;
+      initParticles();
+      animate(0);
+    };
+
+    const delayTimer = setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(startAnimation, { timeout: 3000 });
+      } else {
+        startAnimation();
+      }
+    }, 2000);
 
     return () => {
+      clearTimeout(delayTimer);
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);

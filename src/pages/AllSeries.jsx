@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Star, Eye, BookOpen, Play, Flame, Grid3X3, List, ChevronRight, ChevronDown, Crown, Swords, Compass, Heart, Smile, Skull, HelpCircle, Brain, Rocket, Ghost, AlertTriangle, Landmark, School, Sparkles, Layers } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { getOptimizedImage, handleImageError } from '../utils/imageOpt.js';
+import { useSEO } from '../hooks/useSEO';
 
 // ── Category config ──
 const GENERAL_GENRES = [
@@ -46,7 +47,7 @@ function SeriesCard({ item }) {
     <Link to={`/manhwa/${item.id}`} className="group block">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] transition-all duration-300">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"
+          <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" width={200} height={267}
             onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           {/* Rating badge */}
@@ -63,7 +64,7 @@ function SeriesCard({ item }) {
         </div>
         <div className="p-2.5 bg-[#0a0a0c]">
           <h3 className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
-          <p className="text-slate-600 text-[9px] font-medium truncate mt-0.5">{genres.slice(0, 2).join(', ') || 'Genel'}</p>
+          <p className="text-slate-400 text-[9px] font-medium truncate mt-0.5">{genres.slice(0, 2).join(', ') || 'Genel'}</p>
         </div>
       </div>
     </Link>
@@ -78,11 +79,11 @@ function SeriesListItem({ item }) {
 
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all group">
-      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy" decoding="async" width={48} height={64}
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <h3 className="text-white text-sm font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
-        <p className="text-slate-600 text-[10px] truncate">{genres.join(', ')}</p>
+        <p className="text-slate-400 text-[10px] truncate">{genres.join(', ')}</p>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
         <span className="text-slate-500 text-[10px] font-bold">{chapterCount}B</span>
@@ -101,13 +102,13 @@ function PopularItem({ item, rank }) {
   return (
     <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-white/5 transition-all group">
       <span className={`text-lg font-black w-6 text-center flex-shrink-0 ${
-        rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-orange-400' : 'text-slate-600'
+        rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-orange-400' : 'text-slate-400'
       }`}>{rank}</span>
-      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy"
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading="lazy" decoding="async" width={40} height={56}
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
         <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
-        <p className="text-slate-600 text-[9px] truncate">{genres.slice(0, 2).join(', ')}</p>
+        <p className="text-slate-400 text-[9px] truncate">{genres.slice(0, 2).join(', ')}</p>
       </div>
       <div className="flex items-center gap-1 flex-shrink-0">
         <Star size={10} className="text-amber-400 fill-amber-400" />
@@ -124,6 +125,12 @@ export default function AllSeries() {
   const { series, getChapters } = useApp();
   const [searchParams] = useSearchParams();
   const urlGenre = searchParams.get('genre');
+
+  useSEO({
+    title: 'Tüm Seriler',
+    description: 'AniPeak üzerindeki tüm manhwa ve webtoon serilerini keşfet. Türe, popülerliğe ve güncelleme tarihine göre filtrele.',
+    url: 'https://anipeak.com.tr/all-series'
+  });
 
   const [search, setSearch] = useState('');
   const [activeGenre, setActiveGenre] = useState(urlGenre || 'Tümü');
@@ -201,7 +208,7 @@ export default function AllSeries() {
                     activeGenre === 'Tümü' ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}>
                   <span className="flex items-center gap-2"><Layers size={13} /> Tümü</span>
-                  <span className="text-[10px] text-slate-600 bg-white/5 px-2 py-0.5 rounded-full">{genreCounts['Tümü']}</span>
+                  <span className="text-[10px] text-slate-400 bg-white/5 px-2 py-0.5 rounded-full">{genreCounts['Tümü']}</span>
                 </button>
                 {GENERAL_GENRES.map(g => {
                   const Icon = g.icon;
@@ -212,7 +219,7 @@ export default function AllSeries() {
                         activeGenre === g.label ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'
                       }`}>
                       <span className="flex items-center gap-2"><Icon size={13} /> {g.label}</span>
-                      <span className="text-[10px] text-slate-600 bg-white/5 px-2 py-0.5 rounded-full">{count}</span>
+                      <span className="text-[10px] text-slate-400 bg-white/5 px-2 py-0.5 rounded-full">{count}</span>
                     </button>
                   );
                 })}
@@ -227,7 +234,7 @@ export default function AllSeries() {
                   <button onClick={() => setShowTypeSubcats(showTypeSubcats === type ? null : type)}
                     className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-slate-300 hover:text-white hover:bg-white/5 transition-all uppercase tracking-wider">
                     <span>{type}</span>
-                    <ChevronDown size={14} className={`text-slate-600 transition-transform ${showTypeSubcats === type ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`text-slate-400 transition-transform ${showTypeSubcats === type ? 'rotate-180' : ''}`} />
                   </button>
                   <AnimatePresence>
                     {showTypeSubcats === type && (
@@ -261,8 +268,8 @@ export default function AllSeries() {
               {/* Search */}
               <div className="relative flex-1 min-w-[200px] max-w-sm">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Seri ara..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:border-purple-500 outline-none transition-all" />
+                <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Seri ara..." aria-label="Seri arama"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-400 focus:border-purple-500 outline-none transition-all" />
               </div>
 
               {/* Type tabs */}
@@ -278,7 +285,7 @@ export default function AllSeries() {
               </div>
 
               {/* Sort */}
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sıralama seçeneği"
                 className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-purple-500 outline-none cursor-pointer">
                 {SORT_OPTIONS.map(o => (
                   <option key={o.value} value={o.value} className="bg-[#0a0a14]">{o.label}</option>
@@ -287,11 +294,11 @@ export default function AllSeries() {
 
               {/* View toggle */}
               <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/8">
-                <button onClick={() => setViewMode('grid')}
+                <button onClick={() => setViewMode('grid')} aria-label="Izgara görünümü"
                   className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-purple-600 text-white' : 'text-slate-500 hover:text-white'}`}>
                   <Grid3X3 size={14} />
                 </button>
-                <button onClick={() => setViewMode('list')}
+                <button onClick={() => setViewMode('list')} aria-label="Liste görünümü"
                   className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-purple-600 text-white' : 'text-slate-500 hover:text-white'}`}>
                   <List size={14} />
                 </button>
@@ -305,28 +312,28 @@ export default function AllSeries() {
                 {activeGenre !== 'Tümü' && (
                   <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-black border border-purple-500/30 flex items-center gap-1">
                     {activeGenre}
-                    <button onClick={() => setActiveGenre('Tümü')} className="ml-1 text-purple-400 hover:text-white">✕</button>
+                    <button onClick={() => setActiveGenre('Tümü')} aria-label="Tür filtresini kaldır" className="ml-1 text-purple-400 hover:text-white">✕</button>
                   </span>
                 )}
                 {activeSubcat && (
                   <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-black border border-blue-500/30 flex items-center gap-1">
                     {activeSubcat}
-                    <button onClick={() => setActiveSubcat(null)} className="ml-1 text-blue-400 hover:text-white">✕</button>
+                    <button onClick={() => setActiveSubcat(null)} aria-label="Alt kategori filtresini kaldır" className="ml-1 text-blue-400 hover:text-white">✕</button>
                   </span>
                 )}
               </div>
             )}
 
             {/* Results count */}
-            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mb-4">{filtered.length} seri bulundu</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4">{filtered.length} seri bulundu</p>
 
             {/* Grid View */}
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence mode="sync">
                   {filtered.map((item, i) => (
-                    <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: Math.min(i, 15) * 0.03 }}>
+                    <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}>
                       <SeriesCard item={item} />
                     </motion.div>
                   ))}
@@ -334,10 +341,10 @@ export default function AllSeries() {
               </div>
             ) : (
               <div className="space-y-2">
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence mode="sync">
                   {filtered.map((item, i) => (
-                    <motion.div key={item.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.2, delay: Math.min(i, 15) * 0.02 }}>
+                    <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}>
                       <SeriesListItem item={item} />
                     </motion.div>
                   ))}
@@ -347,7 +354,7 @@ export default function AllSeries() {
 
             {filtered.length === 0 && (
               <div className="text-center py-32">
-                <Flame size={48} className="text-slate-700 mx-auto mb-4" />
+                <Flame size={48} className="text-slate-400 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-white mb-2">Aradığın seri bulunamadı.</h3>
                 <p className="text-slate-500 text-sm">Farklı bir kategori veya arama dene.</p>
               </div>

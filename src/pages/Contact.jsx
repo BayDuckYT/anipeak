@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Send, MapPin, Phone, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useSEO } from '../hooks/useSEO';
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: 'Genel İletişim', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useSEO({
+    title: 'İletişim',
+    description: 'AniPeak ile iletişime geç. Soru, öneri ve geri bildirimlerinizi bizimle paylaşın.',
+    url: 'https://anipeak.com.tr/iletisim'
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,7 +122,7 @@ export default function Contact() {
                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">ADINIZ</label>
                     <input 
                       required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-700"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-400"
                       placeholder="Adınız..."
                     />
                   </div>
@@ -123,7 +130,7 @@ export default function Contact() {
                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">E-POSTA</label>
                     <input 
                       required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-700"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-400"
                       placeholder="ornek@mail.com"
                     />
                   </div>
@@ -147,7 +154,7 @@ export default function Contact() {
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">MESAJINIZ</label>
                   <textarea 
                     required rows={6} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all resize-none placeholder-slate-700"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all resize-none placeholder-slate-400"
                     placeholder="İletmek istediğiniz mesaj..."
                   />
                 </div>

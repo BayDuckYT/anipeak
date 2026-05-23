@@ -13,6 +13,7 @@ import CommentSystem from '../components/CommentSystem.jsx';
 import ChapterRating from '../components/ChapterRating.jsx';
 import ReportIssueModal from '../components/ReportIssueModal.jsx';
 import LiveChatPanel from '../components/LiveChatPanel.jsx';
+import { useSEO } from '../hooks/useSEO';
 
 function ReaderImage({ src, alt, idx, chapter }) {
   const [error, setError] = useState(false);
@@ -46,7 +47,7 @@ function ReaderImage({ src, alt, idx, chapter }) {
           <Bug size={20} className="absolute -bottom-1 -right-1 text-red-400" />
         </div>
         <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-1">Bağlantı Kesildi</p>
-        <p className="text-slate-600 text-[10px] mb-6 font-mono">Index: {idx + 1} | Bağlantı Zayıf</p>
+        <p className="text-slate-400 text-[10px] mb-6 font-mono">Index: {idx + 1} | Bağlantı Zayıf</p>
         <button 
           onClick={() => {
             setError(false);
@@ -103,6 +104,12 @@ export default function Reader() {
   const manhwaId = id;
   const manhwa = useMemo(() => series.find((m) => String(m.id) === String(id)), [series, id]);
   const initialChapter = Number(chapterParam) || 1;
+
+  useSEO({
+    title: manhwa ? `${manhwa.title} - Bölüm ${chapterParam}` : 'Okuyucu',
+    description: manhwa ? `${manhwa.title} Bölüm ${chapterParam} oku - AniPeak` : 'AniPeak okuyucu.',
+    url: manhwa ? `https://anipeak.com.tr/read/${manhwa.id}/${chapterParam}` : 'https://anipeak.com.tr'
+  });
 
   const [chapter, setChapter] = useState(initialChapter);
   const [zenMode, setZenMode] = useState(false);
@@ -264,6 +271,7 @@ export default function Reader() {
               <Link
                 to={`/manhwa/${manhwa.id}`}
                 className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-white transition-colors text-sm bg-white/5"
+                aria-label="Seri detayına dön"
               >
                 <ArrowLeft size={16} />
               </Link>
@@ -282,6 +290,7 @@ export default function Reader() {
                 disabled={chapter <= (contextChapters[contextChapters.length - 1]?.number || 1)}
                 onClick={() => handleChapterTab(chapter - 1)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-all"
+                aria-label="Önceki bölüm"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -295,6 +304,7 @@ export default function Reader() {
                 disabled={chapter >= (contextChapters[0]?.number || 1)}
                 onClick={() => handleChapterTab(chapter + 1)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-all"
+                aria-label="Sonraki bölüm"
               >
                 <ChevronRight size={16} />
               </button>
@@ -310,6 +320,7 @@ export default function Reader() {
                 }}
                 className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer relative z-[600]"
                 title="Hata Bildir"
+                aria-label="Hata bildir"
               >
                 <Bug size={18} />
               </button>
@@ -317,6 +328,7 @@ export default function Reader() {
                 onClick={() => { setZenMode(true); handleFullscreen(); }}
                 className="p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all pointer-events-auto"
                 title="Tam Ekran & Zen Modu"
+                aria-label="Tam ekran ve zen modu"
               >
                 <Maximize2 size={16} />
               </button>
@@ -324,6 +336,7 @@ export default function Reader() {
                 onClick={() => commentsRef.current?.scrollIntoView({ behavior: 'smooth' })}
                 className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
                 title="Yorumlara Git"
+                aria-label="Yorumlara git"
               >
                 <MessageSquare size={16} />
               </button>
@@ -331,6 +344,7 @@ export default function Reader() {
                 onClick={() => setShowPanel(!showPanel)}
                 className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all relative"
                 title="Ayarlar & Bölümler"
+                aria-label="Ayarlar ve bölüm seçimi"
               >
                 <Settings2 size={16} />
               </button>

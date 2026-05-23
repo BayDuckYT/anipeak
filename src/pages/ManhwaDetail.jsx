@@ -353,7 +353,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
                         )}
                       </div>
                     </div>
-                    <ChevronRight size={18} className="text-slate-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight size={18} className="text-slate-400 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -427,7 +427,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
                     );
                   })
                 ) : (
-                  <div className="py-10 text-center text-slate-600 text-xs italic">Henüz bir listen yok.</div>
+                  <div className="py-10 text-center text-slate-400 text-xs italic">Henüz bir listen yok.</div>
                 )}
               </div>
 

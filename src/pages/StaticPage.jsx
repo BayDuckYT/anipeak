@@ -4,11 +4,18 @@ import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import DOMPurify from 'dompurify';
 import { ChevronRight, FileText, Activity } from 'lucide-react';
+import { useSEO } from '../hooks/useSEO';
 
 export default function StaticPage() {
   const { slug } = useParams();
   const [page, setPage] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useSEO({
+    title: page?.title || 'Bilgi Sayfası',
+    description: page?.title ? `AniPeak - ${page.title}` : 'AniPeak bilgi sayfası.',
+    url: `https://anipeak.com.tr/sayfa/${slug}`
+  });
 
   useEffect(() => {
     async function fetchPage() {

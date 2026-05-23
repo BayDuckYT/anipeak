@@ -132,7 +132,7 @@ export default function Header({ onAuthOpen }) {
 
 
           {/* Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1" aria-label="Ana navigasyon">
             <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all read-invitation ${location.pathname === '/' && location.hash !== '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
               <Compass size={15} /> Keşfet
             </Link>
@@ -175,7 +175,7 @@ export default function Header({ onAuthOpen }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Manhwa ara..."
                 aria-label="Manhwa arama"
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_8px_rgba(168,85,247,0.3)] transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_8px_rgba(168,85,247,0.3)] transition-all"
               />
             </div>
             {/* Search results */}
@@ -195,8 +195,11 @@ export default function Header({ onAuthOpen }) {
                     >
                       <img 
                         src={getOptimizedImage(m?.cover, 100)} 
-                        alt={m?.title} 
+                        alt={m?.title || 'Seri kapağı'} 
                         onError={handleImageError}
+                        width={32}
+                        height={40}
+                        decoding="async"
                         className="w-8 h-10 rounded-lg object-cover flex-shrink-0" 
                       />
                       <div className="min-w-0">
@@ -481,13 +484,13 @@ export default function Header({ onAuthOpen }) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Manhwa ara..."
                   aria-label="Manhwa arama"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all"
                 />
                 {searchResults.length > 0 && (
                   <div className="absolute top-full mt-1 left-0 right-0 glass-strong border border-white/10 rounded-xl overflow-hidden z-50">
                     {searchResults.map((m) => (
                       <button key={m.id} onClick={() => handleSearchSelect(m.id)} className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/5 text-left">
-                        <img src={m.cover} alt="" className="w-7 h-9 rounded object-cover" />
+                        <img src={m.cover} alt={m.title || 'Seri kapağı'} width={28} height={36} decoding="async" className="w-7 h-9 rounded object-cover" />
                         <span className="text-white text-xs truncate">{m.title}</span>
                       </button>
                     ))}

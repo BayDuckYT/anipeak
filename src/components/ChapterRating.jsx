@@ -93,7 +93,7 @@ export default function ChapterRating({ seriesId, chapterNum }) {
                 className={`transition-all duration-300 ${
                   star <= (hover || rating)
                     ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]'
-                    : 'text-slate-700'
+                    : 'text-slate-400'
                 }`}
               />
             </motion.button>
@@ -121,7 +121,7 @@ export default function ChapterRating({ seriesId, chapterNum }) {
             <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black mb-1">Genel Ortalanma</p>
             <p className="text-3xl font-black text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]">
               {avgRating > 0 ? avgRating.toFixed(1) : '—'} 
-              <span className="text-lg text-slate-600">/10</span>
+              <span className="text-lg text-slate-400">/10</span>
             </p>
           </div>
           <div className="w-px h-10 bg-white/10" />

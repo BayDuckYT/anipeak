@@ -25,12 +25,19 @@ import {
 import { useAuth } from '../context/AuthContext.jsx';
 import AnimeAvatar from '../components/AnimeAvatar.jsx';
 import effectsData from '../data/effects.json';
+import { useSEO } from '../hooks/useSEO';
 
 export default function SettingsPage() {
   const { user, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('hesap');
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
+
+  useSEO({
+    title: 'Ayarlar',
+    description: 'AniPeak hesap ayarları. Profil, bildirim ve görünüm tercihlerini yönet.',
+    url: 'https://anipeak.com.tr/settings'
+  });
 
   // State Management for all settings
   const [notifSettings, setNotifSettings] = useState({
@@ -172,12 +179,12 @@ export default function SettingsPage() {
                        <div className="relative group/avatar shrink-0">
                           <div className="w-24 h-24 rounded-full bg-zinc-900 border-2 border-zinc-800 overflow-hidden flex items-center justify-center">
                              {user?.avatar_url ? (
-                               <img src={user.avatar_url} className="w-full h-full object-cover" />
+                               <img src={user.avatar_url} alt="Profil fotoğrafı" className="w-full h-full object-cover" />
                              ) : (
                                <User size={48} className="text-zinc-800" />
                              )}
                           </div>
-                          <button className="absolute bottom-0 right-0 p-2 rounded-full bg-purple-600 text-white shadow-xl hover:scale-110 transition-transform">
+                          <button aria-label="Profil fotoğrafını değiştir" className="absolute bottom-0 right-0 p-2 rounded-full bg-purple-600 text-white shadow-xl hover:scale-110 transition-transform">
                              <Camera size={16} />
                           </button>
                        </div>
@@ -232,6 +239,7 @@ export default function SettingsPage() {
                            <input 
                              type="password" 
                              placeholder="Mevcut Şifre"
+                             aria-label="Mevcut şifre"
                              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl py-4 px-6 text-white text-sm font-bold focus:border-purple-600 transition-all"
                              value={passwords.current}
                              onChange={(e) => setPasswords({...passwords, current: e.target.value})}
@@ -239,6 +247,7 @@ export default function SettingsPage() {
                            <input 
                              type="password" 
                              placeholder="Yeni Şifre"
+                             aria-label="Yeni şifre"
                              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl py-4 px-6 text-white text-sm font-bold focus:border-purple-600 transition-all"
                              value={passwords.next}
                              onChange={(e) => setPasswords({...passwords, next: e.target.value})}
@@ -246,6 +255,7 @@ export default function SettingsPage() {
                            <input 
                              type="password" 
                              placeholder="Yeni Şifre (Tekrar)"
+                             aria-label="Yeni şifre tekrar"
                              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl py-4 px-6 text-white text-sm font-bold focus:border-purple-600 transition-all"
                              value={passwords.confirm}
                              onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}

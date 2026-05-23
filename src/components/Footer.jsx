@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 py-16 px-4 bg-black/20 backdrop-blur-2xl relative z-10">
+    <footer role="contentinfo" className="border-t border-white/5 py-16 px-4 bg-black/20 backdrop-blur-2xl relative z-10">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
         <div className="flex flex-col items-center md:items-start gap-4">
           <Link to="/" className="gradient-text font-black text-3xl tracking-tighter drop-shadow-md">AniPeak</Link>
@@ -28,8 +28,8 @@ export default function Footer() {
           </div>
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Topluluk</h4>
-            <a href="https://discord.gg/anipeak" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-blue-400 transition-colors font-medium py-1" aria-label="AniPeak Discord sunucusuna katıl">Discord</a>
-            <a href="https://www.instagram.com/anipeakoffical/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-pink-400 transition-colors font-medium py-1" aria-label="AniPeak Instagram sayfasını ziyaret et">Instagram</a>
+            <a href="https://discord.gg/anipeak" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-blue-400 transition-colors font-medium py-1" aria-label="AniPeak Discord sunucusuna katıl">Discord</a>
+            <a href="https://www.instagram.com/anipeakoffical/" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-pink-400 transition-colors font-medium py-1" aria-label="AniPeak Instagram sayfasını ziyaret et">Instagram</a>
           </div>
         </div>
       </div>
