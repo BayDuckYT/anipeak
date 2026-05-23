@@ -1266,7 +1266,14 @@ export default function ProfileShowcase() {
                              >
                                 <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-card-navy/80 border border-white/5 mb-4 p-2`}>
                                   {isNameplate ? (
-                                    <video src={`/nameplates/${effect.id}`} className="w-full h-full object-contain drop-shadow-xl" muted loop autoPlay playsInline />
+                                    <>
+                                      <div className="absolute inset-0 z-0">
+                                        <video className="w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90" muted loop autoPlay playsInline>
+                                          <source src={`/nameplates/${effect.id}`} type="video/webm" />
+                                        </video>
+                                      </div>
+                                      <span className="relative z-10 text-[11px] font-black uppercase text-white tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">KULLANICI</span>
+                                    </>
                                   ) : isNameEffect ? (
                                     <div className="flex items-center justify-center w-full h-full p-2">
                                       <span 
@@ -1406,19 +1413,25 @@ function NameplateItem({ filename, isActive, onSelect }) {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onSelect}
-      className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
+      className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 cursor-pointer transition-all flex items-center justify-center ${
         isActive ? 'border-purple-500 shadow-lg shadow-purple-500/30' : 'border-white/5 bg-card-navy/50'
       }`}
     >
       {isVideo ? (
-        <video 
-          src={`/nameplates/${filename}`} 
-          autoPlay 
-          muted 
-          loop 
-          playsInline 
-          className="w-full h-full object-cover" 
-        />
+        <>
+          <div className="absolute inset-0 z-0">
+            <video 
+              autoPlay 
+              muted 
+              loop 
+              playsInline 
+              className="w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90" 
+            >
+              <source src={`/nameplates/${filename}`} type="video/webm" />
+            </video>
+          </div>
+          <span className="relative z-10 text-[11px] font-black uppercase text-white tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">KULLANICI</span>
+        </>
       ) : (
         <img src={`/nameplates/${filename}`} alt="Nameplate Effect" className="w-full h-full object-cover" />
       )}
