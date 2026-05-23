@@ -1263,19 +1263,16 @@ export default function ProfileShowcase() {
                                }} 
                                className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${isActive ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-white/5 hover:border-white/20'}`}
                              >
-                                <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-card-navy/80 border border-white/5 mb-4 p-2`}>
+                                <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-card-navy/80 border border-white/5 mb-4 ${isNameplate ? '' : 'p-2'}`}>
                                   {isNameplate ? (
-                                    <>
-                                      <video 
-                                        src={`/nameplates/${effect.id}`}
-                                        className="absolute inset-0 w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90 pointer-events-none z-0" 
-                                        muted 
-                                        loop 
-                                        autoPlay 
-                                        playsInline 
-                                      />
-                                      <span className="relative z-10 text-[11px] font-black uppercase text-white tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">KULLANICI</span>
-                                    </>
+                                    <video 
+                                      src={`/nameplates/${effect.id}`}
+                                      className="w-full h-full object-cover" 
+                                      muted 
+                                      loop 
+                                      autoPlay 
+                                      playsInline 
+                                    />
                                   ) : isNameEffect ? (
                                     <div className="flex items-center justify-center w-full h-full p-2">
                                       <span 
@@ -1420,17 +1417,14 @@ function NameplateItem({ filename, isActive, onSelect }) {
       }`}
     >
       {isVideo ? (
-        <>
-          <video 
-            src={`/nameplates/${filename}`}
-            autoPlay 
-            muted 
-            loop 
-            playsInline 
-            className="absolute inset-0 w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-90 pointer-events-none z-0" 
-          />
-          <span className="relative z-10 text-[11px] font-black uppercase text-white tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">KULLANICI</span>
-        </>
+        <video 
+          src={`/nameplates/${filename}`}
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+          className="w-full h-full object-cover" 
+        />
       ) : (
         <img src={`/nameplates/${filename}`} alt="Nameplate Effect" className="w-full h-full object-cover" />
       )}
