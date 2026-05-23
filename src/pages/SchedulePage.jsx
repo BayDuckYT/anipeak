@@ -85,19 +85,19 @@ export default function SchedulePage() {
         
         <div className="relative z-10 p-8 sm:p-12">
           <div className="max-w-xl">
-            <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight uppercase mb-3">
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight uppercase mb-3">
               YAYIN PROGRAMI
             </h1>
-            <p className="text-slate-600 text-sm leading-relaxed">
+            <p className="text-slate-400 text-sm leading-relaxed">
               Yeni bölümlerin ne zaman yayınlanacağını buradan takip edebilirsin. AniPeak mühürlü serileri anında okumak için bildirimleri açmayı unutma!
             </p>
           </div>
         </div>
 
         {/* Days Tabs (Functional Weekly Calendar) */}
-        <div className="relative z-10 border-t border-purple-900/10 p-4 sm:px-8">
+        <div className="relative z-10 border-t border-white/10 p-4 sm:px-8">
           <div className="flex items-center gap-2 sm:gap-4">
-            <button onClick={handlePrevWeek} aria-label="Önceki hafta" className="p-2 sm:p-3 text-slate-600 hover:text-slate-900 glass hover:bg-slate-900/10 rounded-xl transition-all">
+            <button onClick={handlePrevWeek} aria-label="Önceki hafta" className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
               <ChevronLeft size={20} />
             </button>
             
@@ -119,19 +119,19 @@ export default function SchedulePage() {
                     onClick={() => setSelectedDateStr(dayDateStr)}
                     className={`flex flex-col items-center justify-center px-4 sm:px-6 py-2 sm:py-3 rounded-2xl min-w-[70px] sm:min-w-[90px] transition-all whitespace-nowrap flex-1 ${
                       isActive 
-                      ? 'bg-purple-600 text-slate-900 shadow-neon-purple border border-purple-500/50 scale-[1.02]' 
-                      : 'bg-slate-900/5 border border-purple-900/10 text-slate-600 hover:text-slate-900 hover:border-purple-900/20 hover:bg-slate-900/10'
+                      ? 'bg-purple-600 text-white shadow-neon-purple border border-purple-500/50 scale-[1.02]' 
+                      : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10'
                     }`}
                   >
                     <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-1 opacity-80">{dayNameShort}</span>
-                    <span className={`text-xl sm:text-2xl font-black ${isActive ? 'text-slate-900' : 'text-slate-200'}`}>{dayNumber}</span>
+                    <span className={`text-xl sm:text-2xl font-black ${isActive ? 'text-white' : 'text-slate-200'}`}>{dayNumber}</span>
                     <span className="text-[9px] sm:text-[10px] uppercase font-bold opacity-60 mt-0.5">{monthName}</span>
                   </button>
                 );
               })}
             </div>
 
-            <button onClick={handleNextWeek} aria-label="Sonraki hafta" className="p-2 sm:p-3 text-slate-600 hover:text-slate-900 glass hover:bg-slate-900/10 rounded-xl transition-all">
+            <button onClick={handleNextWeek} aria-label="Sonraki hafta" className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
               <ChevronRight size={20} />
             </button>
           </div>
@@ -141,7 +141,7 @@ export default function SchedulePage() {
       {/* Schedule Table List */}
       <div className="glass border border-white/8 rounded-3xl overflow-hidden mb-8">
         {/* Table Header */}
-        <div className="grid grid-cols-[80px_1fr_120px_100px_40px] sm:grid-cols-[100px_1fr_150px_120px_50px] items-center px-6 py-4 border-b border-purple-900/5 bg-white/[0.02]">
+        <div className="grid grid-cols-[80px_1fr_120px_100px_40px] sm:grid-cols-[100px_1fr_150px_120px_50px] items-center px-6 py-4 border-b border-white/5 bg-white/[0.02]">
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">SAAT</span>
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">SERİ</span>
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider hidden sm:block">BÖLÜM</span>
@@ -162,16 +162,16 @@ export default function SchedulePage() {
                 className="grid grid-cols-[80px_1fr_120px_100px_40px] sm:grid-cols-[100px_1fr_150px_120px_50px] items-center px-6 py-4 hover:bg-white/[0.02] transition-colors group"
               >
                 {/* Time */}
-                <div className="text-slate-700 font-black text-sm sm:text-base">
+                <div className="text-slate-300 font-black text-sm sm:text-base">
                   {item.release_time?.slice(0, 5) || '00:00'}
                 </div>
 
                 {/* Series Info */}
                 <div className="flex items-center gap-4">
-                  <img src={item.poster_url} alt={item.series_name} className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg object-cover border border-purple-900/10 group-hover:scale-105 transition-transform" width={56} height={80} decoding="async" loading={idx < 5 ? 'eager' : 'lazy'} fetchpriority={idx < 3 ? 'high' : 'auto'}
+                  <img src={item.poster_url} alt={item.series_name} className="w-14 h-20 sm:w-16 sm:h-24 rounded-lg object-cover border border-white/10 group-hover:scale-105 transition-transform" width={56} height={80} decoding="async" loading={idx < 5 ? 'eager' : 'lazy'} fetchpriority={idx < 3 ? 'high' : 'auto'}
                     onError={(e) => { e.target.src = 'https://via.placeholder.com/64x96?text='; }} />
                   <div className="min-w-0">
-                    <h3 className="text-slate-900 font-bold text-sm sm:text-base truncate group-hover:text-purple-400 transition-colors">
+                    <h3 className="text-white font-bold text-sm sm:text-base truncate group-hover:text-purple-400 transition-colors">
                       {item.series_name}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-1">
@@ -180,7 +180,7 @@ export default function SchedulePage() {
                     </div>
                     {/* Mobile section for chapter/status info */}
                     <div className="sm:hidden mt-2 flex flex-col gap-1">
-                       <span className="text-slate-700 text-xs font-semibold">{item.chapter_info}</span>
+                       <span className="text-slate-300 text-xs font-semibold">{item.chapter_info}</span>
                        {item.chapter_info === 'Yeni Seri' && (
                          <span className="px-2 py-0.5 w-fit rounded-md bg-purple-500/20 text-purple-400 text-[9px] font-black uppercase border border-purple-500/30">
                            Yeni Seri
@@ -192,7 +192,7 @@ export default function SchedulePage() {
 
                 {/* Chapter Info (Desktop) */}
                 <div className="hidden sm:flex flex-col gap-1">
-                  <span className="text-slate-700 text-sm font-semibold">{item.chapter_info}</span>
+                  <span className="text-slate-300 text-sm font-semibold">{item.chapter_info}</span>
                   {item.chapter_info === 'Yeni Seri' && (
                     <span className="px-2 py-0.5 w-fit rounded-md bg-purple-500/20 text-purple-400 text-[10px] font-black uppercase border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
                       Yeni Seri 🎉
@@ -211,7 +211,7 @@ export default function SchedulePage() {
 
                 {/* Notification Bell */}
                 <div className="flex justify-center">
-                  <button aria-label={`${item.series_name} için bildirim aç`} className="text-slate-500 hover:text-slate-900 hover:scale-110 transition-all">
+                  <button aria-label={`${item.series_name} için bildirim aç`} className="text-slate-500 hover:text-white hover:scale-110 transition-all">
                     <Bell size={18} />
                   </button>
                 </div>
@@ -222,8 +222,8 @@ export default function SchedulePage() {
                 animate={{ opacity: 1 }}
                 className="py-20 text-center"
               >
-                <Bell size={40} className="text-slate-600 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Bu gün için yayın yok</h3>
+                <Bell size={40} className="text-slate-400 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-white mb-2">Bu gün için yayın yok</h3>
                 <p className="text-slate-500 text-sm">Diğer günleri kontrol edebilirsin.</p>
               </motion.div>
             )}
@@ -238,11 +238,11 @@ export default function SchedulePage() {
             <BellRing size={20} className="text-purple-400" />
           </div>
           <div>
-            <h3 className="text-slate-900 font-bold">Bildirimleri aç, yeni bölümleri kaçırma!</h3>
-            <p className="text-slate-600 text-xs mt-1">Yeni bölümler yayınlandığında anında haberdar olmak için bildirimleri açabilirsin.</p>
+            <h3 className="text-white font-bold">Bildirimleri aç, yeni bölümleri kaçırma!</h3>
+            <p className="text-slate-400 text-xs mt-1">Yeni bölümler yayınlandığında anında haberdar olmak için bildirimleri açabilirsin.</p>
           </div>
         </div>
-        <button className="px-6 py-2.5 rounded-xl bg-purple-600 text-slate-900 font-bold text-sm shadow-neon-purple hover:bg-purple-500 transition-colors whitespace-nowrap">
+        <button className="px-6 py-2.5 rounded-xl bg-purple-600 text-white font-bold text-sm shadow-neon-purple hover:bg-purple-500 transition-colors whitespace-nowrap">
           Bildirimleri Aç
         </button>
       </div>

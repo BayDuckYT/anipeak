@@ -22,7 +22,7 @@ function getStyle(profile) {
   const isElite = profile?.is_elite;
   if (isAdmin) return { name: 'text-red-400 drop-shadow-[0_0_12px_rgba(248,113,113,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-red-950/10 border border-red-500/20', badge: 'bg-red-500/20 border-red-500/40 text-red-300' };
   if (isElite) return { name: 'text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-amber-950/10 border border-amber-500/20', badge: 'bg-amber-500/20 border-amber-500/40 text-amber-300' };
-  return { name: 'text-slate-900 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]', card: 'bg-white/60 border border-purple-900/5', badge: 'bg-slate-900/5 border-purple-900/10 text-slate-500' };
+  return { name: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]', card: 'bg-card-navy/60 border border-white/5', badge: 'bg-white/5 border-white/10 text-slate-500' };
 }
 
 // ─── Loading Skeleton ───────────────────────────────
@@ -30,7 +30,7 @@ function CommentSkeleton() {
   return (
     <div className="animate-pulse space-y-5">
       {[1,2,3].map(i => (
-        <div key={i} className="bg-white/60 border border-purple-900/5 rounded-[2.5rem] p-6 flex gap-5">
+        <div key={i} className="bg-card-navy/60 border border-white/5 rounded-[2.5rem] p-6 flex gap-5">
           <div className="w-14 h-14 rounded-full bg-zinc-800" />
           <div className="flex-1 space-y-3">
             <div className="h-4 bg-zinc-800 rounded w-1/4" />
@@ -198,7 +198,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     const lc = likeCounts[comment.id] || 0;
 
     return (
-      <div key={comment.id} className={`relative overflow-hidden transition-all duration-300 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-purple-900/5' : s.card}`}>
+      <div key={comment.id} className={`relative overflow-hidden transition-all duration-300 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : s.card}`}>
         {/* Nameplate */}
         {!isReply && mix.nameplate && mix.nameplate !== 'none' && (
           <div className="absolute right-0 top-0 bottom-0 w-2/3 md:w-1/2 z-0 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 flex justify-end items-center pr-4" style={{ maskImage: 'linear-gradient(to right, transparent, black 40%)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 40%)' }}>
@@ -228,12 +228,12 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <Clock size={10} className="text-slate-600" />
-                  <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{new Date(comment.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                  <Clock size={10} className="text-slate-400" />
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{new Date(comment.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                 </div>
               </div>
               {(isOwner || user?.role === 'Baş Admin' || user?.role === 'Yönetici') && (
-                <button onClick={() => handleDelete(comment.id)} className="p-2 text-slate-600 hover:text-red-500 rounded-xl transition-all opacity-0 group-hover:opacity-100">
+                <button onClick={() => handleDelete(comment.id)} className="p-2 text-slate-400 hover:text-red-500 rounded-xl transition-all opacity-0 group-hover:opacity-100">
                   <Trash2 size={13} />
                 </button>
               )}
@@ -247,13 +247,13 @@ export default function CommentSystem({ seriesId, chapterNum }) {
               {comment.is_spoiler && !revealedSpoilers.has(comment.id) && (
                 <div onClick={() => setRevealedSpoilers(p => new Set([...p, comment.id]))} className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-3xl cursor-pointer rounded-2xl border border-red-500/20">
                   <AlertTriangle size={18} className="text-red-500 mb-1 animate-bounce" />
-                  <span className="text-[8px] font-black text-slate-900 uppercase tracking-widest">SPOILER - DOKUN</span>
+                  <span className="text-[8px] font-black text-white uppercase tracking-widest">SPOILER - DOKUN</span>
                 </div>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-5 mt-3 pt-3 border-t border-purple-900/5">
+            <div className="flex items-center gap-5 mt-3 pt-3 border-t border-white/5">
               <button onClick={() => toggleLike(comment.id)} className={`group flex items-center gap-1.5 transition-all ${liked ? 'text-red-500' : 'text-slate-500 hover:text-red-400'}`}>
                 <Heart size={isReply ? 14 : 16} className={`transition-transform group-hover:scale-125 ${liked ? 'fill-red-500' : ''}`} />
                 {lc > 0 && <span className="text-[10px] font-black">{lc}</span>}
@@ -264,7 +264,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                   setReplyingTo(comment);
                   setReplyText(targetName ? `@${targetName} ` : '');
                   setTimeout(() => replyRef.current?.focus(), 50);
-                }} className={`flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-all ${isReply ? 'text-[9px]' : 'text-[10px]'} font-black uppercase tracking-widest`}>
+                }} className={`flex items-center gap-1.5 text-slate-500 hover:text-white transition-all ${isReply ? 'text-[9px]' : 'text-[10px]'} font-black uppercase tracking-widest`}>
                   <Reply size={isReply ? 14 : 16} /> Yanıtla
                 </button>
               )}
@@ -297,11 +297,11 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                     onChange={e => setReplyText(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply(replyingTo); } }}
                     placeholder="Yanıtını yaz..."
-                    className="w-full bg-slate-900/5 border border-purple-900/10 rounded-xl px-4 py-3 text-slate-900 text-xs font-medium focus:outline-none focus:border-purple-500/50"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50"
                   />
                   <div className="flex items-center gap-2 mt-2">
-                    <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="px-3 py-1.5 text-[9px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-900">İptal</button>
-                    <button onClick={() => handleReply(replyingTo)} disabled={submitting || !replyText.trim()} className="px-5 py-1.5 bg-purple-600 text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 disabled:opacity-40 flex items-center gap-2">
+                    <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="px-3 py-1.5 text-[9px] font-black text-slate-500 uppercase tracking-widest hover:text-white">İptal</button>
+                    <button onClick={() => handleReply(replyingTo)} disabled={submitting || !replyText.trim()} className="px-5 py-1.5 bg-purple-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 disabled:opacity-40 flex items-center gap-2">
                       <Send size={11} /> Yanıtla
                     </button>
                   </div>
@@ -319,11 +319,11 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     <div className="w-full space-y-10 py-12">
       {/* Header */}
       <div className="flex items-center gap-5">
-        <div className="w-14 h-14 rounded-[1.5rem] bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-slate-900 shadow-2xl shadow-purple-500/20">
+        <div className="w-14 h-14 rounded-[1.5rem] bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-2xl shadow-purple-500/20">
           <MessageSquare size={28} />
         </div>
         <div>
-          <h2 className="text-2xl font-black text-slate-900 italic uppercase tracking-tighter">Topluluk Tartışması</h2>
+          <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter">Topluluk Tartışması</h2>
           <div className="flex items-center gap-2 mt-0.5">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{topLevel.length} YORUM</p>
@@ -335,28 +335,28 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       {user ? (
         <form onSubmit={handleSubmit} className="relative group">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/50 to-blue-600/50 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
-          <div className="relative glass p-6 md:p-8 rounded-[2.5rem] border border-purple-900/5 space-y-5">
+          <div className="relative glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 space-y-5">
             <div className="flex gap-5 items-start">
               <div className="shrink-0">
                 <AnimeAvatar src={user.avatar_url} effect={user.active_mix?.avatar ? effectsData.find(e => e.id === user.active_mix.avatar) : null} size="w-12 h-12" />
               </div>
-              <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Düşüncelerini paylaş... (@kullanıcı ile etiketle)" className="flex-1 bg-slate-900/5 border border-purple-900/5 rounded-2xl p-4 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-500/50 min-h-[100px] transition-all resize-none" />
+              <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Düşüncelerini paylaş... (@kullanıcı ile etiketle)" className="flex-1 bg-white/5 border border-white/5 rounded-2xl p-4 text-white text-sm font-medium focus:outline-none focus:border-purple-500/50 min-h-[100px] transition-all resize-none" />
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-purple-900/5">
+            <div className="flex items-center justify-between pt-3 border-t border-white/5">
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setIsSpoiler(!isSpoiler)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isSpoiler ? 'bg-red-500 text-slate-900' : 'bg-slate-900/5 text-slate-500 hover:text-slate-900 border border-purple-900/5'}`}>
+                <button type="button" onClick={() => setIsSpoiler(!isSpoiler)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isSpoiler ? 'bg-red-500 text-white' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}>
                   <AlertTriangle size={13} /> {isSpoiler ? 'SPOILER AKTİF' : 'SPOILER'}
                 </button>
-                <span className="text-slate-600 text-[9px] font-bold flex items-center gap-1"><AtSign size={12} />etiketle</span>
+                <span className="text-slate-400 text-[9px] font-bold flex items-center gap-1"><AtSign size={12} />etiketle</span>
               </div>
-              <button type="submit" disabled={submitting || !text.trim()} className="flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-40">
+              <button type="submit" disabled={submitting || !text.trim()} className="flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-40">
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <><Send size={13} /> GÖNDER</>}
               </button>
             </div>
           </div>
         </form>
       ) : (
-        <div className="glass p-10 rounded-[2.5rem] text-center border border-dashed border-purple-900/10">
+        <div className="glass p-10 rounded-[2.5rem] text-center border border-dashed border-white/10">
           <p className="text-slate-500 text-sm font-black uppercase tracking-widest">Tartışmaya katılmak için giriş yap.</p>
         </div>
       )}
@@ -370,7 +370,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
         ) : (
           <div className="text-center py-20 opacity-20 flex flex-col items-center">
             <MessageSquare size={56} className="mb-3 text-slate-500" />
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-600">İlk tartışmayı sen başlat!</p>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">İlk tartışmayı sen başlat!</p>
           </div>
         )}
       </div>

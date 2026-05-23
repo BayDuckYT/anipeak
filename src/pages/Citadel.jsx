@@ -59,18 +59,18 @@ export default function Citadel() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8F5FF] pt-24 pb-20 relative">
+    <div className="min-h-screen bg-[#070511] pt-24 pb-20 relative">
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         
         {/* Header */}
-        <div className="mb-12 border-b border-purple-900/10 pb-8">
+        <div className="mb-12 border-b border-white/10 pb-8">
           <div className="flex items-center gap-3 mb-4">
             <MessageSquare size={32} className="text-blue-500" />
-            <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tighter">
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
               ANIPEAK <span className="text-slate-500">FORUMU</span>
             </h1>
           </div>
-          <p className="text-slate-600 max-w-2xl text-lg">
+          <p className="text-slate-400 max-w-2xl text-lg">
             Siber dünyadaki manga sığınağımız. Fikirlerini paylaş, teorilerini çarpıştır, favori serilerini diğer okurlarla tartış.
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function Citadel() {
                   
                   <div className="relative z-20">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-14 h-14 rounded-2xl glass border border-purple-900/10 flex items-center justify-center shadow-lg">
+                      <div className="w-14 h-14 rounded-2xl glass border border-white/10 flex items-center justify-center shadow-lg">
                         {cat.icon}
                       </div>
                       {cat.requiresElite && (
@@ -109,15 +109,15 @@ export default function Citadel() {
                       )}
                     </div>
                     
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2 group-hover:text-amber-400 transition-colors">
+                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
                       {cat.name}
                     </h2>
-                    <p className="text-slate-600 text-sm leading-relaxed">
+                    <p className="text-slate-400 text-sm leading-relaxed">
                       {cat.description}
                     </p>
                     
                     {/* Stats Placeholder */}
-                    <div className="mt-6 flex items-center gap-4 text-xs font-bold text-slate-500 uppercase tracking-widest border-t border-purple-900/5 pt-4">
+                    <div className="mt-6 flex items-center gap-4 text-xs font-bold text-slate-500 uppercase tracking-widest border-t border-white/5 pt-4">
                       <span>{Math.floor(Math.random() * 500) + 50} Konu</span>
                       <span>{Math.floor(Math.random() * 2000) + 100} Mesaj</span>
                     </div>

@@ -29,7 +29,7 @@ export default function StaticPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F5FF] flex items-center justify-center">
+      <div className="min-h-screen bg-[#070511] flex items-center justify-center">
         <Activity className="text-purple-500 animate-spin" size={48} />
       </div>
     );
@@ -37,43 +37,43 @@ export default function StaticPage() {
 
   if (!page) {
     return (
-      <div className="min-h-screen bg-[#F8F5FF] pt-32 pb-20 px-4 text-center">
-        <h1 className="text-4xl font-black text-slate-900 mb-4 uppercase italic">Sayfa Bulunamadı!</h1>
+      <div className="min-h-screen bg-[#070511] pt-32 pb-20 px-4 text-center">
+        <h1 className="text-4xl font-black text-white mb-4 uppercase italic">Sayfa Bulunamadı!</h1>
         <p className="text-slate-500 mb-8">Aradığın sayfa sistemde bulunamadı veya silinmiş olabilir.</p>
-        <Link to="/" className="px-8 py-3 bg-purple-600 text-slate-900 font-black rounded-2xl shadow-neon-purple">Ana Sayfaya Dön</Link>
+        <Link to="/" className="px-8 py-3 bg-purple-600 text-white font-black rounded-2xl shadow-neon-purple">Ana Sayfaya Dön</Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F5FF] pt-32 pb-20 px-4">
+    <div className="min-h-screen bg-[#070511] pt-32 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-8">
           <Link to="/" className="hover:text-purple-400 transition-colors">Ana Sayfa</Link>
           <ChevronRight size={10} />
-          <span className="text-slate-900">{page.title}</span>
+          <span className="text-white">{page.title}</span>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass border border-purple-900/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden"
+          className="glass border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-3xl pointer-events-none" />
           
           <div className="flex items-center gap-4 mb-10">
             <div className="p-4 rounded-3xl bg-gradient-to-br from-purple-600 to-blue-600 shadow-xl">
-              <FileText size={32} className="text-slate-900" />
+              <FileText size={32} className="text-white" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight">{page.title}</h1>
+              <h1 className="text-3xl md:text-5xl font-black text-white leading-tight">{page.title}</h1>
               <p className="text-slate-500 text-xs mt-2 uppercase tracking-[0.2em] font-bold">AniPeak Kurumsal • Son Güncelleme: {new Date(page.updated_at).toLocaleDateString('tr-TR')}</p>
             </div>
           </div>
 
           <div 
-            className="prose prose-invert max-w-none text-slate-700 leading-relaxed space-y-6 text-lg"
+            className="prose prose-invert max-w-none text-slate-300 leading-relaxed space-y-6 text-lg"
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(page.content) }}
           />
         </motion.div>

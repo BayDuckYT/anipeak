@@ -51,7 +51,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F5FF] flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#070511] flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px]" />
@@ -61,14 +61,14 @@ export default function ResetPassword() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-md glass-strong border border-purple-900/10 rounded-[2.5rem] p-10 shadow-2xl"
+        className="relative z-10 w-full max-w-md glass-strong border border-white/10 rounded-[2.5rem] p-10 shadow-2xl"
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 shadow-neon-purple mb-6">
-            <Lock size={32} className="text-slate-900" />
+            <Lock size={32} className="text-white" />
           </div>
-          <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Şifre Sıfırlama</h1>
-          <p className="text-slate-600 text-sm">Hesabın için yeni ve güçlü bir şifre belirle.</p>
+          <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Şifre Sıfırlama</h1>
+          <p className="text-slate-400 text-sm">Hesabın için yeni ve güçlü bir şifre belirle.</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -81,9 +81,9 @@ export default function ResetPassword() {
               <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
                 <CheckCircle size={40} className="text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Şifre Güncellendi!</h3>
-              <p className="text-slate-600 text-sm mb-8">Yeni şifren başarıyla kaydedildi. Ana sayfaya yönlendiriliyorsun...</p>
-              <div className="w-full h-1 bg-slate-900/5 rounded-full overflow-hidden">
+              <h3 className="text-xl font-bold text-white mb-2">Şifre Güncellendi!</h3>
+              <p className="text-slate-400 text-sm mb-8">Yeni şifren başarıyla kaydedildi. Ana sayfaya yönlendiriliyorsun...</p>
+              <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: "100%" }}
@@ -96,7 +96,7 @@ export default function ResetPassword() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Yeni Şifre</label>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Yeni Şifre</label>
                   <div className="relative">
                     <input
                       type={showPass ? 'text' : 'password'}
@@ -104,12 +104,12 @@ export default function ResetPassword() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       placeholder="••••••••"
-                      className="w-full bg-slate-900/5 border border-purple-900/10 rounded-2xl px-5 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all"
                     />
                     <button 
                       type="button" 
                       onClick={() => setShowPass(!showPass)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                       aria-label={`Şifreyi ${showPass ? 'gizle' : 'göster'}`}
                     >
                       {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -118,14 +118,14 @@ export default function ResetPassword() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Şifre Tekrar</label>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Şifre Tekrar</label>
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className="w-full bg-slate-900/5 border border-purple-900/10 rounded-2xl px-5 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all"
                   />
                 </div>
               </div>
@@ -144,7 +144,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 font-black shadow-neon-purple hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black shadow-neon-purple hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -158,7 +158,7 @@ export default function ResetPassword() {
 
         <div className="mt-10 flex items-center justify-center gap-2 opacity-30">
           <Zap size={14} className="text-purple-400" />
-          <span className="text-[10px] font-black tracking-[0.2em] text-slate-900 uppercase">AniPeak Security Protocol</span>
+          <span className="text-[10px] font-black tracking-[0.2em] text-white uppercase">AniPeak Security Protocol</span>
         </div>
       </motion.div>
     </div>

@@ -660,9 +660,9 @@ export default function ProfileShowcase() {
       case 'youtube': return <Youtube size={14} className="text-red-500" />;
       case 'instagram': return <Instagram size={14} className="text-pink-500" />;
       case 'twitter': return <Twitter size={14} className="text-blue-400" />;
-      case 'github': return <Github size={14} className="text-slate-900" />;
+      case 'github': return <Github size={14} className="text-white" />;
       case 'myanimelist': return <Tv size={14} className="text-blue-500" />;
-      default: return <LinkIcon size={14} className="text-slate-600" />;
+      default: return <LinkIcon size={14} className="text-zinc-400" />;
     }
   };
 
@@ -716,25 +716,25 @@ export default function ProfileShowcase() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPremiumModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-5xl bg-zinc-950 border border-amber-500/30 rounded-[3rem] p-10 overflow-hidden shadow-[0_0_100px_rgba(245,158,11,0.15)]">
               <div className="absolute top-0 right-0 p-6">
-                <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-white text-slate-600 hover:text-slate-900 hover:bg-zinc-800 transition-all"><X size={20} /></button>
+                <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-card-navy text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
               </div>
               <div className="text-center mb-12">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÜYELİK</div>
-                <h2 className="text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-4">Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span></h2>
-                <p className="text-slate-600 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş.</p>
+                <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span></h2>
+                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş.</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
                 {ELITE_BUNDLES.slice(0, 5).map(bundle => (
-                  <div key={bundle.id} className="p-4 rounded-3xl bg-white border border-zinc-800 text-center relative overflow-hidden group">
+                  <div key={bundle.id} className="p-4 rounded-3xl bg-card-navy border border-zinc-800 text-center relative overflow-hidden group">
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-all" />
                     <span className="text-3xl block mb-2">{bundle.icon}</span>
-                    <span className="block text-[10px] font-black text-slate-700 uppercase truncate">{bundle.name}</span>
+                    <span className="block text-[10px] font-black text-zinc-300 uppercase truncate">{bundle.name}</span>
                   </div>
                 ))}
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-slate-600 hover:text-slate-900 transition-all">Şimdilik Kalsın</button>
-                <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-slate-900 shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ŞİMDİ YÜKSELT <ArrowRight size={16} /></button>
+                <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-400 hover:text-white transition-all">Şimdilik Kalsın</button>
+                <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ŞİMDİ YÜKSELT <ArrowRight size={16} /></button>
               </div>
             </motion.div>
           </div>
@@ -745,7 +745,7 @@ export default function ProfileShowcase() {
           
           {/* ── LEFT SIDEBAR (SCREENSHOT 1 STYLE) ── */}
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
-            <div className="glass bg-white/40 border border-purple-900/5 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative">
+            <div className="glass bg-card-navy/40 border border-white/5 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative">
                {/* Background Effect */}
                  <div className="absolute inset-0 z-[-1] opacity-20">
                    {effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url && (
@@ -778,7 +778,7 @@ export default function ProfileShowcase() {
                   <div className="relative inline-flex items-center justify-center w-full max-w-[320px] min-h-[60px] px-10 py-4">
                     {/* Nameplate Background */}
                     {displayUser.active_mix?.nameplate && displayUser.active_mix?.nameplate !== 'none' && (
-                      <div className="absolute inset-0 z-[-1] rounded-xl overflow-hidden shadow-2xl border border-purple-900/10">
+                      <div className="absolute inset-0 z-[-1] rounded-xl overflow-hidden shadow-2xl border border-white/10">
                         <video 
                           src={`/nameplates/${displayUser.active_mix.nameplate}`} 
                           autoPlay 
@@ -791,7 +791,7 @@ export default function ProfileShowcase() {
                       </div>
                     )}
                     <h1 
-                      className={`text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none z-10 flex flex-row items-center gap-2 flex-nowrap whitespace-nowrap ${!(displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none') ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}
+                      className={`text-4xl font-black text-white uppercase tracking-tighter leading-none z-10 flex flex-row items-center gap-2 flex-nowrap whitespace-nowrap ${!(displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none') ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}
                     >
                       <div className="flex flex-row items-center gap-1 shrink-0">
                         {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && (
@@ -821,33 +821,33 @@ export default function ProfileShowcase() {
                   
                   <div className="flex justify-between items-end px-2">
                      <div className="text-left">
-                        <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">İSTATİSTİKLER</div>
-                        <div className="text-2xl font-black text-slate-900 uppercase tracking-tighter">VERİLER</div>
+                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">İSTATİSTİKLER</div>
+                        <div className="text-2xl font-black text-white uppercase tracking-tighter">VERİLER</div>
                      </div>
                      <div className="text-right">
-                        <div className="text-[8px] font-bold text-slate-600 uppercase tracking-widest mb-1">TOPLAM XP</div>
-                        <div className="text-xl font-black text-slate-900 tracking-tighter">{displayUser.xp}</div>
+                        <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">TOPLAM XP</div>
+                        <div className="text-xl font-black text-white tracking-tighter">{displayUser.xp}</div>
                      </div>
                   </div>
                </div>
 
                {/* Discord Connection */}
-               <div className="w-full mt-8 pt-8 border-t border-purple-900/5 space-y-4">
+               <div className="w-full mt-8 pt-8 border-t border-white/5 space-y-4">
                   {displayUser.discord_id ? (
                      <div className="group relative p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-4 overflow-hidden">
                         <div className="flex items-center justify-between">
                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-emerald-500 text-slate-900 shadow-lg shadow-emerald-500/20">
+                              <div className="p-2 rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
                                  <Shield size={14} />
                               </div>
-                              <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Discord Bağlantısı</span>
+                              <span className="text-[10px] font-black text-white uppercase tracking-widest">Discord Bağlantısı</span>
                            </div>
                            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#10b981]" />
                         </div>
                         {isOwnProfile && (
                            <button 
                               onClick={disconnectDiscord}
-                              className="w-full py-2 bg-zinc-950/50 hover:bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl border border-purple-900/5 hover:border-red-500/20 transition-all"
+                              className="w-full py-2 bg-zinc-950/50 hover:bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl border border-white/5 hover:border-red-500/20 transition-all"
                            >
                               BAĞLANTIYI KES
                            </button>
@@ -857,9 +857,9 @@ export default function ProfileShowcase() {
                      <div className="space-y-4">
                         {verifCode && timeLeft > 0 ? (
                            <div className="p-5 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 space-y-4 text-center animate-in zoom-in-95 duration-300">
-                              <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Senkronizasyon Kodu</p>
+                              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Senkronizasyon Kodu</p>
                               <div className="py-3 bg-zinc-950 rounded-xl border border-indigo-500/30">
-                                 <span className="text-2xl font-black text-slate-900 tracking-[0.2em] font-mono select-all leading-none">{verifCode}</span>
+                                 <span className="text-2xl font-black text-white tracking-[0.2em] font-mono select-all leading-none">{verifCode}</span>
                               </div>
                               <div className="flex items-center justify-center gap-2">
                                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -876,7 +876,7 @@ export default function ProfileShowcase() {
                            <button 
                               onClick={generateDiscordCode}
                               disabled={isGenerating}
-                              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-slate-900 text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
+                              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
                            >
                               <Shield size={14} />
                               {isGenerating ? 'YÜKLENİYOR...' : 'DİSCORD HESABINI BAĞLA'}
@@ -884,66 +884,66 @@ export default function ProfileShowcase() {
                         )}
                      </div>
                   ) : (
-                     <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-800/20 border border-purple-900/5 opacity-50">
+                     <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-800/20 border border-white/5 opacity-50">
                         <div className="flex items-center gap-3">
-                           <div className="p-2 rounded-lg bg-zinc-800 text-slate-600">
+                           <div className="p-2 rounded-lg bg-zinc-800 text-zinc-400">
                               <MessageSquare size={14} />
                            </div>
-                           <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Bağlantı Yok</span>
+                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Bağlantı Yok</span>
                         </div>
                      </div>
                   )}
                </div>
 
-               <p className="text-slate-600 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic">
+               <p className="text-zinc-400 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic">
                  "{displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}"
                </p>
 
                <div className="w-full space-y-3">
                   {isOwnProfile ? (
                     <>
-                      <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-slate-900 text-[10px] font-black uppercase tracking-widest transition-all">PROFİLİ DÜZENLE</button>
-                      <button onClick={() => navigate('/elite-upgrade')} className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                      <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-[10px] font-black uppercase tracking-widest transition-all">PROFİLİ DÜZENLE</button>
+                      <button onClick={() => navigate('/elite-upgrade')} className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                         <Crown size={14} /> PREMIUM
                       </button>
                     </>
                   ) : (
                     <div className="flex gap-2">
-                      <button onClick={handleFollow} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isFollowing ? 'bg-zinc-800 text-slate-600' : 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'}`}>
+                      <button onClick={handleFollow} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isFollowing ? 'bg-zinc-800 text-zinc-400' : 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'}`}>
                         {isFollowing ? 'TAKİPTEN ÇIK' : 'TAKİP ET'}
                       </button>
-                      <button aria-label="Mesaj gönder" onClick={handleStartChat} className="p-4 rounded-2xl bg-zinc-800 text-slate-600 hover:text-slate-900 transition-all"><MessageSquare size={16} /></button>
+                      <button aria-label="Mesaj gönder" onClick={handleStartChat} className="p-4 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-white transition-all"><MessageSquare size={16} /></button>
                     </div>
                   )}
                </div>
 
-               <div className="w-full mt-10 pt-8 border-t border-purple-900/5 space-y-8">
+               <div className="w-full mt-10 pt-8 border-t border-white/5 space-y-8">
                   <div className="space-y-4">
-                     <div className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]">BAĞLANTILAR</div>
+                     <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">BAĞLANTILAR</div>
                      <div className="space-y-2">
                         {userLinks.map((link, idx) => (
-                           <a key={idx} href={getPlatformUrl(link)} target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-black/20 border border-purple-900/5 hover:border-blue-500/30 transition-all group">
+                           <a key={idx} href={getPlatformUrl(link)} target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-black/20 border border-white/5 hover:border-blue-500/30 transition-all group">
                               <div className="flex items-center gap-3">
                                  {getSocialIcon(link.platform)}
-                                 <span className="text-[10px] font-black text-slate-700 uppercase">{link.platform}</span>
+                                 <span className="text-[10px] font-black text-zinc-300 uppercase">{link.platform}</span>
                               </div>
-                              <ChevronRight size={12} className="text-slate-600 group-hover:text-blue-400 transition-colors" />
+                              <ChevronRight size={12} className="text-zinc-400 group-hover:text-blue-400 transition-colors" />
                            </a>
                         ))}
                         {isOwnProfile && userLinks.length === 0 && (
-                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-purple-900/10 text-[9px] font-black text-slate-600 hover:text-slate-900 transition-all uppercase">HESAP EKLE</button>
+                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-white/10 text-[9px] font-black text-zinc-400 hover:text-white transition-all uppercase">HESAP EKLE</button>
                         )}
                      </div>
                   </div>
 
                   <div className="space-y-4">
                      <div className="flex justify-between items-center">
-                        <div className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]">BAŞARIMLAR</div>
-                        <div className="text-[9px] font-black text-slate-600">{userAchievements.length}/100</div>
+                        <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">BAŞARIMLAR</div>
+                        <div className="text-[9px] font-black text-zinc-400">{userAchievements.length}/100</div>
                      </div>
                      <div className="flex flex-wrap gap-2">
                         {userAchievements.slice(0, 5).map((ua, i) => (
-                           <div key={i} className="w-8 h-8 rounded-lg bg-zinc-800 border border-purple-900/5 flex items-center justify-center text-amber-500" title={ua.achievements?.name}>
+                           <div key={i} className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/5 flex items-center justify-center text-amber-500" title={ua.achievements?.name}>
                               <Award size={14} />
                            </div>
                         ))}
@@ -956,7 +956,7 @@ export default function ProfileShowcase() {
           {/* ── MAIN CONTENT AREA ── */}
           <main className="flex-1 min-w-0 space-y-10">
             
-            <div className="relative rounded-[3rem] overflow-hidden bg-[#F8F5FF] border border-purple-900/5 shadow-[0_0_80px_rgba(0,0,0,0.5)] group">
+            <div className="relative rounded-[3rem] overflow-hidden bg-[#070511] border border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.5)] group">
                <div className="absolute inset-0 z-0">
                   <img 
                     src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800&auto=format&fit=crop" 
@@ -968,8 +968,8 @@ export default function ProfileShowcase() {
                     decoding="async"
                     className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[10s]" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#F8F5FF] via-[#F8F5FF]/40 to-transparent z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#F8F5FF] via-transparent to-transparent z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/40 to-transparent z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-transparent to-transparent z-10" />
                   
                     <div className="absolute inset-0 z-20 opacity-30 mix-blend-screen pointer-events-none" style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}>
                       <img 
@@ -983,7 +983,7 @@ export default function ProfileShowcase() {
                
                <div className="relative z-30 p-10 lg:p-14 flex flex-col min-h-[450px] justify-between">
                   <div>
-                    <h2 className="text-5xl md:text-7xl font-black text-slate-900 uppercase tracking-tighter drop-shadow-2xl">PROFIL</h2>
+                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">PROFIL</h2>
                         <div className="flex items-center gap-4 mt-4">
                            <div className={`px-4 py-2 rounded-xl border backdrop-blur-md ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-blue-500/20 border-blue-500/30'}`}>
                               <span className={`text-xs font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 'text-blue-400'}`}>
@@ -991,8 +991,8 @@ export default function ProfileShowcase() {
                                  {displayUser.rank}
                               </span>
                            </div>
-                           <div className="h-4 w-px bg-slate-900/10" />
-                           <div className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em]">Üye Özeti</div>
+                           <div className="h-4 w-px bg-white/10" />
+                           <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Üye Özeti</div>
                         </div>
                   </div>
 
@@ -1006,16 +1006,16 @@ export default function ProfileShowcase() {
                         <div key={i} className="space-y-1">
                            <div className="flex items-center gap-2">
                              <stat.icon size={16} className={stat.color} />
-                             <span className="text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</span>
+                             <span className="text-3xl font-black text-white tracking-tighter">{stat.value}</span>
                            </div>
-                           <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{stat.label}</div>
+                           <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{stat.label}</div>
                         </div>
                      ))}
                   </div>
                </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 rounded-3xl bg-zinc-950 border border-purple-900/5 shadow-2xl overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-2 p-2 rounded-3xl bg-zinc-950 border border-white/5 shadow-2xl overflow-x-auto no-scrollbar">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -1023,7 +1023,7 @@ export default function ProfileShowcase() {
                   className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                     activeTab === tab.id 
                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
-                      : 'text-slate-600 hover:text-slate-700 hover:bg-slate-900/5'
+                      : 'text-zinc-400 hover:text-zinc-300 hover:bg-white/5'
                   }`}
                 >
                   <tab.icon size={16} />
@@ -1044,7 +1044,7 @@ export default function ProfileShowcase() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                        <div className="lg:col-span-7 space-y-8">
                           <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                            <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
                               <History size={16} className="text-blue-500" /> SON OKUNANLAR
                             </h3>
                           </div>
@@ -1054,35 +1054,35 @@ export default function ProfileShowcase() {
                                <Link 
                                  key={i} 
                                  to={`/manhwa/${h.series_id}`}
-                                 className="group flex gap-6 p-6 rounded-[2rem] glass-strong bg-white/40 border border-purple-900/5 hover:border-blue-500/30 transition-all"
+                                 className="group flex gap-6 p-6 rounded-[2rem] glass-strong bg-card-navy/40 border border-white/5 hover:border-blue-500/30 transition-all"
                                >
-                                  <div className="w-24 h-32 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-purple-900/5">
+                                  <div className="w-24 h-32 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-white/5">
                                      <img src={getOptimizedImage(h.series?.cover, 150)} alt={h.series?.title || 'Okunan Seri'} width={96} height={128} loading={i < 4 ? 'eager' : 'lazy'} fetchpriority={i < 4 ? 'high' : 'auto'} decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                   </div>
                                   <div className="flex-1 flex flex-col justify-center py-1">
-                                     <h4 className="text-xl font-black text-slate-900 uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{h.series?.title}</h4>
-                                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Bölüm {h.last_read_chapter}</p>
+                                     <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{h.series?.title}</h4>
+                                     <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-6">Bölüm {h.last_read_chapter}</p>
                                      
                                      <div className="flex items-center justify-between">
                                         <div className="flex -space-x-2">
-                                           {[1,2,3].map(p => <div key={p} className="w-6 h-6 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center"><User size={10} className="text-slate-600" /></div>)}
+                                           {[1,2,3].map(p => <div key={p} className="w-6 h-6 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center"><User size={10} className="text-zinc-400" /></div>)}
                                         </div>
                                         <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">DEVAM ET</span>
                                      </div>
                                   </div>
                                </Link>
                              )) : (
-                               <div className="py-20 text-center glass rounded-[2rem] border border-dashed border-purple-900/5">
-                                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
+                               <div className="py-20 text-center glass rounded-[2rem] border border-dashed border-white/5">
+                                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
                                </div>
                              )}
                           </div>
                        </div>
 
                        <div className="lg:col-span-5 space-y-8">
-                          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-indigo-600/20 to-blue-600/20 border border-purple-900/5 shadow-2xl relative overflow-hidden">
+                          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-indigo-600/20 to-blue-600/20 border border-white/5 shadow-2xl relative overflow-hidden">
                              <div className="absolute top-0 right-0 p-4 opacity-10"><Zap size={100} /></div>
-                             <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-8">VERİ ANALİZİ</h3>
+                             <h3 className="text-sm font-black text-white uppercase tracking-widest mb-8">VERİ ANALİZİ</h3>
                              <div className="space-y-6">
                                 {[
                                    { label: 'HAFTALIK OKUMA', value: '42 Bölüm', progress: 75, color: 'bg-blue-500' },
@@ -1090,9 +1090,9 @@ export default function ProfileShowcase() {
                                    { label: 'XP', value: '8,420', progress: 60, color: 'bg-emerald-500' },
                                 ].map((item, i) => (
                                    <div key={i} className="space-y-2">
-                                      <div className="flex justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                                      <div className="flex justify-between text-[10px] font-black text-zinc-400 uppercase tracking-widest">
                                          <span>{item.label}</span>
-                                         <span className="text-slate-900">{item.value}</span>
+                                         <span className="text-white">{item.value}</span>
                                       </div>
                                       <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden p-[1px]">
                                          <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.progress}%` }} />
@@ -1102,21 +1102,21 @@ export default function ProfileShowcase() {
                              </div>
                           </div>
 
-                          <div className="p-8 rounded-[2.5rem] bg-zinc-950 border border-purple-900/5 space-y-6">
+                          <div className="p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 space-y-6">
                              <div className="flex justify-between items-center">
-                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">KOLEKSİYONLARIM</h3>
-                                <button onClick={() => setActiveTab('listeler')} className="text-[9px] font-black text-slate-600 hover:text-slate-900 uppercase">Tümü</button>
+                                <h3 className="text-sm font-black text-white uppercase tracking-widest">KOLEKSİYONLARIM</h3>
+                                <button onClick={() => setActiveTab('listeler')} className="text-[9px] font-black text-zinc-400 hover:text-white uppercase">Tümü</button>
                              </div>
                              <div className="space-y-4">
                                 {customLists.slice(0, 3).map((list, i) => (
-                                   <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/5 border border-purple-900/5 hover:bg-slate-900/10 transition-all cursor-pointer group">
+                                   <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group">
                                       <div className="flex items-center gap-4">
-                                         <div className="w-10 h-10 rounded-xl bg-white border border-purple-900/5 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-slate-900 transition-all">
+                                         <div className="w-10 h-10 rounded-xl bg-card-navy border border-white/5 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                                             <BookOpen size={16} />
                                          </div>
-                                         <span className="text-[11px] font-black text-slate-900 uppercase truncate">{list.name}</span>
+                                         <span className="text-[11px] font-black text-white uppercase truncate">{list.name}</span>
                                       </div>
-                                      <ChevronRight size={14} className="text-slate-600 group-hover:text-slate-900" />
+                                      <ChevronRight size={14} className="text-zinc-400 group-hover:text-white" />
                                    </div>
                                 ))}
                              </div>
@@ -1129,30 +1129,30 @@ export default function ProfileShowcase() {
                     <div className="space-y-10">
                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                           {malLoading ? (
-                            Array.from({ length: 10 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-[2rem] bg-white animate-pulse" />)
+                            Array.from({ length: 10 }).map((_, i) => <div key={i} className="aspect-[2/3] rounded-[2rem] bg-card-navy animate-pulse" />)
                           ) : malList.length > 0 ? (
                             malList.map((item, idx) => (
-                              <div key={idx} className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-purple-900/5 hover:border-blue-500/40 transition-all shadow-2xl">
+                              <div key={idx} className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 hover:border-blue-500/40 transition-all shadow-2xl">
                                  <div className="aspect-[2/3] relative">
                                     <img src={getOptimizedImage(item.node?.main_picture?.medium, 300)} alt={item.node?.title || 'Anime Cover'} width={200} height={300} loading={idx < 4 ? 'eager' : 'lazy'} fetchpriority={idx < 4 ? 'high' : 'auto'} decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                                    <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-purple-900/10 text-[10px] font-black text-blue-400">
+                                    <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-white/10 text-[10px] font-black text-blue-400">
                                        {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
                                     </div>
                                  </div>
                                  <div className="p-4 space-y-2">
-                                    <h4 className="text-[11px] font-black text-slate-900 uppercase truncate tracking-tighter">{item.node?.title}</h4>
+                                    <h4 className="text-[11px] font-black text-white uppercase truncate tracking-tighter">{item.node?.title}</h4>
                                     <div className="flex items-center justify-between">
-                                       <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
+                                       <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
                                        <span className="text-[8px] font-black text-blue-500 uppercase">{item.list_status?.num_episodes_watched || item.list_status?.num_chapters_read} / {item.node?.num_episodes || item.node?.num_chapters || '?'}</span>
                                     </div>
                                  </div>
                               </div>
                             ))
                           ) : (
-                            <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-purple-900/5">
+                            <div className="col-span-full py-24 text-center bg-zinc-950/50 rounded-[3rem] border border-dashed border-white/5">
                                <Tv size={64} className="text-zinc-800 mx-auto opacity-10 mb-4" />
-                               <p className="text-slate-900 font-black uppercase text-xs tracking-[0.2em]">Listeye erişilemedi</p>
+                               <p className="text-white font-black uppercase text-xs tracking-[0.2em]">Listeye erişilemedi</p>
                             </div>
                           )}
                        </div>
@@ -1165,22 +1165,22 @@ export default function ProfileShowcase() {
                          <div 
                            key={i} 
                            onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
-                           className="group glass-strong border border-purple-900/5 rounded-[3rem] p-10 bg-zinc-950 hover:border-indigo-500/40 transition-all cursor-pointer relative overflow-hidden shadow-2xl"
+                           className="group glass-strong border border-white/5 rounded-[3rem] p-10 bg-zinc-950 hover:border-indigo-500/40 transition-all cursor-pointer relative overflow-hidden shadow-2xl"
                          >
                             <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
                             <div className="flex justify-between items-start mb-10 relative z-10">
                                <div>
-                                  <h4 className="text-3xl font-black text-slate-900 uppercase tracking-tighter group-hover:text-indigo-400 transition-colors leading-none">{list.name}</h4>
-                                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ</p>
+                                  <h4 className="text-3xl font-black text-white uppercase tracking-tighter group-hover:text-indigo-400 transition-colors leading-none">{list.name}</h4>
+                                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ</p>
                                </div>
-                               <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-slate-900 transition-all">
+                               <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                                   <ArrowRight size={20} />
                                </div>
                             </div>
                             <div className="flex -space-x-6 relative z-10">
                                {list.custom_list_items?.slice(0, 4).map((item, idx) => {
                                  const s = series?.find(ser => String(ser.id) === String(item.series_id));
-                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-white shadow-2xl"><img src={getOptimizedImage(s?.cover || '/placeholder.png', 150)} alt={s?.title || "Seri kapak"} width={80} height={128} loading={idx < 4 ? 'eager' : 'lazy'} decoding="async" className="w-full h-full object-cover" /></div>;
+                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-card-navy shadow-2xl"><img src={getOptimizedImage(s?.cover || '/placeholder.png', 150)} alt={s?.title || "Seri kapak"} width={80} height={128} loading={idx < 4 ? 'eager' : 'lazy'} decoding="async" className="w-full h-full object-cover" /></div>;
                                })}
                             </div>
                          </div>
@@ -1191,13 +1191,13 @@ export default function ProfileShowcase() {
                   {activeTab === 'basarimlar' && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                        {userAchievements.map((ua, i) => (
-                          <div key={i} className="group relative p-8 rounded-[2.5rem] bg-zinc-950 border border-purple-900/5 hover:border-amber-500/40 transition-all text-center shadow-2xl overflow-hidden">
+                          <div key={i} className="group relative p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 hover:border-amber-500/40 transition-all text-center shadow-2xl overflow-hidden">
                              <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                              <div className="w-16 h-16 mx-auto rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-zinc-950 shadow-xl mb-4 group-hover:rotate-12 transition-transform">
                                 <Award size={32} />
                              </div>
-                             <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
-                             <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')} {/* Build Fix Marker */}</p>
+                             <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
+                             <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')} {/* Build Fix Marker */}</p>
                           </div>
                        ))}
                     </div>
@@ -1206,12 +1206,12 @@ export default function ProfileShowcase() {
                   {activeTab === 'customize' && (
                     <div className="space-y-12">
                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                         <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-purple-900/5 shadow-inner">
+                         <div className="flex flex-wrap gap-3 p-2 rounded-[2rem] bg-zinc-950 border border-white/5 shadow-inner">
                             {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler', 'İsim Efektleri'].map((f) => (
                               <button 
                                 key={f} 
                                 onClick={() => setDecorationCategory(f)}
-                                className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-slate-900 shadow-lg shadow-indigo-600/30' : 'text-slate-600 hover:text-slate-900'}`}
+                                className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-400 hover:text-white'}`}
                               >
                                  {f}
                               </button>
@@ -1219,12 +1219,12 @@ export default function ProfileShowcase() {
                          </div>
 
                          {/* Color Picker (Hue) */}
-                         <div className="flex items-center gap-4 bg-zinc-950 border border-purple-900/5 p-4 rounded-[2rem] min-w-[250px]">
+                         <div className="flex items-center gap-4 bg-zinc-950 border border-white/5 p-4 rounded-[2rem] min-w-[250px]">
                            <Paintbrush size={16} className="text-blue-400 shrink-0" />
                            <div className="flex-1 space-y-1">
                              <div className="flex justify-between items-center">
-                               <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">RENK TONU</span>
-                               <span className="text-[10px] font-black text-slate-900">{mixState.hue || 0}°</span>
+                               <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">RENK TONU</span>
+                               <span className="text-[10px] font-black text-white">{mixState.hue || 0}°</span>
                              </div>
                              <input 
                                type="range" 
@@ -1262,9 +1262,9 @@ export default function ProfileShowcase() {
                                  setMixState(newMix);
                                  updateProfile({ active_mix: newMix });
                                }} 
-                               className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${isActive ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-purple-900/5 hover:border-purple-900/20'}`}
+                               className={`group relative p-6 rounded-[2.5rem] bg-zinc-950 border transition-all cursor-pointer ${isActive ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-white/5 hover:border-white/20'}`}
                              >
-                                <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-white/80 border border-purple-900/5 mb-4 p-2`}>
+                                <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-2xl bg-card-navy/80 border border-white/5 mb-4 p-2`}>
                                   {isNameplate ? (
                                     <video src={`/nameplates/${effect.id}`} className="w-full h-full object-contain drop-shadow-xl" muted loop autoPlay playsInline />
                                   ) : isNameEffect ? (
@@ -1289,13 +1289,13 @@ export default function ProfileShowcase() {
                                 </div>
                                 
                                 <div className="text-center">
-                                   <div className="text-[10px] font-black text-slate-900 uppercase tracking-tight truncate mb-1">{effect.label}</div>
-                                   <div className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
+                                   <div className="text-[10px] font-black text-white uppercase tracking-tight truncate mb-1">{effect.label}</div>
+                                   <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
                                 </div>
                                 
                                 {isActive && (
                                   <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center shadow-lg">
-                                    <Check size={14} className="text-slate-900" />
+                                    <Check size={14} className="text-white" />
                                   </div>
                                 )}
                              </div>
@@ -1315,16 +1315,16 @@ export default function ProfileShowcase() {
              initial={{ opacity: 0, y: 50, scale: 0.9 }}
              animate={{ opacity: 1, y: 0, scale: 1 }}
              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 bg-indigo-600 text-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(79,70,229,0.4)] flex items-center gap-4 border border-purple-900/20"
+             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 bg-indigo-600 text-white rounded-[2rem] shadow-[0_20px_50px_rgba(79,70,229,0.4)] flex items-center gap-4 border border-white/20"
            >
-              <div className="w-10 h-10 rounded-full bg-slate-900/10 flex items-center justify-center text-slate-900">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white">
                  <Sparkles size={20} />
               </div>
               <div>
                 <div className="text-[10px] font-black uppercase tracking-widest">Sistem Bildirimi</div>
-                <div className="text-xs font-bold text-slate-900/90">{toast}</div>
+                <div className="text-xs font-bold text-white/90">{toast}</div>
               </div>
-              <button aria-label="Bildirimi kapat" onClick={() => setToast(null)} className="ml-4 p-2 rounded-full hover:bg-slate-900/10 transition-all">
+              <button aria-label="Bildirimi kapat" onClick={() => setToast(null)} className="ml-4 p-2 rounded-full hover:bg-white/10 transition-all">
                 <X size={16} />
               </button>
            </motion.div>
@@ -1362,37 +1362,37 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={onClose} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
       <motion.div 
         initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-xl bg-zinc-950 border border-purple-900/5 rounded-[3rem] shadow-2xl overflow-hidden p-10"
+        className="relative w-full max-w-xl bg-zinc-950 border border-white/5 rounded-[3rem] shadow-2xl overflow-hidden p-10"
       >
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">SOSYAL MEDYA</h3>
-            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Hesaplarını bağla</p>
+            <h3 className="text-2xl font-black text-white uppercase tracking-tight">SOSYAL MEDYA</h3>
+            <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Hesaplarını bağla</p>
           </div>
-          <button aria-label="Bağlantı penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-white text-slate-600 hover:text-slate-900 transition-all border border-purple-900/5"><X size={24} /></button>
+          <button aria-label="Bağlantı penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-card-navy text-zinc-400 hover:text-white transition-all border border-white/5"><X size={24} /></button>
         </div>
 
         <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-2 mb-10">
           {links.map((link, idx) => (
-            <div key={idx} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center group p-4 rounded-[2rem] bg-slate-900/50 border border-purple-900/5">
+            <div key={idx} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center group p-4 rounded-[2rem] bg-card-navy/50 border border-white/5">
               <div className="relative w-full sm:w-44 shrink-0">
-                <select value={link.platform} onChange={(e) => updateRow(idx, 'platform', e.target.value)} className="w-full bg-zinc-950 border border-purple-900/10 rounded-2xl py-4 px-6 text-xs font-black text-slate-700 appearance-none focus:border-purple-500 transition-all cursor-pointer">
+                <select value={link.platform} onChange={(e) => updateRow(idx, 'platform', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-black text-zinc-300 appearance-none focus:border-purple-500 transition-all cursor-pointer">
                   <option value="">Platform Seç</option>
                   {platforms.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                 </select>
               </div>
               <div className="relative flex-1 w-full">
-                <input type="text" placeholder={link.type === 'username' ? "Kullanıcı Adı" : "URL Adresi"} value={link.value} onChange={(e) => updateRow(idx, 'value', e.target.value)} className="w-full bg-zinc-950 border border-purple-900/10 rounded-2xl py-4 px-6 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all outline-none" />
+                <input type="text" placeholder={link.type === 'username' ? "Kullanıcı Adı" : "URL Adresi"} value={link.value} onChange={(e) => updateRow(idx, 'value', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all outline-none" />
               </div>
-              <button aria-label="Bağlantıyı sil" onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-slate-900 transition-all shadow-lg"><Minus size={20} /></button>
+              <button aria-label="Bağlantıyı sil" onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
             </div>
           ))}
-          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-white border border-dashed border-purple-900/10 text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
+          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-card-navy border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
         </div>
 
         <div className="flex gap-4">
-          <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-white text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">İPTAL</button>
-          <button onClick={() => { onSave(links.filter(l => l.platform && l.value)); onClose(); }} className="flex-[2] py-5 rounded-[2.5rem] bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 text-[10px] font-black uppercase tracking-widest shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">KAYDET <Sparkles size={18} /></button>
+          <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-card-navy text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">İPTAL</button>
+          <button onClick={() => { onSave(links.filter(l => l.platform && l.value)); onClose(); }} className="flex-[2] py-5 rounded-[2.5rem] bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">KAYDET <Sparkles size={18} /></button>
         </div>
       </motion.div>
     </div>
@@ -1407,7 +1407,7 @@ function NameplateItem({ filename, isActive, onSelect }) {
       whileTap={{ scale: 0.95 }}
       onClick={onSelect}
       className={`relative aspect-[3/1] rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
-        isActive ? 'border-purple-500 shadow-lg shadow-purple-500/30' : 'border-purple-900/5 bg-slate-900/50'
+        isActive ? 'border-purple-500 shadow-lg shadow-purple-500/30' : 'border-white/5 bg-card-navy/50'
       }`}
     >
       {isVideo ? (
@@ -1424,7 +1424,7 @@ function NameplateItem({ filename, isActive, onSelect }) {
       )}
       {isActive && (
         <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
-          <Check size={12} className="text-slate-900" />
+          <Check size={12} className="text-white" />
         </div>
       )}
     </motion.div>
@@ -1446,23 +1446,23 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={onClose} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        className="relative w-full max-w-4xl bg-zinc-950 border border-purple-900/5 rounded-[3rem] overflow-hidden flex flex-col h-[80vh]"
+        className="relative w-full max-w-4xl bg-zinc-950 border border-white/5 rounded-[3rem] overflow-hidden flex flex-col h-[80vh]"
       >
-        <div className="p-10 border-b border-purple-900/5 flex items-center justify-between">
+        <div className="p-10 border-b border-white/5 flex items-center justify-between">
            <div>
-              <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">GÖRÜNÜM</h3>
-              <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini düzenle</p>
+              <h3 className="text-2xl font-black text-white uppercase tracking-tight">GÖRÜNÜM</h3>
+              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini düzenle</p>
            </div>
-           <button aria-label="Profil düzenleme penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-white text-slate-600 hover:text-slate-900 transition-all"><X size={24} /></button>
+           <button aria-label="Profil düzenleme penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-card-navy text-zinc-400 hover:text-white transition-all"><X size={24} /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
            <div className="space-y-6">
-              <h4 className="text-xs font-black text-slate-600 uppercase tracking-widest">PROFIL EFEKTI</h4>
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">PROFIL EFEKTI</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, profile_effect: 'none' }))}
-                   className={`p-4 rounded-2xl border transition-all ${mixState.profile_effect === 'none' ? 'bg-purple-600 border-transparent text-slate-900' : 'bg-white border-purple-900/5 text-slate-600'}`}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.profile_effect === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                  >
                     HİÇ BİRİ
                  </button>
@@ -1470,7 +1470,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
                    <button 
                      key={eff.id}
                      onClick={() => setMixState(prev => ({ ...prev, profile_effect: eff.id }))}
-                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.profile_effect === eff.id ? 'bg-purple-600 border-transparent text-slate-900' : 'bg-white border-purple-900/5 text-slate-600'}`}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.profile_effect === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                    >
                       {eff.label}
                    </button>
@@ -1479,11 +1479,11 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
            </div>
 
            <div className="space-y-6">
-              <h4 className="text-xs font-black text-slate-600 uppercase tracking-widest">AVATAR ÇERÇEVESİ</h4>
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">AVATAR ÇERÇEVESİ</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, avatar: 'none' }))}
-                   className={`p-4 rounded-2xl border transition-all ${mixState.avatar === 'none' ? 'bg-purple-600 border-transparent text-slate-900' : 'bg-white border-purple-900/5 text-slate-600'}`}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.avatar === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                  >
                     HİÇ BİRİ
                  </button>
@@ -1491,7 +1491,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
                    <button 
                      key={eff.id}
                      onClick={() => setMixState(prev => ({ ...prev, avatar: eff.id }))}
-                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.avatar === eff.id ? 'bg-purple-600 border-transparent text-slate-900' : 'bg-white border-purple-900/5 text-slate-600'}`}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.avatar === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                    >
                       {eff.label}
                    </button>
@@ -1500,11 +1500,11 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
            </div>
 
            <div className="space-y-6">
-              <h4 className="text-xs font-black text-slate-600 uppercase tracking-widest">İSİM EFEKTİ</h4>
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">İSİM EFEKTİ</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, nametag: 'none' }))}
-                   className={`p-4 rounded-2xl border transition-all ${mixState.nametag === 'none' ? 'bg-purple-600 border-transparent text-slate-900' : 'bg-white border-purple-900/5 text-slate-600'}`}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.nametag === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                  >
                     HİÇ BİRİ
                  </button>
@@ -1512,7 +1512,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
                    <button 
                      key={eff.id}
                      onClick={() => setMixState(prev => ({ ...prev, nametag: eff.id }))}
-                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.nametag === eff.id ? 'bg-purple-600 border-transparent text-slate-900' : 'bg-white border-purple-900/5 text-slate-600'}`}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.nametag === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                    >
                       {eff.label}
                    </button>
@@ -1521,11 +1521,11 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
            </div>
         </div>
 
-        <div className="p-10 bg-slate-900/50 border-t border-purple-900/5 flex gap-4">
-           <button onClick={onClose} className="flex-1 py-5 rounded-2xl bg-zinc-800 text-slate-600 text-xs font-black uppercase">İPTAL</button>
+        <div className="p-10 bg-card-navy/50 border-t border-white/5 flex gap-4">
+           <button onClick={onClose} className="flex-1 py-5 rounded-2xl bg-zinc-800 text-zinc-400 text-xs font-black uppercase">İPTAL</button>
            <button 
              onClick={() => { onSave(mixState); onClose(); }}
-             className="flex-[2] py-5 rounded-2xl bg-purple-600 text-slate-900 text-xs font-black uppercase shadow-xl shadow-purple-600/30"
+             className="flex-[2] py-5 rounded-2xl bg-purple-600 text-white text-xs font-black uppercase shadow-xl shadow-purple-600/30"
            >
               AYARLARI KAYDET
            </button>

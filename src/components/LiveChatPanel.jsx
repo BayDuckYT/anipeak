@@ -52,17 +52,17 @@ export default function LiveChatPanel({ isOpen, onClose }) {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: '100%', opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed top-0 right-0 h-full w-80 sm:w-96 glass-strong border-l border-purple-900/10 shadow-2xl z-[1000] flex flex-col"
+          className="fixed top-0 right-0 h-full w-80 sm:w-96 glass-strong border-l border-white/10 shadow-2xl z-[1000] flex flex-col"
         >
           {/* Header */}
-          <div className="p-4 border-b border-purple-900/10 flex items-center justify-between bg-black/40">
+          <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/40">
             <div className="flex items-center gap-2">
               <MessageSquare size={18} className="text-purple-400" />
-              <h3 className="text-slate-900 font-black tracking-tighter">GLOBAL SOHBET</h3>
+              <h3 className="text-white font-black tracking-tighter">GLOBAL SOHBET</h3>
             </div>
             <button 
               onClick={onClose}
-              className="p-2 rounded-lg bg-slate-900/5 text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition-colors"
+              className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
             >
               <X size={18} />
             </button>
@@ -82,7 +82,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className={`flex gap-3 mb-6 p-4 rounded-3xl relative group overflow-hidden transition-all duration-300 ${isMe ? 'flex-row-reverse' : ''} ${
-                    nameplateId !== 'none' ? 'border border-purple-900/10 shadow-2xl' : 'bg-white/[0.02]'
+                    nameplateId !== 'none' ? 'border border-white/10 shadow-2xl' : 'bg-white/[0.02]'
                   }`}
                 >
                   {/* Full-Card Nameplate Background */}
@@ -108,7 +108,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                       forcePlay={true}
                     />
                     {!msg.avatar_url && avatarId === 'none' && (
-                      <span className="absolute inset-0 flex items-center justify-center z-20 text-[12px] font-black text-slate-900 pointer-events-none">{msg.user?.charAt(0).toUpperCase()}</span>
+                      <span className="absolute inset-0 flex items-center justify-center z-20 text-[12px] font-black text-white pointer-events-none">{msg.user?.charAt(0).toUpperCase()}</span>
                     )}
                   </div>
                   
@@ -116,7 +116,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                     <div className={`flex items-center gap-2 mb-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                       <span 
                         className={`text-[11px] font-black uppercase tracking-tighter drop-shadow-[0_2px_8px_rgba(0,0,0,1)] ${
-                          msg.isElite ? 'rank-glow-gold text-amber-100' : 'text-slate-700'
+                          msg.isElite ? 'rank-glow-gold text-amber-100' : 'text-slate-300'
                         } ${msg.active_mix?.nametag && msg.active_mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
                         style={msg.active_mix?.nametag && msg.active_mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === msg.active_mix.nametag)?.url})`, filter: `hue-rotate(${msg.active_mix.hue || 0}deg)` } : {}}
                       >
@@ -128,8 +128,8 @@ export default function LiveChatPanel({ isOpen, onClose }) {
 
                     <div className={`px-4 py-2.5 rounded-2xl text-[13px] leading-relaxed font-medium transition-all ${
                       isMe 
-                        ? 'bg-purple-600/20 text-slate-900 border border-purple-500/20 shadow-neon-purple/20' 
-                        : 'bg-slate-900/5 border border-purple-900/5 text-slate-200 shadow-xl'
+                        ? 'bg-purple-600/20 text-white border border-purple-500/20 shadow-neon-purple/20' 
+                        : 'bg-white/5 border border-white/5 text-slate-200 shadow-xl'
                     }`}>
                       {msg.text}
                     </div>
@@ -141,7 +141,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-purple-900/10 bg-black/40">
+          <div className="p-4 border-t border-white/10 bg-black/40">
             {!user ? (
               <div className="text-center p-3 rounded-xl border border-red-500/30 bg-red-500/10">
                 <p className="text-xs text-red-400 font-bold mb-2">Sohbete katılmak için giriş yap</p>
@@ -155,14 +155,14 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder={user.is_elite ? "Elite olarak yaz..." : "Mesajını yaz..."}
-                  className={`w-full bg-black/50 border rounded-xl pl-4 pr-12 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-colors ${
-                    user.is_elite ? 'border-red-500/30 focus:border-red-500' : 'border-purple-900/10 focus:border-purple-500'
+                  className={`w-full bg-black/50 border rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-slate-400 focus:outline-none transition-colors ${
+                    user.is_elite ? 'border-red-500/30 focus:border-red-500' : 'border-white/10 focus:border-purple-500'
                   }`}
                 />
                 <button
                   type="submit"
                   disabled={!inputText.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-900 hover:bg-slate-900/10 disabled:opacity-30 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-white hover:bg-white/10 disabled:opacity-30 transition-colors"
                 >
                   <Send size={16} className={user.is_elite ? 'text-red-400' : 'text-purple-400'} />
                 </button>

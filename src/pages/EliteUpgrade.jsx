@@ -122,21 +122,21 @@ export default function EliteUpgrade() {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 font-bold text-[10px] md:text-xs uppercase tracking-widest backdrop-blur-md">
                <Crown size={14} /> ANIPEAK PREMIUM
             </div>
-            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 leading-[1.1] md:leading-[1.0] tracking-tighter">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-white leading-[1.1] md:leading-[1.0] tracking-tighter">
               SINIRSIZ OKU. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-500 animate-gradient-x">EFSANE OL.</span>
             </h1>
-            <p className="text-base md:text-xl text-slate-600 max-w-xl font-medium leading-relaxed px-4 md:px-0">
+            <p className="text-base md:text-xl text-slate-400 max-w-xl font-medium leading-relaxed px-4 md:px-0">
               Reklamsız okuma, özel içerikler, eşsiz avantajlar ve benzersiz özelleştirme seçenekleri seni bekliyor.
             </p>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-lg mx-auto md:mx-0">
               {heroIcons.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2 md:gap-3 group">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-slate-900/5 border border-purple-900/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform flex-shrink-0">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform flex-shrink-0">
                     {item.icon}
                   </div>
-                  <span className="text-[10px] md:text-[12px] font-black text-slate-700 uppercase tracking-tight leading-tight text-left">{item.label}</span>
+                  <span className="text-[10px] md:text-[12px] font-black text-slate-300 uppercase tracking-tight leading-tight text-left">{item.label}</span>
                 </div>
               ))}
             </div>
@@ -144,11 +144,11 @@ export default function EliteUpgrade() {
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 justify-center md:justify-start">
               <button 
                 onClick={() => document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-slate-900 font-black uppercase tracking-widest shadow-[0_0_30px_rgba(147,51,234,0.3)] hover:scale-105 transition-all flex items-center justify-center gap-3 text-xs md:text-sm"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase tracking-widest shadow-[0_0_30px_rgba(147,51,234,0.3)] hover:scale-105 transition-all flex items-center justify-center gap-3 text-xs md:text-sm"
               >
                 <Crown size={20} /> Premium'a Geç
               </button>
-              <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900/5 border border-purple-900/10 text-slate-900 font-black uppercase tracking-widest hover:bg-slate-900/10 transition-all backdrop-blur-md text-xs md:text-sm">
+              <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all backdrop-blur-md text-xs md:text-sm">
                 Keşfet
               </button>
             </div>
@@ -167,9 +167,9 @@ export default function EliteUpgrade() {
 
 
         {/* ── 2. DEVASA CEPHANELİK (Infinite Marquee) ── */}
-        <section className="py-24 border-y border-purple-900/5 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent">
+        <section className="py-24 border-y border-white/5 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent">
           <div className="text-center mb-20 px-4">
-            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 tracking-tighter mb-4 uppercase">
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter mb-4 uppercase">
               DEVASA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">CEPHANELİK</span>
             </h2>
             <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-[11px]">
@@ -187,8 +187,8 @@ export default function EliteUpgrade() {
               { val: effectsData.filter(e => e.category === 'flags').length, label: "ÜLKE BAYRAĞI" }
             ].map((stat, i) => (
               <div key={i} className="text-center group">
-                <span className="block text-6xl md:text-7xl font-black text-slate-900 mb-2 transition-all group-hover:text-purple-400 group-hover:scale-110">{stat.val}</span>
-                <span className="text-[12px] font-black text-slate-500 uppercase tracking-[0.3em] group-hover:text-slate-600">{stat.label}</span>
+                <span className="block text-6xl md:text-7xl font-black text-white mb-2 transition-all group-hover:text-purple-400 group-hover:scale-110">{stat.val}</span>
+                <span className="text-[12px] font-black text-slate-500 uppercase tracking-[0.3em] group-hover:text-slate-400">{stat.label}</span>
               </div>
             ))}
           </div>
@@ -202,14 +202,14 @@ export default function EliteUpgrade() {
                {marqueeList.map((frame, i) => (
                  <div 
                    key={`${frame.id}-${i}`}
-                   className="w-44 h-60 flex-shrink-0 flex flex-col items-center justify-between p-7 mx-4 rounded-[3rem] bg-white/[0.03] border border-purple-900/10 backdrop-blur-md transition-all duration-500 hover:bg-white/[0.08] hover:border-purple-500/30 group"
+                   className="w-44 h-60 flex-shrink-0 flex flex-col items-center justify-between p-7 mx-4 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-md transition-all duration-500 hover:bg-white/[0.08] hover:border-purple-500/30 group"
                  >
                    <div className="relative w-24 h-24 flex items-center justify-center">
-                      <div className="absolute w-20 h-20 rounded-full bg-black/60 border border-purple-900/5 shadow-inner group-hover:scale-110 transition-transform duration-500" />
+                      <div className="absolute w-20 h-20 rounded-full bg-black/60 border border-white/5 shadow-inner group-hover:scale-110 transition-transform duration-500" />
                       <AnimeAvatar src={null} effect={frame} size="w-20 h-20" className="z-10 group-hover:scale-125 transition-transform duration-700" />
                    </div>
                    <div className="text-center w-full">
-                     <span className="block text-[11px] font-black text-slate-900 uppercase tracking-tight mb-3 truncate opacity-80">{frame.label}</span>
+                     <span className="block text-[11px] font-black text-white uppercase tracking-tight mb-3 truncate opacity-80">{frame.label}</span>
                      <div className="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                         <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">PREMIUM</span>
                      </div>
@@ -226,7 +226,7 @@ export default function EliteUpgrade() {
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20">
                 <Crown size={20} />
               </div>
-              <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">PREMIUM ÖZELLİKLER</h3>
+              <h3 className="text-3xl font-black text-white uppercase tracking-tighter">PREMIUM ÖZELLİKLER</h3>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
@@ -240,12 +240,12 @@ export default function EliteUpgrade() {
                <motion.div 
                  key={i} 
                  whileHover={{ y: -10 }}
-                 className="p-8 rounded-[2.5rem] bg-gradient-to-b from-white/[0.05] to-transparent border border-purple-900/10 hover:border-purple-900/20 transition-all group"
+                 className="p-8 rounded-[2.5rem] bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 hover:border-white/20 transition-all group"
                >
-                 <div className="w-14 h-14 rounded-2xl bg-slate-900/5 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-slate-900/10 transition-all border border-purple-900/5">
+                 <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-white/10 transition-all border border-white/5">
                    {feature.icon}
                  </div>
-                 <h4 className="text-sm font-black text-slate-900 mb-3 uppercase tracking-tight leading-tight">{feature.title}</h4>
+                 <h4 className="text-sm font-black text-white mb-3 uppercase tracking-tight leading-tight">{feature.title}</h4>
                  <p className="text-[11px] text-slate-500 font-bold leading-relaxed">{feature.desc}</p>
                </motion.div>
              ))}
@@ -253,12 +253,12 @@ export default function EliteUpgrade() {
         </section>
 
         {/* ── 4. PLANLARIMIZ SECTION (Cooler & Bottom) ── */}
-        <section id="plans-section" className="py-24 border-t border-purple-900/5 bg-gradient-to-b from-transparent to-purple-900/5">
+        <section id="plans-section" className="py-24 border-t border-white/5 bg-gradient-to-b from-transparent to-purple-900/5">
           <div className="flex flex-col items-center justify-center mb-20 text-center px-4">
             <div className="flex items-center gap-2 text-indigo-400 font-black text-xs uppercase tracking-[0.4em] mb-3">
               <Box size={14} /> Üyelik Paketleri
             </div>
-            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase leading-none">PREMIUM PLANLAR</h2>
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none">PREMIUM PLANLAR</h2>
             <p className="text-slate-500 font-bold mt-4 tracking-wide max-w-lg">Sana en uygun rütbeyi seç ve siber dünyanın ayrıcalıklarını keşfet!</p>
           </div>
 
@@ -273,11 +273,11 @@ export default function EliteUpgrade() {
                 className={`relative p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] flex flex-col border-2 transition-all duration-700 group ${
                   plan.is_popular 
                   ? 'bg-gradient-to-br from-purple-900/40 via-black to-indigo-900/40 border-purple-500/50 md:scale-105 z-20 shadow-[0_40px_80px_rgba(168,85,247,0.2)]' 
-                  : 'bg-zinc-950/80 border-purple-900/10 z-10 hover:border-purple-900/20'
+                  : 'bg-zinc-950/80 border-white/10 z-10 hover:border-white/20'
                 }`}
               >
                 {plan.is_popular && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-8 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-slate-900 font-black text-[10px] uppercase tracking-[0.3em] rounded-full shadow-2xl z-30 ring-4 ring-[#050508]">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-8 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-black text-[10px] uppercase tracking-[0.3em] rounded-full shadow-2xl z-30 ring-4 ring-[#050508]">
                     ★ EN POPÜLER
                   </div>
                 )}
@@ -299,7 +299,7 @@ export default function EliteUpgrade() {
                    )}
 
                    <div className="flex items-baseline gap-2">
-                     <span className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter">
+                     <span className="text-4xl md:text-5xl font-black text-white tracking-tighter">
                        ₺{plan.price.toFixed(0)}
                      </span>
                      <span className="text-slate-500 text-[10px] md:text-sm font-black uppercase tracking-widest">
@@ -312,11 +312,11 @@ export default function EliteUpgrade() {
                   {plan.features.map((feature, i) => (
                     <div key={i} className="flex items-start gap-4 group/item">
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 border ${
-                        plan.is_popular ? 'bg-purple-500/20 border-purple-500/40' : 'bg-slate-900/5 border-purple-900/10'
+                        plan.is_popular ? 'bg-purple-500/20 border-purple-500/40' : 'bg-white/5 border-white/10'
                       }`}>
                         <Check size={10} className={plan.is_popular ? 'text-purple-400' : 'text-slate-500'} />
                       </div>
-                      <span className="text-slate-700 text-[13px] font-bold tracking-tight group-hover/item:text-slate-900 transition-colors">{feature}</span>
+                      <span className="text-slate-300 text-[13px] font-bold tracking-tight group-hover/item:text-white transition-colors">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -326,7 +326,7 @@ export default function EliteUpgrade() {
                   className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] transition-all duration-500 relative overflow-hidden ${
                     plan.is_popular 
                     ? 'bg-white text-black shadow-2xl hover:scale-[1.05] active:scale-95' 
-                    : 'bg-slate-900/5 border border-purple-900/10 text-slate-900 hover:bg-slate-900/10'
+                    : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
                   }`}
                 >
                   <span className="relative z-10">{plan.name} PLANI SEÇ</span>
@@ -338,16 +338,16 @@ export default function EliteUpgrade() {
         </section>
 
         {/* ── FOOTER TRUST ── */}
-        <div className="flex flex-col items-center justify-center gap-6 py-24 border-t border-purple-900/5">
+        <div className="flex flex-col items-center justify-center gap-6 py-24 border-t border-white/5">
 
            <div className="flex items-center gap-8 opacity-20 hover:opacity-100 transition-all duration-700">
-             <Trophy size={32} className="text-slate-900" />
-             <div className="w-px h-8 bg-slate-900/20" />
-             <Rocket size={32} className="text-slate-900" />
-             <div className="w-px h-8 bg-slate-900/20" />
-             <Users size={32} className="text-slate-900" />
+             <Trophy size={32} className="text-white" />
+             <div className="w-px h-8 bg-white/20" />
+             <Rocket size={32} className="text-white" />
+             <div className="w-px h-8 bg-white/20" />
+             <Users size={32} className="text-white" />
            </div>
-           <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.5em]">Güvenli Siber Ödeme Altyapısı</p>
+           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.5em]">Güvenli Siber Ödeme Altyapısı</p>
         </div>
 
       </div>

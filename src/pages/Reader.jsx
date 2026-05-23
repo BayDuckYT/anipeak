@@ -42,20 +42,20 @@ function ReaderImage({ src, alt, idx, chapter }) {
 
   if (error) {
     return (
-      <div className="w-full aspect-[2/3] bg-slate-900/5 border border-purple-900/10 flex flex-col items-center justify-center p-10 text-center group">
+      <div className="w-full aspect-[2/3] bg-white/5 border border-white/10 flex flex-col items-center justify-center p-10 text-center group">
         <div className="relative mb-4">
           <Sun size={48} className="text-red-500/50 animate-pulse" />
           <Bug size={20} className="absolute -bottom-1 -right-1 text-red-400" />
         </div>
-        <p className="text-slate-600 font-black uppercase tracking-widest text-xs mb-1">Bağlantı Kesildi</p>
-        <p className="text-slate-600 text-[10px] mb-6 font-mono">Index: {idx + 1} | Bağlantı Zayıf</p>
+        <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-1">Bağlantı Kesildi</p>
+        <p className="text-slate-400 text-[10px] mb-6 font-mono">Index: {idx + 1} | Bağlantı Zayıf</p>
         <button 
           onClick={() => {
             setError(false);
             setRetryCount(0);
             setImgSrc(`${src}${src.includes('?') ? '&' : '?' }retry=${Date.now()}`);
           }}
-          className="px-6 py-2 bg-slate-900/5 border border-purple-900/10 rounded-xl text-[10px] font-black text-slate-900 hover:bg-slate-900/10 hover:border-purple-500/50 transition-all uppercase tracking-widest"
+          className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 hover:border-purple-500/50 transition-all uppercase tracking-widest"
         >
           Resmi Yeniden Yükle
         </button>
@@ -72,14 +72,14 @@ function ReaderImage({ src, alt, idx, chapter }) {
         loading={idx < 3 ? 'eager' : 'lazy'}
         fetchpriority={idx < 2 ? 'high' : 'auto'}
         referrerPolicy="no-referrer"
-        className="w-full block select-none pointer-events-none bg-[#F8F5FF]"
+        className="w-full block select-none pointer-events-none bg-[#070511]"
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
         style={{ display: 'block', minHeight: '300px' }}
       />
       {/* Loading Placeholder (Skeleton) - More visible */}
       <div className="absolute inset-0 bg-white/[0.03] -z-10 animate-pulse flex items-center justify-center">
-         <BookOpen size={24} className="text-slate-900/5" />
+         <BookOpen size={24} className="text-white/5" />
       </div>
     </div>
   );
@@ -246,7 +246,7 @@ export default function Reader() {
 
   return (
     <div 
-      className="min-h-screen bg-[#F8F5FF] pt-24 pb-12 overflow-x-hidden relative"
+      className="min-h-screen bg-[#070511] pt-24 pb-12 overflow-x-hidden relative"
       style={{ filter: `brightness(${brightness}%)` }}
     >
       {/* ── REPORTS MODAL (MOVED TO TOP FOR ABSOLUTE VISIBILITY) ── */}
@@ -269,20 +269,20 @@ export default function Reader() {
             initial={{ y: 0 }}
             animate={{ y: showHeader ? 0 : -100 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-16 left-0 right-0 z-[500] glass border-b border-purple-900/10 px-4 py-3 flex items-center justify-between shadow-lg shadow-black/50"
+            className="fixed top-16 left-0 right-0 z-[500] glass border-b border-white/10 px-4 py-3 flex items-center justify-between shadow-lg shadow-black/50"
           >
             {/* Left */}
             <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 to={`/manhwa/${manhwa.id}`}
-                className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-slate-900 transition-colors text-sm bg-slate-900/5"
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-white transition-colors text-sm bg-white/5"
                 aria-label="Seri detayına dön"
               >
                 <ArrowLeft size={16} />
               </Link>
-              <div className="w-px h-5 bg-slate-900/10 hidden xs:block" />
+              <div className="w-px h-5 bg-white/10 hidden xs:block" />
               <div className="min-w-0">
-                <p className="text-slate-900 font-bold text-xs sm:text-sm leading-tight truncate max-w-[120px] xs:max-w-[180px] sm:max-w-xs">
+                <p className="text-white font-bold text-xs sm:text-sm leading-tight truncate max-w-[120px] xs:max-w-[180px] sm:max-w-xs">
                   {manhwa.title}
                 </p>
                 <p className="text-purple-400 text-[9px] sm:text-xs text-uppercase font-black tracking-widest">Bölüm {chapter}</p>
@@ -294,21 +294,21 @@ export default function Reader() {
               <button
                 disabled={chapter <= (contextChapters[contextChapters.length - 1]?.number || 1)}
                 onClick={() => handleChapterTab(chapter - 1)}
-                className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 disabled:opacity-30 transition-all"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-all"
                 aria-label="Önceki bölüm"
               >
                 <ChevronLeft size={16} />
               </button>
               <button 
                 onClick={() => setShowPanel(!showPanel)}
-                className="px-3 py-1.5 rounded-xl bg-slate-900/5 border border-purple-900/10 text-xs font-bold text-slate-900 hover:border-purple-500/50 transition-all flex items-center gap-2"
+                className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white hover:border-purple-500/50 transition-all flex items-center gap-2"
               >
                 Bölüm {chapter} <ChevronDown size={12} className={showPanel ? 'rotate-180' : ''} />
               </button>
               <button
                 disabled={chapter >= (contextChapters[0]?.number || 1)}
                 onClick={() => handleChapterTab(chapter + 1)}
-                className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 disabled:opacity-30 transition-all"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-all"
                 aria-label="Sonraki bölüm"
               >
                 <ChevronRight size={16} />
@@ -323,7 +323,7 @@ export default function Reader() {
                   console.log("[DEBUG] Hata Bildir tıklandı!");
                   setIsReportOpen(true);
                 }}
-                className="p-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer relative z-[600]"
+                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer relative z-[600]"
                 title="Hata Bildir"
                 aria-label="Hata bildir"
               >
@@ -331,7 +331,7 @@ export default function Reader() {
               </button>
               <button
                 onClick={() => { setZenMode(true); handleFullscreen(); }}
-                className="p-2 rounded-lg text-slate-600 hover:text-purple-400 hover:bg-purple-500/10 transition-all pointer-events-auto"
+                className="p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all pointer-events-auto"
                 title="Tam Ekran & Zen Modu"
                 aria-label="Tam ekran ve zen modu"
               >
@@ -339,7 +339,7 @@ export default function Reader() {
               </button>
               <button
                 onClick={() => commentsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                className="p-2 rounded-lg text-slate-600 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
+                className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
                 title="Yorumlara Git"
                 aria-label="Yorumlara git"
               >
@@ -347,7 +347,7 @@ export default function Reader() {
               </button>
               <button
                 onClick={() => setShowPanel(!showPanel)}
-                className="p-2 rounded-lg text-slate-600 hover:text-blue-400 hover:bg-blue-500/10 transition-all relative"
+                className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all relative"
                 title="Ayarlar & Bölümler"
                 aria-label="Ayarlar ve bölüm seçimi"
               >
@@ -362,7 +362,7 @@ export default function Reader() {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-4 top-full mt-3 w-80 glass-strong border border-purple-900/10 rounded-3xl p-6 shadow-2xl z-[1000]"
+                  className="absolute right-4 top-full mt-3 w-80 glass-strong border border-white/10 rounded-3xl p-6 shadow-2xl z-[1000]"
                 >
                   <div className="space-y-6">
                     <div>
@@ -370,18 +370,18 @@ export default function Reader() {
                       <input 
                         type="range" min="30" max="100" value={brightness} 
                         onChange={(e) => setBrightness(e.target.value)}
-                        className="w-full accent-purple-500 h-1 bg-slate-900/10 rounded-lg appearance-none cursor-pointer"
+                        className="w-full accent-purple-500 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
                       />
                     </div>
                     
-                    <div className="border-t border-purple-900/5 pt-4">
+                    <div className="border-t border-white/5 pt-4">
                       <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Hızlı Bölüm Seç</p>
                       <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
                         {[...contextChapters].sort((a,b) => b.number-a.number).map((ch) => (
                           <button
                             key={ch.id}
                             onClick={() => handleChapterTab(ch.number)}
-                            className={`py-2 rounded-xl text-[10px] font-bold border transition-all ${chapter === ch.number ? 'bg-purple-600 border-purple-500 text-slate-900' : 'glass border-purple-900/10 text-slate-600 hover:border-purple-900/20'}`}
+                            className={`py-2 rounded-xl text-[10px] font-bold border transition-all ${chapter === ch.number ? 'bg-purple-600 border-purple-500 text-white' : 'glass border-white/10 text-slate-400 hover:border-white/20'}`}
                           >
                             {ch.number}
                           </button>
@@ -411,9 +411,9 @@ export default function Reader() {
           ) : !chapterData || !chapterData.pages || chapterData.pages.length === 0 ? (
             <div className="py-40 text-center px-6">
               <Sun size={64} className="text-slate-800 mx-auto mb-6 opacity-20" />
-              <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tighter">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
+              <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
               <p className="text-slate-500 max-w-sm mx-auto text-xs font-bold uppercase tracking-widest leading-relaxed">Henüz sayfalar yüklenmemiş veya beklenmeyen bir hata oluşmuş. Lütfen daha sonra tekrar deneyin.</p>
-              <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-10 px-8 py-3 bg-slate-900/5 border border-purple-900/10 rounded-2xl text-purple-400 font-black text-[10px] uppercase tracking-widest hover:bg-slate-900/10 transition-all">
+              <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-10 px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-purple-400 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
                 <ArrowLeft size={14} /> Seri Detayına Dön
               </Link>
             </div>
@@ -432,8 +432,8 @@ export default function Reader() {
 
         {/* ── CHAPTER NAV BOTTOM ── */}
         <div className="w-full max-w-2xl mx-auto pt-10 pb-6 px-4">
-          <div className="glass border border-purple-900/10 rounded-2xl p-6 text-center">
-            <p className="text-slate-600 text-sm mb-4">
+          <div className="glass border border-white/10 rounded-2xl p-6 text-center">
+            <p className="text-slate-400 text-sm mb-4">
               Bölüm {chapter} tamamlandı. Devam etmek ister misin?
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
@@ -443,7 +443,7 @@ export default function Reader() {
                   if (prev) handleChapterTab(prev.number);
                 }}
                 disabled={!contextChapters.some(c => Number(c.number) < Number(chapter))}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-purple-900/10 text-slate-700 hover:border-purple-500/40 hover:text-slate-900 transition-all text-sm font-medium disabled:opacity-20"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-white/10 text-slate-300 hover:border-purple-500/40 hover:text-white transition-all text-sm font-medium disabled:opacity-20"
               >
                 <ChevronLeft size={16} />
                 Önceki Bölüm
@@ -455,21 +455,21 @@ export default function Reader() {
                   if (next) handleChapterTab(next.number);
                 }}
                 disabled={!contextChapters.some(c => Number(c.number) > Number(chapter))}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 font-semibold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple disabled:opacity-20"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-sm hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple disabled:opacity-20"
               >
                 Sonraki Bölüm
                 <ChevronRight size={16} />
               </button>
             </div>
             
-            <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-purple-900/10">
+            <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-white/10">
               <button
                 onClick={() => setLiked(!liked)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-bold ${liked ? 'text-pink-400 bg-pink-500/10' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-900/5'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-bold ${liked ? 'text-pink-400 bg-pink-500/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
               >
                 <Heart size={18} className={liked ? 'fill-pink-400' : ''} /> {liked ? 'Beğendin' : 'Bölümü Beğen'}
               </button>
-              <Link to="/" className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-900/5 transition-all text-sm font-bold">
+              <Link to="/" className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-sm font-bold">
                 <Home size={18} /> Ana Sayfa
               </Link>
             </div>
