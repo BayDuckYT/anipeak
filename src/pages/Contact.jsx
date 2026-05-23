@@ -19,48 +19,26 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
 
-    if (formData.subject === 'Hata Bildirimi') {
-      // Hata Bildirimi direkt Admin Paneline (Supabase) düşer
+    try {
       const { error } = await supabase.from('contact_messages').insert([formData]);
       if (!error) {
         setSuccess(true);
         setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
+      } else {
+        alert('Bağlantı hatası oluştu. Lütfen tekrar deneyin.');
       }
-    } else if (formData.subject === 'Lojistik Öneri') {
-      // Öneriler de diğer mesajlar gibi Supabase veritabanına işlenir
-      try {
-        const { error } = await supabase.from('contact_messages').insert([formData]);
-        if (!error) {
-          setSuccess(true);
-          setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
-        } else {
-          alert('Bağlantı hatası oluştu. Lütfen tekrar deneyin.');
-        }
-      } catch (err) {
-        alert('Sunucu şu an çevrimdışı. Lütfen daha sonra tekrar deneyin!');
-      }
-    } else {
-      // Diğer konular ilgili e-posta adreslerine yönlendirilir
-      const subjectEmails = {
-        'Genel İletişim': 'info@anipeak.com.tr',
-        'Teknik Destek': 'support@anipeak.com.tr',
-        'İşbirlikleri': 'business@anipeak.com.tr'
-      };
-      const targetEmail = subjectEmails[formData.subject] || 'info@anipeak.com.tr';
-      const mailtoLink = `mailto:${targetEmail}?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Gönderen: ${formData.name}\nE-posta: ${formData.email}\n\nMesaj:\n${formData.message}`)}`;
-      
-      window.location.href = mailtoLink;
-      setSuccess(true);
-      setFormData({ name: '', email: '', subject: 'Genel İletişim', message: '' });
+    } catch (err) {
+      alert('Sunucu şu an çevrimdışı. Lütfen daha sonra tekrar deneyin!');
     }
+    
     setLoading(false);
   };
 
   const contactCards = [
     { title: 'Genel İletişim', email: 'info@anipeak.com.tr', color: 'from-blue-500 to-cyan-500', icon: <Mail size={24} /> },
-    { title: 'Lojistik Öneri', email: 'suggestions.txt', color: 'from-emerald-500 to-teal-500', icon: <Send size={24} /> },
+    { title: 'Öneri', email: 'support@anipeak.com.tr', color: 'from-emerald-500 to-teal-500', icon: <Send size={24} /> },
     { title: 'İşbirlikleri & Reklam', email: 'business@anipeak.com.tr', color: 'from-rose-500 to-orange-500', icon: <Send size={24} /> },
-    { title: 'Hata Bildirimi', email: 'Admin Paneli', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
+    { title: 'Hata Bildirimi', email: 'support@anipeak.com.tr', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
   ];
 
   return (
@@ -76,7 +54,7 @@ export default function Contact() {
           </motion.h1>
           <p className="text-slate-500 max-w-2xl mx-auto font-medium">
             AniPeak ekibiyle iletişime geçmek için konuyu seçin. 
-            <span className="text-emerald-400"> Lojistik öneriler</span> doğrudan admin panelindeki dosyamıza mühürlenir.
+            Tüm mesajlarınız doğrudan arka planda otonom olarak bize iletilir.
           </p>
         </div>
 
@@ -143,7 +121,7 @@ export default function Contact() {
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all cursor-pointer"
                   >
                     <option value="Genel İletişim" className="bg-[#0a0a14]">Genel İletişim</option>
-                    <option value="Lojistik Öneri" className="bg-[#0a0a14]">Lojistik Öneri</option>
+                    <option value="Öneri" className="bg-[#0a0a14]">Öneri</option>
                     <option value="Teknik Destek" className="bg-[#0a0a14]">Teknik Destek</option>
                     <option value="İşbirlikleri" className="bg-[#0a0a14]">İşbirlikleri</option>
                     <option value="Hata Bildirimi" className="bg-[#0a0a14]">Hata Bildirimi</option>
