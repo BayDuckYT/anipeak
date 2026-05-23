@@ -35,7 +35,13 @@ export default function EliteUpgrade() {
         duration: 'aylık',
         color: 'cyan',
         icon: 'Trophy',
-        features: ['5 İsim Plakası Hakkı', '10 Avatar Efekti Hakkı', 'PRO Rozeti', 'Reklamsız Deneyim', 'Temel Okuma Ayrıcalıkları']
+        features: [
+          '5 İsim Plakası & 10 Avatar Efekti', 
+          'PRO Rozeti & Özel Profil Çerçevesi', 
+          'Tamamen Reklamsız Okuma Deneyimi', 
+          'Bölümleri Çevrimdışı İndirme', 
+          'Sohbet ve Yorumlarda Özel Renk'
+        ]
       },
       {
         id: 'shadow',
@@ -45,7 +51,14 @@ export default function EliteUpgrade() {
         color: 'purple',
         icon: 'Ghost',
         savings: '₺201 İNDİRİM',
-        features: ['15 İsim Plakası Hakkı', '30 Avatar Efekti Hakkı', '10 İsim Efekti Hakkı', 'GÖLGE Rozeti ve Erken Erişim', 'Özel Profil Çerçeveleri']
+        features: [
+          '15 İsim Plakası & 30 Avatar Efekti', 
+          '10 İsim Efekti & Dinamik Çerçeveler', 
+          'GÖLGE Rozeti & Gelişmiş Profil', 
+          'Yeni Bölümlere Erken Erişim (+24 Saat)', 
+          'Özel Yorum Stilleri & Sınırsız İndirme',
+          'Discord Özel "Gölge" Rolü'
+        ]
       },
       {
         id: 'ruler',
@@ -55,7 +68,15 @@ export default function EliteUpgrade() {
         color: 'amber',
         is_popular: true,
         icon: 'Crown',
-        features: ['30 İsim Plakası Hakkı', '100 Avatar Efekti Hakkı', '25 İsim Efekti Hakkı', 'HÜKÜMDAR Rozeti ve Öncelikli Destek', 'Tüm Gelecek Güncellemeler']
+        features: [
+          '30 İsim Plakası & 100 Avatar Efekti', 
+          '25 İsim Efekti & Animasyonlu Çerçeveler', 
+          'HÜKÜMDAR Rozeti & Hareketli Avatar', 
+          'Yeni Bölümlere En Erken Erişim (+48 Saat)', 
+          'Yorumlarda Sürekli Parlama Efekti',
+          '7/24 Öncelikli VIP Destek',
+          'Tüm Gelecek Güncellemeler Bedava'
+        ]
       },
       {
         id: 'aethe',
@@ -65,7 +86,15 @@ export default function EliteUpgrade() {
         color: 'rose',
         is_limited: true,
         icon: 'Sparkles',
-        features: ['Sadece İlk 20 Kişiye Özel!', 'Sınırsız Tüm Efektlere Erişim (387+)', 'Özel AETHE Mührü', 'Efsanevi Discord Rolü', 'Gelecek Her Şeye Sınırsız Erişim']
+        features: [
+          'Sadece İlk 20 Kişiye Özel Sınır!', 
+          'Tüm Efektlere Sınırsız Erişim (387+)', 
+          'Efsanevi AETHE Mührü & Kan Kırmızı Aura', 
+          'Çeviri Aşamasındaki Serilere Erişim', 
+          'Yorumlarda "Aethe Tacı" Gösterimi',
+          'Platforma İstediği Seriyi Ekletme Hakkı',
+          'Discord Efsanevi AETHE Rolü'
+        ]
       }
     ];
     setPlans(customPlans);
