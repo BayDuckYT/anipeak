@@ -122,7 +122,7 @@ export default function EliteUpgrade() {
             transition={{ delay: 0.1 }}
             className="text-5xl md:text-8xl font-black text-white leading-[1.1] tracking-tighter mb-6"
           >
-            SİBER <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">AYRICALIK.</span>
+            ELİT <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">AYRICALIK.</span>
           </motion.h1>
           
           <motion.p 
@@ -205,7 +205,7 @@ export default function EliteUpgrade() {
         <section id="plans-section" className="py-32">
           <div className="text-center mb-20 px-4">
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter uppercase mb-6">
-              SİBER <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">ÜYELİKLER</span>
+              PREMİUM <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">ÜYELİKLER</span>
             </h2>
             <p className="text-slate-400 font-medium max-w-2xl mx-auto">
               Sana en uygun paketi seç ve maceraya başla. Aethe paketi sınırlarına ulaşmadan yerini ayırt!
