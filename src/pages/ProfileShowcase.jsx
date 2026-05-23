@@ -52,6 +52,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useApp } from '../context/AppContext.jsx';
 import AnimeAvatar from '../components/AnimeAvatar.jsx';
 import UserBadges from '../components/UserBadges';
+import { getOptimizedImage } from '../utils/imageOpt.js';
 import effectsData from '../data/effects.json';
 import nameplatesData from '../data/nameplates.json';
 import Cropper from 'react-easy-crop';
