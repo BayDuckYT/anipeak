@@ -86,6 +86,19 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
   } catch (err) { throw err; }
 };
 
+const COOL_PREFIXES = ["Gölge", "Karanlık", "Alev", "Buzul", "Zehir", "Ruh", "Kan", "Yıldız", "Galaksi", "Neon", "Siber", "Kristal", "Gök", "Cehennem", "Hayalet", "Kadim", "Ejder", "Kozmik", "Kaos", "Saf"];
+const COOL_SUFFIXES = ["Ateşi", "Halesi", "Mührü", "Kılıcı", "Gözyaşı", "Sarmaşığı", "Ağı", "Tozu", "Fırtınası", "Rüzgarı", "Işığı", "Gölgesi", "Çekirdeği", "Yankısı", "Laneti", "Büyüsü", "Tılsımı"];
+
+const generateCoolNameplateName = (filename) => {
+  let hash = 0;
+  for (let i = 0; i < filename.length; i++) {
+    hash = filename.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const prefix = COOL_PREFIXES[Math.abs(hash) % COOL_PREFIXES.length];
+  const suffix = COOL_SUFFIXES[Math.abs(hash * 31) % COOL_SUFFIXES.length];
+  return `${prefix} ${suffix}`;
+};
+
 
 /**
  * ProfileEffectSpritesheet — Otomatik kare sayısı tespiti.
@@ -649,7 +662,7 @@ export default function ProfileShowcase() {
     if (decorationCategory === 'Tümü') return decorationEffectsData;
     if (decorationCategory === 'Efektler') return decorationEffectsData.filter(d => d.category === 'profile_effects');
     if (decorationCategory === 'Çerçeveler') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
-    if (decorationCategory === 'Plaketler') return nameplatesData.map((n, i) => ({ id: n, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
+    if (decorationCategory === 'Plaketler') return nameplatesData.map((n) => ({ id: n, label: generateCoolNameplateName(n), url: n, category: 'nameplates' }));
     if (decorationCategory === 'İsim Efektleri') return decorationEffectsData.filter(d => d.category === 'name_effects');
     return decorationEffectsData.filter(d => d.category === decorationCategory);
   }, [decorationCategory, decorationEffectsData]);

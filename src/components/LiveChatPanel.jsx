@@ -87,15 +87,16 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                 >
                   {/* Full-Card Nameplate Background */}
                   {nameplateId !== 'none' && (
-                    <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl">
                       <video 
-                        src={`/nameplates/${nameplateId}`} 
                         autoPlay 
                         muted 
                         loop 
                         playsInline 
-                        className="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity duration-500" 
-                      />
+                        className="w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-30 group-hover:opacity-50 transition-opacity duration-500" 
+                      >
+                        <source src={`/nameplates/${nameplateId}`} type="video/webm" />
+                      </video>
                       <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/20 to-transparent" />
                     </div>
                   )}

@@ -201,8 +201,10 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       <div key={comment.id} className={`relative overflow-hidden transition-all duration-300 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : s.card}`}>
         {/* Nameplate */}
         {!isReply && mix.nameplate && mix.nameplate !== 'none' && (
-          <div className="absolute right-0 top-0 bottom-0 w-2/3 md:w-1/2 z-0 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700 flex justify-end items-center pr-4" style={{ maskImage: 'linear-gradient(to right, transparent, black 40%)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 40%)' }}>
-            <video src={`/nameplates/${mix.nameplate}`} autoPlay muted loop playsInline className="h-[80%] w-auto object-contain object-right opacity-80 mix-blend-screen mix-blend-lighten drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden rounded-[2.5rem]">
+            <video autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen mix-blend-lighten">
+              <source src={`/nameplates/${mix.nameplate}`} type="video/webm" />
+            </video>
           </div>
         )}
 
