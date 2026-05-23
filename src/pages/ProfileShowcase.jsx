@@ -744,7 +744,7 @@ export default function ProfileShowcase() {
                  <div className="absolute inset-0 z-[-1] opacity-20">
                    {effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url && (
                      <img 
-                       src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
+                       src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url, 400)} 
                        className="w-full h-full object-cover" 
                        width={320} height={500}
                        loading="eager" fetchpriority="high" decoding="async"
@@ -967,7 +967,7 @@ export default function ProfileShowcase() {
                   
                     <div className="absolute inset-0 z-20 opacity-30 mix-blend-screen pointer-events-none" style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}>
                       <img 
-                        src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
+                        src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url, 800)} 
                         alt="Profile Effect Detail"
                         className="w-full h-full object-cover animate-pulse" 
                         style={{ animationDuration: '8s' }}

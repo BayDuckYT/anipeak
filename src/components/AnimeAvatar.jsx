@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getOptimizedImage } from '../utils/imageOpt.js';
 
 /**
  * AutoSpritesheet — Otomatik kare tespitli spritesheet animatörü.
@@ -165,7 +166,7 @@ export default function AnimeAvatar({
       <div className="relative z-0 w-full h-full rounded-full overflow-hidden bg-zinc-950/80 border border-white/5 shadow-2xl">
         {src && (
           <img 
-            src={src} 
+            src={getOptimizedImage(src, 200)} 
             alt="Avatar" 
             loading={eager ? "eager" : "lazy"}
             fetchpriority={eager ? "high" : "auto"}

@@ -17,7 +17,8 @@ export function getOptimizedImage(url, width = 300) {
   }
 
   // Supabase veya dış linkleri proxy üzerinden geçirerek küçült ve webp yap
-  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&output=webp&q=70`;
+  const isGif = url.toLowerCase().includes('.gif');
+  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}${isGif ? '' : '&output=webp'}&q=70`;
 }
 
 // Resim yüklenemezse gösterilecek güvenli (çökmeyen) siyah/mor yer tutucu
