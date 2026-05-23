@@ -744,19 +744,20 @@ export default function ProfileShowcase() {
           
           {/* ── LEFT SIDEBAR (SCREENSHOT 1 STYLE) ── */}
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
-            <div className="glass bg-card-navy/40 border border-white/5 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative">
+            <div className="bg-[#070511]/80 border border-white/20 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative backdrop-blur-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
                {/* Background Effect */}
-                 <div className="absolute inset-0 z-[-1] opacity-20">
+                 <div className="absolute inset-0 z-[-1] opacity-40">
                    {effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url && (
                      <img 
                        src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url, 400)} 
-                       className="w-full h-full object-cover" 
+                       className="w-full h-full object-cover mix-blend-screen" 
                        width={320} height={500}
                        loading="eager" fetchpriority="high" decoding="async"
                        style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                        alt="Profile Effect"
                      />
                    )}
+                   <div className="absolute inset-0 bg-gradient-to-b from-[#070511]/40 via-[#070511]/80 to-[#070511]" />
                  </div>
 
                <div className="relative mb-8">
@@ -765,7 +766,7 @@ export default function ProfileShowcase() {
                         src={displayUser.avatar_url} 
                         effect={selectedDecoration}
                         size="w-40 h-40"
-                        className="rounded-full shadow-2xl"
+                        className="rounded-full shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-white/10"
                         style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                         eager={true}
                      />
@@ -777,14 +778,14 @@ export default function ProfileShowcase() {
                   <div className="relative inline-flex items-center justify-center w-full max-w-[320px] min-h-[60px] px-10 py-4">
                     {/* Nameplate Background */}
                     {displayUser.active_mix?.nameplate && displayUser.active_mix?.nameplate !== 'none' && (
-                      <div className="absolute inset-0 z-[-1] rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                      <div className="absolute inset-0 z-[-1] rounded-xl overflow-hidden shadow-2xl border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                         <video 
                           src={`/nameplates/${displayUser.active_mix.nameplate}`} 
                           autoPlay 
                           muted 
                           loop 
                           playsInline 
-                          className="w-full h-full object-fill"
+                          className="w-full h-full object-fill opacity-80"
                           style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                         />
                       </div>
@@ -801,7 +802,7 @@ export default function ProfileShowcase() {
                         )}
                       </div>
                       <span
-                        className={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? 'name-effect-text' : 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]'}
+                        className={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? 'name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]'}
                         style={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === displayUser.active_mix.nametag)?.url})`, filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` } : {}}
                       >
                         {displayUser.username}
@@ -809,44 +810,44 @@ export default function ProfileShowcase() {
                     </h1>
                   </div>
 
-                  <div className="inline-flex px-4 py-1.5 rounded-full bg-zinc-950 border border-zinc-800">
-                     <span className={`text-[9px] font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 'text-blue-400'}`}>
+                  <div className="inline-flex px-4 py-1.5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-md shadow-lg">
+                     <span className={`text-[9px] font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
                         {displayUser.is_elite && <Crown size={10} className="inline mr-1 mb-0.5" />}
                         {displayUser.fullLabel}
                      </span>
                   </div>
 
-                  <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-40" />
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-60" />
                   
                   <div className="flex justify-between items-end px-2">
                      <div className="text-left">
                         <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">İSTATİSTİKLER</div>
-                        <div className="text-2xl font-black text-white uppercase tracking-tighter">VERİLER</div>
+                        <div className="text-2xl font-black text-white uppercase tracking-tighter drop-shadow-md">VERİLER</div>
                      </div>
                      <div className="text-right">
                         <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">TOPLAM XP</div>
-                        <div className="text-xl font-black text-white tracking-tighter">{displayUser.xp}</div>
+                        <div className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 tracking-tighter drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">{displayUser.xp}</div>
                      </div>
                   </div>
                </div>
 
                {/* Discord Connection */}
-               <div className="w-full mt-8 pt-8 border-t border-white/5 space-y-4">
+               <div className="w-full mt-8 pt-8 border-t border-white/10 space-y-4">
                   {displayUser.discord_id ? (
-                     <div className="group relative p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-4 overflow-hidden">
+                     <div className="group relative p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-4 overflow-hidden backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)]">
                         <div className="flex items-center justify-between">
                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
+                              <div className="p-2 rounded-xl bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)]">
                                  <Shield size={14} />
                               </div>
-                              <span className="text-[10px] font-black text-white uppercase tracking-widest">Discord Bağlantısı</span>
+                              <span className="text-[10px] font-black text-white uppercase tracking-widest drop-shadow-md">Discord Bağlantısı</span>
                            </div>
-                           <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#10b981]" />
+                           <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,1)] animate-pulse" />
                         </div>
                         {isOwnProfile && (
                            <button 
                               onClick={disconnectDiscord}
-                              className="w-full py-2 bg-zinc-950/50 hover:bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl border border-white/5 hover:border-red-500/20 transition-all"
+                              className="w-full py-2 bg-black/40 hover:bg-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest rounded-xl border border-red-500/30 hover:border-red-500/50 transition-all shadow-inner"
                            >
                               BAĞLANTIYI KES
                            </button>
@@ -855,18 +856,18 @@ export default function ProfileShowcase() {
                   ) : isOwnProfile ? (
                      <div className="space-y-4">
                         {verifCode && timeLeft > 0 ? (
-                           <div className="p-5 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 space-y-4 text-center animate-in zoom-in-95 duration-300">
-                              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Senkronizasyon Kodu</p>
-                              <div className="py-3 bg-zinc-950 rounded-xl border border-indigo-500/30">
-                                 <span className="text-2xl font-black text-white tracking-[0.2em] font-mono select-all leading-none">{verifCode}</span>
+                           <div className="p-5 rounded-2xl bg-indigo-500/10 border border-indigo-400/30 space-y-4 text-center animate-in zoom-in-95 duration-300 backdrop-blur-md shadow-[0_0_20px_rgba(99,102,241,0.15)]">
+                              <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">Senkronizasyon Kodu</p>
+                              <div className="py-3 bg-black/60 rounded-xl border border-indigo-500/40 shadow-inner">
+                                 <span className="text-2xl font-black text-indigo-300 tracking-[0.2em] font-mono select-all leading-none drop-shadow-[0_0_10px_rgba(165,180,252,0.5)]">{verifCode}</span>
                               </div>
                               <div className="flex items-center justify-center gap-2">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                                 <p className="text-[9px] font-bold text-amber-500/80 uppercase">Geçerlilik: {formatTime(timeLeft)}</p>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+                                 <p className="text-[9px] font-bold text-amber-400 uppercase">Geçerlilik: {formatTime(timeLeft)}</p>
                               </div>
                               <button 
                                  onClick={generateDiscordCode}
-                                 className="text-[9px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors"
+                                 className="text-[9px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors drop-shadow-md"
                               >
                                  YENİ KOD AL
                               </button>
@@ -875,7 +876,7 @@ export default function ProfileShowcase() {
                            <button 
                               onClick={generateDiscordCode}
                               disabled={isGenerating}
-                              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
+                              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(79,70,229,0.4)] flex items-center justify-center gap-2"
                            >
                               <Shield size={14} />
                               {isGenerating ? 'YÜKLENİYOR...' : 'DİSCORD HESABINI BAĞLA'}
@@ -883,67 +884,69 @@ export default function ProfileShowcase() {
                         )}
                      </div>
                   ) : (
-                     <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-800/20 border border-white/5 opacity-50">
+                     <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-sm">
                         <div className="flex items-center gap-3">
-                           <div className="p-2 rounded-lg bg-zinc-800 text-zinc-400">
+                           <div className="p-2 rounded-xl bg-white/5 text-zinc-500">
                               <MessageSquare size={14} />
                            </div>
-                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Bağlantı Yok</span>
+                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Bağlantı Yok</span>
                         </div>
                      </div>
                   )}
                </div>
 
-               <p className="text-zinc-400 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic">
+               <p className="text-zinc-300 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic drop-shadow-md">
                  "{displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}"
                </p>
 
                <div className="w-full space-y-3">
                   {isOwnProfile ? (
                     <>
-                      <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-[10px] font-black uppercase tracking-widest transition-all">PROFİLİ DÜZENLE</button>
-                      <button onClick={() => navigate('/elite-upgrade')} className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                      <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-white/5 border border-white/20 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-md shadow-lg">PROFİLİ DÜZENLE</button>
+                      <button onClick={() => navigate('/elite-upgrade')} className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.5)] border border-amber-400 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                         <Crown size={14} /> PREMIUM
                       </button>
                     </>
                   ) : (
                     <div className="flex gap-2">
-                      <button onClick={handleFollow} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isFollowing ? 'bg-zinc-800 text-zinc-400' : 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'}`}>
+                      <button onClick={handleFollow} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md ${isFollowing ? 'bg-black/60 border border-white/10 text-zinc-400 hover:bg-black/80' : 'bg-blue-600 border border-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:bg-blue-500'}`}>
                         {isFollowing ? 'TAKİPTEN ÇIK' : 'TAKİP ET'}
                       </button>
-                      <button aria-label="Mesaj gönder" onClick={handleStartChat} className="p-4 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-white transition-all"><MessageSquare size={16} /></button>
+                      <button aria-label="Mesaj gönder" onClick={handleStartChat} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-all backdrop-blur-md"><MessageSquare size={16} /></button>
                     </div>
                   )}
                </div>
 
-               <div className="w-full mt-10 pt-8 border-t border-white/5 space-y-8">
+               <div className="w-full mt-10 pt-8 border-t border-white/10 space-y-8">
                   <div className="space-y-4">
-                     <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">BAĞLANTILAR</div>
+                     <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">BAĞLANTILAR</div>
                      <div className="space-y-2">
                         {userLinks.map((link, idx) => (
-                           <a key={idx} href={getPlatformUrl(link)} target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-black/20 border border-white/5 hover:border-blue-500/30 transition-all group">
+                           <a key={idx} href={getPlatformUrl(link)} target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/10 hover:border-blue-400/50 hover:bg-black/60 transition-all group backdrop-blur-sm shadow-inner">
                               <div className="flex items-center gap-3">
-                                 {getSocialIcon(link.platform)}
-                                 <span className="text-[10px] font-black text-zinc-300 uppercase">{link.platform}</span>
+                                 <div className="text-zinc-400 group-hover:text-blue-300 transition-colors">
+                                   {getSocialIcon(link.platform)}
+                                 </div>
+                                 <span className="text-[10px] font-black text-zinc-300 uppercase group-hover:text-white transition-colors">{link.platform}</span>
                               </div>
-                              <ChevronRight size={12} className="text-zinc-400 group-hover:text-blue-400 transition-colors" />
+                              <ChevronRight size={12} className="text-zinc-500 group-hover:text-blue-400 transition-colors" />
                            </a>
                         ))}
                         {isOwnProfile && userLinks.length === 0 && (
-                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-white/10 text-[9px] font-black text-zinc-400 hover:text-white transition-all uppercase">HESAP EKLE</button>
+                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl bg-black/20 border border-dashed border-white/20 text-[9px] font-black text-zinc-400 hover:text-white hover:bg-white/5 transition-all uppercase backdrop-blur-sm">HESAP EKLE</button>
                         )}
                      </div>
                   </div>
 
                   <div className="space-y-4">
                      <div className="flex justify-between items-center">
-                        <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">BAŞARIMLAR</div>
-                        <div className="text-[9px] font-black text-zinc-400">{userAchievements.length}/100</div>
+                        <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">BAŞARIMLAR</div>
+                        <div className="text-[9px] font-black text-zinc-300 bg-white/10 px-2 py-0.5 rounded-md">{userAchievements.length}/100</div>
                      </div>
                      <div className="flex flex-wrap gap-2">
                         {userAchievements.slice(0, 5).map((ua, i) => (
-                           <div key={i} className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/5 flex items-center justify-center text-amber-500" title={ua.achievements?.name}>
-                              <Award size={14} />
+                           <div key={i} className="w-10 h-10 rounded-xl bg-black/60 border border-amber-500/30 hover:border-amber-400/60 transition-colors flex items-center justify-center text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]" title={ua.achievements?.name}>
+                              <Award size={16} />
                            </div>
                         ))}
                      </div>
