@@ -40,7 +40,7 @@ export default function Suggestions() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070511] pt-32 pb-20 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#F8F5FF] pt-32 pb-20 px-4 relative overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
@@ -57,20 +57,20 @@ export default function Suggestions() {
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter"
+            className="text-4xl md:text-6xl font-black text-slate-900 mb-4 uppercase tracking-tighter"
           >
             KULLANICI <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">ÖNERİ</span> HATTI
           </motion.h1>
           <p className="text-slate-500 max-w-xl mx-auto font-medium">
             AniPeak'i daha iyi bir yer haline getirmek için fikirlerinize ihtiyacımız var. 
-            <span className="text-white"> Önerinizi gönderin, ekibimizle birlikte değerlendirelim!</span>
+            <span className="text-slate-900"> Önerinizi gönderin, ekibimizle birlikte değerlendirelim!</span>
           </p>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl bg-black/40 backdrop-blur-xl"
+          className="glass border border-purple-900/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl bg-black/40 backdrop-blur-xl"
         >
           <AnimatePresence mode="wait">
             {success ? (
@@ -84,13 +84,13 @@ export default function Suggestions() {
                 <div className="w-24 h-24 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-8 border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
                   <CheckCircle2 size={56} />
                 </div>
-                <h2 className="text-4xl font-black text-white mb-4">BAŞARILI!</h2>
-                <p className="text-slate-400 mb-10 max-w-sm leading-relaxed">
+                <h2 className="text-4xl font-black text-slate-900 mb-4">BAŞARILI!</h2>
+                <p className="text-slate-600 mb-10 max-w-sm leading-relaxed">
                   Öneriniz sistemimize başarıyla kaydedildi. İnceleyip en kısa sürede değerlendirmeye alacağız!
                 </p>
                 <button 
                   onClick={() => setSuccess(false)}
-                  className="px-10 py-4 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all hover:scale-105"
+                  className="px-10 py-4 bg-slate-900/5 border border-purple-900/10 text-slate-900 font-black rounded-2xl hover:bg-slate-900/10 transition-all hover:scale-105"
                 >
                   YENİ ÖNERİ GÖNDER
                 </button>
@@ -104,7 +104,7 @@ export default function Suggestions() {
                     </label>
                     <input 
                       required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-400"
+                      className="w-full bg-slate-900/5 border border-purple-900/10 rounded-2xl px-6 py-4 text-slate-900 focus:border-purple-500 outline-none transition-all placeholder-slate-400"
                       placeholder="Adınız veya kullanıcı adınız"
                     />
                   </div>
@@ -114,21 +114,21 @@ export default function Suggestions() {
                     </label>
                     <input 
                       required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all placeholder-slate-400"
+                      className="w-full bg-slate-900/5 border border-purple-900/10 rounded-2xl px-6 py-4 text-slate-900 focus:border-purple-500 outline-none transition-all placeholder-slate-400"
                       placeholder="eposta@adresiniz.com"
                     />
-                    <p className="text-[9px] text-slate-400 ml-1 italic">* Sizinle iletişime geçebilmemiz için gereklidir.</p>
+                    <p className="text-[9px] text-slate-600 ml-1 italic">* Sizinle iletişime geçebilmemiz için gereklidir.</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-400 mb-2 ml-1">Öneriniz Nedir?</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2 ml-1">Öneriniz Nedir?</label>
                   <textarea
                     required
                     value={formData.message}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
                     rows={6}
-                    className="w-full glass border border-white/10 rounded-2xl p-4 text-white placeholder-slate-400 focus:border-purple-500 outline-none transition-all resize-none"
+                    className="w-full glass border border-purple-900/10 rounded-2xl p-4 text-slate-900 placeholder-slate-400 focus:border-purple-500 outline-none transition-all resize-none"
                     placeholder="AniPeak'te hangi özellikleri görmek istersiniz? Fikirlerinizi bizimle paylaşın..."
                   />
                 </div>
@@ -136,7 +136,7 @@ export default function Suggestions() {
                 <button 
                   disabled={loading}
                   type="submit"
-                  className="w-full py-5 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-2xl shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-lg uppercase tracking-tighter"
+                  className="w-full py-5 bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 font-black rounded-2xl shadow-[0_0_40px_rgba(147,51,234,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-lg uppercase tracking-tighter"
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
@@ -151,7 +151,7 @@ export default function Suggestions() {
         </motion.div>
 
         {/* Footer Info */}
-        <div className="mt-12 flex items-center justify-center gap-8 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+        <div className="mt-12 flex items-center justify-center gap-8 text-slate-600 font-bold text-[10px] uppercase tracking-widest">
            <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-purple-500" /> %100 GÜVENLİ
            </div>

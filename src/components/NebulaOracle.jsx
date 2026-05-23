@@ -113,14 +113,14 @@ export const OracleCard = ({ manga, matchScore, prophecy, idx = 0 }) => {
       </div>
 
       <div className="p-5">
-        <h3 className="text-lg font-bold text-white mb-2 line-clamp-1 group-hover:text-cyan-400 transition-colors">
+        <h3 className="text-lg font-bold text-slate-900 mb-2 line-clamp-1 group-hover:text-cyan-400 transition-colors">
           {manga.title}
         </h3>
         <p className="text-xs text-purple-300/70 italic line-clamp-3 mb-4 font-serif">
           "{prophecy}"
         </p>
         
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-purple-900/5">
           <div className="flex gap-2">
             {manga.genres?.slice(0, 2).map(genre => (
               <span key={genre} className="text-[10px] px-2 py-0.5 rounded bg-purple-900/40 text-purple-200 border border-purple-700/30 uppercase tracking-widest font-mono">
@@ -128,7 +128,7 @@ export const OracleCard = ({ manga, matchScore, prophecy, idx = 0 }) => {
               </span>
             ))}
           </div>
-          <button aria-label={`${manga.title} Serisini İncele`} className="text-cyan-400 hover:text-white transition-colors">
+          <button aria-label={`${manga.title} Serisini İncele`} className="text-cyan-400 hover:text-slate-900 transition-colors">
             <Eye className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>

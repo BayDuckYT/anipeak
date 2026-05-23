@@ -68,14 +68,14 @@ export default function ChapterRating({ seriesId, chapterNum }) {
   };
 
   return (
-    <div className="glass border border-white/10 rounded-3xl p-8 my-10 max-w-2xl mx-auto overflow-hidden relative">
+    <div className="glass border border-purple-900/10 rounded-3xl p-8 my-10 max-w-2xl mx-auto overflow-hidden relative">
       <div className="absolute top-0 right-0 p-8 opacity-5">
         <Award size={120} className="text-purple-500" />
       </div>
 
       <div className="relative z-10 text-center">
-        <h3 className="text-2xl font-black text-white mb-2">Bölümü Değerlendir</h3>
-        <p className="text-slate-400 text-sm mb-8">Bu bölüme bıraktığın her puan topluluğumuza ışık tutar.</p>
+        <h3 className="text-2xl font-black text-slate-900 mb-2">Bölümü Değerlendir</h3>
+        <p className="text-slate-600 text-sm mb-8">Bu bölüme bıraktığın her puan topluluğumuza ışık tutar.</p>
 
         <div className="flex items-center justify-center gap-3 mb-8">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -93,7 +93,7 @@ export default function ChapterRating({ seriesId, chapterNum }) {
                 className={`transition-all duration-300 ${
                   star <= (hover || rating)
                     ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]'
-                    : 'text-slate-400'
+                    : 'text-slate-600'
                 }`}
               />
             </motion.button>
@@ -121,13 +121,13 @@ export default function ChapterRating({ seriesId, chapterNum }) {
             <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black mb-1">Genel Ortalanma</p>
             <p className="text-3xl font-black text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]">
               {avgRating > 0 ? avgRating.toFixed(1) : '—'} 
-              <span className="text-lg text-slate-400">/10</span>
+              <span className="text-lg text-slate-600">/10</span>
             </p>
           </div>
-          <div className="w-px h-10 bg-white/10" />
+          <div className="w-px h-10 bg-slate-900/10" />
           <div className="text-center">
             <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black mb-1">Toplam Oy</p>
-            <p className="text-3xl font-black text-white">{totalVotes}</p>
+            <p className="text-3xl font-black text-slate-900">{totalVotes}</p>
           </div>
         </div>
       </div>

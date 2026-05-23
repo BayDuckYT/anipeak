@@ -15,6 +15,8 @@ export default {
         'cyber-blue': '#06b6d4',
         'light-glow': '#C084FC',
         'card-navy': '#1A1038',
+        'light-bg': '#F8F5FF',
+        'light-card': '#FFFFFF',
         'glass': 'rgba(255,255,255,0.05)',
       },
       boxShadow: {

@@ -209,7 +209,7 @@ export default function OraclePage() {
   }, [user]);
 
   return (
-    <div className="relative min-h-screen pt-24 pb-20 text-white selection:bg-cyan-500/30">
+    <div className="relative min-h-screen pt-24 pb-20 text-slate-900 selection:bg-cyan-500/30">
       <NebulaBackground />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -221,7 +221,7 @@ export default function OraclePage() {
             animate={{ scale: 1, opacity: 1 }}
             className="w-20 h-20 bg-gradient-to-tr from-purple-600 to-cyan-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(138,43,226,0.4)] mb-6"
           >
-            <Compass className="w-10 h-10 text-white animate-spin-slow" />
+            <Compass className="w-10 h-10 text-slate-900 animate-spin-slow" />
           </motion.div>
           <motion.h1 
             initial={{ y: 20, opacity: 0 }}
@@ -250,7 +250,7 @@ export default function OraclePage() {
             >
               {/* Soul Mirror Section */}
               <div className="lg:col-span-8 space-y-8">
-                <div className="relative p-8 rounded-3xl bg-gradient-to-br from-[#1a1a3a]/40 to-[#0d0d1a]/80 border border-white/5 backdrop-blur-2xl overflow-hidden">
+                <div className="relative p-8 rounded-3xl bg-gradient-to-br from-[#1a1a3a]/40 to-[#0d0d1a]/80 border border-purple-900/5 backdrop-blur-2xl overflow-hidden">
                   <div className="absolute top-0 right-0 p-6 opacity-20">
                     <Layers className="w-32 h-32 text-purple-500" />
                   </div>
@@ -262,7 +262,7 @@ export default function OraclePage() {
                         <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                         <span className="text-xs font-mono text-purple-400 tracking-widest uppercase">RUH MERTEBESİ</span>
                       </div>
-                      <h2 className="text-4xl font-black mb-3 text-white">
+                      <h2 className="text-4xl font-black mb-3 text-slate-900">
                         {soulProfile.name} <span className="text-purple-400">/ {soulProfile.title}</span>
                       </h2>
                       <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-lg">
@@ -270,7 +270,7 @@ export default function OraclePage() {
                       </p>
                       <div className="flex flex-wrap gap-3">
                         {soulProfile.cosmicDistribution.map(item => (
-                          <div key={item.label} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10">
+                          <div key={item.label} className="px-4 py-2 rounded-xl bg-slate-900/5 border border-purple-900/10">
                             <div className="text-[10px] text-gray-500 uppercase mb-1 font-mono">{item.label}</div>
                             <div className="text-lg font-bold text-cyan-400">%{item.value}</div>
                           </div>
@@ -340,7 +340,7 @@ export default function OraclePage() {
               {/* Sidebar Info */}
               <div className="lg:col-span-4 space-y-8">
                 <div className="p-6 rounded-3xl bg-[#16162a]/60 border border-purple-500/10 backdrop-blur-md">
-                  <h3 className="text-sm font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-purple-400" /> ANALİZ RAPORU
                   </h3>
                   <div className="space-y-4">
@@ -388,7 +388,7 @@ export default function OraclePage() {
                   </div>
                 </div>
 
-                <div className="relative group p-8 rounded-3xl bg-gradient-to-br from-cyan-600/20 to-purple-600/20 border border-white/5 overflow-hidden text-center">
+                <div className="relative group p-8 rounded-3xl bg-gradient-to-br from-cyan-600/20 to-purple-600/20 border border-purple-900/5 overflow-hidden text-center">
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.05)_0%,_transparent_100%)] mix-blend-overlay" />
                   <div className="relative z-10">
                     {user?.discord_id ? (
@@ -405,7 +405,7 @@ export default function OraclePage() {
                       </>
                     ) : (
                       <>
-                        <Ghost className="w-12 h-12 text-white mx-auto mb-4 animate-bounce" />
+                        <Ghost className="w-12 h-12 text-slate-900 mx-auto mb-4 animate-bounce" />
                         <h3 className="text-xl font-bold mb-2">DISCORD BAĞLANTISI</h3>
                         <p className="text-xs text-gray-300 mb-6 font-light">
                           Discord hesabınızı bağlayarak rütbenizi senkronize edin ve ek XP kazanın.

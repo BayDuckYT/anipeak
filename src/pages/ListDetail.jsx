@@ -249,19 +249,19 @@ export default function ListDetail() {
   if (loading) return <Loader text="Sayfa Yükleniyor..." />;
   
   if (!list) return (
-    <div className="min-h-screen bg-[#070511] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-[#F8F5FF] flex flex-col items-center justify-center p-6 text-center">
        <X size={80} className="text-red-500 mb-6 opacity-20" />
-       <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Koleksiyon Bulunamadı</h1>
+       <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Koleksiyon Bulunamadı</h1>
        <p className="text-zinc-500 text-sm mb-8">Aradığın liste mühürlenmiş veya silinmiş olabilir uşağım.</p>
-       <button onClick={() => navigate(-1)} className="px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 font-black uppercase text-xs hover:text-white transition-all">Geri Dön</button>
+       <button onClick={() => navigate(-1)} className="px-8 py-3 rounded-2xl bg-slate-900/5 border border-purple-900/10 text-slate-600 font-black uppercase text-xs hover:text-slate-900 transition-all">Geri Dön</button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#070511] pt-24 pb-20 relative overflow-hidden text-zinc-300 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div className="min-h-screen bg-[#F8F5FF] pt-24 pb-20 relative overflow-hidden text-slate-700 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
       {/* Immersive Background */}
       <div className="absolute top-0 left-0 w-full h-[800px] pointer-events-none overflow-hidden">
-         <div className="absolute inset-0 bg-gradient-to-b from-[#070511] via-[#070511] to-transparent z-10" />
+         <div className="absolute inset-0 bg-gradient-to-b from-[#F8F5FF] via-[#F8F5FF] to-transparent z-10" />
          {listItems?.length > 0 && (
            <motion.div 
              initial={{ opacity: 0, scale: 1.1 }}
@@ -282,8 +282,8 @@ export default function ListDetail() {
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-16">
            <div className="space-y-4">
-              <button onClick={() => navigate(-1)} className="group flex items-center gap-3 text-zinc-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.2em]">
-                 <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-all">
+              <button onClick={() => navigate(-1)} className="group flex items-center gap-3 text-zinc-500 hover:text-slate-900 transition-all text-[10px] font-black uppercase tracking-[0.2em]">
+                 <div className="w-10 h-10 rounded-xl bg-slate-900/5 border border-purple-900/10 flex items-center justify-center group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-all">
                    <ArrowLeft size={16} />
                  </div>
                  Geri Dön
@@ -295,14 +295,14 @@ export default function ListDetail() {
                        <input 
                          value={editTitle}
                          onChange={e => setEditTitle(e.target.value)}
-                         className="text-4xl md:text-7xl font-black text-white bg-white/5 border border-white/10 rounded-3xl px-8 py-2 w-full outline-none focus:border-indigo-500 transition-all uppercase tracking-tighter shadow-2xl"
+                         className="text-4xl md:text-7xl font-black text-slate-900 bg-slate-900/5 border border-purple-900/10 rounded-3xl px-8 py-2 w-full outline-none focus:border-indigo-500 transition-all uppercase tracking-tighter shadow-2xl"
                          placeholder="Liste Adı..."
                        />
                     ) : (
                        <div className="flex items-center gap-6">
-                          <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-2xl">{list.name}</h1>
+                          <h1 className="text-5xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-none drop-shadow-2xl">{list.name}</h1>
                           {isOwner && (
-                             <button onClick={() => setIsEditing(true)} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-zinc-500 hover:text-white hover:border-indigo-500/30 transition-all shadow-xl">
+                             <button onClick={() => setIsEditing(true)} className="p-4 rounded-2xl bg-slate-900/5 border border-purple-900/10 text-zinc-500 hover:text-slate-900 hover:border-indigo-500/30 transition-all shadow-xl">
                                <Edit3 size={24} />
                              </button>
                           )}
@@ -315,7 +315,7 @@ export default function ListDetail() {
                  <textarea 
                    value={editDesc}
                    onChange={e => setEditDesc(e.target.value)}
-                   className="text-lg text-zinc-400 bg-white/5 border border-white/10 rounded-3xl px-8 py-6 w-full max-w-2xl outline-none focus:border-indigo-500 transition-all resize-none shadow-2xl mt-4"
+                   className="text-lg text-slate-600 bg-slate-900/5 border border-purple-900/10 rounded-3xl px-8 py-6 w-full max-w-2xl outline-none focus:border-indigo-500 transition-all resize-none shadow-2xl mt-4"
                    rows={3}
                    placeholder="Bu koleksiyonun hikayesi nedir uşağım?"
                  />
@@ -327,20 +327,20 @@ export default function ListDetail() {
 
               {isEditing && (
                 <div className="flex gap-4 mt-4">
-                   <button onClick={handleUpdate} className="px-10 py-4 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all">Kaydet</button>
-                   <button onClick={() => setIsEditing(false)} className="px-10 py-4 bg-card-navy text-zinc-500 text-xs font-black uppercase tracking-widest rounded-2xl border border-white/5 transition-all">İptal</button>
+                   <button onClick={handleUpdate} className="px-10 py-4 bg-indigo-600 text-slate-900 text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all">Kaydet</button>
+                   <button onClick={() => setIsEditing(false)} className="px-10 py-4 bg-white text-zinc-500 text-xs font-black uppercase tracking-widest rounded-2xl border border-purple-900/5 transition-all">İptal</button>
                 </div>
               )}
            </div>
 
            {/* Stats & Actions Card */}
-           <div className="w-full md:w-auto min-w-[320px] p-8 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-3xl border border-white/5 shadow-2xl space-y-8">
+           <div className="w-full md:w-auto min-w-[320px] p-8 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-3xl border border-purple-900/5 shadow-2xl space-y-8">
               <div className="flex items-center justify-between">
                  <div className="flex items-center gap-3">
                     <img src={list.profiles?.avatar_url} alt={`${list.profiles?.username || 'Kullanıcı'} avatarı`} className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500/20 shadow-lg" />
                     <div className="flex flex-col">
                        <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Oluşturan</span>
-                       <Link to={`/profil/${list.profiles?.username}`} className="text-[11px] font-black text-white hover:text-indigo-400 transition-colors">@{list.profiles?.username}</Link>
+                       <Link to={`/profil/${list.profiles?.username}`} className="text-[11px] font-black text-slate-900 hover:text-indigo-400 transition-colors">@{list.profiles?.username}</Link>
                     </div>
                  </div>
                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
@@ -350,11 +350,11 @@ export default function ListDetail() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                 <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
-                    <p className="text-2xl font-black text-white">{stats.count}</p>
+                 <div className="p-4 rounded-2xl bg-slate-900/5 border border-purple-900/5 text-center">
+                    <p className="text-2xl font-black text-slate-900">{stats.count}</p>
                     <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1">Toplam Seri</p>
                  </div>
-                 <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
+                 <div className="p-4 rounded-2xl bg-slate-900/5 border border-purple-900/5 text-center">
                     <p className="text-2xl font-black text-indigo-400">{stats.avgScore}</p>
                     <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1">Ort. Puan</p>
                  </div>
@@ -366,8 +366,8 @@ export default function ListDetail() {
                    aria-label="Beğen"
                    className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl border transition-all ${
                      isLiked 
-                       ? 'bg-rose-500 border-rose-400 text-white shadow-xl shadow-rose-500/30' 
-                       : 'bg-white/5 border-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                       ? 'bg-rose-500 border-rose-400 text-slate-900 shadow-xl shadow-rose-500/30' 
+                       : 'bg-slate-900/5 border-purple-900/5 text-slate-600 hover:text-slate-900 hover:bg-slate-900/10'
                    }`}
                  >
                     <Star size={18} fill={isLiked ? "currentColor" : "none"} />
@@ -376,7 +376,7 @@ export default function ListDetail() {
                  <button 
                    onClick={handleShare}
                    aria-label="Paylaş"
-                   className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:scale-105 transition-all"
+                   className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-indigo-600 text-slate-900 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:scale-105 transition-all"
                  >
                     <Share2 size={18} />
                     PAYLAŞ
@@ -394,7 +394,7 @@ export default function ListDetail() {
                     <button 
                       onClick={handleDeleteList}
                       aria-label="Listeyi sil"
-                      className="p-3 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                      className="p-3 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-slate-900 transition-all border border-red-500/20"
                     >
                        <X size={16} />
                     </button>
@@ -407,7 +407,7 @@ export default function ListDetail() {
         <div className="space-y-8">
            <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                 <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-4">
+                 <h2 className="text-xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-4">
                    <LayoutGrid className="text-indigo-500" /> KOLEKSİYON İÇERİĞİ
                  </h2>
                  <span className="h-px w-32 bg-gradient-to-r from-indigo-500/50 to-transparent" />
@@ -439,22 +439,22 @@ export default function ListDetail() {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.05 }}
-                          className="group bg-zinc-950/40 backdrop-blur-2xl border border-white/5 hover:bg-white/5 transition-all duration-300"
+                          className="group bg-zinc-950/40 backdrop-blur-2xl border border-purple-900/5 hover:bg-slate-900/5 transition-all duration-300"
                         >
                            {/* Rank */}
-                           <td className="px-8 py-4 rounded-l-[1.5rem] border-y border-l border-white/5">
+                           <td className="px-8 py-4 rounded-l-[1.5rem] border-y border-l border-purple-900/5">
                               <span className="text-lg font-black text-zinc-700 group-hover:text-indigo-500 transition-colors">{(idx + 1).toString().padStart(2, '0')}</span>
                            </td>
 
                            {/* Series Info */}
-                           <td className="px-4 py-4 border-y border-white/5">
+                           <td className="px-4 py-4 border-y border-purple-900/5">
                               <div className="flex items-center gap-6">
-                                 <div className="relative w-16 h-24 rounded-xl overflow-hidden border border-white/10 shadow-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
+                                 <div className="relative w-16 h-24 rounded-xl overflow-hidden border border-purple-900/10 shadow-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
                                     <img src={s.cover} alt={s.title} className="w-full h-full object-cover" loading="lazy" decoding="async" width={64} height={96} />
                                     <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/20 transition-all" />
                                  </div>
                                  <div className="flex flex-col gap-1">
-                                    <Link to={`/manhwa/${s.id}`} className="text-sm font-black text-white hover:text-indigo-400 transition-all uppercase tracking-tight line-clamp-1">{s.title}</Link>
+                                    <Link to={`/manhwa/${s.id}`} className="text-sm font-black text-slate-900 hover:text-indigo-400 transition-all uppercase tracking-tight line-clamp-1">{s.title}</Link>
                                     <div className="flex items-center gap-3">
                                        <span className="text-[10px] text-zinc-500 font-bold uppercase">{s.author || 'Anonim'}</span>
                                        <span className="w-1 h-1 rounded-full bg-zinc-700" />
@@ -465,20 +465,20 @@ export default function ListDetail() {
                            </td>
 
                            {/* Score */}
-                           <td className="px-4 py-4 border-y border-white/5 text-center">
+                           <td className="px-4 py-4 border-y border-purple-900/5 text-center">
                               <div className="flex flex-col items-center gap-1">
                                  <div className="flex items-center gap-1.5 text-amber-500">
                                     <Star size={14} fill="currentColor" />
-                                    <span className="text-sm font-black text-white">{s.rating || '0.0'}</span>
+                                    <span className="text-sm font-black text-slate-900">{s.rating || '0.0'}</span>
                                  </div>
                                  {item.user_score > 0 && (
-                                   <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest bg-card-navy/50 px-2 py-0.5 rounded-md border border-white/5">SİZ: {item.user_score}/10</span>
+                                   <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest bg-slate-900/50 px-2 py-0.5 rounded-md border border-purple-900/5">SİZ: {item.user_score}/10</span>
                                  )}
                               </div>
                            </td>
 
                            {/* Genre */}
-                           <td className="px-4 py-4 border-y border-white/5">
+                           <td className="px-4 py-4 border-y border-purple-900/5">
                               <div className="flex flex-wrap gap-2 max-w-[150px]">
                                  {s.genre?.slice(0, 2).map((g, i) => (
                                    <span key={i} className="px-2.5 py-1 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-[9px] font-black text-indigo-400 uppercase tracking-tight">{g}</span>
@@ -487,24 +487,24 @@ export default function ListDetail() {
                            </td>
 
                            {/* Progress */}
-                           <td className="px-4 py-4 border-y border-white/5">
+                           <td className="px-4 py-4 border-y border-purple-900/5">
                               <div className="flex flex-col items-center gap-2">
                                  <div className="flex items-center gap-4">
                                     <div className="flex flex-col items-center">
-                                       <span className="text-sm font-black text-white tracking-tighter">{item.read_chapters || 0}</span>
-                                       <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Bölüm</span>
+                                       <span className="text-sm font-black text-slate-900 tracking-tighter">{item.read_chapters || 0}</span>
+                                       <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Bölüm</span>
                                     </div>
                                     <div className="h-6 w-px bg-zinc-800" />
                                     <div className="flex flex-col items-center">
                                        <span className="text-sm font-black text-zinc-500 tracking-tighter">?</span>
-                                       <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Toplam</span>
+                                       <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Toplam</span>
                                     </div>
                                  </div>
                                  {isOwner && (
                                    <button 
                                      onClick={() => handleIncrementProgress(item.id, item.read_chapters)}
                                      aria-label="Bölüm artır"
-                                     className="w-10 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20"
+                                     className="w-10 h-6 rounded-lg bg-indigo-600 text-slate-900 flex items-center justify-center hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20"
                                    >
                                       <Plus size={14} />
                                    </button>
@@ -513,30 +513,30 @@ export default function ListDetail() {
                            </td>
 
                            {/* Status */}
-                           <td className="px-4 py-4 border-y border-white/5 text-center">
+                           <td className="px-4 py-4 border-y border-purple-900/5 text-center">
                               <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
                                 item.status === 'Okuyor' 
                                 ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' 
                                 : item.status === 'Tamamladı' 
                                 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                : 'bg-zinc-800/50 border-white/5 text-zinc-500'
+                                : 'bg-zinc-800/50 border-purple-900/5 text-zinc-500'
                               }`}>
                                  {item.status || 'Okuyor'}
                               </span>
                            </td>
 
                            {/* Actions */}
-                           <td className="px-8 py-4 rounded-r-[1.5rem] border-y border-r border-white/5 text-right">
+                           <td className="px-8 py-4 rounded-r-[1.5rem] border-y border-r border-purple-900/5 text-right">
                               {isOwner ? (
                                 <button 
                                   onClick={() => handleRemoveItem(item.id)}
                                   aria-label="Kaldır"
-                                  className="w-10 h-10 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                  className="w-10 h-10 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-slate-900 transition-all opacity-0 group-hover:opacity-100"
                                 >
                                    <Minus size={16} />
                                 </button>
                               ) : (
-                                <Link to={`/manhwa/${s.id}`} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-zinc-500 flex items-center justify-center hover:border-indigo-500/50 hover:text-white transition-all">
+                                <Link to={`/manhwa/${s.id}`} className="w-10 h-10 rounded-xl bg-slate-900/5 border border-purple-900/10 text-zinc-500 flex items-center justify-center hover:border-indigo-500/50 hover:text-slate-900 transition-all">
                                    <ChevronRight size={18} />
                                 </Link>
                               )}
@@ -571,11 +571,11 @@ export default function ListDetail() {
              />
              <motion.div 
                initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-               className="relative w-full max-w-xl bg-card-navy border border-white/10 rounded-[3rem] p-10 shadow-[0_0_80px_rgba(0,0,0,1)]"
+               className="relative w-full max-w-xl bg-white border border-purple-900/10 rounded-[3rem] p-10 shadow-[0_0_80px_rgba(0,0,0,1)]"
              >
                 <div className="flex items-center justify-between mb-8">
-                   <h4 className="text-2xl font-black text-white uppercase tracking-tighter">Seri Mühürle</h4>
-                   <button onClick={() => setShowAddModal(false)} aria-label="Kapat" className="p-2 text-zinc-500 hover:text-white transition-all"><X /></button>
+                   <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Seri Mühürle</h4>
+                   <button onClick={() => setShowAddModal(false)} aria-label="Kapat" className="p-2 text-zinc-500 hover:text-slate-900 transition-all"><X /></button>
                 </div>
 
                 <div className="relative mb-8">
@@ -585,7 +585,7 @@ export default function ListDetail() {
                      placeholder="Seri ismini yaz uşağım..."
                      value={searchQuery}
                      onChange={e => setSearchQuery(e.target.value)}
-                     className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-sm text-white focus:border-indigo-500 outline-none transition-all shadow-inner"
+                     className="w-full bg-black/40 border border-purple-900/10 rounded-2xl py-4 px-6 text-sm text-slate-900 focus:border-indigo-500 outline-none transition-all shadow-inner"
                    />
                 </div>
 
@@ -596,14 +596,14 @@ export default function ListDetail() {
                        onClick={() => handleAddSeries(s.id)}
                        className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-indigo-600/10 border border-transparent hover:border-indigo-500/30 transition-all text-left group"
                      >
-                        <div className="w-14 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-white/5 shadow-lg">
+                        <div className="w-14 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-purple-900/5 shadow-lg">
                            <img src={s.cover} alt={s.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" decoding="async" width={56} height={80} />
                         </div>
                         <div className="flex-1">
-                           <p className="text-sm font-black text-white uppercase tracking-tight line-clamp-1">{s.title}</p>
+                           <p className="text-sm font-black text-slate-900 uppercase tracking-tight line-clamp-1">{s.title}</p>
                            <p className="text-[10px] text-zinc-500 font-bold uppercase mt-1">{s.genre?.[0] || 'Aksiyon'}</p>
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-slate-900/5 flex items-center justify-center text-slate-600 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-all">
                            <Plus size={18} />
                         </div>
                      </button>
@@ -621,9 +621,9 @@ export default function ListDetail() {
              initial={{ opacity: 0, y: 50, scale: 0.9 }}
              animate={{ opacity: 1, y: 0, scale: 1 }}
              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-600/40 flex items-center gap-4 border border-indigo-400/30"
+             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 bg-indigo-600 text-slate-900 rounded-2xl shadow-2xl shadow-indigo-600/40 flex items-center gap-4 border border-indigo-400/30"
            >
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-slate-900/20 flex items-center justify-center">
                  <ClipboardCheck size={18} />
               </div>
               <span className="text-xs font-black uppercase tracking-widest">{toast}</span>

@@ -163,7 +163,7 @@ export default function AnimeAvatar({
       className={`relative aspect-square flex-shrink-0 overflow-visible cursor-pointer grid place-items-center ${size} ${className}`}
     >
       {/* KATMAN 1: AVATAR */}
-      <div className="relative z-0 w-full h-full rounded-full overflow-hidden bg-zinc-950/80 border border-white/5 shadow-2xl">
+      <div className="relative z-0 w-full h-full rounded-full overflow-hidden bg-zinc-950/80 border border-purple-900/5 shadow-2xl">
         {src && (
           <img 
             src={getOptimizedImage(src, 200)} 

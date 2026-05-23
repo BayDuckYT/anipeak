@@ -87,7 +87,7 @@ export default function Achievements() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070511] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F5FF] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
           <p className="text-purple-400 font-black tracking-widest text-xs uppercase animate-pulse">Veriler Senkronize Ediliyor...</p>
@@ -97,7 +97,7 @@ export default function Achievements() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070511] pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F8F5FF] pt-24 pb-20 px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
       <div className="max-w-7xl mx-auto mb-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
@@ -115,7 +115,7 @@ export default function Achievements() {
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-6xl font-black text-white tracking-tighter"
+              className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter"
             >
               KOZMİK <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">BAŞARIMLAR</span>
             </motion.h1>
@@ -124,23 +124,23 @@ export default function Achievements() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-6 glass border border-white/10 p-6 rounded-3xl"
+            className="flex items-center gap-6 glass border border-purple-900/10 p-6 rounded-3xl"
           >
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Tamamlanan</p>
-              <p className="text-2xl font-black text-white">{stats.unlocked} <span className="text-slate-400 text-sm">/ {stats.total}</span></p>
+              <p className="text-2xl font-black text-slate-900">{stats.unlocked} <span className="text-slate-600 text-sm">/ {stats.total}</span></p>
             </div>
-            <div className="w-px h-10 bg-white/10" />
+            <div className="w-px h-10 bg-slate-900/10" />
             <div className="relative">
               <svg className="w-16 h-16 transform -rotate-90">
-                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
+                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-900/5" />
                 <circle 
                   cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" 
                   strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * stats.percent) / 100}
                   className="text-purple-500 transition-all duration-1000"
                 />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-white">{stats.percent}%</span>
+              <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-slate-900">{stats.percent}%</span>
             </div>
           </motion.div>
         </div>
@@ -154,8 +154,8 @@ export default function Achievements() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-6 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all whitespace-nowrap border ${
                   selectedCategory === cat 
-                  ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' 
-                  : 'bg-white/5 border-white/10 text-slate-500 hover:border-white/20 hover:text-white'
+                  ? 'bg-purple-600 border-purple-500 text-slate-900 shadow-lg shadow-purple-500/20' 
+                  : 'bg-slate-900/5 border-purple-900/10 text-slate-500 hover:border-purple-900/20 hover:text-slate-900'
                 }`}
               >
                 {cat}
@@ -169,7 +169,7 @@ export default function Achievements() {
               placeholder="BAŞARIM ARA..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-6 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500/50 w-full sm:w-64 transition-all"
+              className="pl-12 pr-6 py-3 bg-slate-900/5 border border-purple-900/10 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-purple-500/50 w-full sm:w-64 transition-all"
               aria-label="Başarım ara"
             />
           </div>
@@ -190,7 +190,7 @@ export default function Achievements() {
                 className={`group relative p-6 rounded-3xl border transition-all duration-500 ${
                   isUnlocked 
                   ? 'bg-purple-600/5 border-purple-500/30 hover:border-purple-500/60 shadow-lg hover:shadow-purple-500/10' 
-                  : 'bg-white/[0.02] border-white/5 grayscale opacity-60 hover:opacity-100'
+                  : 'bg-white/[0.02] border-purple-900/5 grayscale opacity-60 hover:opacity-100'
                 }`}
               >
                 {/* Status Icon */}
@@ -200,23 +200,23 @@ export default function Achievements() {
                       <Sparkles size={12} className="text-purple-400" />
                     </div>
                   ) : (
-                    <Lock size={12} className="text-slate-400" />
+                    <Lock size={12} className="text-slate-600" />
                   )}
                 </div>
 
                 <div className="flex items-start gap-4 mb-4">
                   <div className={`p-3 rounded-2xl transition-all duration-500 ${
                     isUnlocked 
-                    ? 'bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] rotate-0 scale-110' 
-                    : 'bg-white/5 text-slate-400 rotate-12'
+                    ? 'bg-purple-500 text-slate-900 shadow-[0_0_20px_rgba(168,85,247,0.4)] rotate-0 scale-110' 
+                    : 'bg-slate-900/5 text-slate-600 rotate-12'
                   }`}>
                     {ach.category === 'Efsanevi' ? <Star size={24} /> : CATEGORY_ICONS[ach.category] || <Award size={24} />}
                   </div>
                   <div>
-                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isUnlocked ? 'text-purple-400' : 'text-slate-400'}`}>
+                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isUnlocked ? 'text-purple-400' : 'text-slate-600'}`}>
                       {ach.category}
                     </p>
-                    <h3 className="text-white font-black text-sm group-hover:text-purple-400 transition-colors uppercase leading-tight">
+                    <h3 className="text-slate-900 font-black text-sm group-hover:text-purple-400 transition-colors uppercase leading-tight">
                       {isUnlocked || !ach.is_secret ? ach.name : 'GİZLİ BAŞARIM'}
                     </h3>
                   </div>
@@ -227,18 +227,18 @@ export default function Achievements() {
                 </p>
 
                 {isUnlocked && unlockData && (
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-4 border-t border-purple-900/5">
                     <span className="text-[10px] font-black text-purple-500/50 uppercase tracking-widest">Açıldı</span>
-                    <span className="text-[10px] font-bold text-slate-400">
+                    <span className="text-[10px] font-bold text-slate-600">
                       {new Date(unlockData.unlocked_at).toLocaleDateString('tr-TR')}
                     </span>
                   </div>
                 )}
                 
                 {!isUnlocked && (
-                  <div className="flex items-center gap-2 pt-4 border-t border-white/5 group-hover:border-white/10 transition-colors">
-                    <Info size={12} className="text-slate-400" />
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <div className="flex items-center gap-2 pt-4 border-t border-purple-900/5 group-hover:border-purple-900/10 transition-colors">
+                    <Info size={12} className="text-slate-600" />
+                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                       {ach.requirement_type.replace('_', ' ')}: {ach.requirement_value}
                     </span>
                   </div>

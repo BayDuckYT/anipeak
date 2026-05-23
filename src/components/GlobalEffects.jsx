@@ -212,7 +212,7 @@ export default function GlobalEffects() {
       aria-hidden="true"
       role="presentation"
       className={`fixed inset-0 pointer-events-none z-[-1] gpu-accelerated transition-colors duration-700 ${
-        user?.appearance_settings?.theme === 'amoled' ? 'bg-black' : 'bg-[#070511]'
+        user?.appearance_settings?.theme === 'amoled' ? 'bg-black' : 'bg-[#F8F5FF]'
       }`}
       style={{ opacity: 0.85 }}
     />

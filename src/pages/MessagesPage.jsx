@@ -68,7 +68,7 @@ const AnimeNameplate = ({ username, role, mix }) => {
     <Link to={`/profil/${username}`} className="relative group cursor-pointer w-[130px] h-[44px] block">
       <div className={`relative w-full h-full rounded-md transition-all duration-500 flex items-center justify-center gap-2 overflow-hidden border
         ${nametagEffect !== 'none' || nameplateFile !== 'none'
-          ? 'border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] bg-zinc-950/40' 
+          ? 'border-purple-900/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] bg-zinc-950/40' 
           : 'bg-transparent border-transparent'
         }`}
       >
@@ -104,7 +104,7 @@ const AnimeNameplate = ({ username, role, mix }) => {
         
         {/* Username */}
         <span className={`relative z-10 text-[10px] font-black uppercase tracking-tight transition-all duration-300 truncate max-w-[80px]
-          ${nametagEffect !== 'none' ? `nametag-effect-${nametagEffect}` : 'text-slate-300 group-hover:text-white'}
+          ${nametagEffect !== 'none' ? `nametag-effect-${nametagEffect}` : 'text-slate-700 group-hover:text-slate-900'}
         `}>
           {username}
         </span>
@@ -119,7 +119,7 @@ const AnimeNameplate = ({ username, role, mix }) => {
       
       {/* Outer Glow */}
       {(nametagEffect !== 'none' || nameplateFile !== 'none') && (
-        <div className="absolute inset-0 -z-10 rounded-md bg-white/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 -z-10 rounded-md bg-slate-900/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       )}
     </Link>
   );
@@ -155,14 +155,14 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
       <div className="flex-1 min-w-0">
         {/* Nameplate + Timestamp */}
         <div className={`flex items-center gap-2 mb-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-          <div className="bg-white/5 px-2 py-0.5 rounded-md border border-white/5 backdrop-blur-md">
+          <div className="bg-slate-900/5 px-2 py-0.5 rounded-md border border-purple-900/5 backdrop-blur-md">
             <AnimeNameplate 
               username={msg.sender?.username || 'Anonim'} 
               role={msg.sender?.role} 
               mix={mix} 
             />
           </div>
-          <span className="text-[9px] text-slate-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[9px] text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
             {new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
@@ -171,8 +171,8 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
         <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
           <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed font-medium break-words shadow-lg ${
             isMe 
-              ? 'bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-tr-none border border-white/10' 
-              : 'bg-zinc-800/80 text-slate-100 rounded-tl-none border border-white/5 backdrop-blur-sm'
+              ? 'bg-gradient-to-br from-indigo-600 to-purple-700 text-slate-900 rounded-tr-none border border-purple-900/10' 
+              : 'bg-zinc-800/80 text-slate-100 rounded-tl-none border border-purple-900/5 backdrop-blur-sm'
           }`}>
             {decryptMsg(msg.content)}
           </div>
@@ -180,7 +180,7 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
 
         {/* Effect Mini Preview */}
         {linkedEffect && (
-          <div className="mt-2 p-3 rounded-2xl bg-black/40 border border-white/5 max-w-[200px] shadow-xl backdrop-blur-xl">
+          <div className="mt-2 p-3 rounded-2xl bg-black/40 border border-purple-900/5 max-w-[200px] shadow-xl backdrop-blur-xl">
             <div className="relative aspect-square flex items-center justify-center bg-black/40 rounded-xl overflow-hidden">
               <AnimeAvatar effect={linkedEffect} size="w-24 h-24" forcePlay={true} />
             </div>
@@ -192,7 +192,7 @@ const MessageItem = ({ msg, isMe, effectLookup }) => {
         {msg.attachments?.length > 0 && (
           <div className="mt-1.5 flex flex-wrap gap-2">
             {msg.attachments.map((at, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all cursor-pointer">
+              <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/5 border border-purple-900/5 hover:border-blue-500/30 transition-all cursor-pointer">
                 <FileText size={12} className="text-blue-400" />
                 <span className="text-[9px] font-bold uppercase tracking-tighter">{at.name}</span>
               </div>
@@ -537,11 +537,11 @@ export default function MessagesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#070511] text-white pt-16 font-sans overflow-hidden">
-      <div className="max-w-[1400px] mx-auto h-[calc(100vh-64px)] flex border-x border-white/5 bg-[#070709]/50 backdrop-blur-3xl overflow-hidden shadow-2xl relative">
+    <div className="min-h-screen bg-[#F8F5FF] text-slate-900 pt-16 font-sans overflow-hidden">
+      <div className="max-w-[1400px] mx-auto h-[calc(100vh-64px)] flex border-x border-purple-900/5 bg-[#070709]/50 backdrop-blur-3xl overflow-hidden shadow-2xl relative">
         
         {/* SIDEBAR */}
-        <aside className={`w-full md:w-[380px] shrink-0 flex flex-col border-r border-white/5 bg-zinc-950/20 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
+        <aside className={`w-full md:w-[380px] shrink-0 flex flex-col border-r border-purple-900/5 bg-zinc-950/20 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
@@ -554,7 +554,7 @@ export default function MessagesPage() {
               <button 
                 onClick={() => setShowNewChat(true)}
                 aria-label="Yeni sohbet başlat"
-                className="p-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+                className="p-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-slate-900 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
               >
                 <Plus size={20} />
               </button>
@@ -566,12 +566,12 @@ export default function MessagesPage() {
                 <input 
                 type="text" 
                 placeholder="Arkadaşlarını veya grupları ara..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-white placeholder-slate-400 focus:border-indigo-500/50 outline-none transition-all"
+                className="w-full bg-slate-900/5 border border-purple-900/10 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-slate-900 placeholder-slate-400 focus:border-indigo-500/50 outline-none transition-all"
               />
             </div>
 
             {/* Tabs */}
-            <div className="flex items-center p-1 bg-white/5 rounded-2xl border border-white/5">
+            <div className="flex items-center p-1 bg-slate-900/5 rounded-2xl border border-purple-900/5">
               {[
                 { id: 'dm', icon: User, label: 'Kişiler' },
                 { id: 'groups', icon: Users, label: 'Gruplar' },
@@ -583,8 +583,8 @@ export default function MessagesPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 flex flex-col items-center py-2 gap-1 rounded-xl transition-all ${
                     activeTab === tab.id 
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
-                      : 'text-slate-500 hover:text-slate-300'
+                      ? 'bg-indigo-600 text-slate-900 shadow-lg shadow-indigo-600/20' 
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   <tab.icon size={16} />
@@ -599,11 +599,11 @@ export default function MessagesPage() {
             {loading ? (
               <div className="space-y-2 p-2">
                 {[1,2,3,4].map(i => (
-                  <div key={i} className="h-20 rounded-2xl bg-white/5 animate-pulse flex items-center p-4 gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10" />
+                  <div key={i} className="h-20 rounded-2xl bg-slate-900/5 animate-pulse flex items-center p-4 gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-900/10" />
                     <div className="flex-1 space-y-2">
-                      <div className="h-3 w-24 bg-white/10 rounded" />
-                      <div className="h-2 w-40 bg-white/5 rounded" />
+                      <div className="h-3 w-24 bg-slate-900/10 rounded" />
+                      <div className="h-2 w-40 bg-slate-900/5 rounded" />
                     </div>
                   </div>
                 ))}
@@ -618,11 +618,11 @@ export default function MessagesPage() {
                     className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group relative overflow-hidden ${
                       activeChat?.id === chat.id 
                         ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/10 border border-indigo-500/40 shadow-[0_0_20px_rgba(99,102,241,0.1)]' 
-                        : 'hover:bg-white/5 border border-transparent'
+                        : 'hover:bg-slate-900/5 border border-transparent'
                     }`}
                   >
                 <div className="relative flex-shrink-0">
-                      <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 bg-card-navy flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-2xl overflow-hidden border border-purple-900/10 bg-white flex items-center justify-center">
                         <img src={partner?.avatar_url || '/default-avatar.png'} alt={`${partner?.username || 'Kullanıcı'} avatarı`} className="w-full h-full object-cover" />
                       </div>
                       <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#070511] ${
@@ -631,10 +631,10 @@ export default function MessagesPage() {
                     </div>
                     <div className="flex-1 min-w-0 text-left relative z-10">
                       <div className="flex items-center justify-between mb-0.5">
-                        <h4 className="text-sm font-black truncate text-slate-100 group-hover:text-white">
+                        <h4 className="text-sm font-black truncate text-slate-100 group-hover:text-slate-900">
                           {partner?.username || 'Bilinmeyen'}
                         </h4>
-                        <span className="text-[9px] text-slate-400 font-bold uppercase">
+                        <span className="text-[9px] text-slate-600 font-bold uppercase">
                           {new Date(chat.updated_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -665,18 +665,18 @@ export default function MessagesPage() {
         </aside>
 
         {/* MAIN CHAT WINDOW */}
-        <main className={`flex-1 flex flex-col relative bg-[#070511]/40 backdrop-blur-md ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
+        <main className={`flex-1 flex flex-col relative bg-[#F8F5FF]/40 backdrop-blur-md ${!activeChat ? 'hidden md:flex' : 'flex'}`}>
           <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none" />
           {activeChat ? (
             <>
               {/* Header */}
-              <div className="p-4 md:p-6 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl sticky top-0 z-20">
+              <div className="p-4 md:p-6 border-b border-purple-900/5 flex items-center justify-between bg-black/40 backdrop-blur-xl sticky top-0 z-20">
                 <div className="flex items-center gap-3 md:gap-4">
                   {/* Mobile Back Button */}
                   <button 
                     onClick={() => setActiveChat(null)}
                     aria-label="Sohbet listesine dön"
-                    className="md:hidden p-2 -ml-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-all"
+                    className="md:hidden p-2 -ml-2 rounded-xl bg-slate-900/5 text-slate-600 hover:text-slate-900 transition-all"
                   >
                     <ArrowLeft size={20} />
                   </button>
@@ -685,7 +685,7 @@ export default function MessagesPage() {
                     const partner = activeChat.user1_id === user.id ? activeChat.user2 : activeChat.user1;
                     return (
                       <>
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-card-navy border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white border border-purple-900/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                            <img 
                              src={partner?.avatar_url || '/default-avatar.png'} 
                              alt={`${partner?.username || 'Kullanıcı'} avatarı`}
@@ -709,8 +709,8 @@ export default function MessagesPage() {
                   })()}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button aria-label="Sohbet bilgisi" className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><Info size={18} /></button>
-                  <button aria-label="Diğer seçenekler" className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-inner"><MoreVertical size={18} /></button>
+                  <button aria-label="Sohbet bilgisi" className="p-3 rounded-2xl bg-slate-900/5 text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition-all shadow-inner"><Info size={18} /></button>
+                  <button aria-label="Diğer seçenekler" className="p-3 rounded-2xl bg-slate-900/5 text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition-all shadow-inner"><MoreVertical size={18} /></button>
                 </div>
               </div>
 
@@ -728,7 +728,7 @@ export default function MessagesPage() {
                       <span className="text-lg">👋</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-black text-white">
+                      <p className="text-sm font-black text-slate-900">
                         {activeChat.type === 'community' 
                           ? `${activeChat.name || 'Topluluk'} kanalına hoş geldiniz!`
                           : `Sohbet başladı!`
@@ -740,9 +740,9 @@ export default function MessagesPage() {
 
                 {/* Divider */}
                 <div className="flex items-center gap-3 mb-5 opacity-30">
-                  <div className="flex-1 h-[1px] bg-white/10" />
+                  <div className="flex-1 h-[1px] bg-slate-900/10" />
                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Mesajlar</span>
-                  <div className="flex-1 h-[1px] bg-white/10" />
+                  <div className="flex-1 h-[1px] bg-slate-900/10" />
                 </div>
 
                 <AnimatePresence mode="sync">
@@ -759,10 +759,10 @@ export default function MessagesPage() {
               </div>
 
               {/* Input Area */}
-              <div className="p-6 bg-zinc-950/60 backdrop-blur-2xl border-t border-white/5">
+              <div className="p-6 bg-zinc-950/60 backdrop-blur-2xl border-t border-purple-900/5">
                 <form 
                   onSubmit={handleSendMessage}
-                  className="max-w-5xl mx-auto relative flex items-center gap-4 bg-white/5 border border-white/10 p-3 pl-6 rounded-[2rem] focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all group"
+                  className="max-w-5xl mx-auto relative flex items-center gap-4 bg-slate-900/5 border border-purple-900/10 p-3 pl-6 rounded-[2rem] focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all group"
                 >
                   <button type="button" aria-label="Emoji ekle" className="text-slate-500 hover:text-indigo-400 transition-colors"><Smile size={22} /></button>
                   <input 
@@ -771,16 +771,16 @@ export default function MessagesPage() {
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder="Bir mesaj yaz uşağım..."
                     autoFocus
-                    className="flex-1 bg-transparent border-none text-white text-sm font-bold focus:ring-0 outline-none placeholder:text-slate-400"
+                    className="flex-1 bg-transparent border-none text-slate-900 text-sm font-bold focus:ring-0 outline-none placeholder:text-slate-600"
                   />
                   <div className="flex items-center gap-1 pr-1">
                     <button type="button" aria-label="Dosya ekle" className="p-2.5 text-slate-500 hover:text-blue-400 transition-all"><Paperclip size={20} /></button>
                     <button type="button" aria-label="Resim ekle" className="p-2.5 text-slate-500 hover:text-emerald-400 transition-all"><ImageIcon size={20} /></button>
-                    <div className="w-[1px] h-6 bg-white/10 mx-1" />
+                    <div className="w-[1px] h-6 bg-slate-900/10 mx-1" />
                     <button 
                       type="submit"
                       disabled={!inputText.trim()}
-                      className="p-4 rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale transition-all"
+                      className="p-4 rounded-2xl bg-indigo-600 text-slate-900 shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95 disabled:opacity-20 disabled:grayscale transition-all"
                     >
                       <SendHorizontal size={22} />
                     </button>
@@ -795,7 +795,7 @@ export default function MessagesPage() {
                 <motion.div 
                   initial={{ scale: 0.8, rotate: -10 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  className="w-40 h-40 rounded-[4rem] bg-card-navy/80 border border-white/10 flex items-center justify-center text-indigo-500 relative z-10 shadow-[0_0_50px_rgba(79,70,229,0.3)]"
+                  className="w-40 h-40 rounded-[4rem] bg-white/80 border border-purple-900/10 flex items-center justify-center text-indigo-500 relative z-10 shadow-[0_0_50px_rgba(79,70,229,0.3)]"
                 >
                   <SendHorizontal size={64} className="rotate-12 translate-x-1 -translate-y-1" />
                 </motion.div>
@@ -808,10 +808,10 @@ export default function MessagesPage() {
               </div>
               <button 
                 onClick={() => setShowNewChat(true)}
-                className="px-12 py-5 rounded-[2rem] bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white text-xs font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-600/40 hover:scale-110 active:scale-95 transition-all relative overflow-hidden group"
+                className="px-12 py-5 rounded-[2rem] bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-slate-900 text-xs font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-600/40 hover:scale-110 active:scale-95 transition-all relative overflow-hidden group"
               >
                 <span className="relative z-10">YENİ SOHBET BAŞLAT</span>
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-slate-900/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
               </button>
             </div>
           )}
@@ -832,11 +832,11 @@ export default function MessagesPage() {
                 initial={{ scale: 0.9, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                className="w-full max-w-md bg-card-navy border border-white/10 rounded-[2.5rem] p-8 relative z-[101] shadow-2xl"
+                className="w-full max-w-md bg-white border border-purple-900/10 rounded-[2.5rem] p-8 relative z-[101] shadow-2xl"
               >
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-2xl font-black italic tracking-tighter uppercase text-indigo-500">Yeni Sohbet</h3>
-                  <button onClick={() => setShowNewChat(false)} className="p-2 rounded-xl hover:bg-white/5 text-slate-500 hover:text-white transition-all"><X size={24} /></button>
+                  <button onClick={() => setShowNewChat(false)} className="p-2 rounded-xl hover:bg-slate-900/5 text-slate-500 hover:text-slate-900 transition-all"><X size={24} /></button>
                 </div>
 
                 <div className="space-y-6">
@@ -844,13 +844,13 @@ export default function MessagesPage() {
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Kullanıcı Ara</label>
                     <div className="relative">
-                      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
                       <input 
                         type="text" 
                         placeholder="Kullanıcı adı girin..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-xs font-bold focus:border-indigo-500 outline-none transition-all"
+                        className="w-full bg-black/40 border border-purple-900/10 rounded-2xl py-4 pl-12 pr-4 text-xs font-bold focus:border-indigo-500 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -868,17 +868,17 @@ export default function MessagesPage() {
                               setSelectedUsers(prev => isSelected ? prev.filter(id => id !== u.id) : [...prev, u.id]);
                             }}
                             className={`w-full flex items-center gap-4 p-3 rounded-2xl border transition-all ${
-                              isSelected ? 'bg-indigo-600/10 border-indigo-500/50' : 'bg-white/5 border-transparent hover:bg-white/10'
+                              isSelected ? 'bg-indigo-600/10 border-indigo-500/50' : 'bg-slate-900/5 border-transparent hover:bg-slate-900/10'
                             }`}
                           >
-                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-zinc-800 border border-white/5">
-                              {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full object-cover" /> : <User className="w-full h-full p-2 text-slate-400" />}
+                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-zinc-800 border border-purple-900/5">
+                              {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full object-cover" /> : <User className="w-full h-full p-2 text-slate-600" />}
                             </div>
                             <div className="flex-1 text-left">
-                              <div className="text-xs font-black text-white">{u.username}</div>
+                              <div className="text-xs font-black text-slate-900">{u.username}</div>
                               <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{u.role}</div>
                             </div>
-                            {isSelected && <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center"><CheckCheck size={12} className="text-white" /></div>}
+                            {isSelected && <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center"><CheckCheck size={12} className="text-slate-900" /></div>}
                           </button>
                         );
                       })}
@@ -893,7 +893,7 @@ export default function MessagesPage() {
                         placeholder="Grup adını belirleyin..."
                         value={groupName}
                         onChange={(e) => setGroupName(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-5 text-xs font-bold focus:border-indigo-500 outline-none transition-all"
+                        className="w-full bg-black/40 border border-purple-900/10 rounded-2xl py-4 px-5 text-xs font-bold focus:border-indigo-500 outline-none transition-all"
                       />
                     </motion.div>
                   )}
@@ -902,7 +902,7 @@ export default function MessagesPage() {
                   <button 
                     onClick={startNewConversation}
                     disabled={selectedUsers.length === 0}
-                    className="w-full py-5 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-xl shadow-indigo-600/20 disabled:opacity-30 disabled:grayscale transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full py-5 rounded-2xl bg-indigo-600 text-slate-900 text-[10px] font-black uppercase tracking-[0.3em] shadow-xl shadow-indigo-600/20 disabled:opacity-30 disabled:grayscale transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {selectedUsers.length > 1 ? 'GRUP OLUŞTUR' : 'SOHBET BAŞLAT'}
                   </button>

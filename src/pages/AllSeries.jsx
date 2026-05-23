@@ -53,18 +53,18 @@ function SeriesCard({ item, idx = 0 }) {
           {/* Rating badge */}
           <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/70 border border-amber-500/30 backdrop-blur-sm">
             <Star size={10} className="text-amber-400 fill-amber-400" />
-            <span className="text-white text-[11px] font-black">{item.rating}</span>
+            <span className="text-slate-900 text-[11px] font-black">{item.rating}</span>
           </div>
           {/* Hover play */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 backdrop-blur-[1px]">
             <div className="w-12 h-12 rounded-full bg-purple-600/90 flex items-center justify-center shadow-neon-purple">
-              <Play size={18} className="text-white ml-0.5" />
+              <Play size={18} className="text-slate-900 ml-0.5" />
             </div>
           </div>
         </div>
         <div className="p-2.5 bg-[#0a0a0c]">
-          <h3 className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
-          <p className="text-slate-400 text-[9px] font-medium truncate mt-0.5">{genres.slice(0, 2).join(', ') || 'Genel'}</p>
+          <h3 className="text-slate-900 text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
+          <p className="text-slate-600 text-[9px] font-medium truncate mt-0.5">{genres.slice(0, 2).join(', ') || 'Genel'}</p>
         </div>
       </div>
     </Link>
@@ -78,12 +78,12 @@ function SeriesListItem({ item, idx = 0 }) {
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all group">
-      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading={idx < 10 ? 'eager' : 'lazy'} fetchpriority={idx < 5 ? 'high' : 'auto'} decoding="async" width={48} height={64}
+    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl border border-purple-900/5 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all group">
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-purple-900/10 flex-shrink-0" loading={idx < 10 ? 'eager' : 'lazy'} fetchpriority={idx < 5 ? 'high' : 'auto'} decoding="async" width={48} height={64}
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
-        <h3 className="text-white text-sm font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
-        <p className="text-slate-400 text-[10px] truncate">{genres.join(', ')}</p>
+        <h3 className="text-slate-900 text-sm font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</h3>
+        <p className="text-slate-600 text-[10px] truncate">{genres.join(', ')}</p>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
         <span className="text-slate-500 text-[10px] font-bold">{chapterCount}B</span>
@@ -100,15 +100,15 @@ function SeriesListItem({ item, idx = 0 }) {
 function PopularItem({ item, rank, idx = 0 }) {
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
   return (
-    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-white/5 transition-all group">
+    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-slate-900/5 transition-all group">
       <span className={`text-lg font-black w-6 text-center flex-shrink-0 ${
-        rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-orange-400' : 'text-slate-400'
+        rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-700' : rank === 3 ? 'text-orange-400' : 'text-slate-600'
       }`}>{rank}</span>
-      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" loading={idx < 5 ? 'eager' : 'lazy'} fetchpriority={idx < 3 ? 'high' : 'auto'} decoding="async" width={40} height={56}
+      <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-10 h-14 rounded-lg object-cover border border-purple-900/10 flex-shrink-0" loading={idx < 5 ? 'eager' : 'lazy'} fetchpriority={idx < 3 ? 'high' : 'auto'} decoding="async" width={40} height={56}
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
-        <p className="text-white text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
-        <p className="text-slate-400 text-[9px] truncate">{genres.slice(0, 2).join(', ')}</p>
+        <p className="text-slate-900 text-xs font-bold truncate group-hover:text-purple-400 transition-colors">{item.title}</p>
+        <p className="text-slate-600 text-[9px] truncate">{genres.slice(0, 2).join(', ')}</p>
       </div>
       <div className="flex items-center gap-1 flex-shrink-0">
         <Star size={10} className="text-amber-400 fill-amber-400" />
@@ -197,7 +197,7 @@ export default function AllSeries() {
           {/* ══════ LEFT SIDEBAR — KATEGORİLER ══════ */}
           <aside className="hidden lg:block w-[220px] flex-shrink-0">
             <div className="sticky top-24 glass border border-white/8 rounded-2xl p-4">
-              <h3 className="text-white font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-slate-900 font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
                 <BookOpen size={14} className="text-purple-400" /> Kategoriler
               </h3>
 
@@ -205,10 +205,10 @@ export default function AllSeries() {
               <div className="space-y-0.5 mb-4">
                 <button onClick={() => handleGenreClick('Tümü')}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeGenre === 'Tümü' ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    activeGenre === 'Tümü' ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-900/5'
                   }`}>
                   <span className="flex items-center gap-2"><Layers size={13} /> Tümü</span>
-                  <span className="text-[10px] text-slate-400 bg-white/5 px-2 py-0.5 rounded-full">{genreCounts['Tümü']}</span>
+                  <span className="text-[10px] text-slate-600 bg-slate-900/5 px-2 py-0.5 rounded-full">{genreCounts['Tümü']}</span>
                 </button>
                 {GENERAL_GENRES.map(g => {
                   const Icon = g.icon;
@@ -216,10 +216,10 @@ export default function AllSeries() {
                   return (
                     <button key={g.label} onClick={() => handleGenreClick(g.label)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                        activeGenre === g.label ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        activeGenre === g.label ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-900/5'
                       }`}>
                       <span className="flex items-center gap-2"><Icon size={13} /> {g.label}</span>
-                      <span className="text-[10px] text-slate-400 bg-white/5 px-2 py-0.5 rounded-full">{count}</span>
+                      <span className="text-[10px] text-slate-600 bg-slate-900/5 px-2 py-0.5 rounded-full">{count}</span>
                     </button>
                   );
                 })}
@@ -232,9 +232,9 @@ export default function AllSeries() {
               {['Manhwa', 'Manga', 'Manhua'].map(type => (
                 <div key={type} className="mb-2">
                   <button onClick={() => setShowTypeSubcats(showTypeSubcats === type ? null : type)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-slate-300 hover:text-white hover:bg-white/5 transition-all uppercase tracking-wider">
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black text-slate-700 hover:text-slate-900 hover:bg-slate-900/5 transition-all uppercase tracking-wider">
                     <span>{type}</span>
-                    <ChevronDown size={14} className={`text-slate-400 transition-transform ${showTypeSubcats === type ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`text-slate-600 transition-transform ${showTypeSubcats === type ? 'rotate-180' : ''}`} />
                   </button>
                   <AnimatePresence>
                     {showTypeSubcats === type && (
@@ -243,7 +243,7 @@ export default function AllSeries() {
                         {(type === 'Manhwa' ? MANHWA_TAGS : type === 'Manga' ? MANGA_TAGS : MANHUA_TAGS).map(tag => (
                           <button key={tag} onClick={() => { setActiveSubcat(tag); setActiveGenre('Tümü'); }}
                             className={`w-full text-left px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-                              activeSubcat === tag ? 'bg-purple-600/20 text-purple-300' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                              activeSubcat === tag ? 'bg-purple-600/20 text-purple-300' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-900/5'
                             }`}>
                             {tag}
                           </button>
@@ -260,7 +260,7 @@ export default function AllSeries() {
           <div className="flex-1 min-w-0">
             {/* Title */}
             <div className="mb-6">
-              <h1 className="text-3xl font-black text-white uppercase tracking-tight">Tüm Seriler</h1>
+              <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Tüm Seriler</h1>
             </div>
 
             {/* Filters bar */}
@@ -269,15 +269,15 @@ export default function AllSeries() {
               <div className="relative flex-1 min-w-[200px] max-w-sm">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Seri ara..." aria-label="Seri arama"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-400 focus:border-purple-500 outline-none transition-all" />
+                  className="w-full bg-slate-900/5 border border-purple-900/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:border-purple-500 outline-none transition-all" />
               </div>
 
               {/* Type tabs */}
-              <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/8">
+              <div className="flex items-center gap-1 p-1 bg-slate-900/5 rounded-xl border border-white/8">
                 {TYPE_TABS.map(t => (
                   <button key={t} onClick={() => setActiveType(t)}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
-                      activeType === t ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'
+                      activeType === t ? 'bg-purple-600 text-slate-900 shadow-lg' : 'text-slate-500 hover:text-slate-900'
                     }`}>
                     {t}
                   </button>
@@ -286,20 +286,20 @@ export default function AllSeries() {
 
               {/* Sort */}
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sıralama seçeneği"
-                className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-purple-500 outline-none cursor-pointer">
+                className="bg-slate-900/5 border border-purple-900/10 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:border-purple-500 outline-none cursor-pointer">
                 {SORT_OPTIONS.map(o => (
                   <option key={o.value} value={o.value} className="bg-[#0a0a14]">{o.label}</option>
                 ))}
               </select>
 
               {/* View toggle */}
-              <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/8">
+              <div className="flex items-center gap-1 p-1 bg-slate-900/5 rounded-xl border border-white/8">
                 <button onClick={() => setViewMode('grid')} aria-label="Izgara görünümü"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-purple-600 text-white' : 'text-slate-500 hover:text-white'}`}>
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-purple-600 text-slate-900' : 'text-slate-500 hover:text-slate-900'}`}>
                   <Grid3X3 size={14} />
                 </button>
                 <button onClick={() => setViewMode('list')} aria-label="Liste görünümü"
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-purple-600 text-white' : 'text-slate-500 hover:text-white'}`}>
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-purple-600 text-slate-900' : 'text-slate-500 hover:text-slate-900'}`}>
                   <List size={14} />
                 </button>
               </div>
@@ -312,20 +312,20 @@ export default function AllSeries() {
                 {activeGenre !== 'Tümü' && (
                   <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-black border border-purple-500/30 flex items-center gap-1">
                     {activeGenre}
-                    <button onClick={() => setActiveGenre('Tümü')} aria-label="Tür filtresini kaldır" className="ml-1 text-purple-400 hover:text-white">✕</button>
+                    <button onClick={() => setActiveGenre('Tümü')} aria-label="Tür filtresini kaldır" className="ml-1 text-purple-400 hover:text-slate-900">✕</button>
                   </span>
                 )}
                 {activeSubcat && (
                   <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-black border border-blue-500/30 flex items-center gap-1">
                     {activeSubcat}
-                    <button onClick={() => setActiveSubcat(null)} aria-label="Alt kategori filtresini kaldır" className="ml-1 text-blue-400 hover:text-white">✕</button>
+                    <button onClick={() => setActiveSubcat(null)} aria-label="Alt kategori filtresini kaldır" className="ml-1 text-blue-400 hover:text-slate-900">✕</button>
                   </span>
                 )}
               </div>
             )}
 
             {/* Results count */}
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4">{filtered.length} seri bulundu</p>
+            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mb-4">{filtered.length} seri bulundu</p>
 
             {/* Grid View */}
             {viewMode === 'grid' ? (
@@ -354,8 +354,8 @@ export default function AllSeries() {
 
             {filtered.length === 0 && (
               <div className="text-center py-32">
-                <Flame size={48} className="text-slate-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">Aradığın seri bulunamadı.</h3>
+                <Flame size={48} className="text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Aradığın seri bulunamadı.</h3>
                 <p className="text-slate-500 text-sm">Farklı bir kategori veya arama dene.</p>
               </div>
             )}
@@ -364,7 +364,7 @@ export default function AllSeries() {
           {/* ══════ RIGHT SIDEBAR — POPÜLERLİK LİSTESİ ══════ */}
           <aside className="hidden xl:block w-[260px] flex-shrink-0">
             <div className="sticky top-24 glass border border-white/8 rounded-2xl p-4">
-              <h3 className="text-white font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-slate-900 font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Crown size={14} className="text-amber-400" /> Popülerlik Listesi
               </h3>
               <div className="space-y-1">
@@ -372,7 +372,7 @@ export default function AllSeries() {
                   <PopularItem key={item.id} item={item} rank={i + 1} idx={i} />
                 ))}
               </div>
-              <Link to="/popular" className="flex items-center justify-center gap-1 mt-4 py-2.5 rounded-xl bg-white/5 border border-white/8 text-xs text-slate-400 font-bold hover:text-purple-400 hover:border-purple-500/30 transition-all">
+              <Link to="/popular" className="flex items-center justify-center gap-1 mt-4 py-2.5 rounded-xl bg-slate-900/5 border border-white/8 text-xs text-slate-600 font-bold hover:text-purple-400 hover:border-purple-500/30 transition-all">
                 Tümünü Gör <ChevronRight size={14} />
               </Link>
             </div>

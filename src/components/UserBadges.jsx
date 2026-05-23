@@ -31,7 +31,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
           title="Premium Üyelik (Tıkla ve Yükselt)"
         >
           <Crown size={iconSize} className="text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card-navy text-white text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border border-amber-500/50 z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border border-amber-500/50 z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom">
             PREMIUM ÜYE
           </div>
         </motion.button>
@@ -46,7 +46,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
           title="Sistem Yetkilisi"
         >
           <Gem size={iconSize} className="text-cyan-400 animate-pulse drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card-navy text-white text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border border-cyan-500/50 z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border border-cyan-500/50 z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom">
             STAFF / YETKİLİ
           </div>
         </motion.button>

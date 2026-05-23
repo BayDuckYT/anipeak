@@ -143,7 +143,7 @@ function NexusMap2D({ nodes }) {
   const [tooltip, setTooltip] = useState(null);
 
   return (
-    <div className="w-full max-w-[900px] mx-auto relative rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(6,182,212,0.1)] bg-[#080812]"
+    <div className="w-full max-w-[900px] mx-auto relative rounded-3xl overflow-hidden border border-purple-900/10 shadow-[0_0_60px_rgba(6,182,212,0.1)] bg-[#080812]"
       style={{ aspectRatio: '2/1' }}>
       
       {/* Lighthouse Fix: 12000px dev JPG yerine, optimize edilmiş düşük boyutlu Vektör SVG kullanıldı */}
@@ -205,15 +205,15 @@ function NexusMap2D({ nodes }) {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-5 py-3 rounded-2xl pointer-events-none border border-white/20 shadow-[0_10px_40px_rgba(0,0,0,0.8)]"
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-5 py-3 rounded-2xl pointer-events-none border border-purple-900/20 shadow-[0_10px_40px_rgba(0,0,0,0.8)]"
             style={{ background: 'linear-gradient(145deg, rgba(15,15,25,0.95), rgba(5,5,10,0.98))', backdropFilter: 'blur(16px)' }}
           >
             <span className="text-3xl drop-shadow-md">{tooltip.flag}</span>
             <div className="flex flex-col">
-              <p className="text-white font-black text-base tracking-tight">{tooltip.name}</p>
-              <p className="text-slate-400 text-xs font-medium">{tooltip.country}</p>
+              <p className="text-slate-900 font-black text-base tracking-tight">{tooltip.name}</p>
+              <p className="text-slate-600 text-xs font-medium">{tooltip.country}</p>
             </div>
-            <div className="ml-2 pl-4 border-l border-white/10 flex flex-col justify-center">
+            <div className="ml-2 pl-4 border-l border-purple-900/10 flex flex-col justify-center">
               <p className="font-black text-lg leading-none" style={{ color: tooltip.color }}>{tooltip.reads}</p>
               <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mt-1">Okuma</p>
             </div>
@@ -263,7 +263,7 @@ export default function GlobalNexus() {
   }).slice(0, 8);
 
   return (
-    <div className="min-h-screen pt-24 pb-12 bg-[#030305] text-white selection:bg-purple-500/30 overflow-hidden relative">
+    <div className="min-h-screen pt-24 pb-12 bg-[#030305] text-slate-900 selection:bg-purple-500/30 overflow-hidden relative">
       {/* Performans Dostu Arka Plan (Gölge Dom'u yormayan bulanıklık) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-900/10 blur-[120px]" />
@@ -283,19 +283,19 @@ export default function GlobalNexus() {
                 Global Nexus
               </span>
             </h1>
-            <p className="text-slate-400 max-w-lg text-sm sm:text-base font-medium">
+            <p className="text-slate-600 max-w-lg text-sm sm:text-base font-medium">
               AniPeak okuyucularının dünya çapındaki anlık dağılımı ve platform metrikleri.
             </p>
           </div>
 
           {/* Toggle Buttons */}
-          <div className="flex p-1.5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
+          <div className="flex p-1.5 rounded-2xl bg-white/[0.03] border border-purple-900/10 backdrop-blur-md">
             {[
               { id: '3D', icon: Globe2, label: '3D Küre', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.3)]' },
               { id: '2D', icon: Map, label: '2D Harita', glow: 'shadow-[0_0_20px_rgba(6,182,212,0.3)]' },
             ].map(({ id, icon: Icon, label, glow }) => (
               <button key={id} onClick={() => setMode(id)} aria-label={`${label} görünümüne geç`}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${mode === id ? `bg-white/10 text-white ${glow}` : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${mode === id ? `bg-slate-900/10 text-slate-900 ${glow}` : 'text-slate-500 hover:text-slate-700 hover:bg-slate-900/5'}`}>
                 <Icon size={18} /> {label}
               </button>
             ))}
@@ -310,7 +310,7 @@ export default function GlobalNexus() {
             
             {/* Canlı Sayaç Kartı */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="p-6 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-xl relative overflow-hidden group">
+              className="p-6 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-purple-900/10 backdrop-blur-xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 blur-[50px] -mr-10 -mt-10 transition-opacity group-hover:opacity-100 opacity-50" />
               
               <div className="flex items-center gap-4 mb-6 relative z-10">
@@ -318,19 +318,19 @@ export default function GlobalNexus() {
                   <TrendingUp size={24} className="text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Toplam Okuma</p>
-                  <p className="text-3xl font-black text-white tracking-tight">18.4M</p>
+                  <p className="text-slate-600 text-xs font-bold uppercase tracking-widest">Toplam Okuma</p>
+                  <p className="text-3xl font-black text-slate-900 tracking-tight">18.4M</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 relative z-10">
-                <div className="bg-black/40 rounded-2xl p-4 border border-white/5">
+                <div className="bg-black/40 rounded-2xl p-4 border border-purple-900/5">
                   <p className="text-slate-500 text-[10px] uppercase font-bold mb-2 flex items-center gap-1.5">
                     <Globe2 size={12} className="text-cyan-400" /> Ülkeler
                   </p>
                   <p className="text-2xl font-black text-cyan-400">{WORLD_NODES.length}</p>
                 </div>
-                <div className="bg-black/40 rounded-2xl p-4 border border-white/5">
+                <div className="bg-black/40 rounded-2xl p-4 border border-purple-900/5">
                   <p className="text-slate-500 text-[10px] uppercase font-bold mb-2 flex items-center gap-1.5">
                     <Users size={12} className="text-emerald-400" /> Çevrimiçi
                   </p>
@@ -341,21 +341,21 @@ export default function GlobalNexus() {
 
             {/* Sıralama Listesi */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-              className="flex-1 p-6 rounded-3xl bg-white/[0.03] border border-white/5 backdrop-blur-md">
-              <h2 className="text-sm font-black text-white mb-5 flex items-center gap-2 uppercase tracking-wide">
+              className="flex-1 p-6 rounded-3xl bg-white/[0.03] border border-purple-900/5 backdrop-blur-md">
+              <h2 className="text-sm font-black text-slate-900 mb-5 flex items-center gap-2 uppercase tracking-wide">
                 <Activity size={16} className="text-purple-400" />
                 Top Lokasyonlar
               </h2>
               <ol className="flex flex-col gap-2">
                 {topNodes.map((node, idx) => (
-                  <li key={idx} className="flex items-center justify-between p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 group">
+                  <li key={idx} className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-900/5 transition-colors border border-transparent hover:border-purple-900/10 group">
                     <div className="flex items-center gap-3">
-                      <div className={`w-6 text-center text-sm font-black ${idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-slate-300' : idx === 2 ? 'text-orange-400' : 'text-slate-400'}`}>
+                      <div className={`w-6 text-center text-sm font-black ${idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-slate-700' : idx === 2 ? 'text-orange-400' : 'text-slate-600'}`}>
                         #{idx + 1}
                       </div>
                       <span className="text-xl filter drop-shadow-md">{node.flag}</span>
                       <div>
-                        <p className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">{node.name}</p>
+                        <p className="text-sm font-bold text-slate-200 group-hover:text-slate-900 transition-colors">{node.name}</p>
                         <p className="text-[10px] text-slate-500 font-medium">{node.country}</p>
                       </div>
                     </div>
@@ -369,7 +369,7 @@ export default function GlobalNexus() {
           </aside>
 
           {/* Sağ Panel: Harita Render Alanı */}
-          <div ref={mapRef} className="lg:col-span-8 xl:col-span-9 flex items-center justify-center min-h-[500px] lg:min-h-[600px] relative p-4 lg:p-8 rounded-3xl bg-black/20 border border-white/5">
+          <div ref={mapRef} className="lg:col-span-8 xl:col-span-9 flex items-center justify-center min-h-[500px] lg:min-h-[600px] relative p-4 lg:p-8 rounded-3xl bg-black/20 border border-purple-900/5">
             <AnimatePresence mode="wait">
               {mode === '3D' ? (
                 <motion.div key="3d"
@@ -388,7 +388,7 @@ export default function GlobalNexus() {
                   transition={{ duration: 0.5, ease: "easeOut" }}
                   className="w-full">
                   {mapInView ? <NexusMap2D nodes={WORLD_NODES} /> : (
-                    <div className="w-full rounded-3xl border border-white/5 animate-pulse bg-white/5" style={{ aspectRatio: '2/1' }} />
+                    <div className="w-full rounded-3xl border border-purple-900/5 animate-pulse bg-slate-900/5" style={{ aspectRatio: '2/1' }} />
                   )}
                 </motion.div>
               )}

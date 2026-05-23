@@ -69,25 +69,25 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
-        className="relative w-full max-w-lg glass border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.2)] bg-[#070511]"
+        className="relative w-full max-w-lg glass border border-purple-900/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.2)] bg-[#F8F5FF]"
       >
         {/* Decorative background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-red-600/20 blur-[80px] pointer-events-none" />
 
         {/* Header */}
-        <div className="p-8 border-b border-white/5 relative flex items-center justify-between">
+        <div className="p-8 border-b border-purple-900/5 relative flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center text-slate-900 shadow-[0_0_30px_rgba(239,68,68,0.4)]">
               <AlertCircle size={30} />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Hata Bildirimi</h3>
+              <h3 className="text-2xl font-black text-slate-900 italic tracking-tighter uppercase">Hata Bildirimi</h3>
               <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] mt-1">Acil Durum Müdahale Hattı</p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="p-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-full transition-all hover:rotate-90"
+            className="p-3 text-slate-500 hover:text-slate-900 hover:bg-slate-900/5 rounded-full transition-all hover:rotate-90"
           >
             <X size={28} />
           </button>
@@ -104,29 +104,29 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
               <div className="w-24 h-24 rounded-full bg-emerald-500/20 border-2 border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-8 shadow-[0_0_50px_rgba(16,185,129,0.3)]">
                 <CheckCircle2 size={48} />
               </div>
-              <h4 className="text-3xl font-black text-white mb-3">MESAJIN ULAŞTI!</h4>
-              <p className="text-slate-400 text-base font-medium">Siber ekiplerimiz radara düşen hatayı temizlemeye gidiyor.</p>
+              <h4 className="text-3xl font-black text-slate-900 mb-3">MESAJIN ULAŞTI!</h4>
+              <p className="text-slate-600 text-base font-medium">Siber ekiplerimiz radara düşen hatayı temizlemeye gidiyor.</p>
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Context row */}
               <div className="flex gap-4">
-                <div className="flex-1 px-5 py-4 bg-white/3 border border-white/10 rounded-3xl flex items-center gap-4">
+                <div className="flex-1 px-5 py-4 bg-white/3 border border-purple-900/10 rounded-3xl flex items-center gap-4">
                   <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400">
                     <Book size={16} />
                   </div>
                   <div>
                     <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Seri No</p>
-                    <p className="text-sm text-white font-black">#{seriesId}</p>
+                    <p className="text-sm text-slate-900 font-black">#{seriesId}</p>
                   </div>
                 </div>
-                <div className="flex-1 px-5 py-4 bg-white/3 border border-white/10 rounded-3xl flex items-center gap-4">
+                <div className="flex-1 px-5 py-4 bg-white/3 border border-purple-900/10 rounded-3xl flex items-center gap-4">
                   <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
                     <Layers size={16} />
                   </div>
                   <div>
                     <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Bölüm No</p>
-                    <p className="text-sm text-white font-black">{chapterNum || 'Genel'}</p>
+                    <p className="text-sm text-slate-900 font-black">{chapterNum || 'Genel'}</p>
                   </div>
                 </div>
               </div>
@@ -142,7 +142,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
                       className={`px-5 py-4 rounded-2xl text-[11px] font-black tracking-widest transition-all border uppercase ${
                         type === t
                           ? 'bg-red-600 text-white border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)] scale-[1.03]'
-                          : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10 hover:text-slate-300'
+                          : 'bg-slate-900/5 border-purple-900/10 text-slate-500 hover:bg-slate-900/10 hover:text-slate-700'
                       }`}
                     >
                       {t}
@@ -158,14 +158,14 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   placeholder="Hata hakkında net bilgi ver, siber ekiplerimiz şaşırmasın..."
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-[2rem] px-6 py-5 text-white text-sm focus:border-red-600 outline-none transition-all min-h-[160px] resize-none shadow-inner"
+                  className="w-full bg-white/[0.03] border border-purple-900/10 rounded-[2rem] px-6 py-5 text-slate-900 text-sm focus:border-red-600 outline-none transition-all min-h-[160px] resize-none shadow-inner"
                 />
               </div>
 
               <button
                 disabled={loading || !desc.trim()}
                 type="submit"
-                className="group relative w-full py-5 bg-gradient-to-r from-red-600 to-rose-700 text-white font-black text-base rounded-[2rem] shadow-[0_20px_40px_rgba(239,68,68,0.4)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed uppercase tracking-[0.2em]"
+                className="group relative w-full py-5 bg-gradient-to-r from-red-600 to-rose-700 text-slate-900 font-black text-base rounded-[2rem] shadow-[0_20px_40px_rgba(239,68,68,0.4)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed uppercase tracking-[0.2em]"
               >
                 {loading ? (
                   <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
@@ -179,7 +179,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
               
               <div className="flex items-center justify-center gap-3 pt-4 opacity-50">
                 <User size={14} className="text-slate-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600">
                   {user ? `Operatör ID: ${user.username}` : 'Anonim Veri Akışı'}
                 </span>
               </div>

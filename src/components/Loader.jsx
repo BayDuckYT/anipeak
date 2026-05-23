@@ -52,13 +52,13 @@ export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = tru
         <motion.span 
           animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 1.6, repeat: Infinity }}
-          className="text-white font-black text-[10px] uppercase tracking-[0.5em] text-center"
+          className="text-slate-900 font-black text-[10px] uppercase tracking-[0.5em] text-center"
         >
           {text}
         </motion.span>
         
         {/* Progress Line */}
-        <div className="w-32 h-[1px] bg-white/5 relative overflow-hidden">
+        <div className="w-32 h-[1px] bg-slate-900/5 relative overflow-hidden">
           <motion.div 
             animate={{ x: [-128, 128] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
@@ -78,7 +78,7 @@ export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = tru
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#070511] flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] bg-[#F8F5FF] flex items-center justify-center">
       <div className="relative">
         {content}
       </div>

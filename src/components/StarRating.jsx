@@ -57,7 +57,7 @@ export default function StarRating({ seriesId, initialRating }) {
               className={`${
                 (hover || userRating) >= star
                   ? 'text-amber-400 fill-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.4)]'
-                  : 'text-slate-400'
+                  : 'text-slate-600'
               } transition-all`}
             />
           </button>

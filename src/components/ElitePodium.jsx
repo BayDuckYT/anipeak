@@ -52,13 +52,13 @@ export default function ElitePodium({ items }) {
                   decoding="async"
                   style={{ aspectRatio: '2/3' }}
                 />
-                <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-orange-600 border-2 border-[#070511] flex items-center justify-center text-[10px] font-black text-white shadow-lg">3</div>
+                <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-orange-600 border-2 border-[#070511] flex items-center justify-center text-[10px] font-black text-slate-900 shadow-lg">3</div>
               </Link>
             </div>
             {/* 3D Base */}
             <div className="w-[110%] h-16 bg-gradient-to-b from-zinc-800 to-zinc-950 border-t-2 border-orange-700/50 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative transform perspective-[1000px] rotateX-12 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-black text-white uppercase truncate w-full text-center px-2">{top3[2].title}</span>
-              <div className="flex gap-2 text-[9px] text-slate-400 mt-1 font-bold">
+              <span className="text-[10px] font-black text-slate-900 uppercase truncate w-full text-center px-2">{top3[2].title}</span>
+              <div className="flex gap-2 text-[9px] text-slate-600 mt-1 font-bold">
                 <span className="flex items-center gap-1"><Star size={10} className="text-amber-400"/> {top3[2].rating}</span>
                 <span className="flex items-center gap-1"><Eye size={10}/> {top3[2].reads_num || 0}</span>
               </div>
@@ -90,8 +90,8 @@ export default function ElitePodium({ items }) {
             </div>
             {/* 3D Base */}
             <div className="w-[115%] h-24 bg-gradient-to-b from-zinc-800 to-black border-t-2 border-yellow-400 shadow-[0_30px_60px_rgba(0,0,0,0.9)] relative transform perspective-[1000px] rotateX-12 flex flex-col items-center justify-center px-2">
-               <span className="text-xs font-black text-white uppercase truncate w-full text-center">{top3[0].title}</span>
-               <div className="flex gap-3 text-[10px] text-slate-300 mt-2 font-bold bg-white/5 px-3 py-1 rounded-full">
+               <span className="text-xs font-black text-slate-900 uppercase truncate w-full text-center">{top3[0].title}</span>
+               <div className="flex gap-3 text-[10px] text-slate-700 mt-2 font-bold bg-slate-900/5 px-3 py-1 rounded-full">
                 <span className="flex items-center gap-1"><Star size={12} className="text-amber-400"/> {top3[0].rating}</span>
                 <span className="flex items-center gap-1"><Eye size={12} className="text-blue-400"/> {top3[0].reads_num || 0}</span>
               </div>
@@ -120,8 +120,8 @@ export default function ElitePodium({ items }) {
             </div>
             {/* 3D Base */}
             <div className="w-[110%] h-20 bg-gradient-to-b from-zinc-800 to-zinc-950 border-t-2 border-slate-300/50 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative transform perspective-[1000px] rotateX-12 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-black text-white uppercase truncate w-full text-center px-2">{top3[1].title}</span>
-              <div className="flex gap-2 text-[9px] text-slate-400 mt-1 font-bold">
+              <span className="text-[10px] font-black text-slate-900 uppercase truncate w-full text-center px-2">{top3[1].title}</span>
+              <div className="flex gap-2 text-[9px] text-slate-600 mt-1 font-bold">
                 <span className="flex items-center gap-1"><Star size={10} className="text-amber-400"/> {top3[1].rating}</span>
                 <span className="flex items-center gap-1"><Eye size={10}/> {top3[1].reads_num || 0}</span>
               </div>
@@ -133,14 +133,14 @@ export default function ElitePodium({ items }) {
       {/* Rest of the list */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
         {rest.map((item, idx) => (
-          <Link key={item.id} to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-card-navy/50 border border-white/5 hover:bg-zinc-800 transition-colors group">
-             <div className="w-8 text-center text-sm font-black text-slate-500 group-hover:text-white transition-colors">{idx + 4}</div>
+          <Link key={item.id} to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-slate-900/50 border border-purple-900/5 hover:bg-zinc-800 transition-colors group">
+             <div className="w-8 text-center text-sm font-black text-slate-500 group-hover:text-slate-900 transition-colors">{idx + 4}</div>
              <div className="w-10 h-14 rounded-md overflow-hidden bg-zinc-950 flex-shrink-0">
                <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" style={{ aspectRatio: '2/3' }} loading="lazy" decoding="async" />
              </div>
              <div className="flex-1 min-w-0">
-               <h3 className="text-sm font-bold text-white truncate">{item.title}</h3>
-               <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-1">
+               <h3 className="text-sm font-bold text-slate-900 truncate">{item.title}</h3>
+               <div className="flex items-center gap-3 text-[10px] text-slate-600 mt-1">
                  <span className="flex items-center gap-1"><Star size={10} className="text-amber-400"/> {item.rating}</span>
                  <span className="flex items-center gap-1"><Eye size={10}/> {item.reads_num || 0}</span>
                </div>
