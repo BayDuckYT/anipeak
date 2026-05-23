@@ -76,20 +76,9 @@ export default function OraclePage() {
     let favCount = 0;
     
     if (user?.id) {
-      try {
-        const { data: favs, count } = await supabase
-          .from('favorites')
-          .select('series_id', { count: 'exact' })
-          .eq('user_id', user.id);
-        
-        favCount = count || 0;
-        
-        if (favs && favs.length > 0) {
-          const favSeriesIds = favs.map(f => f.series_id);
-          const favSeries = sortedSeries.filter(s => favSeriesIds.includes(s.id));
-          favoriteGenres = favSeries.flatMap(s => s.genres || []);
-        }
-      } catch (e) { /* Favorites tablosu yoksa sessizce devam et */ }
+      // favorites tablosu mevcut olmadığı için ağ hatasını önlemek adına kaldırıldı
+      favCount = 0;
+      favoriteGenres = [];
     }
     
     // 2. Tüm serilerin tür dağılımını hesapla (okuma geçmişi bazlı)

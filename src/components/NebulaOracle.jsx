@@ -60,9 +60,10 @@ export const SoulDNA = ({ profile }) => {
         })}
         <circle cx="80" cy="80" r="40" className="fill-none stroke-purple-500/50" strokeWidth="1" strokeDasharray="4 4" />
         <motion.circle
-          animate={{ r: [35, 45, 35] }}
-          transition={{ duration: 4, repeat: Infinity }}
-          cx="80" cy="80" r="40"
+          animate={{ scale: [1, 1.25, 1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          style={{ transformOrigin: "80px 80px" }}
+          cx="80" cy="80" r="35"
           className="fill-none stroke-cyan-400"
           strokeWidth="2"
         />
@@ -100,6 +101,10 @@ export const OracleCard = ({ manga, matchScore, prophecy }) => {
         <img 
           src={manga.cover} 
           alt={manga.title}
+          width={400}
+          height={600}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d1a] via-transparent to-transparent opacity-60" />
@@ -121,8 +126,8 @@ export const OracleCard = ({ manga, matchScore, prophecy }) => {
               </span>
             ))}
           </div>
-          <button className="text-cyan-400 hover:text-white transition-colors">
-            <Eye className="w-5 h-5" />
+          <button aria-label={`${manga.title} Serisini İncele`} className="text-cyan-400 hover:text-white transition-colors">
+            <Eye className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
       </div>
