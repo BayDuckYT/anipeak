@@ -660,7 +660,7 @@ export default function ProfileShowcase() {
       case 'twitter': return <Twitter size={14} className="text-blue-400" />;
       case 'github': return <Github size={14} className="text-white" />;
       case 'myanimelist': return <Tv size={14} className="text-blue-500" />;
-      default: return <LinkIcon size={14} className="text-zinc-500" />;
+      default: return <LinkIcon size={14} className="text-zinc-400" />;
     }
   };
 
@@ -710,7 +710,7 @@ export default function ProfileShowcase() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPremiumModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-5xl bg-zinc-950 border border-amber-500/30 rounded-[3rem] p-10 overflow-hidden shadow-[0_0_100px_rgba(245,158,11,0.15)]">
               <div className="absolute top-0 right-0 p-6">
-                <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-zinc-900 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
+                <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
               </div>
               <div className="text-center mb-12">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÜYELİK</div>
@@ -727,7 +727,7 @@ export default function ProfileShowcase() {
                 ))}
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-500 hover:text-white transition-all">Şimdilik Kalsın</button>
+                <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-400 hover:text-white transition-all">Şimdilik Kalsın</button>
                 <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ŞİMDİ YÜKSELT <ArrowRight size={16} /></button>
               </div>
             </motion.div>
@@ -762,6 +762,7 @@ export default function ProfileShowcase() {
                         size="w-40 h-40"
                         className="rounded-full shadow-2xl"
                         style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
+                        eager={true}
                      />
                   </div>
                </div>
@@ -818,7 +819,7 @@ export default function ProfileShowcase() {
                         <div className="text-2xl font-black text-white uppercase tracking-tighter">VERİLER</div>
                      </div>
                      <div className="text-right">
-                        <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mb-1">TOPLAM XP</div>
+                        <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">TOPLAM XP</div>
                         <div className="text-xl font-black text-white tracking-tighter">{displayUser.xp}</div>
                      </div>
                   </div>
@@ -850,7 +851,7 @@ export default function ProfileShowcase() {
                      <div className="space-y-4">
                         {verifCode && timeLeft > 0 ? (
                            <div className="p-5 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 space-y-4 text-center animate-in zoom-in-95 duration-300">
-                              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Senkronizasyon Kodu</p>
+                              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Senkronizasyon Kodu</p>
                               <div className="py-3 bg-zinc-950 rounded-xl border border-indigo-500/30">
                                  <span className="text-2xl font-black text-white tracking-[0.2em] font-mono select-all leading-none">{verifCode}</span>
                               </div>
@@ -879,16 +880,16 @@ export default function ProfileShowcase() {
                   ) : (
                      <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-800/20 border border-white/5 opacity-50">
                         <div className="flex items-center gap-3">
-                           <div className="p-2 rounded-lg bg-zinc-800 text-zinc-500">
+                           <div className="p-2 rounded-lg bg-zinc-800 text-zinc-400">
                               <MessageSquare size={14} />
                            </div>
-                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Bağlantı Yok</span>
+                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Bağlantı Yok</span>
                         </div>
                      </div>
                   )}
                </div>
 
-               <p className="text-zinc-500 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic">
+               <p className="text-zinc-400 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic">
                  "{displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}"
                </p>
 
@@ -924,7 +925,7 @@ export default function ProfileShowcase() {
                            </a>
                         ))}
                         {isOwnProfile && userLinks.length === 0 && (
-                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-white/10 text-[9px] font-black text-zinc-500 hover:text-white transition-all uppercase">HESAP EKLE</button>
+                          <button onClick={() => setShowLinksModal(true)} className="w-full p-4 rounded-xl border border-dashed border-white/10 text-[9px] font-black text-zinc-400 hover:text-white transition-all uppercase">HESAP EKLE</button>
                         )}
                      </div>
                   </div>
@@ -932,7 +933,7 @@ export default function ProfileShowcase() {
                   <div className="space-y-4">
                      <div className="flex justify-between items-center">
                         <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">BAŞARIMLAR</div>
-                        <div className="text-[9px] font-black text-zinc-500">{userAchievements.length}/100</div>
+                        <div className="text-[9px] font-black text-zinc-400">{userAchievements.length}/100</div>
                      </div>
                      <div className="flex flex-wrap gap-2">
                         {userAchievements.slice(0, 5).map((ua, i) => (
@@ -999,7 +1000,7 @@ export default function ProfileShowcase() {
                              <stat.icon size={16} className={stat.color} />
                              <span className="text-3xl font-black text-white tracking-tighter">{stat.value}</span>
                            </div>
-                           <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</div>
+                           <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{stat.label}</div>
                         </div>
                      ))}
                   </div>
@@ -1014,7 +1015,7 @@ export default function ProfileShowcase() {
                   className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                     activeTab === tab.id 
                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
-                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+                      : 'text-zinc-400 hover:text-zinc-300 hover:bg-white/5'
                   }`}
                 >
                   <tab.icon size={16} />
@@ -1048,11 +1049,11 @@ export default function ProfileShowcase() {
                                  className="group flex gap-6 p-6 rounded-[2rem] glass-strong bg-zinc-900/40 border border-white/5 hover:border-blue-500/30 transition-all"
                                >
                                   <div className="w-24 h-32 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-white/5">
-                                     <img src={h.series?.cover} alt={h.series?.title} width={96} height={128} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                     <img src={getOptimizedImage(h.series?.cover, 150)} alt={h.series?.title || 'Okunan Seri'} width={96} height={128} loading={i < 4 ? 'eager' : 'lazy'} fetchpriority={i < 4 ? 'high' : 'auto'} decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                   </div>
                                   <div className="flex-1 flex flex-col justify-center py-1">
                                      <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{h.series?.title}</h4>
-                                     <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6">Bölüm {h.last_read_chapter}</p>
+                                     <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-6">Bölüm {h.last_read_chapter}</p>
                                      
                                      <div className="flex items-center justify-between">
                                         <div className="flex -space-x-2">
@@ -1096,7 +1097,7 @@ export default function ProfileShowcase() {
                           <div className="p-8 rounded-[2.5rem] bg-zinc-950 border border-white/5 space-y-6">
                              <div className="flex justify-between items-center">
                                 <h3 className="text-sm font-black text-white uppercase tracking-widest">KOLEKSİYONLARIM</h3>
-                                <button onClick={() => setActiveTab('listeler')} className="text-[9px] font-black text-zinc-500 hover:text-white uppercase">Tümü</button>
+                                <button onClick={() => setActiveTab('listeler')} className="text-[9px] font-black text-zinc-400 hover:text-white uppercase">Tümü</button>
                              </div>
                              <div className="space-y-4">
                                 {customLists.slice(0, 3).map((list, i) => (
@@ -1125,16 +1126,16 @@ export default function ProfileShowcase() {
                             malList.map((item, idx) => (
                               <div key={idx} className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 hover:border-blue-500/40 transition-all shadow-2xl">
                                  <div className="aspect-[2/3] relative">
-                                    <img src={item.node?.main_picture?.medium} alt={item.node?.title} width={200} height={300} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    <img src={getOptimizedImage(item.node?.main_picture?.medium, 300)} alt={item.node?.title || 'Anime Cover'} width={200} height={300} loading={idx < 4 ? 'eager' : 'lazy'} fetchpriority={idx < 4 ? 'high' : 'auto'} decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
                                     <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-white/10 text-[10px] font-black text-blue-400">
                                        {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
                                     </div>
                                  </div>
                                  <div className="p-4 space-y-2">
-                                    <h5 className="text-[11px] font-black text-white uppercase truncate tracking-tighter">{item.node?.title}</h5>
+                                    <h4 className="text-[11px] font-black text-white uppercase truncate tracking-tighter">{item.node?.title}</h4>
                                     <div className="flex items-center justify-between">
-                                       <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
+                                       <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{item.list_status?.status?.replace(/_/g, ' ')}</span>
                                        <span className="text-[8px] font-black text-blue-500 uppercase">{item.list_status?.num_episodes_watched || item.list_status?.num_chapters_read} / {item.node?.num_episodes || item.node?.num_chapters || '?'}</span>
                                     </div>
                                  </div>
@@ -1162,7 +1163,7 @@ export default function ProfileShowcase() {
                             <div className="flex justify-between items-start mb-10 relative z-10">
                                <div>
                                   <h4 className="text-3xl font-black text-white uppercase tracking-tighter group-hover:text-indigo-400 transition-colors leading-none">{list.name}</h4>
-                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ</p>
+                                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.3em] mt-3">{list.custom_list_items?.length || 0} SERİ</p>
                                </div>
                                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                                   <ArrowRight size={20} />
@@ -1171,7 +1172,7 @@ export default function ProfileShowcase() {
                             <div className="flex -space-x-6 relative z-10">
                                {list.custom_list_items?.slice(0, 4).map((item, idx) => {
                                  const s = series?.find(ser => String(ser.id) === String(item.series_id));
-                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-zinc-900 shadow-2xl"><img src={s?.cover || '/placeholder.png'} alt="Seri kapak" width={80} height={128} loading="lazy" decoding="async" className="w-full h-full object-cover" /></div>;
+                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-zinc-900 shadow-2xl"><img src={getOptimizedImage(s?.cover || '/placeholder.png', 150)} alt={s?.title || "Seri kapak"} width={80} height={128} loading={idx < 4 ? 'eager' : 'lazy'} decoding="async" className="w-full h-full object-cover" /></div>;
                                })}
                             </div>
                          </div>
@@ -1188,7 +1189,7 @@ export default function ProfileShowcase() {
                                 <Award size={32} />
                              </div>
                              <h4 className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">{ua.achievements?.name}</h4>
-                             <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')} {/* Build Fix Marker */}</p>
+                             <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')} {/* Build Fix Marker */}</p>
                           </div>
                        ))}
                     </div>
@@ -1202,7 +1203,7 @@ export default function ProfileShowcase() {
                               <button 
                                 key={f} 
                                 onClick={() => setDecorationCategory(f)}
-                                className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-500 hover:text-white'}`}
+                                className={`px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${decorationCategory === f ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-zinc-400 hover:text-white'}`}
                               >
                                  {f}
                               </button>
@@ -1214,7 +1215,7 @@ export default function ProfileShowcase() {
                            <Paintbrush size={16} className="text-blue-400 shrink-0" />
                            <div className="flex-1 space-y-1">
                              <div className="flex justify-between items-center">
-                               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">RENK TONU</span>
+                               <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">RENK TONU</span>
                                <span className="text-[10px] font-black text-white">{mixState.hue || 0}°</span>
                              </div>
                              <input 
@@ -1268,7 +1269,7 @@ export default function ProfileShowcase() {
                                       </span>
                                     </div>
                                   ) : isProfileEffect ? (
-                                    <img src={effect.url} className="w-full h-full object-contain drop-shadow-xl" />
+                                    <img src={getOptimizedImage(effect.url, 200)} alt="Profil Efekti" className="w-full h-full object-contain drop-shadow-xl" />
                                   ) : (
                                     <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-20 h-20" forcePlay={true} />
                                   )}
@@ -1281,7 +1282,7 @@ export default function ProfileShowcase() {
                                 
                                 <div className="text-center">
                                    <div className="text-[10px] font-black text-white uppercase tracking-tight truncate mb-1">{effect.label}</div>
-                                   <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
+                                   <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
                                 </div>
                                 
                                 {isActive && (
@@ -1358,9 +1359,9 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h3 className="text-2xl font-black text-white uppercase tracking-tight">SOSYAL MEDYA</h3>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Hesaplarını bağla</p>
+            <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Hesaplarını bağla</p>
           </div>
-          <button aria-label="Bağlantı penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all border border-white/5"><X size={24} /></button>
+          <button aria-label="Bağlantı penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-400 hover:text-white transition-all border border-white/5"><X size={24} /></button>
         </div>
 
         <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-2 mb-10">
@@ -1378,11 +1379,11 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
               <button aria-label="Bağlantıyı sil" onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
             </div>
           ))}
-          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-zinc-900 border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-500 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
+          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-zinc-900 border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
         </div>
 
         <div className="flex gap-4">
-          <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-zinc-900 text-zinc-500 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">İPTAL</button>
+          <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">İPTAL</button>
           <button onClick={() => { onSave(links.filter(l => l.platform && l.value)); onClose(); }} className="flex-[2] py-5 rounded-[2.5rem] bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">KAYDET <Sparkles size={18} /></button>
         </div>
       </motion.div>
@@ -1411,7 +1412,7 @@ function NameplateItem({ filename, isActive, onSelect }) {
           className="w-full h-full object-cover" 
         />
       ) : (
-        <img src={`/nameplates/${filename}`} className="w-full h-full object-cover" />
+        <img src={`/nameplates/${filename}`} alt="Nameplate Effect" className="w-full h-full object-cover" />
       )}
       {isActive && (
         <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
@@ -1442,9 +1443,9 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
         <div className="p-10 border-b border-white/5 flex items-center justify-between">
            <div>
               <h3 className="text-2xl font-black text-white uppercase tracking-tight">GÖRÜNÜM</h3>
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini düzenle</p>
+              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini düzenle</p>
            </div>
-           <button aria-label="Profil düzenleme penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all"><X size={24} /></button>
+           <button aria-label="Profil düzenleme penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-zinc-900 text-zinc-400 hover:text-white transition-all"><X size={24} /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
@@ -1453,7 +1454,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, profile_effect: 'none' }))}
-                   className={`p-4 rounded-2xl border transition-all ${mixState.profile_effect === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.profile_effect === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-400'}`}
                  >
                     HİÇ BİRİ
                  </button>
@@ -1461,7 +1462,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
                    <button 
                      key={eff.id}
                      onClick={() => setMixState(prev => ({ ...prev, profile_effect: eff.id }))}
-                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.profile_effect === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.profile_effect === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-400'}`}
                    >
                       {eff.label}
                    </button>
@@ -1474,7 +1475,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, avatar: 'none' }))}
-                   className={`p-4 rounded-2xl border transition-all ${mixState.avatar === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.avatar === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-400'}`}
                  >
                     HİÇ BİRİ
                  </button>
@@ -1482,7 +1483,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
                    <button 
                      key={eff.id}
                      onClick={() => setMixState(prev => ({ ...prev, avatar: eff.id }))}
-                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.avatar === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.avatar === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-400'}`}
                    >
                       {eff.label}
                    </button>
@@ -1495,7 +1496,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, nametag: 'none' }))}
-                   className={`p-4 rounded-2xl border transition-all ${mixState.nametag === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                   className={`p-4 rounded-2xl border transition-all ${mixState.nametag === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-400'}`}
                  >
                     HİÇ BİRİ
                  </button>
@@ -1503,7 +1504,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave }) {
                    <button 
                      key={eff.id}
                      onClick={() => setMixState(prev => ({ ...prev, nametag: eff.id }))}
-                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.nametag === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-500'}`}
+                     className={`p-4 rounded-2xl border transition-all truncate text-[10px] font-bold ${mixState.nametag === eff.id ? 'bg-purple-600 border-transparent text-white' : 'bg-zinc-900 border-white/5 text-zinc-400'}`}
                    >
                       {eff.label}
                    </button>

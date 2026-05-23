@@ -61,7 +61,8 @@ export default function AnimeAvatar({
   effect, 
   size = "w-32 h-32", 
   className = "",
-  forcePlay = false 
+  forcePlay = false,
+  eager = false
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -166,7 +167,8 @@ export default function AnimeAvatar({
           <img 
             src={src} 
             alt="Avatar" 
-            loading="lazy"
+            loading={eager ? "eager" : "lazy"}
+            fetchpriority={eager ? "high" : "auto"}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             onError={(e) => { e.target.style.display = 'none'; }}
           />

@@ -361,6 +361,7 @@ export default function OraclePage() {
                         manga={s} 
                         matchScore={s.matchScore || calculateMatchScore(s, userStats?.topGenres || [])} 
                         prophecy={generateProphecy(s, userStats?.topGenres || [])} 
+                        idx={i}
                       />
                     ))}
                   </div>

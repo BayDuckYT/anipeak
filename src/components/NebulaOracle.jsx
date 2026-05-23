@@ -79,7 +79,7 @@ export const SoulDNA = ({ profile }) => {
 /**
  * Oracle Recommendation Card
  */
-export const OracleCard = ({ manga, matchScore, prophecy }) => {
+export const OracleCard = ({ manga, matchScore, prophecy, idx = 0 }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -103,7 +103,8 @@ export const OracleCard = ({ manga, matchScore, prophecy }) => {
           alt={manga.title}
           width={400}
           height={600}
-          loading="lazy"
+          loading={idx < 3 ? 'eager' : 'lazy'}
+          fetchpriority={idx < 3 ? 'high' : 'auto'}
           decoding="async"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
