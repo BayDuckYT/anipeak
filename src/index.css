@@ -8,7 +8,7 @@
 }
 .amoled-mode .bg-\[\#070511\],
 .amoled-mode .bg-\[\#070511\],
-.amoled-mode .bg-white\/30 {
+.amoled-mode .bg-card-navy\/30 {
   background-color: #000000 !important;
 }
 .amoled-mode .glass, 
@@ -31,8 +31,8 @@ html { scroll-behavior: smooth; }
 body {
   margin: 0;
   padding: 0;
-  background-color: #F8F5FF;
-  color: #334155;
+  background-color: #070511;
+  color: #e2e8f0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;

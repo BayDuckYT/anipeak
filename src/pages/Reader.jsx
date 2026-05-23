@@ -14,6 +14,7 @@ import ChapterRating from '../components/ChapterRating.jsx';
 import ReportIssueModal from '../components/ReportIssueModal.jsx';
 import LiveChatPanel from '../components/LiveChatPanel.jsx';
 import { useSEO } from '../hooks/useSEO';
+import { useImagePreloader } from '../hooks/useImagePreloader';
 
 function ReaderImage({ src, alt, idx, chapter }) {
   const [error, setError] = useState(false);
@@ -68,8 +69,8 @@ function ReaderImage({ src, alt, idx, chapter }) {
         src={imgSrc}
         alt={alt}
         onError={handleError}
-        loading={idx === 0 ? 'eager' : 'lazy'}
-        fetchpriority={idx === 0 ? 'high' : 'auto'}
+        loading={idx < 3 ? 'eager' : 'lazy'}
+        fetchpriority={idx < 2 ? 'high' : 'auto'}
         referrerPolicy="no-referrer"
         className="w-full block select-none pointer-events-none bg-[#F8F5FF]"
         onContextMenu={(e) => e.preventDefault()}
@@ -131,6 +132,9 @@ export default function Reader() {
 
   const [chapterData, setChapterData] = useState(null);
   const [loadingPages, setLoadingPages] = useState(true);
+
+  // Aggressively preload images in the background once chapterData is loaded
+  useImagePreloader(chapterData?.pages || []);
 
   // Update history & stats when chapter changes
   useEffect(() => {
