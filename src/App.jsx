@@ -98,6 +98,7 @@ function MaintenanceScreen({ onAuthOpen }) {
         <img 
           src="/bakim_arkaplan.jpg" 
           alt="Bakım" 
+          onError={(e) => { e.target.onerror = null; e.target.src = "/yayınarkaplan.jpg" }}
           className="w-full h-full object-cover object-right lg:object-center"
         />
       </div>
