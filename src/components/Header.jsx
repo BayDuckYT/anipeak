@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles, Gem
+  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles, Gem, Wallet
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -377,6 +377,20 @@ export default function Header({ onAuthOpen }) {
                         >
                           <User size={15} className="text-purple-400 group-hover:scale-110 transition-transform" />
                           Profilim
+                        </Link>
+                        <Link
+                          to="/cuzdan"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Wallet size={15} className="text-pink-400 group-hover:scale-110 transition-transform" />
+                            Cüzdanım
+                          </div>
+                          <div className="flex items-center gap-1.5 bg-pink-500/10 px-2 py-0.5 rounded-lg border border-pink-500/20">
+                            <span className="text-[10px] font-black text-pink-400">AURA</span>
+                            <span className="text-xs font-bold text-white">{user.aura ? user.aura.toLocaleString('tr-TR') : '0'}</span>
+                          </div>
                         </Link>
                         <Link
                           to="/global-nexus"

@@ -145,6 +145,7 @@ export function AuthProvider({ children }) {
         nametag_effect:  data?.nametag_effect  || 'none',
         unlocked_effects: data?.unlocked_effects || [],
         xp:              data?.xp ?? 0,
+        aura:            data?.aura ?? 0,
         ...getLevelInfo(data?.xp ?? 0, is_elite),
         rank:            data?.rank || getLevelInfo(data?.xp ?? 0, is_elite).rank, // DB'deki rütbeyi koru
         mal_username:    data?.mal_username || null,

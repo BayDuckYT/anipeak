@@ -25,6 +25,7 @@ const Reader = lazy(() => import('./pages/Reader.jsx'));
 const Admin = lazy(() => import('./pages/Admin.jsx'));
 const ProfileShowcase = lazy(() => import('./pages/ProfileShowcase.jsx'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
+const Wallet = lazy(() => import('./pages/Wallet.jsx'));
 const AllSeries = lazy(() => import('./pages/AllSeries.jsx'));
 const StaticPage = lazy(() => import('./pages/StaticPage.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
@@ -72,6 +73,7 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/profil/:username" element={<ProfileShowcase />} />
           <Route path="/@:username" element={<ProfileShowcase />} />
           <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+          <Route path="/cuzdan" element={<PrivateRoute><Wallet /></PrivateRoute>} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/oneriler" element={<Suggestions />} />
