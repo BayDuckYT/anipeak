@@ -131,12 +131,37 @@
     </div>
   </noscript>
   <div id="root">
-    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#050507;">
-      <div style="text-align:center;">
-        <div style="font-size:3rem;margin-bottom:0.5rem;" aria-hidden="true">📖</div>
-        <div style="color:#a855f7;font-family:system-ui,sans-serif;font-weight:900;font-size:1.2rem;letter-spacing:0.1em;">AniPeak</div>
-        <div style="width:2rem;height:2px;background:linear-gradient(to right,#a855f7,#3b82f6);margin:0.75rem auto;border-radius:9999px;" aria-hidden="true"></div>
-        <p style="display:none;">Yükleniyor...</p>
+    <style>
+      .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; min-height: 100vh; background: #050507; }
+      .zap-wrapper { position: relative; width: 6rem; height: 6rem; display: flex; align-items: center; justify-content: center; }
+      .zap-ring { position: absolute; inset: 0; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 50%; animation: pulse-ring 2s infinite ease-out; }
+      .zap-ring:nth-child(2) { animation-delay: 0.6s; }
+      .zap-ring:nth-child(3) { animation-delay: 1.2s; }
+      @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.8); opacity: 0; } }
+      .zap-icon { color: #a855f7; position: relative; z-index: 10; animation: heartbeat 0.8s infinite ease-in-out; }
+      @keyframes heartbeat { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4)); } 50% { transform: scale(1.3); filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.8)); } }
+      .loading-text { color: white; font-family: system-ui, sans-serif; font-weight: 900; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5em; text-align: center; animation: text-pulse 1.6s infinite; }
+      @keyframes text-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+      .progress-line-container { width: 8rem; height: 1px; background: rgba(255, 255, 255, 0.05); position: relative; overflow: hidden; margin-top: 0.75rem; }
+      .progress-line { position: absolute; inset: 0; width: 50%; background: linear-gradient(to right, transparent, #a855f7, transparent); animation: progress-move 1.5s infinite linear; }
+      @keyframes progress-move { 0% { transform: translateX(-128px); } 100% { transform: translateX(128px); } }
+    </style>
+    <div class="loader-container">
+      <div class="zap-wrapper">
+        <div class="zap-ring"></div>
+        <div class="zap-ring"></div>
+        <div class="zap-ring"></div>
+        <div class="zap-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:0.75rem;">
+        <span class="loading-text">SİSTEM BAŞLATILIYOR...</span>
+        <div class="progress-line-container">
+          <div class="progress-line"></div>
+        </div>
       </div>
     </div>
   </div>
