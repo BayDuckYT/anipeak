@@ -66,6 +66,17 @@ export default function OraclePage() {
     url: 'https://anipeak.com.tr/oracle'
   });
 
+  if (!sortedSeries || sortedSeries.length === 0) {
+    return (
+      <div className="min-h-screen pt-24 pb-12 flex items-center justify-center bg-[#050510]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin" />
+          <p className="text-cyan-400 font-mono tracking-widest text-xs uppercase animate-pulse">Sistem Başlatılıyor...</p>
+        </div>
+      </div>
+    );
+  }
+
   const { soulProfile, userStats } = useMemo(() => {
     // 1. Kullanıcının favori serilerini çek (gerçek veri)
     let favoriteGenres = [];
