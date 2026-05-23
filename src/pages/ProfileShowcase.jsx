@@ -1042,7 +1042,7 @@ export default function ProfileShowcase() {
                                  className="group flex gap-6 p-6 rounded-[2rem] glass-strong bg-zinc-900/40 border border-white/5 hover:border-blue-500/30 transition-all"
                                >
                                   <div className="w-24 h-32 rounded-2xl overflow-hidden shadow-2xl shrink-0 border border-white/5">
-                                     <img src={h.series?.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                     <img src={h.series?.cover} alt={h.series?.title} width={96} height={128} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                   </div>
                                   <div className="flex-1 flex flex-col justify-center py-1">
                                      <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-1 line-clamp-1 group-hover:text-blue-400 transition-colors">{h.series?.title}</h4>
@@ -1119,7 +1119,7 @@ export default function ProfileShowcase() {
                             malList.map((item, idx) => (
                               <div key={idx} className="group relative rounded-[2rem] overflow-hidden bg-zinc-950 border border-white/5 hover:border-blue-500/40 transition-all shadow-2xl">
                                  <div className="aspect-[2/3] relative">
-                                    <img src={item.node?.main_picture?.medium} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    <img src={item.node?.main_picture?.medium} alt={item.node?.title} width={200} height={300} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
                                     <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-white/10 text-[10px] font-black text-blue-400">
                                        {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
@@ -1165,7 +1165,7 @@ export default function ProfileShowcase() {
                             <div className="flex -space-x-6 relative z-10">
                                {list.custom_list_items?.slice(0, 4).map((item, idx) => {
                                  const s = series?.find(ser => String(ser.id) === String(item.series_id));
-                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-zinc-900 shadow-2xl"><img src={s?.cover || '/placeholder.png'} className="w-full h-full object-cover" /></div>;
+                                 return <div key={idx} className="w-20 h-32 rounded-2xl border-4 border-zinc-950 overflow-hidden bg-zinc-900 shadow-2xl"><img src={s?.cover || '/placeholder.png'} alt="Seri kapak" width={80} height={128} loading="lazy" decoding="async" className="w-full h-full object-cover" /></div>;
                                })}
                             </div>
                          </div>

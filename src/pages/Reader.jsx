@@ -68,7 +68,8 @@ function ReaderImage({ src, alt, idx, chapter }) {
         src={imgSrc}
         alt={alt}
         onError={handleError}
-        loading={idx < 3 ? 'eager' : 'lazy'}
+        loading={idx === 0 ? 'eager' : 'lazy'}
+        fetchpriority={idx === 0 ? 'high' : 'auto'}
         referrerPolicy="no-referrer"
         className="w-full block select-none pointer-events-none bg-[#050507]"
         onContextMenu={(e) => e.preventDefault()}

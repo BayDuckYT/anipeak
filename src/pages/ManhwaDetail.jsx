@@ -207,6 +207,10 @@ export default function ManhwaDetail({ onAuthOpen }) {
                 src={getOptimizedImage(manhwa?.cover, 400)}
                 alt={manhwa?.title}
                 onError={handleImageError}
+                width={240}
+                height={320}
+                fetchpriority="high"
+                decoding="async"
                 className="w-48 h-64 sm:w-60 sm:h-80 rounded-2xl object-cover shadow-[0_0_50px_rgba(139,92,246,0.3)] border border-white/10"
               />
             </motion.div>

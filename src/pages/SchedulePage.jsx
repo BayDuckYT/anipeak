@@ -81,7 +81,7 @@ export default function SchedulePage() {
       {/* Header Section (Banner style) */}
       <div className="relative w-full rounded-3xl overflow-hidden glass border border-white/8 mb-8">
         <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-purple-900/30" />
-        <div className="absolute right-0 top-0 h-full w-1/2 bg-[url('/yayinarkaplan.jpeg')] bg-cover bg-center opacity-40 mix-blend-screen" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />
+        <div className="absolute right-0 top-0 h-full w-1/2 bg-[url('/yayinarkaplan.jpg')] bg-cover bg-center opacity-40 mix-blend-screen" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />
         
         <div className="relative z-10 p-8 sm:p-12">
           <div className="max-w-xl">
