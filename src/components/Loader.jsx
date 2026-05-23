@@ -71,7 +71,7 @@ export default function Loader({ text = "Sayfa Yükleniyor...", fullScreen = tru
 
   if (!fullScreen) {
     return (
-      <div className="fixed inset-0 z-[50] bg-[#050507]/80 backdrop-blur-sm flex items-center justify-center">
+      <div className="relative min-h-[80vh] w-full flex items-center justify-center py-20">
         {content}
       </div>
     );
