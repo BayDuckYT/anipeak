@@ -132,35 +132,35 @@ export default function Header({ onAuthOpen }) {
 
 
           {/* Nav */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Ana navigasyon">
-            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all read-invitation ${location.pathname === '/' && location.hash !== '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
-              <Compass size={15} /> Keşfet
+          <nav className="hidden lg:flex items-center gap-1.5" aria-label="Ana navigasyon">
+            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${location.pathname === '/' && location.hash !== '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
+              <Compass size={16} /> Keşfet
             </Link>
-            <Link to="/#trendler" className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all read-invitation ${location.hash === '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
-              <TrendingUp size={15} /> Trendler
+            <Link to="/#trendler" className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${location.hash === '#trendler' ? 'text-purple-400 bg-purple-500/10' : 'text-slate-300 hover:text-purple-400 hover:bg-purple-500/10'}`}>
+              <TrendingUp size={16} /> Trendler
             </Link>
             <Link 
               to="/takvim"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase read-invitation"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all uppercase"
             >
-              <Calendar size={15} className="text-indigo-400" /> Takvim
+              <Calendar size={16} className="text-indigo-400" /> Takvim
             </Link>
             <Link 
               to="/oracle"
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/oracle' ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10'}`}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${location.pathname === '/oracle' ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10'}`}
             >
-              <Sparkles size={15} className="text-cyan-400" /> Oracle
+              <Sparkles size={16} className="text-cyan-400" /> Oracle
             </Link>
             <Link 
               to="/elite-upgrade" 
               onClick={handlePremiumClick}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-black transition-all energy-pulse ${
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-black transition-all energy-pulse ${
                 location.pathname === '/elite-upgrade' 
                   ? (activePlan ? `text-${activePlan.color}-400 bg-${activePlan.color}-500/10 border border-${activePlan.color}-500/30` : 'text-red-400 bg-red-500/10 border border-red-500/30')
                   : 'text-slate-300 hover:text-red-400 hover:bg-red-500/10'
               }`}
             >
-              {getPlanIcon(activePlan)} {activePlan ? activePlan.name : 'Premium'}
+              {getPlanIcon(activePlan)} <span className="hidden xl:inline">{activePlan ? activePlan.name : 'Premium'}</span>
             </Link>
           </nav>
 
@@ -216,10 +216,10 @@ export default function Header({ onAuthOpen }) {
           </div>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {/* Admin */}
-            <Link to="/admin" className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all min-h-[44px]" aria-label="Yönetim panelini aç">
-              <Shield size={14} /> <span className="hidden lg:inline">Yönetim Paneli</span>
+            <Link to="/admin" className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all" aria-label="Yönetim panelini aç">
+              <Shield size={16} /> <span className="hidden xl:inline">Yönetim Paneli</span>
             </Link>
 
 
@@ -293,10 +293,10 @@ export default function Header({ onAuthOpen }) {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition-all min-h-[44px]"
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all"
                   aria-label="Profil menüsünü aç"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple relative">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-neon-purple relative flex-shrink-0">
                     <AnimeAvatar 
                       src={user.avatar_url ? getOptimizedImage(user.avatar_url, 100) : null} 
                       effect={userEffect}
@@ -305,20 +305,20 @@ export default function Header({ onAuthOpen }) {
                     />
                     {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                   </div>
-                    <div className="flex flex-col">
-                      <p className={`text-xs font-black leading-tight uppercase tracking-tighter flex items-center gap-1 ${
+                    <div className="hidden sm:flex flex-col items-start justify-center">
+                      <p className={`text-[11px] font-black leading-tight uppercase tracking-tighter flex items-center gap-1 ${
                         user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
                         user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 'text-white'
                       }`}>
                         {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
                         {user.username}
                       </p>
-                      <span className={`text-[8px] font-black uppercase tracking-[0.2em] flex items-center gap-0.5 ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-slate-500'}`}>
+                      <span className={`text-[8px] font-black uppercase tracking-[0.2em] flex items-center gap-0.5 mt-0.5 ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-slate-500'}`}>
                         {user.is_elite && <Crown size={8} className="text-amber-400" />}
                         {user.rank}
                       </span>
                     </div>
-                  <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={14} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
