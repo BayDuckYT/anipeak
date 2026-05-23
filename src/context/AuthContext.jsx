@@ -10,7 +10,7 @@ const AuthContext = createContext(null);
 /**
  * Yeni Kademeli Seviye ve Rütbe Hesaplama (AniPeak V4)
  */
-export function getLevelInfo(xp, is_elite = false) {
+export function getLevelInfo(xp, is_elite = false, active_plan_id = null) {
   let level, rank, xpInLevel, xpForNext, rankColor;
   const val = Number(xp) || 0;
 
@@ -56,13 +56,13 @@ export function getLevelInfo(xp, is_elite = false) {
     xpForNext = 1;
   }
 
-  // Güvenlik kontrolleri
   if (level > 100) level = 100;
 
-  // [ELITE MODIFIER]
-  if (is_elite) {
-    rank = `Elite ${rank}`;
-  }
+  if (active_plan_id === 'aethe') rank = 'Efsanevi Aethe Mührü';
+  else if (active_plan_id === 'ruler') rank = 'Hükümdar';
+  else if (active_plan_id === 'shadow') rank = 'Hükümdar Gölgesi';
+  else if (active_plan_id === 'pro') rank = 'AniPeak Pro';
+  else if (is_elite) rank = `Elite ${rank}`;
 
   return { 
     level, 

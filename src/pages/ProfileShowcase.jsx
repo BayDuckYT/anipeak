@@ -46,6 +46,8 @@ import {
   ArrowRight,
   Info,
   Gem,
+  Ghost,
+  Trophy,
 } from 'lucide-react';
 import { useAuth, getLevelInfo } from '../context/AuthContext.jsx';
 import { supabase } from '../lib/supabaseClient';
@@ -379,7 +381,7 @@ export default function ProfileShowcase() {
     active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' },
   };
 
-  const levelInfo = getLevelInfo(rawUser.xp || 0);
+  const levelInfo = getLevelInfo(rawUser.xp || 0, rawUser.is_elite, rawUser.active_plan_id);
   
   // Dashboard Specific State
   const { series } = useApp();
@@ -646,8 +648,8 @@ export default function ProfileShowcase() {
 
   const filteredDecorations = useMemo(() => {
     if (decorationCategory === 'Tümü') return decorationEffectsData;
-    if (decorationCategory === 'Efektler') return decorationEffectsData.filter(d => d.category === 'profile_effects');
-    if (decorationCategory === 'Çerçeveler') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
+    if (decorationCategory === 'Auralar') return decorationEffectsData.filter(d => d.category === 'profile_effects');
+    if (decorationCategory === 'Avatar Çerçeveleri') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
     if (decorationCategory === 'Plaketler') return nameplatesData.map((n, i) => ({ id: n, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
     if (decorationCategory === 'İsim Efektleri') return decorationEffectsData.filter(d => d.category === 'name_effects');
     return decorationEffectsData.filter(d => d.category === decorationCategory);
@@ -794,11 +796,16 @@ export default function ProfileShowcase() {
                       className={`text-4xl font-black text-white uppercase tracking-tighter leading-none z-10 flex flex-row items-center gap-2 flex-nowrap whitespace-nowrap ${!(displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none') ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}
                     >
                       <div className="flex flex-row items-center gap-1 shrink-0">
-                        {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && (
+                        {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && !displayUser.is_elite && (
                           <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" />
                         )}
                         {displayUser.is_elite && (
-                          <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />
+                          <>
+                            {displayUser.active_plan_id === 'aethe' ? <Sparkles size={28} className="text-rose-400 animate-pulse drop-shadow-[0_0_10px_rgba(244,63,94,0.5)] shrink-0" /> :
+                             displayUser.active_plan_id === 'shadow' ? <Ghost size={28} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0" /> :
+                             displayUser.active_plan_id === 'pro' ? <Trophy size={28} className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" /> :
+                             <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />}
+                          </>
                         )}
                       </div>
                       <span
@@ -1242,7 +1249,7 @@ export default function ProfileShowcase() {
                 <div className="p-6 sm:p-8 space-y-10 flex-1 overflow-y-auto no-scrollbar">
                    {/* Drawer Category Selector */}
                    <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2">
-                      {['Tümü', 'Efektler', 'Çerçeveler', 'Plaketler', 'İsim Efektleri'].map((f) => (
+                      {['Tümü', 'Auralar', 'Avatar Çerçeveleri', 'Plaketler', 'İsim Efektleri'].map((f) => (
                         <button 
                           key={f} 
                           onClick={() => setDecorationCategory(f)}
