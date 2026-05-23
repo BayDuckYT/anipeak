@@ -159,7 +159,10 @@ function MaintenanceScreen({ onAuthOpen }) {
           </div>
 
           {/* Heading */}
-          <h1 className="text-6xl md:text-7xl font-black text-[#0B0F19] tracking-tight leading-[1.1] mb-6">
+          <h1 
+            style={{ fontFamily: "'Clash Display', sans-serif" }}
+            className="text-6xl md:text-7xl font-bold text-[#0B0F19] tracking-tight leading-[1.1] mb-6"
+          >
             Sitemiz şu anda <br />
             <span className="text-[#5932EA]">bakımda.</span>
           </h1>
