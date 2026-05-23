@@ -984,7 +984,12 @@ export default function ProfileShowcase() {
                        {displayUser.is_elite && (
                          <div className="px-3 py-1.5 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center gap-2 shadow-[0_0_15px_rgba(225,29,72,0.3)]">
                            <Sparkles size={12} className="text-rose-400 animate-pulse" />
-                           <span className="text-[9px] font-black text-rose-300 uppercase tracking-widest">Premium Aktif</span>
+                           <span className="text-[9px] font-black text-rose-300 uppercase tracking-widest">
+                             {displayUser.active_plan_id === 'pro' ? 'PRO AKTİF' :
+                              displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ AKTİF' :
+                              displayUser.active_plan_id === 'ruler' ? 'HÜKÜMDAR AKTİF' :
+                              displayUser.active_plan_id === 'aethe' ? 'AETHE MÜHRÜ AKTİF' : 'PREMIUM AKTİF'}
+                           </span>
                          </div>
                        )}
                     </div>
