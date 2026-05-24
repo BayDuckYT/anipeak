@@ -19,13 +19,23 @@ function RenderText({ text, navigate }) {
 // ─── Style helper ───────────────────────────────────
 function getStyle(profile) {
   const isAdmin = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(profile?.role);
+  const isAethe = profile?.active_plan_id === 'aethe';
   const isElite = profile?.is_elite;
-  if (isAdmin) return { name: 'text-red-400 drop-shadow-[0_0_12px_rgba(248,113,113,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-red-950/10 border border-red-500/20', badge: 'bg-red-500/20 border-red-500/40 text-red-300' };
+  if (isAdmin || isAethe) return { name: 'text-red-400 drop-shadow-[0_0_12px_rgba(248,113,113,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-red-950/10 border border-red-500/20', badge: 'bg-red-500/20 border-red-500/40 text-red-300' };
   if (isElite) return { name: 'text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] drop-shadow-[0_2px_2px_rgba(0,0,0,1)]', card: 'bg-amber-950/10 border border-amber-500/20', badge: 'bg-amber-500/20 border-amber-500/40 text-amber-300' };
   return { name: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]', card: 'bg-card-navy/60 border border-white/5', badge: 'bg-white/5 border-white/10 text-slate-500' };
 }
 
-// ─── Loading Skeleton ───────────────────────────────
+// ─── Color helper ───────────────────────────────────
+function hexToRgba(hex, alpha) {
+  if (!hex || hex === 'none') return undefined;
+  if (hex.startsWith('rgba')) return hex;
+  var r = parseInt(hex.slice(1, 3), 16),
+      g = parseInt(hex.slice(3, 5), 16),
+      b = parseInt(hex.slice(5, 7), 16);
+  if (isNaN(r)) return hex;
+  return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+}
 function CommentSkeleton() {
   return (
     <div className="animate-pulse space-y-5">
@@ -196,13 +206,14 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     const expanded = expandedReplies.has(comment.id);
     const liked = likedByMe.has(comment.id);
     const lc = likeCounts[comment.id] || 0;
+    const customColorStyle = mix.commentColor && mix.commentColor !== 'none' ? { backgroundColor: hexToRgba(mix.commentColor, 0.08), borderColor: hexToRgba(mix.commentColor, 0.2) } : {};
 
     return (
-      <div key={comment.id} className={`relative overflow-hidden transition-all duration-300 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : s.card}`}>
+      <div key={comment.id} style={isReply ? {} : customColorStyle} className={`relative overflow-hidden transition-all duration-300 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')}`}>
         {/* Nameplate */}
         {!isReply && mix.nameplate && mix.nameplate !== 'none' && (
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden rounded-[2.5rem]">
-            <video autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen mix-blend-lighten">
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden rounded-[2.5rem]" style={{ clipPath: 'inset(0 round 2.5rem)' }}>
+            <video autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen mix-blend-lighten" style={{ filter: `hue-rotate(${mix.hue || 0}deg)` }}>
               <source src={`/nameplates/${mix.nameplate}`} type="video/webm" />
             </video>
           </div>
@@ -217,7 +228,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <span 
                       onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} 
                       className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
@@ -226,15 +237,14 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                       {prof?.username || comment.username || 'Gezgin'}
                     </span>
                     {prof?.active_plan_id === 'aethe' && (
-                      <img src="/aethe.png" alt="Aethe" className={`shrink-0 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] ${isReply ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
+                      <img src="/aethe.png" alt="Aethe" className={`shrink-0 object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.7)] ${isReply ? 'w-4 h-4' : 'w-5 h-5'}`} />
                     )}
                   </div>
                   <UserBadges user={prof || comment} showCrown={true} iconSize={isReply ? 12 : 14} />
                   <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest ${s.badge}`}>
-                    {prof?.username === 'ANIPEAK' ? 'Kurucu' :
-                     (prof?.active_plan_id === 'shadow') ? 'Hükümdar Gölgesi' :
-                     (prof?.active_plan_id === 'ruler') ? 'Hükümdar' :
-                     (prof?.active_plan_id === 'pro') ? 'Pro Üye' :
+                    {['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(prof?.role) ? prof?.role :
+                     (prof?.active_plan_id === 'aethe') ? `Aethe ${prof?.rank || 'Çaylak'}` :
+                     (prof?.is_elite) ? `Elite ${prof?.rank || 'Çaylak'}` :
                      prof?.rank || 'Çaylak'}
                   </div>
                 </div>
