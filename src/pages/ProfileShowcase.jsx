@@ -565,6 +565,7 @@ export default function ProfileShowcase() {
       if (malLink && malLink.value) {
         fetchSocialData(currentUser.id, malLink.value);
       }
+      showToast('Profiliniz Güncellendi');
     } catch (err) {
       console.error('Links save error:', err);
     }
@@ -753,12 +754,34 @@ export default function ProfileShowcase() {
             onClose={() => setIsMixModalOpen(false)} 
             mixState={mixState} 
             setMixState={setMixState} 
-            onSave={(newMix) => updateProfile({ active_mix: newMix })} 
+            onSave={(newMix) => {
+              updateProfile({ active_mix: newMix });
+              showToast('Profiliniz Güncellendi');
+            }} 
             currentUser={currentUser}
           />
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.8, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+            className="fixed bottom-10 right-10 z-[200] flex items-center gap-4 px-6 py-4 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_0_50px_rgba(16,185,129,0.15)]"
+          >
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 text-emerald-400 relative">
+              <div className="absolute inset-0 bg-emerald-500/20 blur-md rounded-full" />
+              <Check size={18} strokeWidth={3} className="relative z-10" />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-white">{toast}</p>
+              <p className="text-[10px] text-emerald-400/80 font-medium">Değişiklikler başarıyla kaydedildi.</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {showPremiumModal && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
@@ -1553,7 +1576,7 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
     { id: 'github', label: 'GitHub', icon: Github },
   ];
 
-  const addRow = () => setLinks([...links, { platform: '', value: '', type: 'username' }]);
+  const addRow = () => setLinks([{ platform: '', value: '', type: 'username' }, ...links]);
   const removeRow = (idx) => setLinks(links.filter((_, i) => i !== idx));
   const updateRow = (idx, field, val) => {
     const newLinks = [...links];
