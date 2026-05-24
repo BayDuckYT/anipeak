@@ -1602,6 +1602,7 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
         </div>
 
         <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-2 mb-10">
+          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-card-navy border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
           {links.map((link, idx) => (
             <div key={idx} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center group p-4 rounded-[2rem] bg-card-navy/50 border border-white/5">
               <div className="relative w-full sm:w-44 shrink-0">
@@ -1616,7 +1617,6 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
               <button aria-label="Bağlantıyı sil" onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
             </div>
           ))}
-          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-card-navy border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
         </div>
 
         <div className="flex gap-4">
