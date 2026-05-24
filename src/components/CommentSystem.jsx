@@ -230,20 +230,23 @@ export default function CommentSystem({ seriesId, chapterNum }) {
           </div>
         )}
 
-        {/* INLINE BLOOD DROPS - attached directly to the bottom of the card */}
+        {/* INLINE BLOOD EMOJIS - falling from the top inside the card */}
         {isAethe && (
-          <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-50 overflow-visible h-10">
-            {/* Dripping blood rain 1 */}
-            <div className="absolute animate-blood-rain" style={{ bottom: '-5px', left: '15%', width: '3px', height: '12px', background: 'linear-gradient(to bottom, transparent, #e11d48)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0s', animationDuration: '1.5s' }}></div>
+          <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" style={{ borderRadius: isReply ? '1rem' : '2.5rem' }}>
+            {/* Dripping blood emoji 1 */}
+            <div className="absolute animate-blood-rain text-[14px]" style={{ top: '-20px', left: '15%', animationDelay: '0s', animationDuration: '3s', opacity: 0.6 }}>🩸</div>
             
-            {/* Dripping blood rain 2 */}
-            <div className="absolute animate-blood-rain" style={{ bottom: '-10px', left: '40%', width: '2px', height: '16px', background: 'linear-gradient(to bottom, transparent, #e11d48)', borderRadius: '2px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.6s', animationDuration: '2.2s' }}></div>
+            {/* Dripping blood emoji 2 */}
+            <div className="absolute animate-blood-rain text-[18px]" style={{ top: '-20px', left: '40%', animationDelay: '1.2s', animationDuration: '4s', opacity: 0.8 }}>🩸</div>
             
-            {/* Dripping blood rain 3 */}
-            <div className="absolute animate-blood-rain" style={{ bottom: '-8px', left: '70%', width: '4px', height: '14px', background: 'linear-gradient(to bottom, transparent, #be123c)', borderRadius: '4px', filter: 'drop-shadow(0 0 6px #e11d48)', animationDelay: '1.1s', animationDuration: '1.8s' }}></div>
+            {/* Dripping blood emoji 3 */}
+            <div className="absolute animate-blood-rain text-[12px]" style={{ top: '-20px', left: '70%', animationDelay: '0.5s', animationDuration: '3.5s', opacity: 0.5 }}>🩸</div>
             
-            {/* Dripping blood rain 4 */}
-            <div className="absolute animate-blood-rain" style={{ bottom: '-5px', right: '15%', width: '3px', height: '10px', background: 'linear-gradient(to bottom, transparent, #e11d48)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.3s', animationDuration: '2s' }}></div>
+            {/* Dripping blood emoji 4 */}
+            <div className="absolute animate-blood-rain text-[16px]" style={{ top: '-20px', right: '15%', animationDelay: '2s', animationDuration: '4.5s', opacity: 0.7 }}>🩸</div>
+            
+            {/* Dripping blood emoji 5 */}
+            <div className="absolute animate-blood-rain text-[10px]" style={{ top: '-20px', right: '35%', animationDelay: '0.8s', animationDuration: '5s', opacity: 0.4 }}>🩸</div>
           </div>
         )}
 
