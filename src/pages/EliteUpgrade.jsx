@@ -260,7 +260,7 @@ export default function EliteUpgrade() {
                     ? 'shadow-[0_0_50px_rgba(225,29,72,0.2)]'
                     : 'hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]'
                   }`}
-                  style={{ backgroundImage: \`url(\${plan.bgImage})\` }}
+                  style={{ backgroundImage: `url(${plan.bgImage})` }}
                 >
                   <div className="absolute inset-0 bg-black/40 xl:bg-transparent z-0"></div>
 
