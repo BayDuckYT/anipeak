@@ -910,8 +910,16 @@ export default function ProfileShowcase() {
                   {isOwnProfile ? (
                     <>
                       <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-white/5 border border-white/20 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-md shadow-lg">PROFİLİ DÜZENLE</button>
-                      <button onClick={() => navigate('/elite-upgrade')} className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.5)] border border-amber-400 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                        <Crown size={14} /> PREMIUM
+                      <button onClick={() => navigate('/elite-upgrade')} className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-2 border hover:scale-[1.02] active:scale-[0.98] ${
+                        displayUser.active_plan_id === 'aethe' ? 'bg-gradient-to-r from-rose-600 to-pink-500 shadow-rose-500/50 border-rose-400 text-white' :
+                        displayUser.active_plan_id === 'shadow' ? 'bg-gradient-to-r from-purple-600 to-indigo-500 shadow-purple-500/50 border-purple-400 text-white' :
+                        displayUser.active_plan_id === 'pro' ? 'bg-gradient-to-r from-cyan-600 to-blue-500 shadow-cyan-500/50 border-cyan-400 text-white' :
+                        'bg-gradient-to-r from-orange-500 to-amber-500 shadow-amber-500/50 border-amber-400 text-white'
+                      }`}>
+                        {displayUser.active_plan_id === 'aethe' ? <><Sparkles size={14} /> Efsanevi Aethe</> :
+                         displayUser.active_plan_id === 'shadow' ? <><Ghost size={14} /> Hükümdar Gölgesi</> :
+                         displayUser.active_plan_id === 'pro' ? <><Trophy size={14} /> Pro Üye</> :
+                         <><Crown size={14} /> PREMIUM</>}
                       </button>
                     </>
                   ) : (
