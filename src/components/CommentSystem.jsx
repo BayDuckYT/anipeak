@@ -206,9 +206,8 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     const expanded = expandedReplies.has(comment.id);
     const liked = likedByMe.has(comment.id);
     const lc = likeCounts[comment.id] || 0;
-    const customColorStyle = mix.commentColor && mix.commentColor !== 'none' ? { backgroundColor: hexToRgba(mix.commentColor, 0.08), borderColor: hexToRgba(mix.commentColor, 0.2) } : {};
-    
     const isAethe = prof?.active_plan_id === 'aethe' || prof?.role === 'Baş Admin';
+    const hasCustomColor = mix.commentColor && mix.commentColor !== 'none';
 
     // Aethe users get a glowing red border and shadow directly on the card
     const aetheStyle = isAethe ? {
@@ -217,7 +216,15 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       backgroundColor: 'rgba(40, 0, 10, 0.4)' // Slight dark red tint
     } : {};
 
-    const combinedStyle = isReply ? {} : { ...customColorStyle, ...aetheStyle };
+    const customColorStyle = hasCustomColor ? { 
+      backgroundColor: hexToRgba(mix.commentColor, 0.08), 
+      borderColor: hexToRgba(mix.commentColor, 0.2),
+      ...(isAethe ? {
+        boxShadow: `0 0 20px ${hexToRgba(mix.commentColor, 0.4)}, inset 0 0 15px ${hexToRgba(mix.commentColor, 0.1)}`
+      } : {})
+    } : {};
+
+    const combinedStyle = isReply ? {} : { ...aetheStyle, ...customColorStyle };
 
     return (
       <div key={comment.id} style={combinedStyle} className={`relative transition-all duration-300 mt-2 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')}`}>
