@@ -135,6 +135,7 @@ export default function AllSeries() {
   const [search, setSearch] = useState('');
   const [activeGenre, setActiveGenre] = useState(urlGenre || 'Tümü');
   const [activeType, setActiveType] = useState('Tümü');
+  const [activeStatus, setActiveStatus] = useState('Tümü');
   const [sortBy, setSortBy] = useState('popular');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [showTypeSubcats, setShowTypeSubcats] = useState(null); // 'Manhwa' | 'Manga' | 'Manhua'
@@ -159,7 +160,9 @@ export default function AllSeries() {
       const matchSearch = m.title.toLowerCase().includes(search.toLowerCase());
       const mGenres = Array.isArray(m.genre) ? m.genre : m.genre ? [m.genre] : [];
       const matchGenre = activeGenre === 'Tümü' || mGenres.some(g => g.toLowerCase().includes(activeGenre.toLowerCase()));
-      return matchSearch && matchGenre;
+      const matchType = activeType === 'Tümü' || mGenres.some(g => g.toLowerCase() === activeType.toLowerCase());
+      const matchStatus = activeStatus === 'Tümü' || m.status === activeStatus;
+      return matchSearch && matchGenre && matchType && matchStatus;
     });
 
     // Sort
@@ -283,6 +286,14 @@ export default function AllSeries() {
                   </button>
                 ))}
               </div>
+
+              {/* Status */}
+              <select value={activeStatus} onChange={(e) => setActiveStatus(e.target.value)} aria-label="Durum seçeneği"
+                className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-purple-500 outline-none cursor-pointer">
+                <option value="Tümü" className="bg-[#0a0a14]">Tüm Durumlar</option>
+                <option value="Devam Ediyor" className="bg-[#0a0a14]">Devam Ediyor</option>
+                <option value="Tamamlandı" className="bg-[#0a0a14]">Tamamlandı</option>
+              </select>
 
               {/* Sort */}
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sıralama seçeneği"

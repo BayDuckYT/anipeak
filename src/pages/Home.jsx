@@ -119,12 +119,21 @@ export default function Home({ onAuthOpen }) {
 
   // 2. Veri Setleri
   const trendingSeries = useMemo(() => validSeries.filter(s => s.is_trending).slice(0, 5), [validSeries]);
+  const [activeType, setActiveType] = useState('TÜMÜ');
+
   const newChapterSeries = useMemo(() => {
-    return [...validSeries]
+    let list = [...validSeries];
+    if (activeType !== 'TÜMÜ') {
+      list = list.filter(s => {
+        const mGenres = Array.isArray(s.genre) ? s.genre : s.genre ? [s.genre] : [];
+        return mGenres.some(g => g.toLowerCase() === activeType.toLowerCase());
+      });
+    }
+    return list
       .map(s => ({ ...s, ts: chapters[String(s.id)]?.[0]?.created_at || '1970-01-01' }))
       .sort((a, b) => b.ts.localeCompare(a.ts))
       .slice(0, 12);
-  }, [validSeries, chapters]);
+  }, [validSeries, chapters, activeType]);
   
   const mostPopular = useMemo(() => {
     return [...validSeries].sort((a, b) => {
@@ -356,13 +365,24 @@ export default function Home({ onAuthOpen }) {
             {/* 4. YENİ EKLENEN BÖLÜMLER */}
             <LazySection minHeight="240px">
               <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}>
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                   <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-3">
                     <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                       <Zap size={20} className="text-emerald-500" />
                     </div>
                     Yeni Bölümler
                   </h2>
+                  <div className="flex items-center gap-1 bg-[#130E26]/60 backdrop-blur-xl border border-white/10 p-1.5 rounded-xl overflow-x-auto no-scrollbar max-w-full">
+                    {['TÜMÜ', 'MANHWA', 'MANGA', 'MANHUA', 'WEBTOON'].map(f => (
+                      <button
+                        key={f}
+                        onClick={() => setActiveType(f)}
+                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeType === f ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
                   {newChapterSeries.map((item) => (
