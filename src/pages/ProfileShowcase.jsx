@@ -1091,10 +1091,10 @@ export default function ProfileShowcase() {
             <div className="relative w-full h-[200px] sm:h-[300px] md:h-[400px] rounded-[2rem] sm:rounded-[3rem] overflow-hidden bg-[#070511] border border-white/10 shadow-2xl group flex flex-col justify-end">
                <div className="absolute inset-0 z-0">
                   <img 
-                    src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix?.profile_effect)?.url || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop", 1200)} 
+                    src={displayUser.appearance_settings?.custom_banner_url || getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix?.profile_effect)?.url || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop", 1200)} 
                     alt="Profil arkaplanı"
                     loading="eager"
-                    className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[15s]" 
+                    className="w-full h-full object-cover opacity-60" 
                     style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/40 to-transparent z-10" />

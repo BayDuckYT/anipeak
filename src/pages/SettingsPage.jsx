@@ -4,10 +4,11 @@ import {
   User, Shield, Bell, Eye, Palette, Link as LinkIcon, 
   AlertTriangle, Settings as SettingsIcon, Check, Loader2, 
   Camera, ImageIcon, Zap, Swords, ChevronRight, Fingerprint, 
-  Moon, Sun, Wind, Flame, ShieldAlert
+  Moon, Sun, Wind, Flame, ShieldAlert, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSEO } from '../hooks/useSEO';
+import { uploadAvatar } from '../lib/imageService';
 
 // Geliştirilmiş Faction (Hane) Verileri
 const HOUSES = [
@@ -93,6 +94,42 @@ export default function SettingsPage() {
     }
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsSaving(true);
+    try {
+      const url = await uploadAvatar(file);
+      if (url) await updateProfile({ avatar_url: url });
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      alert('Avatar yüklenemedi!');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsSaving(true);
+    try {
+      const url = await uploadAvatar(file);
+      if (url) {
+        const nextApp = { ...appearanceSettings, custom_banner_url: url };
+        setAppearanceSettings(nextApp);
+        await updateProfile({ appearance_settings: nextApp });
+      }
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      alert('Arkaplan yüklenemedi!');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleChangePassword = async () => {
     if (passwords.next !== passwords.confirm) return alert('Şifreler eşleşmiyor!');
     setIsSaving(true);
@@ -109,7 +146,7 @@ export default function SettingsPage() {
   };
 
   const menuItems = [
-    { id: 'hesap', label: 'Profil & Hane', icon: User, color: 'text-purple-400' },
+    { id: 'hesap', label: 'Profil Kimliği', icon: User, color: 'text-purple-400' },
     { id: 'guvenlik', label: 'Güvenlik', icon: Shield, color: 'text-emerald-400' },
     { id: 'gorunum', label: 'Görünüm', icon: Palette, color: 'text-pink-400' },
     { id: 'bildirimler', label: 'Bildirimler', icon: Bell, color: 'text-blue-400' },
@@ -255,9 +292,11 @@ export default function SettingsPage() {
                             ) : (
                               <User size={56} className="text-zinc-800" />
                             )}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm cursor-pointer">
-                               <Camera size={24} className="text-white" />
-                            </div>
+                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity backdrop-blur-sm cursor-pointer">
+                               <Camera size={24} className="text-white mb-1" />
+                               <span className="text-[10px] font-black uppercase text-white">Değiştir</span>
+                               <input type="file" className="hidden" accept="image/*,image/gif" onChange={handleAvatarUpload} />
+                            </label>
                           </div>
                         </div>
                         
@@ -276,9 +315,10 @@ export default function SettingsPage() {
                             <div className="px-5 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-[0.2em] text-white backdrop-blur-md">
                               {user?.role}
                             </div>
-                            <div className="px-5 py-2 rounded-2xl bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-xs font-black uppercase tracking-[0.2em] text-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.15)]">
-                              Sistem Seviyesi: {user?.level || 1}
-                            </div>
+                            <label className="px-5 py-2 rounded-2xl bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-xs font-black uppercase tracking-[0.2em] text-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.15)] cursor-pointer hover:bg-purple-500/30 transition-colors flex items-center gap-2">
+                              <ImageIcon size={14} /> Profil Arkaplanı Seç (GIF/Foto)
+                              <input type="file" className="hidden" accept="image/*,image/gif" onChange={handleBannerUpload} />
+                            </label>
                           </div>
                         </div>
                       </div>
