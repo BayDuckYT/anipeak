@@ -205,20 +205,42 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     const replies = repliesOf[comment.id] || [];
     const expanded = expandedReplies.has(comment.id);
     const liked = likedByMe.has(comment.id);
-    const lc = likeCounts[comment.id] || 0;
-    const customColorStyle = mix.commentColor && mix.commentColor !== 'none' ? { backgroundColor: hexToRgba(mix.commentColor, 0.08), borderColor: hexToRgba(mix.commentColor, 0.2) } : {};
-
-    // Geliştirici testi için Baş Admin'e de efekti açıyoruz
     const isAethe = prof?.active_plan_id === 'aethe' || prof?.role === 'Baş Admin';
 
-    const cardContent = (
-      <div key={comment.id} style={isReply ? {} : customColorStyle} className={`relative transition-all duration-300 mt-2 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')} ${isAethe ? 'aethe-blood-inner' : ''}`}>
+    // Aethe users get a glowing red border and shadow directly on the card
+    const aetheStyle = isAethe ? {
+      boxShadow: '0 0 20px rgba(225,29,72,0.4), inset 0 0 15px rgba(225,29,72,0.1)',
+      borderColor: 'rgba(225,29,72,0.5)',
+      backgroundColor: 'rgba(40, 0, 10, 0.4)' // Slight dark red tint
+    } : {};
+
+    const combinedStyle = isReply ? {} : { ...customColorStyle, ...aetheStyle };
+
+    return (
+      <div key={comment.id} style={combinedStyle} className={`relative transition-all duration-300 mt-2 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')}`}>
         {/* Nameplate */}
         {!isReply && mix.nameplate && mix.nameplate !== 'none' && (
           <div className="absolute top-[12px] bottom-[12px] left-[8px] right-[8px] z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden" style={{ borderRadius: '1.5rem', clipPath: 'inset(0 round 1.5rem)' }}>
             <video autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen mix-blend-lighten" style={{ filter: `hue-rotate(${mix.hue || 0}deg)`, objectPosition: 'right center' }}>
               <source src={`/nameplates/${mix.nameplate}`} type="video/webm" />
             </video>
+          </div>
+        )}
+
+        {/* INLINE BLOOD DROPS - attached directly to the bottom of the card */}
+        {isAethe && (
+          <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-50">
+            {/* Dripping blood 1 */}
+            <div className="absolute animate-pulse" style={{ bottom: '-15px', left: '15%', width: '4px', height: '25px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)' }}></div>
+            
+            {/* Dripping blood 2 */}
+            <div className="absolute animate-bounce" style={{ bottom: '-22px', left: '40%', width: '3px', height: '35px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.3s', animationDuration: '2s' }}></div>
+            
+            {/* Dripping blood 3 */}
+            <div className="absolute animate-pulse" style={{ bottom: '-12px', left: '70%', width: '5px', height: '20px', background: 'linear-gradient(to bottom, #be123c, transparent)', borderRadius: '5px', filter: 'drop-shadow(0 0 6px #e11d48)', animationDelay: '0.7s' }}></div>
+            
+            {/* Dripping blood 4 */}
+            <div className="absolute animate-bounce" style={{ bottom: '-18px', right: '15%', width: '4px', height: '28px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.1s', animationDuration: '2.5s' }}></div>
           </div>
         )}
 
@@ -337,31 +359,6 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       </div>
     );
 
-    if (isAethe) {
-      return (
-        <div key={comment.id} className="relative mb-8" style={{ zIndex: 10 }}>
-          {cardContent}
-          {/* AETHE BLOOD EFFECT - INLINE STYLED TO BYPASS CACHE & RENDER ON TOP */}
-          <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] overflow-visible" style={{ zIndex: 50 }}>
-            {/* Glowing red aura on the border */}
-            <div className="absolute inset-0 rounded-[2.5rem] border-2 border-red-500/80 pointer-events-none" style={{ boxShadow: '0 0 20px rgba(225,29,72,0.6), inset 0 0 20px rgba(225,29,72,0.2)' }}></div>
-            
-            {/* Dripping blood 1 */}
-            <div className="absolute animate-pulse" style={{ bottom: '-15px', left: '15%', width: '4px', height: '25px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)' }}></div>
-            
-            {/* Dripping blood 2 */}
-            <div className="absolute animate-bounce" style={{ bottom: '-22px', left: '40%', width: '3px', height: '35px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.3s', animationDuration: '2s' }}></div>
-            
-            {/* Dripping blood 3 */}
-            <div className="absolute animate-pulse" style={{ bottom: '-12px', left: '70%', width: '5px', height: '20px', background: 'linear-gradient(to bottom, #be123c, transparent)', borderRadius: '5px', filter: 'drop-shadow(0 0 6px #e11d48)', animationDelay: '0.7s' }}></div>
-            
-            {/* Dripping blood 4 */}
-            <div className="absolute animate-bounce" style={{ bottom: '-18px', right: '15%', width: '4px', height: '28px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.1s', animationDuration: '2.5s' }}></div>
-          </div>
-        </div>
-      );
-    }
-    
     return cardContent;
   };
 
