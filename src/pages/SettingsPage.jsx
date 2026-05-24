@@ -252,7 +252,7 @@ export default function SettingsPage() {
                             key={house.id}
                             onClick={() => handleSave({ house_id: house.id })}
                             className={`relative p-6 rounded-3xl border transition-all duration-300 overflow-hidden text-left group
-                              ${user?.house_id === house.id ? \`bg-gradient-to-br \${house.color} \${house.border} \${house.shadow}\` : 'bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10'}
+                              ${user?.house_id === house.id ? `bg-gradient-to-br ${house.color} ${house.border} ${house.shadow}` : 'bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10'}
                             `}
                           >
                             <div className={`text-sm font-black uppercase tracking-widest ${user?.house_id === house.id ? 'text-white drop-shadow-md' : 'text-zinc-300'}`}>
