@@ -1562,6 +1562,29 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
               </div>
            </div>
 
+            {(['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(currentUser?.role) || currentUser?.active_plan_id === 'aethe') && (
+               <div className="space-y-6">
+                  <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">YORUM KUTUSU RENGİ</h4>
+                  <div className="flex items-center gap-4">
+                     <button 
+                       onClick={() => setMixState(prev => ({ ...prev, commentColor: 'none' }))}
+                       className={`px-6 py-3 rounded-2xl border transition-all text-[10px] font-bold uppercase ${(!mixState.commentColor || mixState.commentColor === 'none') ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
+                     >
+                        VARSAYILAN
+                     </button>
+                     <div className="flex items-center gap-3">
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase">ÖZEL RENK SEÇ:</label>
+                        <input 
+                           type="color" 
+                           value={mixState.commentColor && mixState.commentColor !== 'none' ? mixState.commentColor : '#000000'}
+                           onChange={(e) => setMixState(prev => ({ ...prev, commentColor: e.target.value }))}
+                           className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-0"
+                        />
+                     </div>
+                  </div>
+               </div>
+            )}
+
            <div className="space-y-6">
               <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">AVATAR ÇERÇEVESİ</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1604,28 +1627,6 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
               </div>
            </div>
 
-            {(['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(currentUser?.role) || currentUser?.active_plan_id === 'aethe') && (
-               <div className="space-y-6">
-                  <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">YORUM KUTUSU RENGİ</h4>
-                  <div className="flex items-center gap-4">
-                     <button 
-                       onClick={() => setMixState(prev => ({ ...prev, commentColor: 'none' }))}
-                       className={`px-6 py-3 rounded-2xl border transition-all text-[10px] font-bold uppercase ${(!mixState.commentColor || mixState.commentColor === 'none') ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
-                     >
-                        VARSAYILAN
-                     </button>
-                     <div className="flex items-center gap-3">
-                        <label className="text-[10px] font-bold text-zinc-400 uppercase">ÖZEL RENK SEÇ:</label>
-                        <input 
-                           type="color" 
-                           value={mixState.commentColor !== 'none' ? mixState.commentColor : '#000000'}
-                           onChange={(e) => setMixState(prev => ({ ...prev, commentColor: e.target.value }))}
-                           className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-0"
-                        />
-                     </div>
-                  </div>
-               </div>
-            )}
          </div>
 
         <div className="p-10 bg-card-navy/50 border-t border-white/5 flex gap-4">
