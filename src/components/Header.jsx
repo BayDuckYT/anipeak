@@ -117,11 +117,13 @@ export default function Header({ onAuthOpen }) {
         <div className="flex items-center justify-between h-16 gap-3">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center group flex-shrink-0 relative">
+          <Link to="/" className="flex items-center group flex-shrink-0 relative" aria-label="Ana Sayfa">
             <div className="relative">
               <img 
                 src="/anipeaklogo.png" 
                 alt="AniPeak Logo" 
+                width="160"
+                height="64"
                 className="h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-0.5" 
                 style={{ 
                   filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))' 

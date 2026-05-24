@@ -298,6 +298,7 @@ export default function Home({ onAuthOpen }) {
                 <button 
                   key={idx}
                   onClick={() => setCurrentHeroIndex(idx)}
+                  aria-label={`Slayt ${idx + 1}`}
                   className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-8 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'w-2 bg-white/30 hover:bg-white/60'}`}
                 />
               ))}
