@@ -9,6 +9,77 @@ import {
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSEO } from '../hooks/useSEO';
 import { uploadAvatar } from '../lib/imageService';
+import Cropper from 'react-easy-crop';
+
+const SIZE_PRESETS = [
+  { id: 'small', label: 'Küçük', desc: '128×128', size: 128, icon: '🔹' },
+  { id: 'medium', label: 'Orta', desc: '256×256', size: 256, icon: '🔷' },
+  { id: 'large', label: 'Büyük', desc: '512×512', size: 512, icon: '💎' },
+  { id: 'original', label: 'Orijinal', desc: 'Tam Boyut', size: null, icon: '⚡' },
+];
+
+const BANNER_SIZE_PRESETS = [
+  { id: 'small', label: 'Küçük', desc: '600×200', w: 600, h: 200, icon: '🔹' },
+  { id: 'medium', label: 'Orta', desc: '900×300', w: 900, h: 300, icon: '🔷' },
+  { id: 'large', label: 'Büyük', desc: '1200×400', w: 1200, h: 400, icon: '💎' },
+  { id: 'original', label: 'Orijinal', desc: 'Tam Boyut', w: null, h: null, icon: '⚡' },
+];
+
+const getCroppedImg = async (imageSrc, pixelCrop, targetSize = null) => {
+  const image = new Image();
+  image.setAttribute('crossOrigin', 'anonymous');
+  image.src = imageSrc;
+  try {
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+    });
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    // targetSize varsa çıktıyı o boyuta ölçekle, yoksa orijinal kırpma boyutunu kullan
+    const outW = targetSize || pixelCrop.width;
+    const outH = targetSize || pixelCrop.height;
+    canvas.width = outW;
+    canvas.height = outH;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, outW, outH);
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        blob.name = `cropped_${Date.now()}.webp`;
+        resolve(blob);
+      }, 'image/webp', 0.9);
+    });
+  } catch (err) { throw err; }
+};
+
+const resizeImage = (file, maxDim) => {
+  return new Promise((resolve) => {
+    if (!maxDim) { resolve(file); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => {
+          blob.name = file.name || `resized_${Date.now()}.webp`;
+          resolve(blob);
+        }, 'image/webp', 0.9);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 // Geliştirilmiş Faction (Hane) Verileri
 const HOUSES = [
@@ -59,6 +130,27 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('hesap');
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState('Ayarlar Güncellendi');
+  
+  const [cropModal, setCropModal] = useState({
+    isOpen: false,
+    imageSrc: null,
+    type: 'avatar', // 'avatar' | 'banner'
+    file: null,
+    crop: { x: 0, y: 0 },
+    zoom: 1,
+    croppedAreaPixels: null,
+    outputSize: 'medium', // small | medium | large | original
+  });
+
+  // GIF boyut seçimi modalı
+  const [gifSizeModal, setGifSizeModal] = useState({
+    isOpen: false,
+    file: null,
+    type: 'avatar',
+    previewUrl: null,
+    selectedSize: 'medium',
+  });
 
   useSEO({
     title: 'Ayarlar | AniPeak',
@@ -81,10 +173,11 @@ export default function SettingsPage() {
     }
   }, [user]);
 
-  const handleSave = async (data = {}) => {
+  const handleSave = async (data = {}, customMsg = 'Ayarlar Güncellendi') => {
     setIsSaving(true);
     try {
       await updateProfile(data);
+      setToastMsg(customMsg);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
     } catch (err) {
@@ -94,39 +187,115 @@ export default function SettingsPage() {
     }
   };
 
-  const handleAvatarUpload = async (e) => {
+  const handleFileSelect = (e, type) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.type === 'image/gif') {
+      // GIF'ler için boyut seçim modalı göster
+      const previewUrl = URL.createObjectURL(file);
+      setGifSizeModal({
+        isOpen: true,
+        file,
+        type,
+        previewUrl,
+        selectedSize: 'original',
+      });
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropModal({
+        isOpen: true,
+        imageSrc: reader.result,
+        type,
+        file,
+        crop: { x: 0, y: 0 },
+        zoom: 1,
+        croppedAreaPixels: null,
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = ''; // Reset input
+  };
+
+  const uploadDirectly = async (file, type) => {
     setIsSaving(true);
     try {
       const url = await uploadAvatar(file);
-      if (url) await updateProfile({ avatar_url: url });
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
+      if (url) {
+        if (type === 'avatar') {
+          await updateProfile({ avatar_url: url });
+        } else {
+          const nextApp = { ...appearanceSettings, custom_banner_url: url };
+          setAppearanceSettings(nextApp);
+          await updateProfile({ appearance_settings: nextApp });
+        }
+        setToastMsg('Profiliniz Güncellendi');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      }
     } catch (err) {
-      alert('Avatar yüklenemedi!');
+      alert('Yükleme hatası!');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleBannerUpload = async (e) => {
-    const file = e.target.files?.[0];
+  const handleGifUpload = async () => {
+    const { file, type, selectedSize } = gifSizeModal;
     if (!file) return;
+    setGifSizeModal(prev => ({ ...prev, isOpen: false }));
+    if (gifSizeModal.previewUrl) URL.revokeObjectURL(gifSizeModal.previewUrl);
+
+    if (selectedSize === 'original') {
+      // Orijinal boyutta direkt yükle
+      await uploadDirectly(file, type);
+    } else {
+      // GIF'i boyutlandır (statik frame olarak — animasyon korunmaz)
+      setIsSaving(true);
+      try {
+        const preset = SIZE_PRESETS.find(p => p.id === selectedSize);
+        const resizedBlob = await resizeImage(file, preset?.size || null);
+        await uploadDirectly(resizedBlob, type);
+      } catch (err) {
+        alert('Boyutlandırma hatası!');
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
+
+  const handleCropComplete = async () => {
+    if (!cropModal.croppedAreaPixels || !cropModal.imageSrc) return;
     setIsSaving(true);
     try {
-      const url = await uploadAvatar(file);
+      // Seçilen boyut presetini bul
+      const presets = cropModal.type === 'avatar' ? SIZE_PRESETS : BANNER_SIZE_PRESETS;
+      const preset = presets.find(p => p.id === cropModal.outputSize);
+      const targetSize = cropModal.type === 'avatar' ? (preset?.size || null) : (preset?.w || null);
+      
+      const croppedBlob = await getCroppedImg(cropModal.imageSrc, cropModal.croppedAreaPixels, targetSize);
+      const url = await uploadAvatar(croppedBlob);
       if (url) {
-        const nextApp = { ...appearanceSettings, custom_banner_url: url };
-        setAppearanceSettings(nextApp);
-        await updateProfile({ appearance_settings: nextApp });
+        if (cropModal.type === 'avatar') {
+          await updateProfile({ avatar_url: url });
+        } else {
+          const nextApp = { ...appearanceSettings, custom_banner_url: url };
+          setAppearanceSettings(nextApp);
+          await updateProfile({ appearance_settings: nextApp });
+        }
+        setToastMsg('Profiliniz Güncellendi');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
       }
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
     } catch (err) {
-      alert('Arkaplan yüklenemedi!');
+      alert('Kırpma veya yükleme sırasında hata oluştu.');
     } finally {
       setIsSaving(false);
+      setCropModal(prev => ({ ...prev, isOpen: false }));
     }
   };
 
@@ -177,9 +346,183 @@ export default function SettingsPage() {
               <Check size={18} strokeWidth={3} className="relative z-10" />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-white">Sistem Güncellendi</p>
+              <p className="text-xs font-black uppercase tracking-widest text-white">{toastMsg}</p>
               <p className="text-[10px] text-emerald-400/80 font-medium">Değişiklikler başarıyla kaydedildi.</p>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Cropper Modal */}
+      <AnimatePresence>
+        {cropModal.isOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <div className="w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
+              <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/40">
+                <h3 className="text-lg font-black text-white uppercase tracking-wider">
+                  {cropModal.type === 'avatar' ? 'Profil Fotoğrafını Kırp' : 'Arkaplanı Kırp'}
+                </h3>
+                <button 
+                  onClick={() => setCropModal(prev => ({ ...prev, isOpen: false }))}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors text-zinc-400 hover:text-white"
+                >
+                  <AlertTriangle size={20} className="hidden" />
+                  <span className="text-xl font-bold leading-none">&times;</span>
+                </button>
+              </div>
+              <div className="relative w-full h-[400px] bg-black">
+                <Cropper
+                  image={cropModal.imageSrc}
+                  crop={cropModal.crop}
+                  zoom={cropModal.zoom}
+                  aspect={cropModal.type === 'avatar' ? 1 : 3}
+                  cropShape={cropModal.type === 'avatar' ? 'round' : 'rect'}
+                  showGrid={false}
+                  onCropChange={(crop) => setCropModal(prev => ({ ...prev, crop }))}
+                  onCropComplete={(croppedArea, croppedAreaPixels) => setCropModal(prev => ({ ...prev, croppedAreaPixels }))}
+                  onZoomChange={(zoom) => setCropModal(prev => ({ ...prev, zoom }))}
+                />
+              </div>
+              <div className="p-4 border-t border-white/5 bg-black/40 space-y-4">
+                {/* Boyut Seçimi */}
+                <div>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3">Çıktı Boyutu</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {(cropModal.type === 'avatar' ? SIZE_PRESETS : BANNER_SIZE_PRESETS).map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => setCropModal(prev => ({ ...prev, outputSize: preset.id }))}
+                        className={`px-4 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                          cropModal.outputSize === preset.id
+                            ? 'bg-purple-600 text-white border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.4)] scale-105'
+                            : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <span className="mr-1.5">{preset.icon}</span>
+                        {preset.label}
+                        <span className="ml-1.5 opacity-60 text-[9px]">({preset.desc})</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Zoom + Kaydet */}
+                <div className="flex justify-between items-center">
+                  <div className="flex-1 px-4 hidden sm:block">
+                    <input
+                      type="range"
+                      value={cropModal.zoom}
+                      min={1}
+                      max={3}
+                      step={0.1}
+                      aria-label="Zoom"
+                      onChange={(e) => setCropModal(prev => ({ ...prev, zoom: e.target.value }))}
+                      className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleCropComplete}
+                    disabled={isSaving}
+                    className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition-colors disabled:opacity-50 ml-auto"
+                  >
+                    {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* GIF Boyut Seçim Modalı */}
+      <AnimatePresence>
+        {gifSizeModal.isOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl"
+            >
+              <div className="p-5 border-b border-white/5 flex justify-between items-center bg-black/40">
+                <h3 className="text-lg font-black text-white uppercase tracking-wider">
+                  🎞️ GIF Boyut Seçimi
+                </h3>
+                <button 
+                  onClick={() => { 
+                    if (gifSizeModal.previewUrl) URL.revokeObjectURL(gifSizeModal.previewUrl);
+                    setGifSizeModal(prev => ({ ...prev, isOpen: false }));
+                  }}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors text-zinc-400 hover:text-white"
+                >
+                  <span className="text-xl font-bold leading-none">&times;</span>
+                </button>
+              </div>
+
+              {/* GIF Önizleme */}
+              <div className="p-6 flex flex-col items-center gap-6">
+                <div className="w-40 h-40 rounded-full overflow-hidden border-2 border-white/20 bg-black flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                  {gifSizeModal.previewUrl && (
+                    <img src={gifSizeModal.previewUrl} alt="GIF Önizleme" className="w-full h-full object-cover" />
+                  )}
+                </div>
+
+                <div className="w-full">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3 text-center">Boyut Seç</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {SIZE_PRESETS.map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => setGifSizeModal(prev => ({ ...prev, selectedSize: preset.id }))}
+                        className={`p-4 rounded-2xl text-center transition-all border ${
+                          gifSizeModal.selectedSize === preset.id
+                            ? 'bg-purple-600/20 text-white border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)]'
+                            : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <span className="text-2xl block mb-1">{preset.icon}</span>
+                        <span className="text-xs font-black uppercase tracking-wider">{preset.label}</span>
+                        <span className="block text-[10px] opacity-60 mt-0.5">{preset.desc}</span>
+                        {preset.id !== 'original' && (
+                          <span className="block text-[9px] text-amber-400/70 mt-1">⚠️ Animasyon kaybolur</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-white/5 bg-black/40 flex justify-end gap-3">
+                <button 
+                  onClick={() => {
+                    if (gifSizeModal.previewUrl) URL.revokeObjectURL(gifSizeModal.previewUrl);
+                    setGifSizeModal(prev => ({ ...prev, isOpen: false }));
+                  }}
+                  className="px-5 py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 font-bold text-sm transition-all"
+                >
+                  İptal
+                </button>
+                <button 
+                  onClick={handleGifUpload}
+                  disabled={isSaving}
+                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                >
+                  {isSaving ? 'Yükleniyor...' : '🚀 Yükle'}
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -295,7 +638,7 @@ export default function SettingsPage() {
                             <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity backdrop-blur-sm cursor-pointer">
                                <Camera size={24} className="text-white mb-1" />
                                <span className="text-[10px] font-black uppercase text-white">Değiştir</span>
-                               <input type="file" className="hidden" accept="image/*,image/gif" onChange={handleAvatarUpload} />
+                               <input type="file" className="hidden" accept="image/*,image/gif" onChange={(e) => handleFileSelect(e, 'avatar')} />
                             </label>
                           </div>
                         </div>
@@ -317,7 +660,7 @@ export default function SettingsPage() {
                             </div>
                             <label className="px-5 py-2 rounded-2xl bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-xs font-black uppercase tracking-[0.2em] text-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.15)] cursor-pointer hover:bg-purple-500/30 transition-colors flex items-center gap-2">
                               <ImageIcon size={14} /> Profil Arkaplanı Seç (GIF/Foto)
-                              <input type="file" className="hidden" accept="image/*,image/gif" onChange={handleBannerUpload} />
+                              <input type="file" className="hidden" accept="image/*,image/gif" onChange={(e) => handleFileSelect(e, 'banner')} />
                             </label>
                           </div>
                         </div>
