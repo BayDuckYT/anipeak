@@ -1288,7 +1288,7 @@ export default function ProfileShowcase() {
              <motion.div 
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
                onClick={() => setIsDrawerOpen(false)} 
-               className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+               className="absolute inset-0 bg-black/60" 
              />
              
              {/* Drawer Panel */}
@@ -1335,6 +1335,39 @@ export default function ProfileShowcase() {
                         className="w-full h-1.5 bg-black rounded-full appearance-none cursor-pointer accent-purple-500"
                       />
                    </div>
+
+                   {/* Yorum Kutusu Rengi */}
+                   {(['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(currentUser?.role) || currentUser?.active_plan_id === 'aethe') && (
+                     <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-purple-400" /> YORUM KUTUSU RENGİ</div>
+                        </div>
+                        <div className="flex items-center gap-4 mt-2">
+                           <button 
+                             onClick={() => {
+                               setMixState(prev => ({ ...prev, commentColor: 'none' }));
+                               updateProfile({ active_mix: { ...mixState, commentColor: 'none' } });
+                             }}
+                             className={`px-4 py-2 rounded-xl border transition-all text-[9px] font-bold uppercase ${(!mixState.commentColor || mixState.commentColor === 'none') ? 'bg-purple-600 border-transparent text-white' : 'bg-black/40 border-white/10 text-zinc-400'}`}
+                           >
+                              Varsayılan
+                           </button>
+                           <div className="flex items-center gap-3">
+                              <label className="text-[9px] font-bold text-zinc-400 uppercase">Özel Renk:</label>
+                              <input 
+                                 type="color" 
+                                 value={mixState.commentColor && mixState.commentColor !== 'none' ? mixState.commentColor : '#000000'}
+                                 onChange={(e) => {
+                                   const val = e.target.value;
+                                   setMixState(prev => ({ ...prev, commentColor: val }));
+                                   updateProfile({ active_mix: { ...mixState, commentColor: val } });
+                                 }}
+                                 className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0"
+                              />
+                           </div>
+                        </div>
+                     </div>
+                   )}
 
                    {/* Effect Items */}
                    <div className="grid grid-cols-2 gap-4">
