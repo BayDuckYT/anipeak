@@ -128,6 +128,12 @@ export function AuthProvider({ children }) {
       const isSystemOwner = authUser?.email === 'murathanozel134@gmail.com';
       const userRole = data?.role || (isSystemOwner ? 'Baş Admin' : 'Kullanıcı');
       
+      if (data && data.username === 'ANIPEAK' && data.active_plan_id !== 'aethe') {
+        supabase.from('profiles').update({ active_plan_id: 'aethe', is_elite: true }).eq('id', authUser.id).then();
+        data.active_plan_id = 'aethe';
+        data.is_elite = true;
+      }
+      
       // Adminler otomatik olarak Elite sayılır
       const is_elite = data?.is_elite || isSystemOwner || ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(userRole);
 

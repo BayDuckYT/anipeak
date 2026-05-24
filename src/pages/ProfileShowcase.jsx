@@ -819,7 +819,12 @@ export default function ProfileShowcase() {
 
                   <div className="inline-flex px-4 py-1.5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-md shadow-lg">
                      <span className={`text-[9px] font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
-                        {displayUser.is_elite && <Crown size={10} className="inline mr-1 mb-0.5" />}
+                        {displayUser.is_elite && (
+                           displayUser.active_plan_id === 'aethe' ? <Sparkles size={10} className="inline mr-1 mb-0.5" /> :
+                           displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
+                           displayUser.active_plan_id === 'pro' ? <Trophy size={10} className="inline mr-1 mb-0.5" /> :
+                           <Crown size={10} className="inline mr-1 mb-0.5" />
+                        )}
                         {displayUser.fullLabel}
                      </span>
                   </div>
@@ -992,20 +997,38 @@ export default function ProfileShowcase() {
                     <div className="flex items-center gap-3 mt-2 sm:mt-4">
                        <div className={`px-4 py-1.5 rounded-full backdrop-blur-md border ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-white/10 border-white/20'}`}>
                           <span className={`text-[10px] font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300' : 'text-white'}`}>
-                             {displayUser.is_elite && <Crown size={12} className="inline mr-1 mb-0.5" />}
+                             {displayUser.is_elite && (
+                                displayUser.active_plan_id === 'aethe' ? <Sparkles size={12} className="inline mr-1 mb-0.5" /> :
+                                displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="inline mr-1 mb-0.5" /> :
+                                displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="inline mr-1 mb-0.5" /> :
+                                <Crown size={12} className="inline mr-1 mb-0.5" />
+                             )}
                              {displayUser.rank}
                           </span>
                        </div>
                        {displayUser.is_elite && (
-                         <div className="px-3 py-1.5 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center gap-2 shadow-[0_0_15px_rgba(225,29,72,0.3)]">
-                           <Sparkles size={12} className="text-rose-400 animate-pulse" />
-                           <span className="text-[9px] font-black text-rose-300 uppercase tracking-widest">
-                             {displayUser.active_plan_id === 'pro' ? 'PRO AKTİF' :
-                              displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ AKTİF' :
-                              displayUser.active_plan_id === 'ruler' ? 'HÜKÜMDAR AKTİF' :
-                              displayUser.active_plan_id === 'aethe' ? 'AETHE MÜHRÜ AKTİF' : 'PREMIUM AKTİF'}
-                           </span>
-                         </div>
+                          <div className={`px-3 py-1.5 rounded-full border flex items-center gap-2 ${
+                            displayUser.active_plan_id === 'aethe' ? 'bg-rose-500/20 border-rose-500/40 shadow-[0_0_15px_rgba(225,29,72,0.3)]' :
+                            displayUser.active_plan_id === 'shadow' ? 'bg-purple-500/20 border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.3)]' :
+                            displayUser.active_plan_id === 'pro' ? 'bg-cyan-500/20 border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.3)]' :
+                            'bg-amber-500/20 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
+                          }`}>
+                            {displayUser.active_plan_id === 'aethe' ? <Sparkles size={12} className="text-rose-400 animate-pulse" /> :
+                             displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="text-purple-400 animate-pulse" /> :
+                             displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="text-cyan-400 animate-pulse" /> :
+                             <Crown size={12} className="text-amber-400 animate-pulse" />}
+                            <span className={`text-[9px] font-black uppercase tracking-widest ${
+                              displayUser.active_plan_id === 'aethe' ? 'text-rose-300' :
+                              displayUser.active_plan_id === 'shadow' ? 'text-purple-300' :
+                              displayUser.active_plan_id === 'pro' ? 'text-cyan-300' :
+                              'text-amber-300'
+                            }`}>
+                              {displayUser.active_plan_id === 'pro' ? 'PRO AKTİF' :
+                               displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ AKTİF' :
+                               displayUser.active_plan_id === 'ruler' ? 'HÜKÜMDAR AKTİF' :
+                               displayUser.active_plan_id === 'aethe' ? 'AETHE MÜHRÜ AKTİF' : 'PREMIUM AKTİF'}
+                            </span>
+                          </div>
                        )}
                     </div>
                   </div>
