@@ -212,7 +212,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
       <div key={comment.id} style={isReply ? {} : customColorStyle} className={`relative transition-all duration-300 mt-2 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')}`}>
         {/* Nameplate */}
         {!isReply && mix.nameplate && mix.nameplate !== 'none' && (
-          <div className="absolute inset-[4px] z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden" style={{ borderRadius: '2.25rem', clipPath: 'inset(0 round 2.25rem)' }}>
+          <div className="absolute inset-[8px] -translate-x-2 z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden" style={{ borderRadius: '2rem', clipPath: 'inset(0 round 2rem)' }}>
             <video autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen mix-blend-lighten" style={{ filter: `hue-rotate(${mix.hue || 0}deg)` }}>
               <source src={`/nameplates/${mix.nameplate}`} type="video/webm" />
             </video>
