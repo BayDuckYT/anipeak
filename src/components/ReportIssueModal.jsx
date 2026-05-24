@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, X, Send, CheckCircle2, User, Book, Layers } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
@@ -56,7 +57,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
       {/* Backdrop with extreme blur and dark overlay */}
       <div 
@@ -187,6 +188,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
           )}
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }

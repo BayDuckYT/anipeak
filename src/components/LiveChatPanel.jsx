@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, User, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -44,7 +45,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
     setInputText('');
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -177,6 +178,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
