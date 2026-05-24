@@ -323,7 +323,7 @@ export default function EliteUpgrade() {
                     </div>
 
                     {/* Özellikler */}
-                    <div className="flex-1 space-y-3.5 mb-8">
+                    <div className="space-y-3.5 mb-8">
                       {plan.features.map((feature, i) => (
                         <div key={i} className="flex items-start gap-3 group/item">
                           <div className={`mt-0.5 shrink-0 transition-transform duration-300 group-hover/item:scale-125 ${
