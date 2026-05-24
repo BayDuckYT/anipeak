@@ -88,11 +88,11 @@ export default function EliteUpgrade() {
         icon: 'Sparkles',
         features: [
           'Sadece İlk 20 Kişiye Özel Sınır!', 
-          'Tüm Efektlere Sınırsız Erişim (387+)', 
+          'Dört Efsanevi Haneden Birine Katılım',
+          'Aethe Kutsal Alanı (Karargah) Erişimi',
+          'Haneler Arası Kadim Savaş & Turnuvalar',
           'Efsanevi AETHE Mührü & Kan Kırmızı Aura', 
-          'Çeviri Aşamasındaki Serilere Erişim', 
-          'Yorumlarda "Aethe Tacı" Gösterimi',
-          'Platforma İstediği Seriyi Ekletme Hakkı',
+          'Tüm Efektlere Sınırsız Erişim (387+)', 
           'Discord Efsanevi AETHE Rolü'
         ]
       }
