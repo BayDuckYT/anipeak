@@ -38,6 +38,7 @@ function GlassCard({ item, type = 'trending', rank, chapters }) {
     <Link to={`/manhwa/${item.id}`} className="group block w-[150px] sm:w-[180px] flex-shrink-0" aria-label={`${item.title} okumaya başla`}>
       <motion.article 
         whileHover={{ y: -8, scale: 1.02 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '180px 240px' }}
         className="relative rounded-2xl overflow-hidden bg-[#130E26]/60 backdrop-blur-xl border border-white/5 transition-all duration-300 group-hover:border-purple-500/50 group-hover:shadow-[0_0_25px_rgba(168,85,247,0.25)]"
       >
         {isTrending && rank && (
@@ -190,6 +191,8 @@ export default function Home({ onAuthOpen }) {
               <img 
                 src={activeHeroImage} 
                 alt={`${activeHero.title} arkaplan`} 
+                width="1920"
+                height="1080"
                 className="w-full h-full object-cover opacity-30 filter blur-xl scale-110"
                 fetchpriority={currentHeroIndex === 0 ? "high" : "auto"}
                 loading={currentHeroIndex === 0 ? "eager" : "lazy"}
@@ -216,7 +219,11 @@ export default function Home({ onAuthOpen }) {
                     <img 
                       src={getOptimizedImage(activeHero.cover, 600)} 
                       alt={activeHero.title} 
+                      width="600"
+                      height="800"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                      loading={currentHeroIndex === 0 ? "eager" : "lazy"}
+                      fetchpriority={currentHeroIndex === 0 ? "high" : "auto"}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                   </div>
