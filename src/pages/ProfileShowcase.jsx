@@ -825,13 +825,17 @@ export default function ProfileShowcase() {
                     </h1>
                   </div>
 
-                  <div className={`inline-flex rounded-xl bg-white/5 border border-white/20 backdrop-blur-md shadow-lg ${displayUser.active_plan_id === 'aethe' ? 'px-6 py-3' : 'px-4 py-1.5'}`}>
-                     <span className={`font-black uppercase tracking-widest flex items-center ${displayUser.active_plan_id === 'aethe' ? 'text-sm gap-3' : 'text-[9px] gap-1'} ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
+                  <div className="inline-flex px-4 py-1.5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-md shadow-lg">
+                     <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
                         {displayUser.is_elite && (
-                           displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="object-contain drop-shadow-[0_0_10px_rgba(244,63,94,0.6)]" style={{ width: 80, height: 80 }} /> :
-                           displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline" /> :
-                           displayUser.active_plan_id === 'pro' ? <Trophy size={10} className="inline" /> :
-                           <Crown size={10} className="inline" />
+                           displayUser.active_plan_id === 'aethe' ? (
+                               <div className="w-4 h-4 flex items-center justify-center shrink-0 mr-1 mb-0.5">
+                                  <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                               </div>
+                           ) :
+                           displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
+                           displayUser.active_plan_id === 'pro' ? <Trophy size={10} className="inline mr-1 mb-0.5" /> :
+                           <Crown size={10} className="inline mr-1 mb-0.5" />
                         )}
                         <span>{displayUser.fullLabel}</span>
                      </span>
@@ -929,7 +933,14 @@ export default function ProfileShowcase() {
                         displayUser.active_plan_id === 'pro' ? 'bg-gradient-to-r from-cyan-600 to-blue-500 shadow-cyan-500/50 border-cyan-400 text-white' :
                         'bg-gradient-to-r from-orange-500 to-amber-500 shadow-amber-500/50 border-amber-400 text-white'
                       }`}>
-                        {displayUser.active_plan_id === 'aethe' ? <><img src="/aethe.png" alt="Aethe" className="object-contain" style={{ width: 18, height: 18 }} /> Efsanevi Aethe</> :
+                        {displayUser.active_plan_id === 'aethe' ? (
+                           <>
+                              <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                 <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                              </div>
+                              Efsanevi Aethe
+                           </>
+                        ) :
                          displayUser.active_plan_id === 'shadow' ? <><Ghost size={14} /> Hükümdar Gölgesi</> :
                          displayUser.active_plan_id === 'pro' ? <><Trophy size={14} /> Pro Üye</> :
                          <><Crown size={14} /> PREMIUM</>}
@@ -1002,17 +1013,15 @@ export default function ProfileShowcase() {
                <div className="relative z-20 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-end gap-6 w-full">
                   <div>
                     <h2 className="text-4xl sm:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">PROFIL</h2>
-                    <div className="flex flex-wrap items-center gap-3 mt-2 sm:mt-4">
-                       <div className={`rounded-full backdrop-blur-md border ${
-                          displayUser.active_plan_id === 'aethe' 
-                            ? `px-6 py-3 sm:px-8 sm:py-4 ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.4)]' : 'bg-white/10 border-white/20'}`
-                            : `px-4 py-1.5 ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-white/10 border-white/20'}`
-                       }`}>
-                          <span className={`font-black uppercase tracking-widest flex items-center ${
-                             displayUser.active_plan_id === 'aethe' ? 'text-sm sm:text-xl gap-3' : 'text-[10px] gap-1'
-                          } ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300' : 'text-white'}`}>
+                    <div className="flex items-center gap-3 mt-2 sm:mt-4">
+                       <div className={`px-4 py-1.5 rounded-full backdrop-blur-md border ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-white/10 border-white/20'}`}>
+                          <span className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300' : 'text-white'}`}>
                              {displayUser.is_elite && (
-                                displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="object-contain" style={{ width: 80, height: 80 }} /> :
+                                displayUser.active_plan_id === 'aethe' ? (
+                                   <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                      <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                   </div>
+                                ) :
                                 displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="inline" /> :
                                 displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="inline" /> :
                                 <Crown size={12} className="inline" />
@@ -1021,21 +1030,25 @@ export default function ProfileShowcase() {
                           </span>
                        </div>
                        {displayUser.is_elite && (
-                          <div className={`rounded-full border flex items-center ${
-                            displayUser.active_plan_id === 'aethe' ? 'px-6 py-3 sm:px-8 sm:py-4 gap-4 bg-rose-500/20 border-rose-500/40 shadow-[0_0_30px_rgba(225,29,72,0.4)]' :
-                            displayUser.active_plan_id === 'shadow' ? 'px-3 py-1.5 gap-2 bg-purple-500/20 border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.3)]' :
-                            displayUser.active_plan_id === 'pro' ? 'px-3 py-1.5 gap-2 bg-cyan-500/20 border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.3)]' :
-                            'px-3 py-1.5 gap-2 bg-amber-500/20 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
+                          <div className={`px-3 py-1.5 rounded-full border flex items-center gap-2 ${
+                            displayUser.active_plan_id === 'aethe' ? 'bg-rose-500/20 border-rose-500/40 shadow-[0_0_15px_rgba(225,29,72,0.3)]' :
+                            displayUser.active_plan_id === 'shadow' ? 'bg-purple-500/20 border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.3)]' :
+                            displayUser.active_plan_id === 'pro' ? 'bg-cyan-500/20 border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.3)]' :
+                            'bg-amber-500/20 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
                           }`}>
-                            {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse object-contain drop-shadow-[0_0_15px_rgba(244,63,94,0.9)]" style={{ width: 80, height: 80 }} /> :
+                            {displayUser.active_plan_id === 'aethe' ? (
+                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                  <img src="/aethe.png" alt="Aethe" className="animate-pulse object-contain max-w-none drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]" style={{ width: 80, height: 80 }} />
+                               </div>
+                            ) :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="text-purple-400 animate-pulse" /> :
                              displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="text-cyan-400 animate-pulse" /> :
                              <Crown size={12} className="text-amber-400 animate-pulse" />}
-                            <span className={`font-black uppercase tracking-widest ${
-                              displayUser.active_plan_id === 'aethe' ? 'text-sm sm:text-xl text-rose-300' :
-                              displayUser.active_plan_id === 'shadow' ? 'text-[9px] text-purple-300' :
-                              displayUser.active_plan_id === 'pro' ? 'text-[9px] text-cyan-300' :
-                              'text-[9px] text-amber-300'
+                            <span className={`text-[9px] font-black uppercase tracking-widest ${
+                              displayUser.active_plan_id === 'aethe' ? 'text-rose-300' :
+                              displayUser.active_plan_id === 'shadow' ? 'text-purple-300' :
+                              displayUser.active_plan_id === 'pro' ? 'text-cyan-300' :
+                              'text-amber-300'
                             }`}>
                               {displayUser.active_plan_id === 'pro' ? 'PRO AKTİF' :
                                displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ AKTİF' :
