@@ -117,17 +117,17 @@ export default function Header({ onAuthOpen }) {
         <div className="flex items-center justify-between h-16 gap-3">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group flex-shrink-0 energy-pulse px-2 py-1 rounded-xl">
+          <Link to="/" className="flex items-center group flex-shrink-0 relative">
             <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-neon-purple group-hover:scale-105 transition-transform">
-                <BookOpen size={18} className="text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-pulse-glow" />
+              <img 
+                src="/anipeaklogo.png" 
+                alt="AniPeak Logo" 
+                className="h-10 w-auto object-contain transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-0.5" 
+                style={{ 
+                  filter: 'hue-rotate(270deg) brightness(1.2) drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))' 
+                }} 
+              />
             </div>
-            <span className="text-xl font-black tracking-tight">
-              <span className="gradient-text">Ani</span>
-              <span className="text-white">Peak</span>
-            </span>
           </Link>
 
 

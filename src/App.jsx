@@ -115,19 +115,14 @@ function MaintenanceScreen({ onAuthOpen }) {
       <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-6 lg:px-12 lg:pt-8">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          {/* Exact AniPeak Logo SVG Match */}
-          <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 4L4 32H13.6L20 20.8L26.4 32H36L20 4Z" fill="#6D3DF5"/>
-            <path d="M20 20.8L13.6 32H26.4L20 20.8Z" fill="#3B82F6"/>
-            <path d="M11 20L4 32H11L14.5 26L11 20Z" fill="#3B82F6"/>
-            <path d="M29 20L36 32H29L25.5 26L29 20Z" fill="#3B82F6"/>
-          </svg>
-          <span 
-            style={{ fontFamily: "'Poppins', sans-serif" }} 
-            className="text-3xl font-semibold text-[#070511] tracking-tight"
-          >
-            AniPeak
-          </span>
+          <img 
+            src="/anipeaklogo.png" 
+            alt="AniPeak Logo" 
+            className="h-12 w-auto object-contain" 
+            style={{ 
+              filter: 'hue-rotate(270deg) brightness(1.2)' 
+            }} 
+          />
         </div>
 
         {/* Action Buttons */}
