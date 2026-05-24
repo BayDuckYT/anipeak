@@ -30,12 +30,11 @@ export default function EliteUpgrade() {
     const customPlans = [
       {
         id: 'pro',
-        name: 'PRO',
-        subtitle: 'ÜYELİK',
+        name: 'ANIPEAK PRO',
         price: 75.00,
-        duration: 'AYLIK',
+        duration: 'aylık',
         color: 'cyan',
-        bgImage: '/plans/pro.png',
+        icon: 'Trophy',
         features: [
           '5 İsim Plakası & 10 Avatar Efekti', 
           'PRO Rozeti & Özel Profil Çerçevesi', 
@@ -48,10 +47,10 @@ export default function EliteUpgrade() {
         id: 'shadow',
         name: 'HÜKÜMDAR GÖLGESİ',
         price: 699.00,
-        duration: 'YILLIK',
+        duration: 'yıllık',
         color: 'purple',
+        icon: 'Ghost',
         savings: '₺201 İNDİRİM',
-        bgImage: '/plans/shadow.png',
         features: [
           '15 İsim Plakası & 30 Avatar Efekti', 
           '10 İsim Efekti & Dinamik Çerçeveler', 
@@ -65,10 +64,10 @@ export default function EliteUpgrade() {
         id: 'ruler',
         name: 'HÜKÜMDAR',
         price: 999.00,
-        duration: 'ÖMÜR BOYU',
+        duration: 'ömür boyu',
         color: 'amber',
         is_popular: true,
-        bgImage: '/plans/ruler.png',
+        icon: 'Crown',
         features: [
           '30 İsim Plakası & 100 Avatar Efekti', 
           '25 İsim Efekti & Animasyonlu Çerçeveler', 
@@ -83,10 +82,10 @@ export default function EliteUpgrade() {
         id: 'aethe',
         name: 'AETHE',
         price: 1500.00,
-        duration: 'ÖMÜR BOYU',
+        duration: 'ömür boyu',
         color: 'rose',
         is_limited: true,
-        bgImage: '/plans/aethe.png',
+        icon: 'Sparkles',
         features: [
           'Sadece İlk 20 Kişiye Özel Sınır!', 
           'Dört Efsanevi Haneden Birine Katılım',
@@ -242,7 +241,7 @@ export default function EliteUpgrade() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
             {plans.map((plan, idx) => {
               const isAethe = plan.id === 'aethe';
               
@@ -253,57 +252,72 @@ export default function EliteUpgrade() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className={`relative flex flex-col h-full rounded-3xl p-6 md:p-8 pt-[220px] pb-8 transition-all duration-500 group overflow-hidden bg-cover bg-center bg-no-repeat ${
+                  className={`relative flex flex-col h-full rounded-[2.5rem] p-8 transition-all duration-500 group overflow-hidden ${
                     plan.is_popular 
-                    ? 'shadow-[0_0_50px_rgba(245,158,11,0.15)] xl:-translate-y-4' 
+                    ? 'bg-gradient-to-b from-amber-500/10 to-black border-2 border-amber-500/50 shadow-[0_0_50px_rgba(245,158,11,0.15)] md:-translate-y-4' 
                     : isAethe
-                    ? 'shadow-[0_0_50px_rgba(225,29,72,0.2)]'
-                    : 'hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]'
+                    ? 'bg-gradient-to-b from-rose-500/20 to-black border-2 border-rose-500/50 shadow-[0_0_50px_rgba(225,29,72,0.2)]'
+                    : 'bg-white/[0.03] border border-white/10 hover:border-white/30 hover:bg-white/[0.05]'
                   }`}
-                  style={{ backgroundImage: `url(${plan.bgImage})` }}
                 >
-                  <div className="absolute inset-0 bg-black/40 xl:bg-transparent z-0"></div>
+                  {/* Etiketler */}
+                  {plan.is_popular && (
+                    <div className="absolute top-0 inset-x-0 mx-auto w-max px-6 py-1.5 bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest rounded-b-xl shadow-lg">
+                      En Popüler
+                    </div>
+                  )}
+                  {isAethe && (
+                    <div className="absolute top-0 inset-x-0 mx-auto w-max px-6 py-1.5 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-b-xl shadow-lg flex items-center gap-1.5 animate-pulse">
+                      <AlertTriangle size={12} /> Sadece 20 Kişi
+                    </div>
+                  )}
 
-                  <div className="relative z-10 flex-1 flex flex-col">
-                    <div className="mt-auto text-center">
-                      {/* Fiyat Alanı - Resimdeki gibi görünüm */}
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        <span className="text-5xl font-black text-white tracking-tighter">₺{plan.price.toFixed(0)}</span>
+                  <div className={`mt-6 mb-8 text-center`}>
+                    <h3 className={`text-xl font-black uppercase tracking-widest mb-4 ${
+                      plan.color === 'cyan' ? 'text-cyan-400' :
+                      plan.color === 'purple' ? 'text-purple-400' :
+                      plan.color === 'rose' ? 'text-rose-400' :
+                      'text-amber-400'
+                    }`}>
+                      {plan.name}
+                    </h3>
+                    
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <span className="text-4xl font-black text-white">₺{plan.price.toFixed(0)}</span>
+                    </div>
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-[0.3em]">{plan.duration}</span>
+
+                    {plan.savings && (
+                      <div className="mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                        <Sparkles size={12} className="text-emerald-400" />
+                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{plan.savings}</span>
                       </div>
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em]">{plan.duration}</span>
-
-                      {plan.savings && (
-                        <div className="mt-2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-                          <Sparkles size={12} className="text-emerald-400" />
-                          <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{plan.savings}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-4 mt-8 mb-8">
-                      {plan.features.map((feature, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <div className={`mt-0.5 rounded-full p-0.5 shrink-0 ${isAethe ? 'text-rose-400' : plan.is_popular ? 'text-amber-400' : 'text-blue-400'}`}>
-                            {isAethe && i === 1 ? <Infinity size={14} /> : <Check size={14} />}
-                          </div>
-                          <span className="text-[11px] md:text-xs font-medium text-slate-300 leading-snug">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <button 
-                      onClick={() => handleUpgrade(plan)}
-                      className={`w-full py-4 mt-auto rounded-xl font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-300 border ${
-                        plan.is_popular 
-                        ? 'bg-amber-600/90 text-white border-amber-500 hover:bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
-                        : isAethe
-                        ? 'bg-rose-700/90 text-white border-rose-500 hover:bg-rose-600 shadow-[0_0_20px_rgba(225,29,72,0.4)]'
-                        : 'bg-blue-600/80 text-white border-blue-500 hover:bg-blue-500'
-                      } backdrop-blur-md`}
-                    >
-                      {isAethe ? 'DISCORD\'DAN SATIN AL' : 'PAKETİ SEÇ'}
-                    </button>
+                    )}
                   </div>
+
+                  <div className="flex-1 space-y-4 mb-10">
+                    {plan.features.map((feature, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className={`mt-0.5 rounded-full p-0.5 shrink-0 ${isAethe ? 'bg-rose-500/20 text-rose-400' : plan.is_popular ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-slate-300'}`}>
+                          {isAethe && i === 1 ? <Infinity size={12} /> : <Check size={12} />}
+                        </div>
+                        <span className="text-xs font-bold text-slate-300 leading-relaxed">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={() => handleUpgrade(plan)}
+                    className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-300 mt-auto ${
+                      plan.is_popular 
+                      ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
+                      : isAethe
+                      ? 'bg-rose-600 text-white hover:bg-rose-500 shadow-[0_0_20px_rgba(225,29,72,0.4)]'
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                  >
+                    {isAethe ? 'Discord\'dan Satın Al' : 'Paketi Seç'}
+                  </button>
                 </motion.div>
               );
             })}
