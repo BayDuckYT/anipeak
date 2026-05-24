@@ -32,7 +32,8 @@ export const uploadAvatar = async (file) => {
     }
 
     const userId = user.id;
-    const fileName = `avatar_${Date.now()}.webp`;
+    const fileExt = file.name ? file.name.split('.').pop().toLowerCase() : (file.type.split('/')[1] || 'webp');
+    const fileName = `avatar_${Date.now()}.${fileExt}`;
     // Yol: {userId}/{dosya} — Supabase folder-based policy bunu bekler
     const filePath = `${userId}/${fileName}`;
 
@@ -57,7 +58,7 @@ export const uploadAvatar = async (file) => {
     const { error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(filePath, file, {
-        contentType: 'image/webp',
+        contentType: file.type || `image/${fileExt}`,
         upsert: true,
         cacheControl: '3600'
       });

@@ -16,7 +16,12 @@ export function getOptimizedImage(url, width = 300) {
     return url;
   }
 
-  // Supabase veya dış linkleri proxy üzerinden geçirerek küçült ve webp yap
+  // Supabase avatars bucket'ındaki dosyaları proxy'den geçirme (GIF animasyonu bozulur)
+  // Supabase zaten kendi CDN'ini kullanıyor, ekstra optimizasyona gerek yok
+  if (url.includes('/storage/v1/object/public/avatars/')) {
+    return url;
+  }
+
   // GIF'leri bozmamak için direkt orijinal url'yi döndürüyoruz
   const isGif = url.toLowerCase().includes('.gif');
   if (isGif) return url;
