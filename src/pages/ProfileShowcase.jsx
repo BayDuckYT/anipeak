@@ -809,7 +809,7 @@ export default function ProfileShowcase() {
                         )}
                         {displayUser.is_elite && (
                           <>
-                            {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 48, height: 48 }} /> :
+                            {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 96, height: 96 }} /> :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={28} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0" /> :
                              displayUser.active_plan_id === 'pro' ? <Trophy size={28} className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" /> :
                              <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />}
@@ -828,7 +828,7 @@ export default function ProfileShowcase() {
                   <div className="inline-flex px-4 py-1.5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-md shadow-lg">
                      <span className={`text-[9px] font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
                         {displayUser.is_elite && (
-                           displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="inline mr-1 mb-0.5 object-contain" style={{ width: 24, height: 24 }} /> :
+                           displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="inline mr-1 mb-0.5 object-contain" style={{ width: 48, height: 48 }} /> :
                            displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
                            displayUser.active_plan_id === 'pro' ? <Trophy size={10} className="inline mr-1 mb-0.5" /> :
                            <Crown size={10} className="inline mr-1 mb-0.5" />
@@ -929,7 +929,7 @@ export default function ProfileShowcase() {
                         displayUser.active_plan_id === 'pro' ? 'bg-gradient-to-r from-cyan-600 to-blue-500 shadow-cyan-500/50 border-cyan-400 text-white' :
                         'bg-gradient-to-r from-orange-500 to-amber-500 shadow-amber-500/50 border-amber-400 text-white'
                       }`}>
-                        {displayUser.active_plan_id === 'aethe' ? <><img src="/aethe.png" alt="Aethe" className="object-contain" style={{ width: 20, height: 20 }} /> Efsanevi Aethe</> :
+                        {displayUser.active_plan_id === 'aethe' ? <><img src="/aethe.png" alt="Aethe" className="object-contain" style={{ width: 40, height: 40 }} /> Efsanevi Aethe</> :
                          displayUser.active_plan_id === 'shadow' ? <><Ghost size={14} /> Hükümdar Gölgesi</> :
                          displayUser.active_plan_id === 'pro' ? <><Trophy size={14} /> Pro Üye</> :
                          <><Crown size={14} /> PREMIUM</>}
@@ -1006,7 +1006,7 @@ export default function ProfileShowcase() {
                        <div className={`px-4 py-1.5 rounded-full backdrop-blur-md border ${displayUser.rankStyle === 'elite-gold-glow' ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-white/10 border-white/20'}`}>
                           <span className={`text-[10px] font-black uppercase tracking-widest ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300' : 'text-white'}`}>
                              {displayUser.is_elite && (
-                                displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="inline mr-1 mb-0.5 object-contain" style={{ width: 28, height: 28 }} /> :
+                                displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="inline mr-1 mb-0.5 object-contain" style={{ width: 56, height: 56 }} /> :
                                 displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="inline mr-1 mb-0.5" /> :
                                 displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="inline mr-1 mb-0.5" /> :
                                 <Crown size={12} className="inline mr-1 mb-0.5" />
@@ -1021,7 +1021,7 @@ export default function ProfileShowcase() {
                             displayUser.active_plan_id === 'pro' ? 'bg-cyan-500/20 border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.3)]' :
                             'bg-amber-500/20 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
                           }`}>
-                            {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse object-contain drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]" style={{ width: 40, height: 40 }} /> :
+                            {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse object-contain drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]" style={{ width: 80, height: 80 }} /> :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="text-purple-400 animate-pulse" /> :
                              displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="text-cyan-400 animate-pulse" /> :
                              <Crown size={12} className="text-amber-400 animate-pulse" />}
