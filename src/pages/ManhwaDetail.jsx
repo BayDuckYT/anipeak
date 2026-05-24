@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Eye, BookOpen, ArrowLeft, Heart, Bookmark,
   Clock, CheckCircle, Play, ChevronRight, Calendar, User,
-  Flame, Lock, Sparkles, Search, SortAsc, Star, ListPlus, Plus, X, Trash2
+  Flame, Lock, Sparkles, Search, SortAsc, Star, ListPlus, Plus, X, Trash2,
+  Share2, MessageCircle, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -174,6 +175,9 @@ export default function ManhwaDetail({ onAuthOpen }) {
     if (showListModal) fetchUserLists();
   }, [showListModal]);
 
+  const [showFullDesc, setShowFullDesc] = useState(false);
+  const [visibleChapters, setVisibleChapters] = useState(28);
+
   if (!manhwa) return null;
 
   return (
@@ -182,208 +186,234 @@ export default function ManhwaDetail({ onAuthOpen }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen pt-16"
+      className="min-h-screen bg-[#070511]"
     >
       {/* ── HERO ── */}
-      <div className="relative">
+      <div className="relative w-full overflow-hidden">
+        {/* Full width edge-to-edge background */}
         <div
-          className="absolute inset-0 h-[450px] bg-cover bg-center blur-3xl opacity-20 scale-105"
+          className="absolute inset-0 bg-cover bg-center blur-md opacity-30 scale-110 transition-all duration-1000"
           style={{ backgroundImage: `url(${manhwa.cover})` }}
         />
-        <div className="absolute inset-0 h-[450px] bg-gradient-to-b from-[#070511]/40 via-[#070511]/60 to-[#070511]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/60 to-transparent" />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-0">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white text-sm mb-6 transition-colors group">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-end min-h-[60vh]">
+          
+          <Link to="/" className="absolute top-6 left-4 sm:left-6 lg:left-8 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-black/40 backdrop-blur-md text-slate-300 hover:text-white border border-white/10 hover:border-white/30 text-sm transition-all group">
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Geri Dön
           </Link>
 
-          <div className="flex flex-col sm:flex-row gap-8">
-            {/* Cover */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
-              className="flex-shrink-0 mx-auto sm:mx-0"
-            >
-              <img
-                src={getOptimizedImage(manhwa?.cover, 400)}
-                alt={manhwa?.title}
-                onError={handleImageError}
-                width={240}
-                height={320}
-                fetchpriority="high"
-                decoding="async"
-                className="w-48 h-64 sm:w-60 sm:h-80 rounded-2xl object-cover shadow-[0_0_50px_rgba(139,92,246,0.3)] border border-white/10"
-              />
-            </motion.div>
+          {/* Left Poster */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="flex-shrink-0 w-48 sm:w-64 lg:w-72 relative group mt-12 lg:mt-0"
+          >
+            <div className="absolute -inset-4 bg-gradient-to-t from-purple-600/30 to-blue-600/30 blur-2xl opacity-50 group-hover:opacity-80 transition-opacity rounded-3xl" />
+            <img
+              src={getOptimizedImage(manhwa?.cover, 600)}
+              alt={manhwa?.title}
+              onError={handleImageError}
+              width={288}
+              height={432}
+              fetchpriority="high"
+              decoding="async"
+              className="w-full aspect-[2/3] rounded-2xl object-cover shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 relative z-10"
+            />
+            {/* Hover Play Button */}
+            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-black/40 backdrop-blur-sm rounded-2xl cursor-pointer" onClick={() => handleReadChapter(continueChapter || (filteredChapters[filteredChapters.length - 1]?.number))}>
+              <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:scale-110 transition-transform">
+                <Play size={24} className="text-white ml-1 fill-white" />
+              </div>
+            </div>
+          </motion.div>
 
-            {/* Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
-              className="flex-1 min-w-0"
-            >
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
-                    manhwa.status === 'Devam Ediyor' ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-blue-400 bg-blue-400/10 border-blue-400/20'
-                  }`}>
-                  {manhwa.status}
+          {/* Right Info */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex-1 min-w-0 w-full text-center lg:text-left"
+          >
+            {/* Tags */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-4">
+              <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/20 flex items-center gap-1">
+                <Star size={12} className="fill-amber-400" /> {manhwa.rating || '0.0'}
+              </span>
+              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                  manhwa.status === 'Devam Ediyor' ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-blue-400 bg-blue-400/10 border-blue-400/20'
+                }`}>
+                {manhwa.status}
+              </span>
+              {manhwa.year && (
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold text-slate-300 bg-white/5 border border-white/10 tracking-widest">
+                  {manhwa.year}
                 </span>
-                {manhwa.is_trending && (
-                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-orange-400 bg-orange-400/10 border border-orange-400/20 flex items-center gap-1">
-                    <Flame size={10} className="fill-orange-400" /> Trend
-                  </span>
-                )}
-                {manhwa.genre?.map(g => (
-                  <span key={g} className="px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-400 bg-white/5 border border-white/10 uppercase tracking-wider">{g}</span>
-                ))}
-              </div>
+              )}
+              {manhwa.genre?.slice(0, 3).map(g => (
+                <span key={g} className="px-3 py-1 rounded-full text-[10px] font-bold text-slate-300 bg-white/5 border border-white/10 uppercase tracking-wider">{g}</span>
+              ))}
+            </div>
 
-              <h1 className="text-3xl sm:text-5xl font-black text-white mb-3 tracking-tighter leading-tight">{manhwa.title}</h1>
-              
-              <div className="flex items-center gap-4 text-slate-400 text-sm mb-5">
-                <span className="flex items-center gap-1.5"><User size={14} /> {manhwa.author}</span>
-                <span className="flex items-center gap-1.5"><Calendar size={14} /> {manhwa.year}</span>
-              </div>
-
-              <p className="text-slate-300 text-sm leading-relaxed mb-6 max-w-2xl line-clamp-4 sm:line-clamp-none">{manhwa.description}</p>
-
-              {/* Stats & Rating */}
-              <div className="flex flex-wrap items-center gap-4 sm:gap-8 mb-8 p-4 sm:p-6 glass rounded-2xl border border-white/5">
-                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto border-b sm:border-b-0 sm:border-r border-white/10 pb-4 sm:pb-0 sm:pr-6 justify-between sm:justify-start">
-                  <div className="text-left sm:text-center">
-                    <div className="text-2xl font-black text-white">{manhwa.rating || '0.0'}</div>
-                    <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Global Puan</div>
-                  </div>
-                  <StarRating seriesId={manhwa.id} initialRating={manhwa.rating} />
-                </div>
-                <div className="flex flex-wrap gap-4 sm:gap-8">
-                  <div className="flex-1 min-w-[100px]">
-                    <div className="text-lg font-black text-white flex items-center gap-1.5"><Eye size={16} className="text-purple-400" /> {formatNum(manhwa.reads_num)}</div>
-                    <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Okunma</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-black text-white flex items-center gap-1.5"><BookOpen size={16} className="text-blue-400" /> {allChapters.length}</div>
-                    <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Bölüm</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={() => handleReadChapter(continueChapter || (filteredChapters[filteredChapters.length - 1]?.number))}
-                  className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black text-sm hover:scale-105 transition-all shadow-neon-purple active:scale-95 touch-manipulation"
-                >
-                  <Play size={18} /> {continueChapter ? `Bölüm ${continueChapter}'den Devam Et` : 'Okumaya Başla'}
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-4 tracking-tighter leading-none drop-shadow-2xl">
+              {manhwa.title}
+            </h1>
+            
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 max-w-3xl mx-auto lg:mx-0 drop-shadow-md">
+              {showFullDesc ? manhwa.description : `${manhwa.description?.substring(0, 200) || ''}... `}
+              {manhwa.description?.length > 200 && (
+                <button onClick={() => setShowFullDesc(!showFullDesc)} className="text-purple-400 hover:text-purple-300 font-bold ml-1 transition-colors">
+                  {showFullDesc ? 'Daha az göster' : 'Daha fazla göster'}
                 </button>
+              )}
+            </p>
 
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <button
-                    onClick={() => user ? setShowListModal(true) : onAuthOpen('login')}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-2xl glass border border-white/10 text-slate-400 hover:text-white hover:border-purple-500/50 transition-all group active:scale-95 touch-manipulation"
-                  >
-                    <ListPlus size={20} className="group-hover:scale-110 transition-transform" />
-                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Listeye Ekle</span>
-                  </button>
-                  <button
-                    onClick={() => user ? setBookmarked(!bookmarked) : onAuthOpen('login')}
-                    className={`flex-1 sm:flex-none p-4 rounded-2xl border transition-all active:scale-95 touch-manipulation flex items-center justify-center ${bookmarked ? 'bg-purple-600 text-white border-purple-500 shadow-neon-purple' : 'glass border-white/10 text-slate-400 hover:text-white'}`}
-                  >
-                    <Bookmark size={20} className={bookmarked ? 'fill-white' : ''} />
-                  </button>
-                  <button
-                    onClick={() => user ? setLiked(!liked) : onAuthOpen('login')}
-                    className={`flex-1 sm:flex-none p-4 rounded-2xl border transition-all active:scale-95 touch-manipulation flex items-center justify-center ${liked ? 'bg-pink-600 text-white border-pink-500 shadow-neon-pink' : 'glass border-white/10 text-slate-400 hover:text-white'}`}
-                  >
-                    <Heart size={20} className={liked ? 'fill-white' : ''} />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+            {/* Action Row */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-8">
+              <button
+                onClick={() => handleReadChapter(continueChapter || (filteredChapters[filteredChapters.length - 1]?.number))}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-purple-600 text-white font-black text-sm hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] active:scale-95 whitespace-nowrap"
+              >
+                <Play size={18} className="fill-white" /> {continueChapter ? 'Kaldığın Yerden' : 'Okumaya Başla'}
+              </button>
+
+              <button
+                onClick={() => user ? setShowListModal(true) : onAuthOpen('login')}
+                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all font-bold text-sm active:scale-95 whitespace-nowrap"
+              >
+                <Plus size={18} /> <span className="hidden sm:inline">Listeye Ekle</span>
+              </button>
+
+              <button
+                onClick={() => user ? setLiked(!liked) : onAuthOpen('login')}
+                className={`flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl backdrop-blur-md border transition-all font-bold text-sm active:scale-95 whitespace-nowrap ${liked ? 'bg-pink-600/20 border-pink-500 text-pink-400' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}
+              >
+                <Heart size={18} className={liked ? 'fill-pink-400' : ''} /> <span className="hidden sm:inline">Beğen</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("Bağlantı kopyalandı!");
+                }}
+                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all font-bold text-sm active:scale-95 whitespace-nowrap"
+              >
+                <Share2 size={18} /> <span className="hidden sm:inline">Paylaş</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#2A2D43]/80 backdrop-blur-md border border-[#3E4366] text-white hover:bg-[#3E4366] transition-all font-bold text-sm active:scale-95 whitespace-nowrap"
+              >
+                <MessageCircle size={18} /> <span className="hidden sm:inline">Yorumlar</span>
+              </button>
+            </div>
+          </motion.div>
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
-          {/* Left: Chapters */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-2xl font-black text-white flex items-center gap-3">
-                <BookOpen size={24} className="text-purple-400" />
-                Bölümler Listesi
-              </h2>
-
+      {/* ── STATS ROW ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+          {[
+            { label: 'PUAN', value: manhwa.rating || '0.0', icon: Star, color: 'text-amber-400' },
+            { label: 'BÖLÜM', value: allChapters.length, icon: BookOpen, color: 'text-blue-400' },
+            { label: 'YIL', value: manhwa.year || '2024', icon: Calendar, color: 'text-slate-300' },
+            { label: 'DURUM', value: manhwa.status, icon: Sparkles, color: manhwa.status === 'Devam Ediyor' ? 'text-emerald-400' : 'text-blue-400' },
+            { label: 'YAZAR/STÜDYO', value: manhwa.author || 'Bilinmiyor', icon: User, color: 'text-purple-400' }
+          ].map((stat, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 + (i * 0.1) }}
+              className="bg-[#0f111a] border border-[#1f2233] rounded-xl p-4 sm:p-5 flex flex-col justify-center hover:border-purple-500/30 transition-colors group"
+            >
+              <div className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">{stat.label}</div>
               <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Ara..."
-                    className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500/50 w-24 sm:w-32 transition-all"
-                  />
-                </div>
-                <button
-                  onClick={() => setSortDesc(!sortDesc)}
-                  className="p-2.5 rounded-xl glass border border-white/10 text-slate-400 hover:text-white transition-all"
-                >
-                  <SortAsc size={18} className={sortDesc ? 'rotate-180' : ''} />
-                </button>
+                 <stat.icon size={14} className={`${stat.color} group-hover:scale-110 transition-transform`} />
+                 <span className={`text-sm sm:text-base font-bold text-white truncate ${i===0?'text-amber-400':''}`}>{stat.value}</span>
               </div>
-            </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
 
-            <div className="space-y-3">
-              <AnimatePresence>
-                {filteredChapters.map((ch, idx) => (
-                  <motion.div
-                    key={ch.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: Math.min(idx * 0.02, 0.4) }}
-                    onClick={() => handleReadChapter(ch.number)}
-                    className="group flex items-center gap-4 px-6 py-4 glass border border-white/5 rounded-2xl hover:border-purple-500/30 hover:bg-white/5 transition-all cursor-pointer"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center font-black text-slate-300 group-hover:from-purple-600/20 group-hover:to-blue-600/20 group-hover:text-purple-400 transition-all border border-white/5 text-xs">
-                      {ch.number}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="text-sm text-white font-bold group-hover:text-purple-300 transition-colors">Bölüm {ch.number}</span>
-                        {ratingsMap[ch.number] && (
-                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30">
-                             <Star size={10} className="fill-emerald-400 text-emerald-400" />
-                             <span className="text-emerald-400 text-[10px] font-black">{ratingsMap[ch.number].toFixed(1)}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronRight size={18} className="text-slate-400 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+      {/* ── CHAPTERS GRID & COMMENTS ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="mb-16">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-white/5">
+            <h2 className="text-2xl font-black text-white flex items-center gap-3 tracking-tight">
+              Bölümler <span className="text-sm font-bold text-slate-500 bg-white/5 px-3 py-1 rounded-full">{filteredChapters.length} Bölüm</span>
+            </h2>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Bölüm ara..."
+                  className="w-full sm:w-48 bg-[#0f111a] border border-[#1f2233] rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-all"
+                />
+              </div>
+              <button
+                onClick={() => setSortDesc(!sortDesc)}
+                className="p-2.5 rounded-xl bg-[#0f111a] border border-[#1f2233] text-slate-400 hover:text-white transition-all flex-shrink-0"
+                aria-label="Sırala"
+              >
+                <SortAsc size={18} className={sortDesc ? 'rotate-180' : ''} />
+              </button>
             </div>
           </div>
 
-          {/* Right Sidebar (Stats, etc. could go here) */}
-          <div className="lg:col-span-1">
-             <div className="glass border border-white/5 rounded-3xl p-8 sticky top-24">
-                <h3 className="text-lg font-black text-white mb-6 uppercase italic tracking-tighter">Seri İstatistikleri</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
-                    <span className="text-slate-400 text-xs font-bold uppercase">Toplam Okunma</span>
-                    <span className="text-purple-400 font-black">{manhwa.reads_num || 0}</span>
+          {/* Grid View for Chapters */}
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3">
+            <AnimatePresence mode="popLayout">
+              {filteredChapters.slice(0, visibleChapters).map((ch) => (
+                <motion.div
+                  key={ch.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => handleReadChapter(ch.number)}
+                  className="relative group cursor-pointer"
+                  title={ch.title ? `Bölüm ${ch.number} - ${ch.title}` : `Bölüm ${ch.number}`}
+                >
+                  <div className="flex items-center justify-center p-4 bg-[#0f111a] border border-[#1f2233] rounded-xl group-hover:bg-purple-600/10 group-hover:border-purple-500/40 transition-all text-slate-300 group-hover:text-purple-400 font-bold text-sm shadow-sm hover:shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                    {ch.number}
                   </div>
-                  <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
-                    <span className="text-slate-400 text-xs font-bold uppercase">Bölüm Sayısı</span>
-                    <span className="text-white font-black">{allChapters.length}</span>
-                  </div>
-                </div>
-             </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
+
+          {/* Show More Button */}
+          {filteredChapters.length > visibleChapters && (
+            <div className="mt-8 flex justify-center">
+              <button 
+                onClick={() => setVisibleChapters(prev => prev + 28)}
+                className="flex items-center gap-2 px-8 py-3 rounded-full border border-[#1f2233] bg-[#0f111a] text-slate-400 hover:text-white hover:border-white/20 transition-all text-sm font-bold active:scale-95"
+              >
+                Daha Fazla Göster <ChevronDown size={16} />
+              </button>
+            </div>
+          )}
+          {filteredChapters.length <= visibleChapters && visibleChapters > 28 && (
+            <div className="mt-8 flex justify-center">
+              <button 
+                onClick={() => setVisibleChapters(28)}
+                className="flex items-center gap-2 px-8 py-3 rounded-full border border-[#1f2233] bg-[#0f111a] text-slate-400 hover:text-white hover:border-white/20 transition-all text-sm font-bold active:scale-95"
+              >
+                Daha Az Göster <ChevronUp size={16} />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* BOTTOM: Comments (Exactly like the Reader page) */}
-        <div className="max-w-2xl mx-auto pt-8 border-t border-white/5">
+        {/* BOTTOM: Comments */}
+        <div id="comments-section" className="max-w-4xl mx-auto pt-8 border-t border-[#1f2233] scroll-mt-24">
            <CommentSystem seriesId={manhwa.id} />
         </div>
       </div>
