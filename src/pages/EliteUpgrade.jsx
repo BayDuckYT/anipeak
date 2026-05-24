@@ -344,7 +344,7 @@ export default function EliteUpgrade() {
                     {/* Aksiyon Butonu */}
                     <button 
                       onClick={() => handleUpgrade(plan)}
-                      className={`w-full py-4 rounded-2xl font-black text-xs md:text-[13px] uppercase tracking-[0.2em] transition-all duration-500 border-2 flex items-center justify-center gap-2 mt-auto backdrop-blur-sm ${buttonClasses[plan.color]}`}
+                      className={`w-full py-4 rounded-2xl font-black text-xs md:text-[13px] uppercase tracking-[0.2em] transition-all duration-500 border-2 flex items-center justify-center gap-2 backdrop-blur-sm ${buttonClasses[plan.color]}`}
                     >
                       {buttonIcons[plan.color]}
                       <span>{isAethe ? 'DISCORD\'DAN AL' : 'PAKETİ SEÇ'}</span>
