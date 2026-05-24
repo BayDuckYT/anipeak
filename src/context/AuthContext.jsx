@@ -296,14 +296,32 @@ export function AuthProvider({ children }) {
     if (error) {
       console.error('[XP] Güncelleme hatası:', error);
     } else {
-      const info = getLevelInfo(newXP, user.is_elite);
+      const oldInfo = getLevelInfo(user.xp || 0, user.is_elite);
+      const newInfo = getLevelInfo(newXP, user.is_elite);
+      const levelUp = newInfo.level > oldInfo.level;
+
       setUser(prev => ({ 
         ...prev, 
         xp: newXP, 
-        ...info
+        ...newInfo
       }));
+
+      // Sistem Mesajı Tetikleme (Solo Leveling Toast)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('xp-gained', { 
+          detail: { 
+            amount, 
+            newXP, 
+            newRank: newInfo.rank,
+            levelUp 
+          } 
+        }));
+      }
+
       // Başarım kontrolü (Seviye bazlı)
-      trackActivity(user.id, 'level_up');
+      if (levelUp) {
+        trackActivity(user.id, 'level_up');
+      }
     }
   }, [user]);
 

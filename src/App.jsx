@@ -11,6 +11,7 @@ import Footer from './components/Footer.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import GlobalEffects from './components/GlobalEffects.jsx';
 import Loader from './components/Loader.jsx';
+import XPToast from './components/XPToast.jsx';
 
 // ANIPEAK_SİBER_GÜNCELLEME_V3_1741
 import ScrollToTop from './components/ScrollToTop.jsx';
@@ -289,6 +290,7 @@ function AppContent() {
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ScrollToTop />
         <GlobalEffects />
+        <XPToast />
 
         <main id="main-content" className="min-h-screen bg-[#070511]">
           {isMaintenanceBlocked ? (

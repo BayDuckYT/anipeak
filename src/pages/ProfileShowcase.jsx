@@ -212,6 +212,18 @@ export default function ProfileShowcase() {
             setActiveDecoration(data.active_decoration || 'none');
             setUserLinks(data.links || []);
           }
+          
+          // Profil İzi Kaydetme (Sadece Elite kullanıcılar başkalarının profillerine iz bırakabilir)
+          if (currentUser && currentUser.id !== data.id && (currentUser.active_plan_id === 'aethe' || currentUser.active_plan_id === 'ruler')) {
+             try {
+                // Saniyede 1 kereden fazla spam olmaması için upsert veya on conflict
+                await supabase.from('profile_visits').insert({
+                   profile_id: data.id,
+                   visitor_id: currentUser.id,
+                   visitor_plan: currentUser.active_plan_id
+                }).select().single(); // Unique constraint ihlali olursa fail olur ama sorun değil, try-catch içinde.
+             } catch(e) {}
+          }
         }
         
         // Check if following
@@ -232,6 +244,7 @@ export default function ProfileShowcase() {
         if (data.id) {
           fetchCounts(data.id);
           fetchSocialData(data.id, data.mal_username);
+          fetchRecentVisits(data.id);
         }
       } catch (err) {
         console.error('Profile fetch error:', err);
@@ -241,6 +254,32 @@ export default function ProfileShowcase() {
     }
     fetchProfile();
   }, [username, supabase, currentUser?.id]); 
+
+  const [recentVisits, setRecentVisits] = useState([]);
+  const fetchRecentVisits = async (userId) => {
+    try {
+      // Sadece son 5 benzersiz ziyaretçiyi al
+      const { data } = await supabase
+        .from('profile_visits')
+        .select('visitor_id, visitor_plan, visited_at, profiles:visitor_id(username, avatar_url)')
+        .eq('profile_id', userId)
+        .order('visited_at', { ascending: false })
+        .limit(20);
+        
+      if (data) {
+         // Aynı kişiden birden fazla iz varsa sadece en yenisini göster
+         const unique = [];
+         const seen = new Set();
+         for(let v of data) {
+            if(!seen.has(v.visitor_id)) {
+               seen.add(v.visitor_id);
+               unique.push(v);
+            }
+         }
+         setRecentVisits(unique.slice(0, 5));
+      }
+    } catch (e) {}
+  }; 
 
   const fetchCounts = async (userId) => {
     const { count: fCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', userId);
@@ -994,6 +1033,39 @@ export default function ProfileShowcase() {
                         )}
                      </div>
                   </div>
+
+                  {recentVisits.length > 0 && (
+                    <div className="space-y-4">
+                       <div className="flex justify-between items-center">
+                          <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">PROFİL İZLERİ</div>
+                          <div className="text-[9px] font-black text-zinc-300 bg-white/10 px-2 py-0.5 rounded-md">{recentVisits.length} Seçkin İz</div>
+                       </div>
+                       <div className="flex flex-wrap gap-2">
+                          {recentVisits.map((visit, i) => (
+                             <div key={i} className={`w-10 h-10 rounded-xl bg-black/60 border hover:scale-110 transition-all flex items-center justify-center shadow-lg relative group ${
+                                visit.visitor_plan === 'aethe' ? 'border-rose-500/50 shadow-[0_0_15px_rgba(225,29,72,0.4)]' :
+                                'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
+                             }`} title={`${visit.profiles?.username || 'Gizemli Seçkin'}`}>
+                                {visit.visitor_plan === 'aethe' ? (
+                                  <div className="w-full h-full p-2 flex items-center justify-center animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]">
+                                     <img src="/aethe.png" alt="Aethe" className="object-contain w-full h-full" />
+                                  </div>
+                                ) : (
+                                  <Crown size={18} className="text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]" />
+                                )}
+                                
+                                {/* Avatar tooltip for visitor */}
+                                <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex flex-col items-center">
+                                  <div className="px-2 py-1 bg-black/90 border border-white/20 rounded-md text-[9px] font-black uppercase text-white whitespace-nowrap">
+                                    {visit.profiles?.username}
+                                  </div>
+                                  <div className="w-2 h-2 bg-black/90 border-r border-b border-white/20 rotate-45 -mt-1.5" />
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+                  )}
 
                   <div className="space-y-4">
                      <div className="flex justify-between items-center">
