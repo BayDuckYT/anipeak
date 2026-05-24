@@ -139,7 +139,7 @@ export default function ElitePodium({ items }) {
       {/* Rest of the list */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
         {rest.map((item, idx) => (
-          <Link key={item.id} to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-card-navy/50 border border-white/5 hover:bg-zinc-800 transition-colors group">
+          <Link key={item.id} to={`/manhwa/${item.id}`} aria-label={item.title} className="flex items-center gap-4 p-3 rounded-xl bg-card-navy/50 border border-white/5 hover:bg-zinc-800 transition-colors group">
              <div className="w-8 text-center text-sm font-black text-slate-500 group-hover:text-white transition-colors">{idx + 4}</div>
              <div className="w-10 h-14 rounded-md overflow-hidden bg-zinc-950 flex-shrink-0">
                <img src={getOptimizedImage(item.cover, 100)} width="66" height="100" alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" style={{ aspectRatio: '2/3' }} loading="lazy" decoding="async" />

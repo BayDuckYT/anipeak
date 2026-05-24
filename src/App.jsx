@@ -116,7 +116,7 @@ function MaintenanceScreen({ onAuthOpen }) {
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img 
-            src="/anipeaklogo.png" 
+            src="https://wsrv.nl/?url=https://anipeak.com.tr/anipeaklogo.png&w=320&output=webp" 
             alt="AniPeak Logo" 
             className="h-28 w-auto object-contain" 
             style={{ 
