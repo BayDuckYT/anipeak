@@ -22,7 +22,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
   };
 
   const getPremiumIcon = () => {
-    if (userData?.username === 'ANIPEAK' || planId === 'aethe') return <img src="/aethe.png" alt="Aethe" style={{ width: iconSize, height: iconSize, objectFit: 'contain' }} className="drop-shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse" />;
+    if (userData?.username === 'ANIPEAK' || planId === 'aethe') return <img src="/aethe.png" alt="Aethe" style={{ width: iconSize * 1.6, height: iconSize * 1.6, objectFit: 'contain' }} className="drop-shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse" />;
     if (planId === 'shadow') return <Ghost size={iconSize} className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]" />;
     if (planId === 'pro') return <Trophy size={iconSize} className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />;
     return <Crown size={iconSize} className="text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />;
