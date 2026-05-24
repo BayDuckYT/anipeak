@@ -38,6 +38,7 @@ const Achievements = lazy(() => import('./pages/Achievements.jsx'));
 const SchedulePage = lazy(() => import('./pages/SchedulePage.jsx'));
 const OraclePage = lazy(() => import('./pages/OraclePage.jsx'));
 const PopularityPage = lazy(() => import('./pages/PopularityPage.jsx'));
+const AetheSanctuary = lazy(() => import('./pages/AetheSanctuary.jsx'));
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
@@ -82,6 +83,7 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/takvim" element={<SchedulePage />} />
           <Route path="/oracle" element={<OraclePage />} />
           <Route path="/popular" element={<PopularityPage />} />
+          <Route path="/aethe-sanctuary" element={<AetheSanctuary />} />
           <Route path="/:username/liste/:listId" element={<ListDetail />} />
           <Route path="/:slug" element={<StaticPage />} />
         </Routes>

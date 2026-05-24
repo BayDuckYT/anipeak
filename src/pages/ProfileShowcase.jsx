@@ -842,7 +842,24 @@ export default function ProfileShowcase() {
                      </span>
                   </div>
 
-                  <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-60" />
+                  {displayUser.house_id && (
+                     <div className={`mt-2 inline-flex px-4 py-1.5 rounded-xl bg-black/40 border backdrop-blur-md shadow-lg ${
+                        displayUser.house_id === 'dragon' ? 'border-red-500/30 text-red-500' :
+                        displayUser.house_id === 'fox' ? 'border-purple-500/30 text-purple-400' :
+                        displayUser.house_id === 'wolf' ? 'border-blue-500/30 text-blue-400' :
+                        'border-orange-500/30 text-orange-400'
+                     }`}>
+                        <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 drop-shadow-md">
+                           <Shield size={12} className="shrink-0" />
+                           {displayUser.house_id === 'dragon' ? 'KIZIL EJDER' :
+                            displayUser.house_id === 'fox' ? 'GÜMÜŞ KITSUNE' :
+                            displayUser.house_id === 'wolf' ? 'BUZ KURT' :
+                            'ALTIN ANKA'}
+                        </span>
+                     </div>
+                  )}
+
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-60 mt-4" />
                   
                   <div className="flex justify-between items-end px-2">
                      <div className="text-left">
