@@ -245,11 +245,8 @@ export default function Reader() {
   if (!manhwa) return null;
 
   return (
-    <div 
-      className="min-h-screen bg-[#070511] pt-24 pb-12 overflow-x-hidden relative"
-      style={{ filter: `brightness(${brightness}%)` }}
-    >
-      {/* ── REPORTS MODAL (MOVED TO TOP FOR ABSOLUTE VISIBILITY) ── */}
+    <>
+      {/* ── REPORTS MODAL (MOVED OUTSIDE FILTER FOR CORRECT FIXED POSITIONING) ── */}
       <AnimatePresence>
         {isReportOpen && (
           <ReportIssueModal 
@@ -260,6 +257,11 @@ export default function Reader() {
           />
         )}
       </AnimatePresence>
+
+      <div 
+        className="min-h-screen bg-[#070511] pt-24 pb-12 overflow-x-hidden relative"
+        style={{ filter: `brightness(${brightness}%)` }}
+      >
 
       {/* ── TOP BAR ── */}
       <AnimatePresence>
@@ -486,6 +488,7 @@ export default function Reader() {
 
       {/* ── LIVE CHAT PANEL ── */}
       <LiveChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-    </div>
+      </div>
+    </>
   );
 }
