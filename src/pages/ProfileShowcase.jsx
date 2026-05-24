@@ -411,6 +411,14 @@ export default function ProfileShowcase() {
   });
 
   const displayUser = useMemo(() => {
+    let rawUser = isOwnProfile ? currentUser : (profileData || currentUser);
+    if (!rawUser) return null;
+
+    if (rawUser.username === 'ANIPEAK') {
+      rawUser = { ...rawUser, active_plan_id: 'aethe', is_elite: true };
+    }
+
+    const levelInfo = getLevelInfo(rawUser.xp || 0, rawUser.active_plan_id);
     const base = { ...rawUser, ...levelInfo };
     if (isOwnProfile) {
       return {

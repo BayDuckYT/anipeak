@@ -226,7 +226,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                   </span>
                   <UserBadges user={prof || comment} showCrown={true} iconSize={isReply ? 12 : 14} />
                   <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest ${s.badge}`}>
-                    {(prof?.active_plan_id === 'aethe') ? 'Efsanevi Aethe Mührü' :
+                    {(prof?.username === 'ANIPEAK' || prof?.active_plan_id === 'aethe') ? 'Efsanevi Aethe Mührü' :
                      (prof?.active_plan_id === 'shadow') ? 'Hükümdar Gölgesi' :
                      (prof?.active_plan_id === 'ruler') ? 'Hükümdar' :
                      (prof?.active_plan_id === 'pro') ? 'Pro Üye' :
