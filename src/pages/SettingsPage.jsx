@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
   const [notifSettings, setNotifSettings] = useState({ newChapter: true, replies: true, system: true });
   const [privacySettings, setPrivacySettings] = useState({ publicProfile: true, showActivity: true });
-  const [appearanceSettings, setAppearanceSettings] = useState({ theme: 'dark', animations: true, dataSaver: false });
+  const [appearanceSettings, setAppearanceSettings] = useState({ theme: 'dark', animations: true });
   const [malUsername, setMalUsername] = useState('');
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
 
@@ -302,68 +302,7 @@ export default function SettingsPage() {
                       />
                     </div>
 
-                    {/* Epic Faction Selection */}
-                    <div className="pt-10 border-t border-white/5 space-y-8 relative">
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                            <Swords size={24} className="text-red-500" />
-                            Haneni Seç
-                          </h3>
-                          <p className="text-xs text-zinc-500 font-bold uppercase tracking-[0.2em] mt-2">Kaderini belirle ve safını seç</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {HOUSES.map((house) => {
-                          const isSelected = user?.house_id === house.id;
-                          return (
-                            <button
-                              key={house.id}
-                              onClick={() => handleSave({ house_id: house.id })}
-                              className={`relative p-1 rounded-[2.5rem] transition-all duration-500 text-left group overflow-hidden ${isSelected ? 'scale-[1.02]' : 'hover:scale-[1.01]'}`}
-                            >
-                              {/* Background Gradient Border Effect */}
-                              <div className={`absolute inset-0 bg-gradient-to-br ${isSelected ? house.color : 'from-white/10 to-white/5 group-hover:from-white/20 group-hover:to-white/10'} rounded-[2.5rem] opacity-50`} />
-                              
-                              {/* Inner Glass */}
-                              <div className={`relative h-full p-8 rounded-[2.4rem] bg-[#0A0A0F] border ${isSelected ? house.border : 'border-transparent'} backdrop-blur-xl overflow-hidden`}>
-                                
-                                {/* Ambient House Glow */}
-                                {isSelected && (
-                                  <div className={`absolute -right-20 -top-20 w-64 h-64 ${house.glow} blur-[80px] rounded-full pointer-events-none`} />
-                                )}
 
-                                <div className="relative z-10 flex items-start gap-6">
-                                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500 ${isSelected ? `bg-gradient-to-br ${house.color} ${house.border} ${house.shadow} text-white` : 'bg-white/5 border-white/10 text-zinc-500 group-hover:text-white group-hover:border-white/30'}`}>
-                                    <house.icon size={28} strokeWidth={1.5} />
-                                  </div>
-                                  <div className="flex-1 pt-1">
-                                    <h4 className={`text-xl font-black uppercase tracking-widest transition-colors ${isSelected ? 'text-white drop-shadow-md' : 'text-zinc-400 group-hover:text-white'}`}>
-                                      {house.name}
-                                    </h4>
-                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-2 leading-relaxed">
-                                      {house.desc}
-                                    </p>
-                                  </div>
-                                </div>
-                                
-                                {/* Active Indicator */}
-                                <div className={`absolute right-8 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center ${isSelected ? house.border : 'border-white/10 group-hover:border-white/30'}`}>
-                                  <motion.div 
-                                    initial={false}
-                                    animate={{ scale: isSelected ? 1 : 0 }}
-                                    className={`w-3 h-3 rounded-full bg-gradient-to-br ${house.color} ${house.shadow}`}
-                                  />
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
                   </div>
                 )}
 
@@ -417,13 +356,6 @@ export default function SettingsPage() {
                           desc="Sitedeki parçacık efektlerini, glowları ve yumuşak geçişleri açar. Kapatırsan performans artar."
                           enabled={appearanceSettings.animations}
                           onToggle={() => handleSave({ appearance_settings: { ...appearanceSettings, animations: !appearanceSettings.animations } })}
-                        />
-                        <EpicToggle 
-                          icon={Shield}
-                          title="Okuyucu Veri Tasarrufu" 
-                          desc="Okuyucuda sonraki sayfaları erkenden indirmeyi durdurur. İnternet kotası kısıtlı olanlar için."
-                          enabled={appearanceSettings.dataSaver}
-                          onToggle={() => handleSave({ appearance_settings: { ...appearanceSettings, dataSaver: !appearanceSettings.dataSaver } })}
                         />
                       </div>
                     </div>
