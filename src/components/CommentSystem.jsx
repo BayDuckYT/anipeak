@@ -209,7 +209,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     const customColorStyle = mix.commentColor && mix.commentColor !== 'none' ? { backgroundColor: hexToRgba(mix.commentColor, 0.08), borderColor: hexToRgba(mix.commentColor, 0.2) } : {};
 
     return (
-      <div key={comment.id} style={isReply ? {} : customColorStyle} className={`relative transition-all duration-300 mt-2 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')}`}>
+      <div key={comment.id} style={isReply ? {} : customColorStyle} className={`relative transition-all duration-300 mt-2 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')} ${prof?.active_plan_id === 'aethe' ? 'aethe-blood-box' : ''}`}>
         {/* Nameplate */}
         {!isReply && mix.nameplate && mix.nameplate !== 'none' && (
           <div className="absolute top-[12px] bottom-[12px] left-[8px] right-[8px] z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden" style={{ borderRadius: '1.5rem', clipPath: 'inset(0 round 1.5rem)' }}>
