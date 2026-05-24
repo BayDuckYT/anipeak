@@ -268,21 +268,21 @@ export default function EliteUpgrade() {
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
                   whileHover={{ scale: 1.03, y: -10 }}
-                  className="relative flex flex-col w-full min-h-[700px] rounded-[2rem] overflow-hidden group cursor-pointer"
+                  className="relative flex flex-col w-full rounded-[2rem] overflow-hidden group cursor-pointer"
                 >
-                  {/* Arkaplan Görseli (Tasarımın Kendisi) */}
+                  {/* Arkaplan Görseli (Tasarımın Kendisi, kendi boyutunda) */}
                   <img 
                     src={plan.bgImage} 
                     alt={plan.name}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-fill z-0 transition-transform duration-700 group-hover:scale-[1.02]"
+                    className="w-full h-auto block z-0 transition-transform duration-700 group-hover:scale-[1.02]"
                   />
 
                   {/* Koyu Degrade (Yazıların okunabilirliğini garantilemek için) */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none" />
 
-                  {/* İçerik Konteyneri */}
-                  <div className="relative z-20 flex flex-col h-full p-6 pt-[260px] md:pt-[240px]">
+                  {/* İçerik Konteyneri (Resmin üzerine yerleşir) */}
+                  <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 md:p-6">
                     
                     {/* Üstteki etiketler (Opsiyonel) */}
                     {plan.savings && (
