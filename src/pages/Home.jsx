@@ -174,92 +174,120 @@ export default function Home({ onAuthOpen }) {
   return (
     <main className="min-h-screen bg-[#070511] text-slate-200 selection:bg-purple-500/30" id="home-top">
       
-      {/* ── 1. DİNAMİK HERO CAROUSEL (Lighthouse: Görsel boyutları sabitlendi) ── */}
+      {/* ── 1. DİNAMİK HERO CAROUSEL (AnimeRank Stili) ── */}
       {activeHero && (
-        <section className="relative w-full h-[85vh] min-h-[600px] max-h-[800px] flex items-center justify-center overflow-hidden border-b border-purple-900/30">
+        <section className="relative w-full min-h-[85vh] lg:h-[85vh] max-h-[900px] flex items-center overflow-hidden border-b border-white/5">
           <AnimatePresence mode="wait">
+            {/* Arka Plan (Bulanık ve Karanlık) */}
             <motion.div
               key={activeHero.id}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
+              transition={{ duration: 1 }}
               className="absolute inset-0 z-0"
             >
               <img 
                 src={activeHeroImage} 
-                alt={`${activeHero.title} kapak görseli`} 
-                className="w-full h-full object-cover object-top opacity-60"
+                alt={`${activeHero.title} arkaplan`} 
+                className="w-full h-full object-cover opacity-30 filter blur-xl scale-110"
                 fetchpriority={currentHeroIndex === 0 ? "high" : "auto"}
                 loading={currentHeroIndex === 0 ? "eager" : "lazy"}
               />
-              {/* Gradient Maskeleri - Siyah ve Mor karışımı devasa derinlik */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/60 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/40 to-transparent" />
-              <div className="absolute inset-0 bg-purple-900/10 mix-blend-overlay" />
+              <div className="absolute inset-0 bg-[#070511]/70" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#070511]/80 via-transparent to-transparent h-48" />
             </motion.div>
           </AnimatePresence>
 
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 lg:mt-0 pt-16 pb-20 lg:py-0">
             <AnimatePresence mode="wait">
               <motion.div 
-                key={`text-${activeHero.id}`}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -40 }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-                className="max-w-2xl"
+                key={`content-${activeHero.id}`}
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 30 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16"
               >
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-full"
-                >
-                  <Sparkles size={14} className="text-cyan-400" />
-                  <span className="text-[10px] font-black tracking-[0.2em] text-cyan-400 uppercase">
-                    Günün Öne Çıkanı
-                  </span>
-                </motion.div>
-                
-                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white uppercase tracking-tighter leading-[1.1] mb-6 drop-shadow-2xl" style={{ textShadow: '0 4px 30px rgba(0,0,0,0.8)' }}>
-                  {activeHero.title}
-                </h1>
-                
-                <div className="flex flex-wrap items-center gap-4 text-xs font-black text-slate-300 mb-8 uppercase tracking-widest">
-                  <span className="flex items-center gap-1.5 bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/20">
-                    <Star size={14} className="fill-amber-400" /> {activeHero.rating} Puan
-                  </span>
-                  <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
-                    <BookOpen size={14} /> {heroChapterCount} Bölüm
-                  </span>
-                  <span className="flex items-center gap-1.5 bg-purple-500/10 text-purple-300 px-3 py-1.5 rounded-lg border border-purple-500/20">
-                    <Flame size={14} /> {Array.isArray(activeHero.genre) ? activeHero.genre[0] : activeHero.genre || 'Aksiyon'}
-                  </span>
+                {/* Sol: Poster Kartı */}
+                <div className="w-[200px] sm:w-[260px] lg:w-[320px] flex-shrink-0 group">
+                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-white/10 group-hover:border-purple-500/50 transition-colors duration-500">
+                    <img 
+                      src={getOptimizedImage(activeHero.cover, 600)} 
+                      alt={activeHero.title} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                  </div>
                 </div>
-                
-                <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-10 line-clamp-3 font-medium opacity-90 max-w-xl">
-                  {activeHero.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi seni bekliyor."}
-                </p>
-                
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black text-sm rounded-xl hover:from-purple-500 hover:to-blue-500 transition-all shadow-neon-purple flex items-center justify-center gap-3 active:scale-95">
-                    <Play size={18} className="fill-white" /> OKUMAYA BAŞLA
-                  </Link>
-                  <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-4 bg-white/5 backdrop-blur-md text-white border border-white/10 font-bold text-sm rounded-xl hover:bg-white/10 transition-colors active:scale-95 flex items-center justify-center gap-2">
-                    <Plus size={18} /> Listeye Ekle
-                  </button>
+
+                {/* Sağ: Bilgiler */}
+                <div className="flex-1 text-center lg:text-left">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 bg-red-500/20 border border-red-500/30 rounded text-red-400"
+                  >
+                    <Flame size={14} />
+                    <span className="text-[10px] font-black tracking-[0.2em] uppercase">
+                      VİTRİN
+                    </span>
+                  </motion.div>
+                  
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-4 drop-shadow-lg">
+                    {activeHero.title}
+                  </h1>
+                  
+                  <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 line-clamp-3 lg:line-clamp-4 font-medium opacity-90 max-w-2xl mx-auto lg:mx-0">
+                    {activeHero.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi seni bekliyor."}
+                  </p>
+                  
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 text-xs font-bold text-slate-300 mb-8">
+                    <span className="flex items-center gap-1.5 text-amber-400">
+                      <Star size={14} className="fill-amber-400" /> {activeHero.rating} Puan
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-slate-600" />
+                    <span>{heroChapterCount} Bölüm</span>
+                    <span className="w-1 h-1 rounded-full bg-slate-600" />
+                    <span className="text-purple-400">{Array.isArray(activeHero.genre) ? activeHero.genre.join(', ') : activeHero.genre || 'Genel'}</span>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                    <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-3.5 bg-red-600 text-white font-bold text-sm rounded-lg hover:bg-red-500 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-red-600/20">
+                      <Play size={16} className="fill-white" /> Şimdi Oku
+                    </Link>
+                    <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-3.5 bg-white/10 text-white border border-white/5 font-bold text-sm rounded-lg hover:bg-white/20 transition-colors flex items-center justify-center gap-2 active:scale-95">
+                      <Plus size={16} /> Listeme Ekle
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
 
-            {/* Carousel Noktaları */}
-            <div className="absolute bottom-8 left-4 sm:left-6 lg:left-8 flex gap-2">
+            {/* Carousel Okları (Desktop) */}
+            <button 
+              onClick={() => setCurrentHeroIndex(prev => (prev - 1 + heroItems.length) % heroItems.length)}
+              className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/40 hover:bg-black/80 border border-white/10 rounded-full items-center justify-center text-white backdrop-blur-md transition-all z-20 hover:scale-110"
+              aria-label="Önceki"
+            >
+              <ChevronRight size={24} className="rotate-180" />
+            </button>
+            <button 
+              onClick={() => setCurrentHeroIndex(prev => (prev + 1) % heroItems.length)}
+              className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/40 hover:bg-black/80 border border-white/10 rounded-full items-center justify-center text-white backdrop-blur-md transition-all z-20 hover:scale-110"
+              aria-label="Sonraki"
+            >
+              <ChevronRight size={24} />
+            </button>
+
+            {/* Carousel Noktaları (Mobil) */}
+            <div className="lg:hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
               {heroItems.map((_, idx) => (
                 <button 
                   key={idx}
                   onClick={() => setCurrentHeroIndex(idx)}
-                  aria-label={`${idx + 1}. öne çıkanı göster`}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-8 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'w-2 bg-white/30 hover:bg-white/60'}`}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-6 bg-red-500' : 'w-2 bg-white/30'}`}
                 />
               ))}
             </div>
