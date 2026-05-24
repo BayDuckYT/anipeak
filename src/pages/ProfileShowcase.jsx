@@ -842,7 +842,11 @@ export default function ProfileShowcase() {
                   <div className="w-40 h-40 relative">
                      <AnimeAvatar 
                         src={displayUser.avatar_url} 
-                        effect={selectedDecoration}
+                        effect={
+                          (displayUser.active_mix?.avatar && displayUser.active_mix.avatar !== 'none')
+                            ? effectsData.find(e => e.id === displayUser.active_mix.avatar)
+                            : selectedDecoration
+                        }
                         size="w-40 h-40"
                         className="rounded-full shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-white/10"
                         style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
