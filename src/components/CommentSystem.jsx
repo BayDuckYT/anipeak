@@ -217,16 +217,21 @@ export default function CommentSystem({ seriesId, chapterNum }) {
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span 
-                    onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} 
-                    className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
-                    style={mix.nametag && mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === mix.nametag)?.url})`, filter: `hue-rotate(${mix.hue || 0}deg)` } : {}}
-                  >
-                    {prof?.username || comment.username || 'Gezgin'}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span 
+                      onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} 
+                      className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
+                      style={mix.nametag && mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === mix.nametag)?.url})`, filter: `hue-rotate(${mix.hue || 0}deg)` } : {}}
+                    >
+                      {prof?.username || comment.username || 'Gezgin'}
+                    </span>
+                    {prof?.active_plan_id === 'aethe' && (
+                      <img src="/aethe.png" alt="Aethe" className={`shrink-0 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] ${isReply ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
+                    )}
+                  </div>
                   <UserBadges user={prof || comment} showCrown={true} iconSize={isReply ? 12 : 14} />
                   <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest ${s.badge}`}>
-                    {(prof?.username === 'ANIPEAK' || prof?.active_plan_id === 'aethe') ? 'Efsanevi Aethe Mührü' :
+                    {prof?.username === 'ANIPEAK' ? 'Kurucu' :
                      (prof?.active_plan_id === 'shadow') ? 'Hükümdar Gölgesi' :
                      (prof?.active_plan_id === 'ruler') ? 'Hükümdar' :
                      (prof?.active_plan_id === 'pro') ? 'Pro Üye' :
