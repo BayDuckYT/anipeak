@@ -101,7 +101,7 @@ function MaintenanceScreen({ onAuthOpen }) {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/bakim_arkaplan.png" 
+          src="https://wsrv.nl/?url=https://anipeak.com.tr/bakim_arkaplan.png&w=1920&output=webp" 
           alt="Bakım" 
           onError={(e) => { e.target.onerror = null; e.target.src = "/yayınarkaplan.jpg" }}
           className="w-full h-full object-cover object-right lg:object-center"
