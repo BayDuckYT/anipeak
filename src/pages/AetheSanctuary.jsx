@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Loader2, Sparkles, MessageSquare, Shield, Trophy } from 'lucide-react';
+import { Loader2, Sparkles, MessageSquare, Shield, Trophy, Crown, Flame, Swords } from 'lucide-react';
+import AnimeAvatar from '../components/AnimeAvatar';
+import UserBadges from '../components/UserBadges';
+import effectsData from '../data/effects.json';
 
 const HOUSES = [
   { id: 'dragon', name: 'Kızıl Ejder', color: 'text-red-500', bg: 'from-red-900/40', border: 'border-red-500', desc: 'Güç, cesaret ve savaşçı ruh. (Saldırgan ve lider ruhlular)' },
@@ -22,6 +25,7 @@ export default function AetheSanctuary() {
   const [selectedHouse, setSelectedHouse] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState('');
+  const [housesLeaderboard, setHousesLeaderboard] = useState([]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -40,14 +44,29 @@ export default function AetheSanctuary() {
       }
     } catch (err) {
       console.error(err);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchHousesLeaderboard = async () => {
+    try {
+      const { data, error } = await supabase.from('houses').select('*').order('points', { ascending: false });
+      if (!error && data) setHousesLeaderboard(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchHousesLeaderboard();
+  }, []);
+
   const fetchChat = async (houseId) => {
     try {
-      const { data } = await supabase.from('house_chats').select('*, profiles(username, avatar_url, role)').eq('house_id', houseId).order('created_at', { ascending: false }).limit(50);
+      const { data } = await supabase.from('house_chats').select('*, profiles(username, avatar_url, role, active_mix, is_elite, active_plan_id, rank, house_id)').eq('house_id', houseId).order('created_at', { ascending: false }).limit(50);
       if (data) setChatMessages(data.reverse());
     } catch (err) {
       console.error(err);
@@ -62,7 +81,7 @@ export default function AetheSanctuary() {
         house_id: profile.house_id,
         user_id: user.id,
         message: message.trim()
-      }]).select('*, profiles(username, avatar_url, role)').single();
+      }]).select('*, profiles(username, avatar_url, role, active_mix, is_elite, active_plan_id, rank, house_id)').single();
       
       if (!error && data) {
         setChatMessages([...chatMessages, data]);
@@ -159,18 +178,36 @@ export default function AetheSanctuary() {
                       {chatMessages.length === 0 ? (
                         <p className="text-center text-zinc-500 mt-10 text-sm font-medium">Henüz mesaj yok. İlk mesajı sen gönder!</p>
                       ) : (
-                        chatMessages.map(msg => (
-                          <div key={msg.id} className="flex gap-4">
-                            <img src={msg.profiles.avatar_url || '/default-avatar.png'} className="w-10 h-10 rounded-xl object-cover shrink-0" />
-                            <div className="bg-black/40 rounded-2xl p-4 flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className={`text-xs font-black uppercase ${selectedHouse.color}`}>{msg.profiles.username}</span>
-                                <span className="text-[10px] text-zinc-600">{new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                        chatMessages.map(msg => {
+                          const prof = msg.profiles;
+                          const mix = prof?.active_mix || {};
+                          const nameTagStyle = mix.nametag && mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === mix.nametag)?.url})`, filter: `hue-rotate(${mix.hue || 0}deg)` } : {};
+                          
+                          return (
+                            <div key={msg.id} className="flex gap-4">
+                              <div className="shrink-0 cursor-pointer" onClick={() => navigate(`/profil/${prof.username}`)}>
+                                <AnimeAvatar src={prof.avatar_url || '/default-avatar.png'} effect={mix.avatar ? effectsData.find(e => e.id === mix.avatar) : null} size="w-10 h-10" forcePlay={true} />
                               </div>
-                              <p className="text-sm text-zinc-300">{msg.message}</p>
+                              <div className={`rounded-2xl p-4 flex-1 border ${!mix.commentColor || mix.commentColor === 'none' ? 'bg-black/40 border-transparent' : 'bg-black/60 border-white/5'}`} style={mix.commentColor && mix.commentColor !== 'none' ? { boxShadow: `inset 0 0 20px ${mix.commentColor}20`, borderColor: `${mix.commentColor}40` } : {}}>
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                  <span 
+                                    onClick={() => navigate(`/profil/${prof.username}`)}
+                                    className={`text-xs font-black uppercase cursor-pointer hover:underline ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : selectedHouse.color}`}
+                                    style={nameTagStyle}
+                                  >
+                                    {prof.username}
+                                  </span>
+                                  <UserBadges user={prof} showCrown={true} iconSize={12} />
+                                  <div className={`px-1.5 py-0.5 rounded border text-[6px] font-black uppercase tracking-widest bg-white/5 border-white/10 text-slate-400`}>
+                                    {['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(prof.role) ? `${prof.role}` : prof.rank || 'Çaylak'}
+                                  </div>
+                                  <span className="text-[10px] text-zinc-600 ml-auto">{new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <p className="text-sm text-zinc-300 drop-shadow-md">{msg.message}</p>
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </div>
 
@@ -189,16 +226,48 @@ export default function AetheSanctuary() {
                   </div>
 
                   {/* House Leaderboard / Info */}
-                  <div className="bg-card-navy/50 border border-white/5 rounded-3xl p-6">
+                  <div className="bg-card-navy/50 border border-white/5 rounded-3xl p-6 flex flex-col h-[600px]">
                      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
-                      <Trophy className="text-amber-400" />
-                      <h3 className="text-xl font-black text-white uppercase tracking-widest">Hane Puanı</h3>
+                      <Swords className="text-red-500" />
+                      <h3 className="text-xl font-black text-white uppercase tracking-widest">Büyük Savaş</h3>
                     </div>
-                    <div className="flex flex-col items-center justify-center p-10 bg-black/40 rounded-2xl border border-white/5 text-center">
-                      <div className={`text-6xl font-black ${selectedHouse.color} mb-2`}>0</div>
-                      <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Haftalık Katkı</div>
+                    
+                    <div className="flex-1 overflow-y-auto no-scrollbar space-y-3">
+                      {housesLeaderboard.map((house, idx) => (
+                        <div key={house.id} className={`relative p-4 rounded-2xl border flex items-center justify-between overflow-hidden group ${
+                          house.id === selectedHouse.id ? 'bg-white/10 border-white/20' : 'bg-black/40 border-white/5'
+                        }`}>
+                          <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                            house.id === 'dragon' ? 'bg-red-500' :
+                            house.id === 'fox' ? 'bg-purple-500' :
+                            house.id === 'wolf' ? 'bg-blue-500' :
+                            'bg-orange-500'
+                          }`} />
+                          <div className="flex items-center gap-4 pl-2 z-10">
+                            <span className={`text-2xl font-black ${idx === 0 ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'text-zinc-600'}`}>{idx + 1}</span>
+                            <div>
+                              <div className="text-sm font-black text-white uppercase tracking-widest mb-0.5">{house.name}</div>
+                              <div className="text-[9px] text-zinc-400 font-bold tracking-widest uppercase">{house.id === selectedHouse.id ? 'Senin Hanen' : 'Rakip Hane'}</div>
+                            </div>
+                          </div>
+                          <div className="text-right z-10">
+                            <div className={`text-xl font-black ${
+                              house.id === 'dragon' ? 'text-red-400' :
+                              house.id === 'fox' ? 'text-purple-400' :
+                              house.id === 'wolf' ? 'text-blue-400' :
+                              'text-orange-400'
+                            }`}>{house.points.toLocaleString()}</div>
+                            <div className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Savaş Puanı</div>
+                          </div>
+                          
+                          {idx === 0 && <Crown className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-500/20 w-16 h-16 pointer-events-none" />}
+                        </div>
+                      ))}
                     </div>
-                    <p className="text-xs text-zinc-500 mt-6 text-center leading-relaxed">Puan tablosu yakında aktif edilecek. Yorum yaparak, inceleme yazarak ve serileri favorileyerek hanenize puan kazandırabileceksiniz.</p>
+                    
+                    <div className="mt-4 p-4 rounded-2xl bg-black/60 border border-white/5 text-center">
+                      <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">Haftalık görevleri tamamlayıp siteye katkıda bulunarak hanene puan kazandır. Zirvedeki hane her cuma gece yarısı özel ödüller kazanır!</p>
+                    </div>
                   </div>
                 </div>
               </motion.div>
