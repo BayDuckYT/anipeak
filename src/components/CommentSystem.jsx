@@ -338,13 +338,25 @@ export default function CommentSystem({ seriesId, chapterNum }) {
 
     if (isAethe) {
       return (
-        <div key={comment.id} className="relative mb-6">
+        <div key={comment.id} className="relative mb-8" style={{ zIndex: 10 }}>
           {cardContent}
-          {/* Aethe Blood Drops outside the card */}
-          <div className="aethe-blood-drop" style={{ left: '15%' }}></div>
-          <div className="aethe-blood-drop" style={{ left: '45%', animationDelay: '0.4s' }}></div>
-          <div className="aethe-blood-drop" style={{ left: '75%', animationDelay: '1.2s' }}></div>
-          <div className="aethe-blood-drop" style={{ right: '10%', animationDelay: '0.8s' }}></div>
+          {/* AETHE BLOOD EFFECT - INLINE STYLED TO BYPASS CACHE & RENDER ON TOP */}
+          <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] overflow-visible" style={{ zIndex: 50 }}>
+            {/* Glowing red aura on the border */}
+            <div className="absolute inset-0 rounded-[2.5rem] border-2 border-red-500/80 pointer-events-none" style={{ boxShadow: '0 0 20px rgba(225,29,72,0.6), inset 0 0 20px rgba(225,29,72,0.2)' }}></div>
+            
+            {/* Dripping blood 1 */}
+            <div className="absolute animate-pulse" style={{ bottom: '-15px', left: '15%', width: '4px', height: '25px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)' }}></div>
+            
+            {/* Dripping blood 2 */}
+            <div className="absolute animate-bounce" style={{ bottom: '-22px', left: '40%', width: '3px', height: '35px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.3s', animationDuration: '2s' }}></div>
+            
+            {/* Dripping blood 3 */}
+            <div className="absolute animate-pulse" style={{ bottom: '-12px', left: '70%', width: '5px', height: '20px', background: 'linear-gradient(to bottom, #be123c, transparent)', borderRadius: '5px', filter: 'drop-shadow(0 0 6px #e11d48)', animationDelay: '0.7s' }}></div>
+            
+            {/* Dripping blood 4 */}
+            <div className="absolute animate-bounce" style={{ bottom: '-18px', right: '15%', width: '4px', height: '28px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.1s', animationDuration: '2.5s' }}></div>
+          </div>
         </div>
       );
     }
