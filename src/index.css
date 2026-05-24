@@ -435,6 +435,17 @@ body {
 }
 
 /* ── AETHE KANLI KUTU (BLOOD DRIP EFFECT) ── */
+@keyframes blood-rain {
+  0% { transform: translateY(0) scaleY(1); opacity: 1; }
+  50% { transform: translateY(15px) scaleY(1.5); opacity: 0.8; }
+  80% { transform: translateY(30px) scaleY(0.5); opacity: 0; }
+  100% { transform: translateY(0) scaleY(0); opacity: 0; }
+}
+
+.animate-blood-rain {
+  animation: blood-rain 2s infinite linear;
+}
+
 @keyframes blood-drip {
   0% { transform: translateY(-5px) scaleY(0.5); opacity: 0; }
   20% { transform: translateY(0px) scaleY(1); opacity: 1; }

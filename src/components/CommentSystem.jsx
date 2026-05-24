@@ -205,6 +205,9 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     const replies = repliesOf[comment.id] || [];
     const expanded = expandedReplies.has(comment.id);
     const liked = likedByMe.has(comment.id);
+    const lc = likeCounts[comment.id] || 0;
+    const customColorStyle = mix.commentColor && mix.commentColor !== 'none' ? { backgroundColor: hexToRgba(mix.commentColor, 0.08), borderColor: hexToRgba(mix.commentColor, 0.2) } : {};
+    
     const isAethe = prof?.active_plan_id === 'aethe' || prof?.role === 'Baş Admin';
 
     // Aethe users get a glowing red border and shadow directly on the card
@@ -229,18 +232,18 @@ export default function CommentSystem({ seriesId, chapterNum }) {
 
         {/* INLINE BLOOD DROPS - attached directly to the bottom of the card */}
         {isAethe && (
-          <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-50">
-            {/* Dripping blood 1 */}
-            <div className="absolute animate-pulse" style={{ bottom: '-15px', left: '15%', width: '4px', height: '25px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)' }}></div>
+          <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-50 overflow-visible h-10">
+            {/* Dripping blood rain 1 */}
+            <div className="absolute animate-blood-rain" style={{ bottom: '-5px', left: '15%', width: '3px', height: '12px', background: 'linear-gradient(to bottom, transparent, #e11d48)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0s', animationDuration: '1.5s' }}></div>
             
-            {/* Dripping blood 2 */}
-            <div className="absolute animate-bounce" style={{ bottom: '-22px', left: '40%', width: '3px', height: '35px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.3s', animationDuration: '2s' }}></div>
+            {/* Dripping blood rain 2 */}
+            <div className="absolute animate-blood-rain" style={{ bottom: '-10px', left: '40%', width: '2px', height: '16px', background: 'linear-gradient(to bottom, transparent, #e11d48)', borderRadius: '2px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.6s', animationDuration: '2.2s' }}></div>
             
-            {/* Dripping blood 3 */}
-            <div className="absolute animate-pulse" style={{ bottom: '-12px', left: '70%', width: '5px', height: '20px', background: 'linear-gradient(to bottom, #be123c, transparent)', borderRadius: '5px', filter: 'drop-shadow(0 0 6px #e11d48)', animationDelay: '0.7s' }}></div>
+            {/* Dripping blood rain 3 */}
+            <div className="absolute animate-blood-rain" style={{ bottom: '-8px', left: '70%', width: '4px', height: '14px', background: 'linear-gradient(to bottom, transparent, #be123c)', borderRadius: '4px', filter: 'drop-shadow(0 0 6px #e11d48)', animationDelay: '1.1s', animationDuration: '1.8s' }}></div>
             
-            {/* Dripping blood 4 */}
-            <div className="absolute animate-bounce" style={{ bottom: '-18px', right: '15%', width: '4px', height: '28px', background: 'linear-gradient(to bottom, #e11d48, transparent)', borderRadius: '4px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.1s', animationDuration: '2.5s' }}></div>
+            {/* Dripping blood rain 4 */}
+            <div className="absolute animate-blood-rain" style={{ bottom: '-5px', right: '15%', width: '3px', height: '10px', background: 'linear-gradient(to bottom, transparent, #e11d48)', borderRadius: '3px', filter: 'drop-shadow(0 0 5px #e11d48)', animationDelay: '0.3s', animationDuration: '2s' }}></div>
           </div>
         )}
 
