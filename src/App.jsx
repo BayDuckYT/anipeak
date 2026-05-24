@@ -118,9 +118,9 @@ function MaintenanceScreen({ onAuthOpen }) {
           <img 
             src="/anipeaklogo.png" 
             alt="AniPeak Logo" 
-            className="h-12 w-auto object-contain" 
+            className="h-28 w-auto object-contain" 
             style={{ 
-              filter: 'hue-rotate(270deg) brightness(1.2)' 
+              filter: 'drop-shadow(0 0 10px rgba(168, 85, 247, 0.4))' 
             }} 
           />
         </div>

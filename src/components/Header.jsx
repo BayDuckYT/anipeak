@@ -122,9 +122,9 @@ export default function Header({ onAuthOpen }) {
               <img 
                 src="/anipeaklogo.png" 
                 alt="AniPeak Logo" 
-                className="h-10 w-auto object-contain transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-0.5" 
+                className="h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-0.5" 
                 style={{ 
-                  filter: 'hue-rotate(270deg) brightness(1.2) drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))' 
+                  filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))' 
                 }} 
               />
             </div>
