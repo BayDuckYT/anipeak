@@ -436,62 +436,57 @@ body {
 
 /* ── AETHE KANLI KUTU (BLOOD DRIP EFFECT) ── */
 @keyframes blood-drip {
-  0% { transform: translateY(0) scaleY(1); opacity: 0.8; }
-  50% { transform: translateY(8px) scaleY(1.2); opacity: 1; }
-  100% { transform: translateY(15px) scaleY(0.8); opacity: 0; }
+  0% { transform: translateY(-5px) scaleY(0.5); opacity: 0; }
+  20% { transform: translateY(0px) scaleY(1); opacity: 1; }
+  80% { transform: translateY(15px) scaleY(1.5); opacity: 1; }
+  100% { transform: translateY(25px) scaleY(0); opacity: 0; }
 }
 
 @keyframes blood-pulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(225,29,72,0.4), inset 0 0 15px rgba(225,29,72,0.1); border-color: rgba(225,29,72,0.4); }
-  50% { box-shadow: 0 0 25px rgba(225,29,72,0.8), inset 0 0 30px rgba(225,29,72,0.3); border-color: rgba(225,29,72,0.8); }
-}
-
-@keyframes blood-border-spin {
-  100% { transform: rotate(1turn); }
+  0%, 100% { box-shadow: 0 0 15px rgba(225,29,72,0.5), inset 0 0 20px rgba(225,29,72,0.2); border-color: rgba(225,29,72,0.6); }
+  50% { box-shadow: 0 0 35px rgba(225,29,72,0.9), inset 0 0 40px rgba(225,29,72,0.4); border-color: rgba(225,29,72,1); }
 }
 
 .aethe-blood-box {
   position: relative;
-  background: rgba(30, 0, 5, 0.7) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(225, 29, 72, 0.5) !important;
-  animation: blood-pulse 3s infinite ease-in-out;
+  background: rgba(40, 0, 10, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 2px solid rgba(225, 29, 72, 0.8) !important;
+  animation: blood-pulse 2s infinite ease-in-out !important;
+  overflow: visible !important;
+  z-index: 10;
 }
 
-/* Kutu etrafında dönen kan aurası */
+/* Kutu içinden sızan aura efekti */
 .aethe-blood-box::before {
   content: '';
   position: absolute;
   z-index: -1;
-  inset: -2px;
+  inset: -4px;
   border-radius: inherit;
-  background: conic-gradient(from 0deg, transparent 60%, rgba(225, 29, 72, 1) 100%);
-  animation: blood-border-spin 3s linear infinite;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  padding: 2px;
+  background: linear-gradient(45deg, rgba(225,29,72,0.1), rgba(225,29,72,0.6), rgba(225,29,72,0.1));
+  background-size: 200% 200%;
+  animation: shimmer-gold 3s linear infinite;
+  filter: blur(8px);
+  pointer-events: none;
 }
 
-/* Damlayan kan damlaları */
-.aethe-blood-box::after {
-  content: '';
+/* Kan damlaları */
+.aethe-blood-drop {
   position: absolute;
-  bottom: -4px;
-  left: 20%;
-  width: 3px;
-  height: 12px;
-  background: linear-gradient(to bottom, rgba(225,29,72,1), transparent);
-  border-radius: 5px;
-  filter: drop-shadow(0 0 3px rgba(225,29,72,1));
-  animation: blood-drip 1.5s infinite ease-in;
-  /* Damlaları kutu boyunca kopyala */
-  box-shadow: 
-    100px 0 0 0 rgba(225,29,72,0.8), 
-    250px 0 0 0 rgba(225,29,72,1), 
-    380px 0 0 0 rgba(225,29,72,0.7),
-    500px 0 0 0 rgba(225,29,72,0.9);
+  bottom: -10px;
+  width: 4px;
+  height: 18px;
+  background: linear-gradient(to bottom, #e11d48, transparent);
+  border-radius: 4px;
+  filter: drop-shadow(0 0 4px #e11d48);
+  pointer-events: none;
+  z-index: 20;
 }
+.aethe-blood-drop:nth-child(1) { left: 15%; animation: blood-drip 1.8s infinite ease-in; }
+.aethe-blood-drop:nth-child(2) { left: 45%; animation: blood-drip 2.3s infinite ease-in 0.4s; }
+.aethe-blood-drop:nth-child(3) { left: 75%; animation: blood-drip 2.1s infinite ease-in 1.2s; }
+.aethe-blood-drop:nth-child(4) { right: 10%; animation: blood-drip 2.5s infinite ease-in 0.8s; }
 
 /* ── PROFILE AURA EFEKTLERİ ────────────────────────────────────────────── */
 @keyframes aura-pulse {

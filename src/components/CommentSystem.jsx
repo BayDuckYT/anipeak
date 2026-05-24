@@ -219,6 +219,16 @@ export default function CommentSystem({ seriesId, chapterNum }) {
           </div>
         )}
 
+        {/* Aethe Blood Drops */}
+        {prof?.active_plan_id === 'aethe' && (
+          <>
+            <div className="aethe-blood-drop"></div>
+            <div className="aethe-blood-drop"></div>
+            <div className="aethe-blood-drop"></div>
+            <div className="aethe-blood-drop"></div>
+          </>
+        )}
+
         <div className={`relative z-10 ${isReply ? 'p-4' : 'p-6'} flex gap-4 items-start`}>
           <div className="shrink-0 cursor-pointer" onClick={() => navigate(`/profil/${prof?.username || comment.username}`)}>
             <AnimeAvatar src={prof?.avatar_url || comment.avatar_url} effect={mix.avatar ? effectsData.find(e => e.id === mix.avatar) : null} size={isReply ? 'w-10 h-10' : 'w-14 h-14'} forcePlay={true} />
