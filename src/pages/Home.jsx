@@ -227,11 +227,11 @@ export default function Home({ onAuthOpen }) {
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 bg-red-500/20 border border-red-500/30 rounded text-red-400"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-full"
                   >
-                    <Flame size={14} />
-                    <span className="text-[10px] font-black tracking-[0.2em] uppercase">
-                      VİTRİN
+                    <Sparkles size={14} className="text-cyan-400" />
+                    <span className="text-[10px] font-black tracking-[0.2em] text-cyan-400 uppercase">
+                      Günün Öne Çıkanı
                     </span>
                   </motion.div>
                   
@@ -243,22 +243,26 @@ export default function Home({ onAuthOpen }) {
                     {activeHero.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi seni bekliyor."}
                   </p>
                   
-                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 text-xs font-bold text-slate-300 mb-8">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 text-xs font-bold text-slate-300 mb-8 uppercase tracking-widest">
                     <span className="flex items-center gap-1.5 text-amber-400">
                       <Star size={14} className="fill-amber-400" /> {activeHero.rating} Puan
                     </span>
                     <span className="w-1 h-1 rounded-full bg-slate-600" />
-                    <span>{heroChapterCount} Bölüm</span>
+                    <span className="flex items-center gap-1.5 text-white">
+                      <BookOpen size={14} className="text-slate-400" /> {heroChapterCount} Bölüm
+                    </span>
                     <span className="w-1 h-1 rounded-full bg-slate-600" />
-                    <span className="text-purple-400">{Array.isArray(activeHero.genre) ? activeHero.genre.join(', ') : activeHero.genre || 'Genel'}</span>
+                    <span className="flex items-center gap-1.5 text-purple-400">
+                      <Flame size={14} /> {Array.isArray(activeHero.genre) ? activeHero.genre[0] : activeHero.genre || 'Aksiyon'}
+                    </span>
                   </div>
                   
                   <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                    <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-3.5 bg-red-600 text-white font-bold text-sm rounded-lg hover:bg-red-500 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-red-600/20">
-                      <Play size={16} className="fill-white" /> Şimdi Oku
+                    <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black text-sm rounded-xl hover:from-purple-500 hover:to-blue-500 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                      <Play size={16} className="fill-white" /> OKUMAYA BAŞLA
                     </Link>
-                    <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-3.5 bg-white/10 text-white border border-white/5 font-bold text-sm rounded-lg hover:bg-white/20 transition-colors flex items-center justify-center gap-2 active:scale-95">
-                      <Plus size={16} /> Listeme Ekle
+                    <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-4 bg-white/5 backdrop-blur-md text-white border border-white/10 font-bold text-sm rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 active:scale-95">
+                      <Plus size={16} /> Listeye Ekle
                     </button>
                   </div>
                 </div>
@@ -287,7 +291,7 @@ export default function Home({ onAuthOpen }) {
                 <button 
                   key={idx}
                   onClick={() => setCurrentHeroIndex(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-6 bg-red-500' : 'w-2 bg-white/30'}`}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-8 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'w-2 bg-white/30 hover:bg-white/60'}`}
                 />
               ))}
             </div>
