@@ -311,6 +311,11 @@ export default function ProfileShowcase() {
     setCustomLists(clData || []);
 
     // 3. Achievements
+    // Eğer kendi profiliyse arka planda eksik başarımları mühürle
+    if (currentUser?.id === userId) {
+      const { syncAllAchievements } = await import('../lib/achievementService');
+      await syncAllAchievements(userId);
+    }
     const { data: achData } = await supabase
       .from('user_achievements')
       .select('*, achievements(*)')

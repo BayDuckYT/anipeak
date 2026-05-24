@@ -1,5 +1,5 @@
-
 import { supabase } from './supabaseClient';
+import { getLevelInfo } from '../context/AuthContext';
 
 /**
  * 🌌 ANIPEAK KOZMİK BAŞARIM SİSTEMİ — ACHIEVEMENT ENGINE
@@ -119,8 +119,8 @@ export async function trackActivity(userId, type, value = 1, extra = {}) {
           break;
         case 'level':
           // XP'den seviye hesapla (AuthContext'teki mantıkla paralel)
-          const level = Math.floor(currentStats.xp / 100) + 1; // Basitleştirilmiş, asıl hesaplama AuthContext'te
-          if (level >= val) met = true;
+          const levelInfo = getLevelInfo(currentStats.xp || 0, currentStats.is_elite, currentStats.active_plan_id);
+          if (levelInfo.level >= val) met = true;
           break;
         case 'genre_count':
           // Bu seri tamamlama için, şimdilik okunan tür sayısı olarak bakalım
@@ -178,7 +178,8 @@ export async function syncAllAchievements(userId) {
     const newUnlocks = [];
 
     // Seviye hesaplama (AuthContext'ten paralel)
-    const level = Math.floor((profile.xp || 0) / 100) + 1;
+    const levelInfo = getLevelInfo(profile.xp || 0, profile.is_elite, profile.active_plan_id);
+    const level = levelInfo.level;
 
     for (const ach of achievements) {
       if (unlockedIds.has(ach.id)) continue;
