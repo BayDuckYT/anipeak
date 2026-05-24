@@ -208,7 +208,8 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     const lc = likeCounts[comment.id] || 0;
     const customColorStyle = mix.commentColor && mix.commentColor !== 'none' ? { backgroundColor: hexToRgba(mix.commentColor, 0.08), borderColor: hexToRgba(mix.commentColor, 0.2) } : {};
 
-    const isAethe = prof?.active_plan_id === 'aethe';
+    // Geliştirici testi için Baş Admin'e de efekti açıyoruz
+    const isAethe = prof?.active_plan_id === 'aethe' || prof?.role === 'Baş Admin';
 
     const cardContent = (
       <div key={comment.id} style={isReply ? {} : customColorStyle} className={`relative transition-all duration-300 mt-2 ${isReply ? 'rounded-2xl' : 'rounded-[2.5rem] shadow-2xl'} w-full group ${isReply ? 'bg-white/[0.02] border border-white/5' : (!mix.commentColor || mix.commentColor === 'none' ? s.card : '')} ${isAethe ? 'aethe-blood-inner' : ''}`}>
