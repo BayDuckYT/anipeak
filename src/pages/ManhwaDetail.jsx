@@ -315,8 +315,23 @@ export default function ManhwaDetail({ onAuthOpen }) {
       {/* ── STATS ROW ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+          {/* Puan Kutusu (StarRating ile) */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}
+            className="bg-[#0f111a] border border-[#1f2233] rounded-xl p-4 sm:p-5 flex flex-col justify-center hover:border-purple-500/30 transition-colors group col-span-2 sm:col-span-1"
+          >
+            <div className="flex justify-between items-start mb-2">
+              <div className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest">PUAN</div>
+              <div className="flex items-center gap-1.5">
+                 <Star size={14} className="text-amber-400 fill-amber-400" />
+                 <span className="text-sm sm:text-base font-bold text-amber-400">{manhwa.rating || '0.0'}</span>
+              </div>
+            </div>
+            <StarRating seriesId={manhwa.id} initialRating={manhwa.rating} />
+          </motion.div>
+
+          {/* Diğer Kutular */}
           {[
-            { label: 'PUAN', value: manhwa.rating || '0.0', icon: Star, color: 'text-amber-400' },
             { label: 'BÖLÜM', value: allChapters.length, icon: BookOpen, color: 'text-blue-400' },
             { label: 'YIL', value: manhwa.year || '2024', icon: Calendar, color: 'text-slate-300' },
             { label: 'DURUM', value: manhwa.status, icon: Sparkles, color: manhwa.status === 'Devam Ediyor' ? 'text-emerald-400' : 'text-blue-400' },
@@ -324,13 +339,13 @@ export default function ManhwaDetail({ onAuthOpen }) {
           ].map((stat, i) => (
             <motion.div 
               key={i}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 + (i * 0.1) }}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 + (i * 0.1) }}
               className="bg-[#0f111a] border border-[#1f2233] rounded-xl p-4 sm:p-5 flex flex-col justify-center hover:border-purple-500/30 transition-colors group"
             >
               <div className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">{stat.label}</div>
               <div className="flex items-center gap-2">
                  <stat.icon size={14} className={`${stat.color} group-hover:scale-110 transition-transform`} />
-                 <span className={`text-sm sm:text-base font-bold text-white truncate ${i===0?'text-amber-400':''}`}>{stat.value}</span>
+                 <span className="text-sm sm:text-base font-bold text-white truncate">{stat.value}</span>
               </div>
             </motion.div>
           ))}
@@ -389,27 +404,25 @@ export default function ManhwaDetail({ onAuthOpen }) {
             </AnimatePresence>
           </div>
 
-          {/* Show More Button */}
-          {filteredChapters.length > visibleChapters && (
-            <div className="mt-8 flex justify-center">
+          {/* Show More / Show Less Buttons */}
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            {filteredChapters.length > visibleChapters && (
               <button 
                 onClick={() => setVisibleChapters(prev => prev + 28)}
                 className="flex items-center gap-2 px-8 py-3 rounded-full border border-[#1f2233] bg-[#0f111a] text-slate-400 hover:text-white hover:border-white/20 transition-all text-sm font-bold active:scale-95"
               >
                 Daha Fazla Göster <ChevronDown size={16} />
               </button>
-            </div>
-          )}
-          {filteredChapters.length <= visibleChapters && visibleChapters > 28 && (
-            <div className="mt-8 flex justify-center">
+            )}
+            {visibleChapters > 28 && (
               <button 
-                onClick={() => setVisibleChapters(28)}
+                onClick={() => setVisibleChapters(prev => Math.max(28, prev - 28))}
                 className="flex items-center gap-2 px-8 py-3 rounded-full border border-[#1f2233] bg-[#0f111a] text-slate-400 hover:text-white hover:border-white/20 transition-all text-sm font-bold active:scale-95"
               >
                 Daha Az Göster <ChevronUp size={16} />
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* BOTTOM: Comments */}

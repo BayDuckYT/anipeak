@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabaseClient';
 
 export default function StarRating({ seriesId, initialRating }) {
-  const { user } = useAuth();
+  const { user, updateXP } = useAuth();
   const { updateRating } = useApp();
   const [hover, setHover] = useState(0);
   const [userRating, setUserRating] = useState(0);
@@ -36,8 +36,21 @@ export default function StarRating({ seriesId, initialRating }) {
 
   const handleRate = async (val) => {
     if (!user) return; // Should be handled by parent (e.g., open auth modal)
+    
+    // Check if this is their first time rating this specific series
+    const { data: existingRating } = await supabase
+      .from('ratings')
+      .select('id')
+      .eq('series_id', seriesId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
     setUserRating(val);
     await updateRating(seriesId, user.id, val);
+
+    if (!existingRating && updateXP) {
+      updateXP(5);
+    }
   };
 
   return (
@@ -63,8 +76,8 @@ export default function StarRating({ seriesId, initialRating }) {
           </button>
         ))}
       </div>
-      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-        {userRating ? 'Senin Puanın' : 'Puan Ver'}
+      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+        {userRating ? 'Puanın Kaydedildi' : 'Sen de Puan Ver'}
       </span>
     </div>
   );
