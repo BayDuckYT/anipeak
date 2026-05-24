@@ -17,9 +17,11 @@ export function getOptimizedImage(url, width = 300) {
   }
 
   // Supabase veya dış linkleri proxy üzerinden geçirerek küçült ve webp yap
+  // GIF'leri bozmamak için direkt orijinal url'yi döndürüyoruz
   const isGif = url.toLowerCase().includes('.gif');
-  // GIF'leri animated WebP'ye dönüştürmek için n=-1 ekliyoruz
-  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&output=webp${isGif ? '&n=-1' : ''}&q=70`;
+  if (isGif) return url;
+
+  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&output=webp&q=70`;
 }
 
 // Resim yüklenemezse gösterilecek güvenli (çökmeyen) siyah/mor yer tutucu
