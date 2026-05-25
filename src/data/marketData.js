@@ -120,23 +120,24 @@ const RARITY_OVERRIDES = {
 function getRarity(effect) {
   if (RARITY_OVERRIDES[effect.id]) return RARITY_OVERRIDES[effect.id];
 
-  switch (effect.category) {
-    case 'profile_effects':
-      return 'legendary'; // Default for profile effects
-    case 'name_effects':
-      return 'rare';
-    case 'flags':
-      return 'common';
-    case 'decorations': {
-      // Bazı dekorasyon isimlerine göre uncommon yap
-      const label = (effect.label || '').toLowerCase();
-      const specialKeywords = ['dragon', 'venom', 'magic', 'crystal', 'lightning', 'flame', 'sword', 'sakura', 'portal', 'black hole', 'mirage', 'unicorn', 'anomaly', 'devil', 'supernova'];
-      if (specialKeywords.some(kw => label.includes(kw))) return 'uncommon';
-      return 'common';
-    }
-    default:
-      return 'common';
+  const idString = String(effect.id);
+  const hash = idString.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+
+  // Bayraklar çoğunlukla yaygın/sıradışı kalsın
+  if (effect.category === 'flags') {
+    const flagRarities = ['common', 'common', 'common', 'uncommon'];
+    return flagRarities[hash % flagRarities.length];
   }
+
+  // Diğer tüm kategoriler için çeşitli nadirlik dağılımı (Yaygından Gizemliye)
+  const rarities = [
+    'common', 'common', 'common', 
+    'uncommon', 'uncommon', 'uncommon',
+    'rare', 'rare', 'rare',
+    'legendary', 'legendary',
+    'mythic'
+  ];
+  return rarities[hash % rarities.length];
 }
 
 /**
@@ -196,10 +197,20 @@ export function buildMarketItems(effectsData, nameplatesData = []) {
   for (let i = 0; i < nameplatesData.length; i++) {
     const filename = nameplatesData[i];
     const id = `nameplate_${filename}`;
-    const rarity = 'rare';
+    
+    // Hash tabanlı nadirlik ataması (genel sisteme benzer)
     const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    const prices = [75000, 100000, 125000, 150000];
-    const price = prices[hash % prices.length];
+    const rarities = [
+      'common', 'common', 
+      'uncommon', 'uncommon', 
+      'rare', 'rare', 
+      'legendary', 'legendary',
+      'mythic'
+    ];
+    const rarity = rarities[hash % rarities.length];
+    
+    // getPrice kullanarak fiyat belirle (deterministic hash fiyatı)
+    const price = getPrice({ id }, rarity);
 
     items.push({
       id,
