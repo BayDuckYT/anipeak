@@ -271,33 +271,33 @@ export default function EliteUpgrade() {
                   className="relative flex flex-col w-full rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5 bg-[#0A0A10]"
                 >
                   {/* Arkaplan Görseli (Tasarımın Kendisi, kendi boyutunda) */}
-                  <div className="h-48 w-full overflow-hidden relative">
-                    <img 
-                      src={plan.bgImage} 
-                      alt={plan.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A10] to-transparent z-10" />
-                  </div>
+                  <img 
+                    src={plan.bgImage} 
+                    alt={plan.name}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-[1.02]"
+                  />
+
+                  {/* Koyu Degrade (Yazıların okunabilirliğini garantilemek için) */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent z-10 pointer-events-none" />
 
                   {/* İçerik Konteyneri */}
-                  <div className="relative z-20 flex flex-col flex-grow p-6 -mt-12">
+                  <div className="relative z-20 flex flex-col flex-grow p-6 pt-32">
                     
                     {/* Üstteki etiketler */}
                     {plan.savings && (
-                      <div className="absolute top-0 right-6 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/50 backdrop-blur-md">
+                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/50 backdrop-blur-md">
                         <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{plan.savings}</span>
                       </div>
                     )}
                     {plan.is_popular && (
-                      <div className="absolute top-0 right-6 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 backdrop-blur-md flex items-center gap-1">
+                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 backdrop-blur-md flex items-center gap-1">
                         <Star size={10} className="text-amber-400 fill-amber-400" />
                         <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">En Popüler</span>
                       </div>
                     )}
                     {isAethe && (
-                      <div className="absolute top-0 right-6 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/50 backdrop-blur-md flex items-center gap-1 animate-pulse">
+                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/50 backdrop-blur-md flex items-center gap-1 animate-pulse">
                         <AlertTriangle size={10} className="text-rose-400" />
                         <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Son 20 Kişi</span>
                       </div>
