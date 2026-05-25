@@ -23,7 +23,7 @@ const HISTORY_MOCK = [
 ];
 
 export default function Wallet() {
-  const { user, fetchUserAura } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGift, setIsGift] = useState(false);
@@ -80,22 +80,14 @@ export default function Wallet() {
       const auraValue = parseInt(codeData.value);
       if (isNaN(auraValue)) throw new Error("Geçersiz aura değeri.");
 
-      // Update user's aura balance
+      // Update user's aura balance via context to sync cache
       const newAura = (user.aura || 0) + auraValue;
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ aura: newAura })
-        .eq('id', user.id);
-
-      if (profileError) throw profileError;
+      await updateProfile({ aura: newAura });
 
       // Increment used_count
       await supabase.from('promo_codes')
         .update({ used_count: codeData.used_count + 1 })
         .eq('id', codeData.id);
-        
-      // Fetch user aura again if context provides a way, else reload or just optimistic update
-      if (fetchUserAura) await fetchUserAura();
         
       setPromoMsg({ type: 'success', text: `${auraValue.toLocaleString('tr-TR')} Aura Puanı başarıyla eklendi!` });
       setPromoCode('');
