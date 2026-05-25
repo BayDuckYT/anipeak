@@ -1961,7 +1961,7 @@ export default function Admin() {
                 <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl"><X size={24} /></button>
               </div>
 
-              <form onSubmit={handleSaveSeries} className="p-6 space-y-6">
+              <form onSubmit={handleSaveSeries} className="p-6 space-y-6" noValidate>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
