@@ -163,6 +163,7 @@ export function AuthProvider({ children }) {
         discord_sync_code: data?.discord_sync_code || null,
         discord_sync_code_expires: data?.discord_sync_code_expires || null,
         used_promo_codes: data?.used_promo_codes || [],
+        wallet_history: data?.wallet_history || [],
       };
 
       setUser(merged);

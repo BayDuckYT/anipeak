@@ -15,13 +15,6 @@ const AURA_PACKAGES = [
   { id: 6, aura: 1250000, price: 500, popular: true, bonus: 'Yüksek Değer' }
 ];
 
-const HISTORY_MOCK = [
-  { id: 1, action: 'Aura Puanı Yüklemesi', amount: '+250.000', date: 'Bugün', icon: <Zap className="text-emerald-400" /> },
-  { id: 2, action: 'İsim Plakası (Neon)', amount: '-15.000', date: 'Dün', icon: <CreditCard className="text-red-400" /> },
-  { id: 3, action: 'Elit Çerçeve', amount: '-50.000', date: '3 Gün Önce', icon: <CreditCard className="text-red-400" /> },
-  { id: 4, action: 'Aura Puanı Yüklemesi', amount: '+500.000', date: '1 Hafta Önce', icon: <Zap className="text-emerald-400" /> },
-];
-
 export default function Wallet() {
   const { user, updateProfile } = useAuth();
   const [selectedPackage, setSelectedPackage] = useState(null);
@@ -90,7 +83,16 @@ export default function Wallet() {
       // Update user's aura balance via context to sync cache
       const newAura = (user.aura || 0) + auraValue;
       const newUsedCodes = [...usedCodes, codeStr];
-      await updateProfile({ aura: newAura, used_promo_codes: newUsedCodes });
+      
+      const newHistoryItem = {
+        id: Date.now().toString(),
+        action: `Promo Kodu (${codeStr})`,
+        amount: `+${auraValue.toLocaleString('tr-TR')}`,
+        date: new Date().toLocaleDateString('tr-TR')
+      };
+      const newHistory = [newHistoryItem, ...(user.wallet_history || [])];
+
+      await updateProfile({ aura: newAura, used_promo_codes: newUsedCodes, wallet_history: newHistory });
 
       // Increment used_count
       await supabase.from('promo_codes')
@@ -246,22 +248,26 @@ export default function Wallet() {
           </div>
 
           <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x pb-4">
-            {HISTORY_MOCK.map((item) => (
+            {user?.wallet_history && user.wallet_history.length > 0 ? user.wallet_history.map((item) => (
               <div key={item.id} className="snap-start flex-shrink-0 w-[240px] sm:w-[280px] bg-[#141414] border border-white/5 rounded-2xl p-5 hover:bg-white/5 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                    {item.icon}
+                    {item.amount.startsWith('+') ? <Zap className="text-emerald-400" size={20} /> : <CreditCard className="text-red-400" size={20} />}
                   </div>
                   <div className="text-xs font-bold text-slate-500 flex items-center gap-1"><Clock size={12}/> {item.date}</div>
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white mb-1">{item.action}</h3>
-                  <div className={`text-xl font-black tracking-tight ${item.amount.startsWith('+') ? 'text-emerald-400' : 'text-slate-300'}`}>
+                  <div className={`text-xl font-black tracking-tight ${item.amount.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {item.amount} <span className="text-xs font-bold uppercase tracking-widest text-slate-500">AURA PUANI</span>
                   </div>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="text-slate-500 font-bold text-sm bg-white/5 border border-white/10 px-6 py-4 rounded-xl flex items-center gap-3">
+                <History size={16} /> Henüz işlem geçmişi bulunmuyor.
+              </div>
+            )}
           </div>
         </div>
 
