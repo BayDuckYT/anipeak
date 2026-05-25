@@ -61,6 +61,7 @@ import nameplatesData from '../data/nameplates.json';
 import Cropper from 'react-easy-crop';
 import { uploadAvatar } from '../lib/imageService';
 import { getEffectCSS, canUseBundle, getUnlockedEffectParts, ELITE_BUNDLES } from '../lib/eliteBundles';
+import { canUseEffect } from '../data/marketData.js';
 import Loader from '../components/Loader.jsx';
 import { renderCanvasEffect } from '../lib/canvasEffects';
 import SiberVideo from '../components/SiberVideo';
@@ -1523,16 +1524,22 @@ export default function ProfileShowcase() {
 
                    {/* Effect Items */}
                    <div className="grid grid-cols-2 gap-4">
-                      {filteredDecorations.map(effect => {
+                      {filteredDecorations.length > 0 ? filteredDecorations.map(effect => {
                         const isNameplate = effect.category === 'nameplates';
                         const isProfileEffect = effect.category === 'profile_effects';
                         const isNameEffect = effect.category === 'name_effects';
                         const isActive = isNameplate ? mixState.nameplate === effect.id : isProfileEffect ? mixState.profile_effect === effect.id : isNameEffect ? mixState.nametag === effect.id : mixState.avatar === effect.id;
+                        const isUnlocked = canUseEffect(effect.id, currentUser);
 
                         return (
                           <div 
                             key={effect.id} 
                             onClick={() => {
+                              if (!isUnlocked) {
+                                navigate('/market');
+                                setIsDrawerOpen(false);
+                                return;
+                              }
                               let newMix;
                               if (isNameplate) newMix = { ...mixState, nameplate: effect.id };
                               else if (isProfileEffect) newMix = { ...mixState, profile_effect: effect.id };
@@ -1541,7 +1548,7 @@ export default function ProfileShowcase() {
                               setMixState(newMix);
                               updateProfile({ active_mix: newMix });
                             }} 
-                            className={`group relative p-4 rounded-2xl bg-black/40 transition-all cursor-pointer border ${isActive ? 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : 'border-white/10 hover:border-white/30'}`}
+                            className={`group relative p-4 rounded-2xl bg-black/40 transition-all cursor-pointer border ${isActive ? 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : !isUnlocked ? 'border-white/5 opacity-60 hover:opacity-80' : 'border-white/10 hover:border-white/30'}`}
                           >
                              <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-xl bg-black border border-white/5 mb-3`}>
                                {isNameplate ? (
@@ -1556,11 +1563,22 @@ export default function ProfileShowcase() {
                                  <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-12 h-12" forcePlay={true} />
                                )}
                                <div className="absolute inset-0 pointer-events-none" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
+                               {!isUnlocked && (
+                                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[2px]">
+                                   <div className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center">
+                                     <Lock size={14} className="text-zinc-400" />
+                                   </div>
+                                 </div>
+                               )}
                              </div>
                              
                              <div className="text-center">
                                 <div className="text-[9px] font-black text-white uppercase tracking-tight truncate mb-0.5">{effect.label}</div>
-                                <div className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
+                                {!isUnlocked ? (
+                                  <div className="text-[7px] font-bold text-purple-400 uppercase tracking-widest flex items-center justify-center gap-1"><ShoppingCart size={8} /> Market'te</div>
+                                ) : (
+                                  <div className="text-[7px] font-bold text-zinc-500 uppercase tracking-widest">{effect.category?.replace('_', ' ')}</div>
+                                )}
                              </div>
                              
                              {isActive && (
@@ -1570,7 +1588,19 @@ export default function ProfileShowcase() {
                              )}
                           </div>
                         );
-                      })}
+                      }) : (
+                        <div className="col-span-2 flex flex-col items-center justify-center py-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10">
+                          <Lock size={32} className="text-zinc-600 mb-3" />
+                          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Efektiniz Yok</p>
+                          <p className="text-[8px] text-zinc-600 mb-4">Aura Market'ten efekt satın alabilirsiniz.</p>
+                          <button
+                            onClick={() => { navigate('/market'); setIsDrawerOpen(false); }}
+                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[9px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all flex items-center gap-1.5"
+                          >
+                            <ShoppingCart size={12} /> Market'e Git
+                          </button>
+                        </div>
+                      )}
                    </div>
                 </div>
              </motion.div>

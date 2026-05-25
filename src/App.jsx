@@ -42,6 +42,7 @@ const OraclePage = lazy(() => import('./pages/OraclePage.jsx'));
 const PopularityPage = lazy(() => import('./pages/PopularityPage.jsx'));
 const AetheSanctuary = lazy(() => import('./pages/AetheSanctuary.jsx'));
 const HouseInfo = lazy(() => import('./pages/HouseInfo.jsx'));
+const AuraMarket = lazy(() => import('./pages/AuraMarket.jsx'));
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
@@ -88,6 +89,7 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/popular" element={<PopularityPage />} />
           <Route path="/aethe-sanctuary" element={<AetheSanctuary />} />
           <Route path="/haneler" element={<HouseInfo />} />
+          <Route path="/market" element={<PrivateRoute><AuraMarket /></PrivateRoute>} />
           <Route path="/:username/liste/:listId" element={<ListDetail />} />
           <Route path="/:slug" element={<StaticPage />} />
         </Routes>

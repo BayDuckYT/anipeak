@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet as WalletIcon, Sparkles, ShieldCheck, Zap, ArrowRight, CreditCard, Clock, History } from 'lucide-react';
+import { Wallet as WalletIcon, Sparkles, ShieldCheck, Zap, ArrowRight, CreditCard, Clock, History, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSEO } from '../hooks/useSEO';
 import { supabase } from '../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 const AURA_PACKAGES = [
   { id: 1, aura: 25000, price: 25, popular: false, bonus: 0 },
@@ -17,6 +18,7 @@ const AURA_PACKAGES = [
 
 export default function Wallet() {
   const { user, updateProfile } = useAuth();
+  const navigate = useNavigate();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGift, setIsGift] = useState(false);
@@ -135,6 +137,12 @@ export default function Wallet() {
                 <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-emerald-400" /> %100 Güvenli</span>
                 <span className="flex items-center gap-2"><Zap size={16} className="text-blue-400" /> Anında Teslimat</span>
              </div>
+             <button
+                onClick={() => navigate('/market')}
+                className="mt-6 flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-black uppercase tracking-widest shadow-[0_0_20px_rgba(124,58,237,0.4)] hover:shadow-[0_0_30px_rgba(124,58,237,0.6)] transition-all hover:scale-105 active:scale-95"
+              >
+                <ShoppingCart size={16} /> Aura Market'e Git
+              </button>
            </div>
 
            {/* Balance Display */}
