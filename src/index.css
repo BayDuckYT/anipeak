@@ -759,3 +759,38 @@ body {
   background-position: center;
 }
 
+/* ── NETFLIX PREMIUM THEME UTILITIES ── */
+.netflix-row-container {
+  /* To avoid cutting off scaled cards, we add generous vertical padding */
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  margin-top: -1.5rem;
+  margin-bottom: -1.5rem;
+}
+
+.netflix-card {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), z-index 0s 0.3s;
+  z-index: 1;
+  transform-origin: center bottom;
+}
+
+.netflix-card:hover {
+  transform: scale(1.15) translateY(-5px);
+  z-index: 50;
+  transition-delay: 0.1s;
+}
+
+/* For the first and last items in the row, adjust transform origin so they don't go off-screen */
+.netflix-row-container > div > div > div:first-child .netflix-card:hover {
+  transform-origin: left bottom;
+}
+.netflix-row-container > div > div > div:last-child .netflix-card:hover {
+  transform-origin: right bottom;
+}
+
+/* Solid Navbar Background for Scroll */
+.header-solid-dark {
+  background-color: #070511 !important;
+  background-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(7,5,17,0.95)) !important;
+}
+

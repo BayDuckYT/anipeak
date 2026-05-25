@@ -34,10 +34,15 @@ export default {
           '0%': { transform: 'translateX(100vw)' },
           '100%': { transform: 'translateX(-100%)' },
         },
+        kenburns: {
+          '0%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(1.15)' },
+        },
       },
       animation: {
         'marquee': 'marquee 40s linear infinite',
         'marquee-slide': 'marquee-slide 15s linear infinite',
+        kenburns: 'kenburns 20s ease-out forwards',
       }
     },
   },

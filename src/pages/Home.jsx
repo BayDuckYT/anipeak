@@ -29,63 +29,58 @@ const staggerContainer = {
   }
 };
 
-// ── Ultra-Premium Glass Card ──
+// ── Ultra-Premium Netflix Style Card ──
 function GlassCard({ item, type = 'trending', rank, chapters }) {
   const isTrending = type === 'trending';
   const chapterData = chapters ? (chapters[String(item.id)]?.[0]?.number || '?') : '?';
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="group block w-[150px] sm:w-[180px] flex-shrink-0" aria-label={`${item.title} okumaya başla`}>
-      <motion.article 
-        whileHover={{ y: -8, scale: 1.02 }}
-        style={{ contentVisibility: 'auto', containIntrinsicSize: '180px 240px' }}
-        className="relative rounded-2xl overflow-hidden bg-[#130E26]/60 backdrop-blur-xl border border-white/5 transition-all duration-300 group-hover:border-purple-500/50 group-hover:shadow-[0_0_25px_rgba(168,85,247,0.25)]"
+    <Link to={`/manhwa/${item.id}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" aria-label={`${item.title} okumaya başla`}>
+      <article 
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '200px 280px' }}
+        className="relative rounded-md overflow-hidden bg-[#141414] border border-white/5 transition-all duration-300 shadow-xl"
       >
         {isTrending && rank && (
           <div className="absolute top-0 left-0 z-20 pointer-events-none">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-br-2xl text-lg font-black italic shadow-lg ${
-              rank === 1 ? 'bg-gradient-to-br from-amber-300 to-amber-600 text-[#070511]' : 
-              rank === 2 ? 'bg-gradient-to-br from-slate-200 to-slate-400 text-[#070511]' : 
-              rank === 3 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' : 
-              'bg-gradient-to-br from-purple-500 to-blue-600 text-white'
+            <div className={`flex items-center justify-center w-10 h-10 rounded-br-md text-xl font-black italic shadow-[0_4px_10px_rgba(0,0,0,0.5)] ${
+              rank === 1 ? 'bg-gradient-to-br from-[#E50914] to-red-900 text-white' : 
+              rank === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-[#141414]' : 
+              rank === 3 ? 'bg-gradient-to-br from-orange-500 to-orange-800 text-white' : 
+              'bg-gradient-to-br from-zinc-700 to-zinc-900 text-white'
             }`}>
               #{rank}
             </div>
           </div>
         )}
-        <div className="relative aspect-[3/4] overflow-hidden bg-[#070511]">
+        <div className="relative aspect-[2/3] overflow-hidden bg-[#070511]">
           <img 
             src={getOptimizedImage(item.cover, 300)} 
             alt={item.title} 
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
+            className="w-full h-full object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-100" 
             loading="lazy"
             decoding="async"
-            width={180}
-            height={240}
+            width={200}
+            height={300}
             onError={handleImageError} 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/20 to-transparent opacity-90 transition-opacity duration-300" />
+          {/* Netflix style bottom gradient */}
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           
-          <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2 py-1 bg-black/40 backdrop-blur-md rounded border border-white/10">
-            <Star size={12} className="text-amber-400 fill-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]" />
-            <span className="text-white text-[11px] font-black">{item.rating}</span>
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 bg-black/60 backdrop-blur-md rounded border border-white/10 opacity-100 transition-opacity">
+            <Star size={10} className="text-amber-400 fill-amber-400" />
+            <span className="text-white text-[10px] font-bold">{item.rating}</span>
+          </div>
+
+          {/* Hover Details overlaying the image */}
+          <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-1 z-10">
+            <h3 className="text-white text-sm font-black truncate shadow-black drop-shadow-md">{item.title}</h3>
+            <div className="flex items-center gap-2 text-[10px] font-bold">
+              <span className="text-emerald-400 drop-shadow-md">{chapterData} Bölüm</span>
+              <span className="text-slate-300 drop-shadow-md truncate">{Array.isArray(item.genre) ? item.genre[0] : item.genre || 'Aksiyon'}</span>
+            </div>
           </div>
         </div>
-        
-        <div className="p-4 relative z-10">
-          <h3 className="text-slate-100 text-sm font-bold truncate group-hover:text-purple-300 transition-colors" title={item.title}>{item.title}</h3>
-          {!isTrending && (
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-purple-400/90 text-[11px] font-black tracking-wider uppercase bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
-                Bölüm {chapterData}
-              </span>
-            </div>
-          )}
-          {isTrending && (
-             <p className="text-slate-400 text-xs mt-1.5 truncate font-medium">{Array.isArray(item.genre) ? item.genre[0] : item.genre || 'Aksiyon'}</p>
-          )}
-        </div>
-      </motion.article>
+      </article>
     </Link>
   );
 }
@@ -184,129 +179,96 @@ export default function Home({ onAuthOpen }) {
   return (
     <main className="min-h-screen bg-[#070511] text-slate-200 selection:bg-purple-500/30" id="home-top">
       
-      {/* ── 1. DİNAMİK HERO CAROUSEL (AnimeRank Stili) ── */}
+      {/* ── 1. DİNAMİK HERO CAROUSEL (Netflix Stili) ── */}
       {activeHero && (
-        <section className="relative w-full min-h-[85vh] lg:h-[85vh] max-h-[900px] flex items-center overflow-hidden border-b border-white/5">
+        <section className="relative w-full h-[85vh] lg:h-screen min-h-[600px] flex items-center overflow-hidden bg-[#141414]">
           <AnimatePresence mode="wait">
-            {/* Arka Plan (Bulanık ve Karanlık) */}
             <motion.div
               key={activeHero.id}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 1.5 }}
               className="absolute inset-0 z-0"
             >
-              <img 
-                src={activeHeroImage} 
-                alt={`${activeHero.title} arkaplan`} 
-                width="1920"
-                height="1080"
-                className="w-full h-full object-cover opacity-30 filter blur-xl scale-110"
-                fetchpriority={currentHeroIndex === 0 ? "high" : "auto"}
-                loading={currentHeroIndex === 0 ? "eager" : "lazy"}
-              />
-              <div className="absolute inset-0 bg-[#070511]/70" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#070511]/80 via-transparent to-transparent h-48" />
+              {/* Ken Burns Effect using a slower transition scale */}
+              <div className="w-full h-full transform scale-105 animate-[kenburns_20s_ease-out_forwards]">
+                <img 
+                  src={activeHeroImage} 
+                  alt={`${activeHero.title} arkaplan`} 
+                  width="1920"
+                  height="1080"
+                  className="w-full h-full object-cover object-top opacity-70 lg:opacity-80"
+                  fetchpriority={currentHeroIndex === 0 ? "high" : "auto"}
+                  loading={currentHeroIndex === 0 ? "eager" : "lazy"}
+                />
+              </div>
+              
+              {/* Netflix Gradients: Darker left side, fade to bottom */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/60 to-transparent w-full lg:w-[70%]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-transparent to-transparent h-full" />
+              <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#070511] to-transparent z-10" />
             </motion.div>
           </AnimatePresence>
 
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 lg:mt-0 pt-16 pb-20 lg:py-0">
+          <div className="relative z-20 w-full px-4 sm:px-12 lg:px-24 mt-20 lg:mt-0 pt-16 pb-20 lg:py-0">
             <AnimatePresence mode="wait">
               <motion.div 
                 key={`content-${activeHero.id}`}
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 30 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                className="flex flex-col lg:w-[50%]"
               >
-                {/* Sol: Poster Kartı */}
-                <div className="w-[200px] sm:w-[260px] lg:w-[320px] flex-shrink-0 group">
-                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-white/10 group-hover:border-purple-500/50 transition-colors duration-500">
-                    <img 
-                      src={getOptimizedImage(activeHero.cover, 600)} 
-                      alt={activeHero.title} 
-                      width="600"
-                      height="800"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      loading={currentHeroIndex === 0 ? "eager" : "lazy"}
-                      fetchpriority={currentHeroIndex === 0 ? "high" : "auto"}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-                  </div>
+                
+                {/* Title */}
+                <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1] mb-6 drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+                  {activeHero.title}
+                </h1>
+                
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm sm:text-base font-bold text-slate-300 mb-6 uppercase tracking-wider drop-shadow-md">
+                  <span className="text-emerald-400">{activeHero.rating} Puan</span>
+                  <span>{heroChapterCount} Bölüm</span>
+                  <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">
+                    {Array.isArray(activeHero.genre) ? activeHero.genre[0] : activeHero.genre || 'AKSİYON'}
+                  </span>
+                  <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">HD</span>
                 </div>
 
-                {/* Sağ: Bilgiler */}
-                <div className="flex-1 text-center lg:text-left">
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-full"
-                  >
-                    <Sparkles size={14} className="text-cyan-400" />
-                    <span className="text-[10px] font-black tracking-[0.2em] text-cyan-400 uppercase">
-                      Günün Öne Çıkanı
-                    </span>
-                  </motion.div>
-                  
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-4 drop-shadow-lg">
-                    {activeHero.title}
-                  </h1>
-                  
-                  <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 line-clamp-3 lg:line-clamp-4 font-medium opacity-90 max-w-2xl mx-auto lg:mx-0">
-                    {activeHero.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi seni bekliyor."}
-                  </p>
-                  
-                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 text-xs font-bold text-slate-300 mb-8 uppercase tracking-widest">
-                    <span className="flex items-center gap-1.5 text-amber-400">
-                      <Star size={14} className="fill-amber-400" /> {activeHero.rating} Puan
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-slate-600" />
-                    <span className="flex items-center gap-1.5 text-white">
-                      <BookOpen size={14} className="text-slate-400" /> {heroChapterCount} Bölüm
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-slate-600" />
-                    <span className="flex items-center gap-1.5 text-purple-400">
-                      <Flame size={14} /> {Array.isArray(activeHero.genre) ? activeHero.genre[0] : activeHero.genre || 'Aksiyon'}
-                    </span>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                    <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black text-sm rounded-xl hover:from-purple-500 hover:to-blue-500 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-[0_0_20px_rgba(168,85,247,0.4)]">
-                      <Play size={16} className="fill-white" /> OKUMAYA BAŞLA
-                    </Link>
-                    <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-4 bg-white/5 backdrop-blur-md text-white border border-white/10 font-bold text-sm rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 active:scale-95">
-                      <Plus size={16} /> Listeye Ekle
-                    </button>
-                  </div>
+                <p className="text-slate-200 text-base sm:text-lg leading-relaxed mb-10 line-clamp-3 lg:line-clamp-4 font-medium drop-shadow-md max-w-2xl">
+                  {activeHero.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi seni bekliyor."}
+                </p>
+                
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                  <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-3.5 bg-white text-black font-bold text-lg rounded md:rounded-md hover:bg-white/80 transition-all flex items-center justify-center gap-3 active:scale-95">
+                    <Play size={24} className="fill-black" /> Oynat
+                  </Link>
+                  <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-3.5 bg-[#6d6d6eb3] hover:bg-[#6d6d6e] text-white font-bold text-lg rounded md:rounded-md backdrop-blur-sm transition-colors flex items-center justify-center gap-3 active:scale-95">
+                    <Plus size={24} /> Daha Fazla Bilgi
+                  </button>
                 </div>
               </motion.div>
             </AnimatePresence>
 
-            {/* Carousel Okları (Desktop) */}
+            {/* Carousel Okları (Desktop) - Netflix usually hides them or puts them on edges */}
             <button 
               onClick={() => setCurrentHeroIndex(prev => (prev - 1 + heroItems.length) % heroItems.length)}
-              className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/40 hover:bg-black/80 border border-white/10 rounded-full items-center justify-center text-white backdrop-blur-md transition-all z-20 hover:scale-110"
+              className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-16 h-full items-center justify-center text-white/50 hover:text-white transition-all z-20"
               aria-label="Önceki"
             >
-              <ChevronRight size={24} className="rotate-180" />
+              <ChevronRight size={48} className="rotate-180 drop-shadow-lg" />
             </button>
             <button 
               onClick={() => setCurrentHeroIndex(prev => (prev + 1) % heroItems.length)}
-              className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/40 hover:bg-black/80 border border-white/10 rounded-full items-center justify-center text-white backdrop-blur-md transition-all z-20 hover:scale-110"
+              className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-16 h-full items-center justify-center text-white/50 hover:text-white transition-all z-20"
               aria-label="Sonraki"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={48} className="drop-shadow-lg" />
             </button>
-
-            {/* Carousel Noktaları (Mobil) */}
-            <div className="lg:hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-              {heroItems.map((_, idx) => (
-                <button 
-                  key={idx}
-                  onClick={() => setCurrentHeroIndex(idx)}
+          </div>
+        </section>
+      )}x)}
                   aria-label={`Slayt ${idx + 1}`}
                   className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-8 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'w-2 bg-white/30 hover:bg-white/60'}`}
                 />
@@ -316,11 +278,11 @@ export default function Home({ onAuthOpen }) {
         </section>
       )}
 
-      {/* ── İÇERİK IZGARASI ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
-        <div className="flex flex-col xl:flex-row gap-8 lg:gap-16">
+      {/* ── İÇERİK BÖLÜMÜ (Netflix Rows) ── */}
+      <div className="w-full px-4 sm:px-12 lg:px-16 py-8 sm:py-12 bg-[#141414] min-h-screen">
+        <div className="flex flex-col gap-12 sm:gap-16">
           
-          <div className="flex-1 min-w-0 space-y-20">
+          <div className="flex-1 min-w-0 space-y-12 sm:space-y-16">
             
             {/* 2. TREND SERİLER (Yatay Scroll) */}
             <motion.section 
@@ -340,9 +302,15 @@ export default function Home({ onAuthOpen }) {
                 </Link>
               </div>
               
-              <VirtualHScroll items={trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5)} itemWidth={180} gap={20} renderItem={(item, i) => (
-                <GlassCard key={item.id} item={item} type="trending" rank={i + 1} />
-              )} />
+              <VirtualHScroll 
+                items={trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5)} 
+                itemWidth={200} 
+                gap={16} 
+                className="netflix-row-container"
+                renderItem={(item, i) => (
+                  <GlassCard key={item.id} item={item} type="trending" rank={i + 1} />
+                )} 
+              />
             </motion.section>
 
             {/* 3. EN POPÜLERLER KÜRSÜSÜ (Elite Podium) */}
@@ -384,13 +352,15 @@ export default function Home({ onAuthOpen }) {
                     ))}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
-                  {newChapterSeries.map((item) => (
-                    <motion.div key={item.id} variants={fadeInUp}>
-                      <GlassCard item={item} type="new" chapters={chapters} />
-                    </motion.div>
-                  ))}
-                </div>
+                <VirtualHScroll 
+                  items={newChapterSeries} 
+                  itemWidth={200} 
+                  gap={16} 
+                  className="netflix-row-container"
+                  renderItem={(item) => (
+                    <GlassCard key={item.id} item={item} type="new" chapters={chapters} />
+                  )} 
+                />
               </motion.section>
             </LazySection>
 
@@ -423,43 +393,7 @@ export default function Home({ onAuthOpen }) {
 
           </div>
 
-          {/* SAĞ SÜTUN (Desktop Sidebar) */}
-          <aside className="hidden xl:block w-[320px] flex-shrink-0 space-y-8">
-            
-            {/* Duyurular - Glassmorphism */}
-            {announcements.length > 0 && (
-              <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="bg-[#130E26]/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-2xl rounded-full" />
-                <h3 className="text-white font-black text-sm uppercase tracking-wider mb-6 flex items-center gap-2 relative z-10">
-                  <Bell size={18} className="text-purple-400" /> Son Duyurular
-                </h3>
-                <div className="space-y-4 relative z-10">
-                  {announcements.slice(0, 4).map((ann) => (
-                    <div key={ann.id} className="flex items-start gap-4 text-sm text-slate-300 pb-4 border-b border-white/5 last:border-0 last:pb-0">
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
-                      <p className="flex-1 leading-relaxed text-[13px]">{ann.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Tür Keşfet */}
-            <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="bg-[#130E26]/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sticky top-24 shadow-xl">
-               <h3 className="text-white font-black text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
-                <Compass size={18} className="text-cyan-400" /> Tür Keşfet
-              </h3>
-              <div className="flex flex-wrap gap-2.5">
-                {['Aksiyon', 'Romantik', 'Fantezi', 'Okul', 'Komedi', 'Macera', 'Dram', 'Shounen', 'Seinen', 'Büyü'].map(g => (
-                  <Link key={g} to={`/all-series?genre=${g}`} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[11px] font-black tracking-wider uppercase text-slate-300 hover:text-white hover:bg-cyan-500/20 hover:border-cyan-500/40 transition-all hover:scale-105 active:scale-95 shadow-sm">
-                    {g}
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-            
-          </aside>
-
+          </div>
         </div>
       </div>
     </main>
