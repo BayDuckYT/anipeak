@@ -77,12 +77,20 @@ export default function Wallet() {
       if (codeData.used_count >= codeData.max_uses) throw new Error("Bu kodun kullanım limiti dolmuş.");
       if (codeData.type !== 'aura') throw new Error("Bu kod Aura puanı için geçerli değil.");
       
+      const codeStr = promoCode.trim().toUpperCase();
+      
+      const usedCodes = user.used_promo_codes || [];
+      if (usedCodes.includes(codeStr)) {
+        throw new Error("Bu kod zaten kullanılmış.");
+      }
+      
       const auraValue = parseInt(codeData.value);
       if (isNaN(auraValue)) throw new Error("Geçersiz aura değeri.");
 
       // Update user's aura balance via context to sync cache
       const newAura = (user.aura || 0) + auraValue;
-      await updateProfile({ aura: newAura });
+      const newUsedCodes = [...usedCodes, codeStr];
+      await updateProfile({ aura: newAura, used_promo_codes: newUsedCodes });
 
       // Increment used_count
       await supabase.from('promo_codes')
