@@ -1175,6 +1175,8 @@ function UsersPanel({ showToast }) {
                   <Save size={18} /> Profili Güncelle
                 </button>
               </div>
+            </motion.div>
+            </div>
             </div>
           )}
         </AnimatePresence>,
@@ -2272,6 +2274,8 @@ export default function Admin() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+            </div>
             </div>
           )}
         </AnimatePresence>,
