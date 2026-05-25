@@ -269,14 +269,16 @@ export default function Wallet() {
       {/* Purchase Modal */}
       <AnimatePresence>
         {isModalOpen && selectedPackage && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar bg-[#070511] border border-white/10 rounded-3xl p-8 shadow-2xl"
-            >
+          <div className="fixed inset-0 z-[200] overflow-y-auto">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+            
+            <div className="flex min-h-full items-center justify-center p-4 relative">
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }} 
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="relative w-full max-w-md rounded-3xl bg-[#070511] border border-white/10 shadow-2xl overflow-hidden my-8"
+              >
               <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 blur-[50px] -translate-y-1/2 translate-x-1/2" />
               
               <div className="text-center space-y-4 relative z-10">
@@ -323,6 +325,7 @@ export default function Wallet() {
                 </div>
               </div>
             </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence>

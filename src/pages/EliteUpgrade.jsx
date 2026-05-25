@@ -578,22 +578,22 @@ export default function EliteUpgrade() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-            onClick={() => setSelectedPlan(null)}
+            className="fixed inset-0 z-[9999] overflow-y-auto"
           >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setSelectedPlan(null)} />
             
-            {/* Modal Content */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', damping: 25 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar rounded-[2.5rem] border border-white/10 bg-[#0c0b15] shadow-2xl"
-              style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
-            >
+            <div className="flex min-h-full items-center justify-center p-4 relative">
+              {/* Modal Content */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', damping: 25 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-lg rounded-[2.5rem] border border-white/10 bg-[#0c0b15] shadow-2xl overflow-hidden my-8"
+                style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
+              >
               {/* Modal Header */}
               <div className="relative p-8 pb-6">
                 <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
