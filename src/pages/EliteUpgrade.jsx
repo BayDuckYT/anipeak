@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Crown, Check, ArrowRight, Zap, Star, Shield, 
@@ -572,8 +573,9 @@ export default function EliteUpgrade() {
       </div>
 
       {/* ── PURCHASE CONFIRMATION MODAL ── */}
-      <AnimatePresence>
-        {selectedPlan && (
+      {createPortal(
+        <AnimatePresence>
+          {selectedPlan && (
           <motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
@@ -686,7 +688,9 @@ export default function EliteUpgrade() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       <style>{`
         @keyframes marquee-slower {

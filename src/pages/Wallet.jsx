@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet as WalletIcon, Sparkles, ShieldCheck, Zap, ArrowRight, CreditCard, Clock, History } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -267,8 +268,9 @@ export default function Wallet() {
       </div>
 
       {/* Purchase Modal */}
-      <AnimatePresence>
-        {isModalOpen && selectedPackage && (
+      {createPortal(
+        <AnimatePresence>
+          {isModalOpen && selectedPackage && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
             
@@ -326,7 +328,9 @@ export default function Wallet() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
