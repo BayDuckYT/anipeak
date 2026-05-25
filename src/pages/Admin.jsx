@@ -1133,9 +1133,20 @@ function UsersPanel({ showToast }) {
                     </select>
                   </div>
                   <div className="col-span-2 md:col-span-1">
-                    <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1">Kazanılan XP</label>
+                    <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1">Kazanılan XP (Lvl: {Math.floor((editingUser.xp || 0) / 1000) + 1})</label>
                     <input type="number" value={editingUser.xp || 0} onChange={e => setEditingUser(p => ({ ...p, xp: parseInt(e.target.value) || 0 }))}
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-all shadow-inner" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1">Premium Paket (Abonelik)</label>
+                    <select value={editingUser.active_plan_id || 'none'} onChange={e => setEditingUser(p => ({ ...p, active_plan_id: e.target.value }))}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner">
+                      <option value="none" className="bg-[#0a0a14]">Normal Kullanıcı (Yok)</option>
+                      <option value="pro" className="bg-[#0a0a14]">Pro Üye</option>
+                      <option value="shadow" className="bg-[#0a0a14]">Hükümdar Gölgesi</option>
+                      <option value="ruler" className="bg-[#0a0a14]">Hükümdar</option>
+                      <option value="aethe" className="bg-[#0a0a14]">Efsanevi Aethe</option>
+                    </select>
                   </div>
                 </div>
                 
@@ -1151,7 +1162,13 @@ function UsersPanel({ showToast }) {
                 <button onClick={() => setEditingUser(null)} className="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold text-sm transition-colors">İptal Et</button>
                 <button onClick={async () => {
                   try {
-                    const updates = { role: editingUser.role, username: editingUser.username, email: editingUser.email, xp: editingUser.xp };
+                    const updates = { 
+                      role: editingUser.role, 
+                      username: editingUser.username, 
+                      email: editingUser.email, 
+                      xp: editingUser.xp,
+                      active_plan_id: editingUser.active_plan_id === 'none' ? null : editingUser.active_plan_id
+                    };
                     await updateProfile(editingUser.id, updates);
                     setEditingUser(null);
                     showToast('Profil başarıyla mühürlendi!', 'success');
