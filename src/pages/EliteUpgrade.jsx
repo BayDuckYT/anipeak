@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Crown, Check, ArrowRight, Zap, Star, Shield, 
   Monitor, Clock, Gift, Layout, Download, Sparkles,
-  Palette, Box, Users, Trophy, Rocket, Ghost, Infinity, AlertTriangle
+  Palette, Box, Users, Trophy, Rocket, Ghost, Infinity, AlertTriangle, X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -240,7 +240,7 @@ export default function EliteUpgrade() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4 mb-32">
             {plans.map((plan, idx) => {
               const isAethe = plan.id === 'aethe';
               
@@ -268,73 +268,70 @@ export default function EliteUpgrade() {
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
                   whileHover={{ scale: 1.03, y: -10 }}
-                  className="relative flex flex-col w-full rounded-[2rem] overflow-hidden group cursor-pointer"
+                  className="relative flex flex-col w-full rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5 bg-[#0A0A10]"
                 >
                   {/* Arkaplan Görseli (Tasarımın Kendisi, kendi boyutunda) */}
-                  <img 
-                    src={plan.bgImage} 
-                    alt={plan.name}
-                    loading="lazy"
-                    className="w-full h-auto block z-0 transition-transform duration-700 group-hover:scale-[1.02]"
-                  />
+                  <div className="h-48 w-full overflow-hidden relative">
+                    <img 
+                      src={plan.bgImage} 
+                      alt={plan.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A10] to-transparent z-10" />
+                  </div>
 
-                  {/* Koyu Degrade (Yazıların okunabilirliğini garantilemek için) */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none" />
-
-                  {/* İçerik Konteyneri (Resmin üzerine yerleşir) */}
-                  <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 md:p-6">
+                  {/* İçerik Konteyneri */}
+                  <div className="relative z-20 flex flex-col flex-grow p-6 -mt-12">
                     
-                    {/* Üstteki etiketler (Opsiyonel) */}
+                    {/* Üstteki etiketler */}
                     {plan.savings && (
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/50 backdrop-blur-md">
+                      <div className="absolute top-0 right-6 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/50 backdrop-blur-md">
                         <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{plan.savings}</span>
                       </div>
                     )}
                     {plan.is_popular && (
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 backdrop-blur-md flex items-center gap-1">
+                      <div className="absolute top-0 right-6 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 backdrop-blur-md flex items-center gap-1">
                         <Star size={10} className="text-amber-400 fill-amber-400" />
                         <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">En Popüler</span>
                       </div>
                     )}
                     {isAethe && (
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/50 backdrop-blur-md flex items-center gap-1 animate-pulse">
+                      <div className="absolute top-0 right-6 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/50 backdrop-blur-md flex items-center gap-1 animate-pulse">
                         <AlertTriangle size={10} className="text-rose-400" />
                         <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Son 20 Kişi</span>
                       </div>
                     )}
 
                     {/* Fiyat ve Süre */}
-                    <div className="text-center mb-8 transform transition-transform duration-500 group-hover:-translate-y-2">
-                      <div className="flex items-baseline justify-center gap-1 mb-1 drop-shadow-2xl">
-                        <span className={`text-4xl lg:text-5xl font-black ${
-                          plan.color === 'cyan' ? 'text-white' :
-                          plan.color === 'purple' ? 'text-white' :
-                          plan.color === 'amber' ? 'text-amber-100' :
-                          'text-rose-100'
-                        }`}>₺{plan.price.toFixed(0)}</span>
+                    <div className="mb-6 mt-4 border-b border-white/5 pb-6">
+                      <h3 className={`text-xl font-black uppercase tracking-wider mb-2 ${
+                        plan.color === 'cyan' ? 'text-cyan-400' :
+                        plan.color === 'purple' ? 'text-purple-400' :
+                        plan.color === 'amber' ? 'text-amber-400' :
+                        'text-rose-400'
+                      }`}>{plan.name}</h3>
+                      <div className="flex items-baseline gap-1 mb-1">
+                        <span className="text-4xl lg:text-5xl font-black text-white">₺{plan.price.toFixed(0)}</span>
                       </div>
-                      <span className={`text-xs font-black uppercase tracking-[0.4em] ${
-                        plan.color === 'amber' ? 'text-amber-400/80' : 
-                        plan.color === 'rose' ? 'text-rose-400/80' : 
-                        'text-slate-300'
-                      }`}>
+                      <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
                         {plan.duration}
                       </span>
                     </div>
 
                     {/* Özellikler */}
-                    <div className="space-y-3.5 mb-8">
+                    <div className="space-y-4 mb-8 flex-grow">
                       {plan.features.map((feature, i) => (
                         <div key={i} className="flex items-start gap-3 group/item">
-                          <div className={`mt-0.5 shrink-0 transition-transform duration-300 group-hover/item:scale-125 ${
-                            plan.color === 'cyan' ? 'text-cyan-400' :
-                            plan.color === 'purple' ? 'text-purple-400' :
-                            plan.color === 'amber' ? 'text-amber-400' :
+                          <div className={`mt-1 shrink-0 ${
+                            plan.color === 'cyan' ? 'text-cyan-500' :
+                            plan.color === 'purple' ? 'text-purple-500' :
+                            plan.color === 'amber' ? 'text-amber-500' :
                             'text-rose-500'
                           }`}>
-                            <Check size={14} strokeWidth={3} />
+                            <Check size={16} strokeWidth={3} />
                           </div>
-                          <span className="text-xs md:text-[13px] font-bold text-slate-200 leading-snug drop-shadow-md">
+                          <span className="text-sm font-bold text-slate-300 leading-snug">
                             {feature}
                           </span>
                         </div>
@@ -344,7 +341,7 @@ export default function EliteUpgrade() {
                     {/* Aksiyon Butonu */}
                     <button 
                       onClick={() => handleUpgrade(plan)}
-                      className={`w-full py-4 rounded-2xl font-black text-xs md:text-[13px] uppercase tracking-[0.2em] transition-all duration-500 border-2 flex items-center justify-center gap-2 backdrop-blur-sm ${buttonClasses[plan.color]}`}
+                      className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-[0.1em] transition-all duration-300 flex items-center justify-center gap-2 ${buttonClasses[plan.color]}`}
                     >
                       {buttonIcons[plan.color]}
                       <span>{isAethe ? 'DISCORD\'DAN AL' : 'PAKETİ SEÇ'}</span>
@@ -353,6 +350,71 @@ export default function EliteUpgrade() {
                 </motion.div>
               );
             })}
+          </div>
+
+          {/* ── 4. KARŞILAŞTIRMA TABLOSU ── */}
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-black text-white tracking-tight uppercase mb-4">
+                ÖZELLİK <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">KARŞILAŞTIRMASI</span>
+              </h2>
+              <p className="text-slate-400 text-sm font-medium">Hangi efsanevi paketin sana uygun olduğunu detaylıca incele.</p>
+            </div>
+
+            <div className="overflow-x-auto custom-scrollbar pb-6">
+              <table className="w-full min-w-[800px] border-collapse">
+                <thead>
+                  <tr>
+                    <th className="p-6 text-left border-b border-white/10 w-1/3">
+                      <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Özellik</span>
+                    </th>
+                    <th className="p-6 text-center border-b border-white/10">
+                      <span className="text-sm font-black text-cyan-400 uppercase tracking-widest">PRO</span>
+                    </th>
+                    <th className="p-6 text-center border-b border-white/10 bg-purple-900/10 rounded-t-xl">
+                      <span className="text-sm font-black text-purple-400 uppercase tracking-widest">GÖLGE</span>
+                    </th>
+                    <th className="p-6 text-center border-b border-amber-500/30 bg-amber-900/10 rounded-t-xl">
+                      <span className="text-sm font-black text-amber-400 uppercase tracking-widest">HÜKÜMDAR</span>
+                    </th>
+                    <th className="p-6 text-center border-b border-white/10">
+                      <span className="text-sm font-black text-rose-400 uppercase tracking-widest">AETHE</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm font-bold text-slate-300">
+                  {/* Satır Öğeleri */}
+                  {[
+                    { label: 'Reklamsız Okuma', pro: true, shadow: true, ruler: true, aethe: true },
+                    { label: 'Bölümleri Çevrimdışı İndirme', pro: 'Limitli (Günlük 10)', shadow: 'Sınırsız', ruler: 'Sınırsız', aethe: 'Sınırsız' },
+                    { label: 'Özel Profil Çerçevesi', pro: true, shadow: 'Dinamik', ruler: 'Animasyonlu', aethe: 'Efsanevi Kırmızı Aura' },
+                    { label: 'Sohbet ve Yorum Rengi', pro: 'Mavi Ton', shadow: 'Mor Ton', ruler: 'Altın Parlaması', aethe: 'Kan Kırmızısı Efekti' },
+                    { label: 'Yeni Bölümlere Erken Erişim', pro: false, shadow: '+24 Saat', ruler: '+48 Saat', aethe: '+48 Saat' },
+                    { label: 'Discord Özel Rolü', pro: false, shadow: 'Gölge Rolü', ruler: 'Hükümdar Rolü', aethe: 'Kadim Aethe Rolü' },
+                    { label: 'İsim Plakası', pro: '5 Adet', shadow: '15 Adet', ruler: '30 Adet', aethe: 'Tümü Açık' },
+                    { label: 'Avatar Efekti', pro: '10 Adet', shadow: '30 Adet', ruler: '100 Adet', aethe: 'Tümü Açık' },
+                    { label: 'VIP Müşteri Desteği', pro: false, shadow: false, ruler: '7/24 Öncelikli', aethe: '7/24 Direkt Hat' },
+                    { label: 'Haneler Savaşına Katılım', pro: false, shadow: false, ruler: false, aethe: true }
+                  ].map((row, i) => (
+                    <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                      <td className="p-6 text-slate-400">{row.label}</td>
+                      <td className="p-6 text-center">
+                        {typeof row.pro === 'boolean' ? (row.pro ? <Check size={20} className="mx-auto text-cyan-400" /> : <X size={20} className="mx-auto text-slate-700" />) : <span className="text-cyan-200">{row.pro}</span>}
+                      </td>
+                      <td className="p-6 text-center bg-purple-900/5">
+                        {typeof row.shadow === 'boolean' ? (row.shadow ? <Check size={20} className="mx-auto text-purple-400" /> : <X size={20} className="mx-auto text-slate-700" />) : <span className="text-purple-200">{row.shadow}</span>}
+                      </td>
+                      <td className="p-6 text-center bg-amber-900/5 border-l border-r border-amber-500/10">
+                        {typeof row.ruler === 'boolean' ? (row.ruler ? <Check size={20} className="mx-auto text-amber-400" /> : <X size={20} className="mx-auto text-slate-700" />) : <span className="text-amber-200">{row.ruler}</span>}
+                      </td>
+                      <td className="p-6 text-center">
+                        {typeof row.aethe === 'boolean' ? (row.aethe ? <Check size={20} className="mx-auto text-rose-400" /> : <X size={20} className="mx-auto text-slate-700" />) : <span className="text-rose-200">{row.aethe}</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 

@@ -599,11 +599,12 @@ function QuickAddForm({ seriesList, showToast }) {
           </div>
           <div>
             <div className="flex items-center justify-between mb-1.5 ml-1">
-              <label className="text-[10px] uppercase font-bold text-slate-500">Arka Plan (Hero) URL</label>
+              <label className="text-[10px] uppercase font-bold text-slate-500">Arka Plan (VİTRİN/HERO) URL</label>
               <label className="cursor-pointer text-[9px] font-black text-green-400 hover:text-green-300">
                 Yükle <input type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'hero_bg')} />
               </label>
             </div>
+            <p className="text-[9px] text-slate-500 ml-1 mb-2">Bu alana görsel yüklerseniz, bu seri ana sayfadaki büyük "Hero" kaydırıcısında görünür. Kaldırmak için alanı boş bırakın.</p>
             <input type="url" value={newSeries.hero_bg} onChange={e => setNewSeries(p => ({ ...p, hero_bg: e.target.value }))} className={inputCls} placeholder="Opsiyonel yatay banner..." />
           </div>
           <div>
@@ -1854,6 +1855,16 @@ export default function Admin() {
                         <img src={editingSeries.cover} className="w-24 h-32 rounded-xl object-cover border border-white/10 shadow-lg" alt="" />
                         <input type="url" value={editingSeries.cover} onChange={e => setEditingSeries({ ...editingSeries, cover: e.target.value })}
                           className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest flex items-center gap-2">
+                        Arka Plan (VİTRİN) URL <span className="text-[9px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full lowercase">Görsel varsa ana sayfada vitrinde çıkar</span>
+                      </label>
+                      <div className="flex gap-4 items-start">
+                        {editingSeries.hero_bg ? <img src={editingSeries.hero_bg} className="w-32 h-20 rounded-xl object-cover border border-white/10 shadow-lg" alt="Hero" /> : null}
+                        <input type="url" value={editingSeries.hero_bg || ''} onChange={e => setEditingSeries({ ...editingSeries, hero_bg: e.target.value })}
+                          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" placeholder="Görsel URL (Boş bırakırsanız vitrinden kalkar)" />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

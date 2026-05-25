@@ -140,7 +140,8 @@ export default function Home({ onAuthOpen }) {
 
   // 3. Hero Carousel Logic
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
-  const heroItems = trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5);
+  const heroSeriesList = validSeries.filter(s => s.hero_bg && s.hero_bg.trim() !== '');
+  const heroItems = heroSeriesList.length > 0 ? heroSeriesList : (trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5));
   
   useEffect(() => {
     if (heroItems.length <= 1) return;
