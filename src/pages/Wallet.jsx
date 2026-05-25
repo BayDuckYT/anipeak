@@ -272,13 +272,12 @@ export default function Wallet() {
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
             
-            <div className="relative w-full max-w-md z-10 flex flex-col justify-center max-h-[calc(100vh-2rem)]">
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }} 
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="relative w-full overflow-y-auto custom-scrollbar rounded-3xl bg-[#070511] border border-white/10 shadow-2xl"
-              >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative z-10 w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar rounded-3xl bg-[#070511] border border-white/10 shadow-2xl"
+            >
               <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 blur-[50px] -translate-y-1/2 translate-x-1/2" />
               
               <div className="text-center space-y-4 relative z-10">
@@ -325,7 +324,6 @@ export default function Wallet() {
                 </div>
               </div>
             </motion.div>
-            </div>
           </div>
         )}
       </AnimatePresence>

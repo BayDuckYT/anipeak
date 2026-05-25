@@ -583,17 +583,16 @@ export default function EliteUpgrade() {
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setSelectedPlan(null)} />
             
-            <div className="relative w-full max-w-lg z-10 flex flex-col justify-center max-h-[calc(100vh-2rem)]">
-              {/* Modal Content */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ type: 'spring', damping: 25 }}
-                onClick={(e) => e.stopPropagation()}
-                className="relative w-full overflow-y-auto custom-scrollbar rounded-[2.5rem] border border-white/10 bg-[#0c0b15] shadow-2xl"
-                style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
-              >
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto custom-scrollbar rounded-[2.5rem] border border-white/10 bg-[#0c0b15] shadow-2xl"
+              style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
+            >
               {/* Modal Header */}
               <div className="relative p-8 pb-6">
                 <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
@@ -685,7 +684,6 @@ export default function EliteUpgrade() {
                 </p>
               </div>
             </motion.div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
