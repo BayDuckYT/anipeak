@@ -578,12 +578,12 @@ export default function EliteUpgrade() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6"
           >
             {/* Backdrop */}
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setSelectedPlan(null)} />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setSelectedPlan(null)} />
             
-            <div className="flex min-h-full items-center justify-center p-4 relative">
+            <div className="relative w-full max-w-lg z-10 flex flex-col justify-center max-h-[calc(100vh-2rem)]">
               {/* Modal Content */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -591,7 +591,7 @@ export default function EliteUpgrade() {
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ type: 'spring', damping: 25 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar rounded-[2.5rem] border border-white/10 bg-[#0c0b15] shadow-2xl my-8"
+                className="relative w-full overflow-y-auto custom-scrollbar rounded-[2.5rem] border border-white/10 bg-[#0c0b15] shadow-2xl"
                 style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
               >
               {/* Modal Header */}
