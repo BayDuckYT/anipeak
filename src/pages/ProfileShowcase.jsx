@@ -824,7 +824,7 @@ export default function ProfileShowcase() {
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
             <div className="bg-[#070511]/80 border border-white/20 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative backdrop-blur-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
                {/* Background Effect */}
-                 <div className="absolute inset-0 z-[-1] opacity-75">
+                 <div className="absolute inset-0 z-[-1] opacity-90">
                    {effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url && (
                      <img 
                        src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url, 400)} 
