@@ -59,21 +59,30 @@ export default function Citadel() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#070511] pt-24 pb-20 relative">
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
+    <div className="min-h-screen bg-[#070511] pb-20 relative">
+      {/* ── CINEMATIC HERO HEADER ── */}
+      <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden flex items-end mb-12">
+        <div className="absolute inset-0 bg-[url('/yayinarkaplan.jpg')] bg-cover bg-center opacity-30 mix-blend-screen scale-105 transition-all duration-1000" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/70 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#070511] to-transparent z-10" />
         
-        {/* Header */}
-        <div className="mb-12 border-b border-white/10 pb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <MessageSquare size={32} className="text-blue-500" />
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
-              ANIPEAK <span className="text-slate-500">FORUMU</span>
-            </h1>
-          </div>
-          <p className="text-slate-400 max-w-2xl text-lg">
-            Siber dünyadaki manga sığınağımız. Fikirlerini paylaş, teorilerini çarpıştır, favori serilerini diğer okurlarla tartış.
-          </p>
+        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-12 flex flex-col md:flex-row items-center md:items-end gap-6">
+           <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.4)] flex-shrink-0">
+             <MessageSquare size={40} className="text-white" />
+           </div>
+           <div className="text-center md:text-left">
+             <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white uppercase tracking-tighter mb-4 drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+               ANIPEAK <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">FORUMU</span>
+             </h1>
+             <p className="text-slate-300 text-lg sm:text-xl max-w-2xl font-medium drop-shadow-md">
+               Siber dünyadaki manga sığınağımız. Fikirlerini paylaş, teorilerini çarpıştır, favori serilerini diğer okurlarla tartış.
+             </p>
+           </div>
         </div>
+      </div>
+
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 relative z-30">
 
         {/* Categories Grid */}
         <div className="grid md:grid-cols-2 gap-6">
