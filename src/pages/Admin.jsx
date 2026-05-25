@@ -9,10 +9,11 @@ import {
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
   Crown, Check, X, Search, Image as ImageIcon, Activity,
   UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell,
-  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle
+  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle, Upload
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
 import { ERROR_DICTIONARY } from '../utils/errorDictionary.js';
+import { uploadAdminImage } from '../lib/imageService';
 
 // ── RBAC Map ──────────────────────────────────────────────────────────────────
 export const ADMIN_ROLES = {
@@ -514,17 +515,24 @@ function QuickAddForm({ seriesList, showToast }) {
       const urls = [];
 
       for (const file of files) {
-        const b64 = await compressToBase64(file);
-        const url = await uploadToImgBB(b64, file.name);
-        urls.push(url);
+        if (target === 'pages') {
+          // Bölüm sayfaları çok yer kapladığı için ImgBB'ye yüklenmeye devam etmeli
+          const b64 = await compressToBase64(file);
+          const url = await uploadToImgBB(b64, file.name);
+          urls.push(url);
+        } else {
+          // Kapak ve Hero görselleri daha güvenilir olan Supabase'e yüklenmeli
+          const url = await uploadAdminImage(file, target);
+          if (url) urls.push(url);
+        }
       }
 
       if (target === 'pages') {
         setPageUrls(prev => [...(prev.trim() ? prev.split('\n') : []), ...urls].join('\n'));
       } else if (target === 'hero_bg') {
-        setNewSeries(p => ({ ...p, hero_bg: urls[0] }));
+        if(urls[0]) setNewSeries(p => ({ ...p, hero_bg: urls[0] }));
       } else {
-        setNewSeries(p => ({ ...p, cover: urls[0] }));
+        if(urls[0]) setNewSeries(p => ({ ...p, cover: urls[0] }));
       }
       showToast(`✅ ${files.length} görsel başarıyla yüklendi!`, 'success');
     } catch (err) {
@@ -1958,8 +1966,23 @@ export default function Admin() {
                       <label className="block text-xs font-black text-slate-400 uppercase mb-1.5 tracking-widest">Kapak Görseli</label>
                       <div className="flex gap-4 items-start">
                         <img src={editingSeries.cover} className="w-24 h-32 rounded-xl object-cover border border-white/10 shadow-lg" alt="" />
-                        <input type="url" value={editingSeries.cover} onChange={e => setEditingSeries({ ...editingSeries, cover: e.target.value })}
-                          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" />
+                        <div className="flex-1 space-y-2">
+                          <input type="url" value={editingSeries.cover} onChange={e => setEditingSeries({ ...editingSeries, cover: e.target.value })}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" placeholder="Görsel URL" />
+                          <label className="flex items-center justify-center gap-2 w-full py-2.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-400 font-bold text-xs rounded-xl cursor-pointer transition-colors border border-purple-500/30">
+                            <Upload size={14} /> PC'den Yükle
+                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              showToast('Kapak yükleniyor...', 'info');
+                              const url = await uploadAdminImage(file, 'cover');
+                              if (url) {
+                                setEditingSeries({ ...editingSeries, cover: url });
+                                showToast('Kapak başarıyla yüklendi!', 'success');
+                              }
+                            }} />
+                          </label>
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -1968,8 +1991,23 @@ export default function Admin() {
                       </label>
                       <div className="flex gap-4 items-start">
                         {editingSeries.hero_bg ? <img src={editingSeries.hero_bg} className="w-32 h-20 rounded-xl object-cover border border-white/10 shadow-lg" alt="Hero" /> : null}
-                        <input type="url" value={editingSeries.hero_bg || ''} onChange={e => setEditingSeries({ ...editingSeries, hero_bg: e.target.value })}
-                          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" placeholder="Görsel URL (Boş bırakırsanız vitrinden kalkar)" />
+                        <div className="flex-1 space-y-2">
+                          <input type="url" value={editingSeries.hero_bg || ''} onChange={e => setEditingSeries({ ...editingSeries, hero_bg: e.target.value })}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" placeholder="Görsel URL (Boş bırakırsanız vitrinden kalkar)" />
+                          <label className="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 font-bold text-xs rounded-xl cursor-pointer transition-colors border border-blue-500/30">
+                            <Upload size={14} /> PC'den Yükle
+                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              showToast('Arka plan yükleniyor...', 'info');
+                              const url = await uploadAdminImage(file, 'hero');
+                              if (url) {
+                                setEditingSeries({ ...editingSeries, hero_bg: url });
+                                showToast('Arka plan başarıyla yüklendi!', 'success');
+                              }
+                            }} />
+                          </label>
+                        </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

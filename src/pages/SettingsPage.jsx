@@ -224,7 +224,7 @@ export default function SettingsPage() {
   const uploadDirectly = async (file, type) => {
     setIsSaving(true);
     try {
-      const url = await uploadAvatar(file);
+      const url = await uploadAvatar(file, type);
       if (url) {
         if (type === 'avatar') {
           await updateProfile({ avatar_url: url });
@@ -278,7 +278,7 @@ export default function SettingsPage() {
       const targetSize = cropModal.type === 'avatar' ? (preset?.size || null) : (preset?.w || null);
       
       const croppedBlob = await getCroppedImg(cropModal.imageSrc, cropModal.croppedAreaPixels, targetSize);
-      const url = await uploadAvatar(croppedBlob);
+      const url = await uploadAvatar(croppedBlob, cropModal.type);
       if (url) {
         if (cropModal.type === 'avatar') {
           await updateProfile({ avatar_url: url });

@@ -15,43 +15,47 @@ export const DEFAULT_AVATARS = [
 ];
 
 /**
- * Avatarı Supabase Storage'a yükler ve public URL döndürür.
+ * Avatar veya Banner'ı Supabase Storage'a yükler ve public URL döndürür.
  * @param {Blob|File} file - Yüklenecek dosya
+ * @param {string} type - Dosya türü ('avatar' veya 'banner')
  * @returns {string|null} - Public URL veya null
  */
-export const uploadAvatar = async (file) => {
-  console.log("🚀 [IMAGE-SERVICE] Supabase Storage'a yükleme başlatıldı...");
+export const uploadAvatar = async (file, type = 'avatar') => {
+  console.log(`🚀 [IMAGE-SERVICE] Supabase Storage'a ${type} yükleme başlatıldı...`);
 
   try {
     // Kullanıcı oturumunu al
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       console.error("❌ [IMAGE-SERVICE] Kullanıcı oturumu bulunamadı.");
-      alert("Avatar yüklemek için giriş yapmış olmalısınız.");
+      alert("Resim yüklemek için giriş yapmış olmalısınız.");
       return null;
     }
 
     const userId = user.id;
     const fileExt = file.name ? file.name.split('.').pop().toLowerCase() : (file.type.split('/')[1] || 'webp');
-    const fileName = `avatar_${Date.now()}.${fileExt}`;
+    const fileName = `${type}_${Date.now()}.${fileExt}`;
     // Yol: {userId}/{dosya} — Supabase folder-based policy bunu bekler
     const filePath = `${userId}/${fileName}`;
 
-    // Eski avatarı silmeye çalış (hata verse de devam et)
+    // Yalnızca YENİ yüklenen dosya ile aynı TÜRE (avatar/banner) sahip eski dosyaları sil
     try {
       const { data: existingFiles } = await supabase.storage
         .from('avatars')
         .list(userId);
       
       if (existingFiles && existingFiles.length > 0) {
-        const oldFiles = existingFiles.map(f => `${userId}/${f.name}`);
+        const oldFiles = existingFiles
+          .filter(f => f.name.startsWith(type + '_'))
+          .map(f => `${userId}/${f.name}`);
+          
         if (oldFiles.length > 0) {
           await supabase.storage.from('avatars').remove(oldFiles);
-          console.log("🗑️ [IMAGE-SERVICE] Eski avatar silindi.");
+          console.log(`🗑️ [IMAGE-SERVICE] Eski ${type} silindi.`);
         }
       }
     } catch (e) {
-      // Eski avatar silinemezse sorun değil, devam et
+      // Eski dosya silinemezse sorun değil, devam et
     }
 
     // Yeni avatarı yükle
@@ -82,6 +86,45 @@ export const uploadAvatar = async (file) => {
   } catch (error) {
     console.error('❌ [IMAGE-SERVICE] Kritik Hata:', error.message);
     alert(`Avatar yüklenirken bir hata oluştu: ${error.message}`);
+    return null;
+  }
+};
+
+/**
+ * Admin paneli için genel görsel yükleme (Seri kapağı vb.)
+ * @param {Blob|File} file - Yüklenecek dosya
+ * @param {string} prefix - Önek (örn: cover, hero)
+ * @returns {string|null} - Public URL veya null
+ */
+export const uploadAdminImage = async (file, prefix = 'img') => {
+  console.log(`🚀 [IMAGE-SERVICE] Supabase Storage'a ${prefix} yükleme başlatıldı...`);
+  try {
+    const fileExt = file.name ? file.name.split('.').pop().toLowerCase() : (file.type.split('/')[1] || 'webp');
+    const fileName = `${prefix}_${Date.now()}.${fileExt}`;
+    const filePath = `admin_uploads/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, {
+        contentType: file.type || `image/${fileExt}`,
+        upsert: true,
+        cacheControl: '3600'
+      });
+
+    if (uploadError) {
+      console.error("❌ [IMAGE-SERVICE] Admin Yükleme hatası:", uploadError);
+      alert(`Görsel yüklenemedi: ${uploadError.message}`);
+      return null;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    return publicUrlData?.publicUrl;
+  } catch (error) {
+    console.error('❌ [IMAGE-SERVICE] Kritik Hata:', error.message);
+    alert(`Görsel yüklenirken bir hata oluştu: ${error.message}`);
     return null;
   }
 };
