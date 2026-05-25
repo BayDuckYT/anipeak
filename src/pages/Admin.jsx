@@ -1367,19 +1367,29 @@ function InboxPanel({ showToast }) {
 function ErrorDecoderPanel() {
   const [code, setCode] = useState('');
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    const cleanCode = code.trim();
-    if (ERROR_DICTIONARY[cleanCode]) {
-      setResult(ERROR_DICTIONARY[cleanCode]);
+    const cleanCode = code.trim().toUpperCase();
+    const baseCode = cleanCode.split('-')[0];
+    setLoading(true);
+
+    if (ERROR_DICTIONARY[baseCode]) {
+      let stackTrace = null;
+      if (cleanCode.includes('-')) {
+        const { data } = await supabase.from('contact_messages').select('message').eq('name', cleanCode).single();
+        if (data) stackTrace = data.message;
+      }
+      setResult({ ...ERROR_DICTIONARY[baseCode], stackTrace });
     } else {
       setResult({ name: "Bulunamadı", description: "Bu koda ait bir hata kaydı bulunmuyor. Yeni bir hata türü olabilir veya geçersiz bir kod girdiniz.", solution: "Sistem yöneticisine başvurun veya konsol loglarını inceleyin." });
     }
+    setLoading(false);
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-black text-white flex items-center gap-2">
           <AlertTriangle size={24} className="text-amber-500" /> Hata Bulucu (Error Decoder)
@@ -1388,17 +1398,19 @@ function ErrorDecoderPanel() {
 
       <div className="glass border border-white/8 rounded-3xl p-8">
         <p className="text-slate-400 text-sm mb-6">
-          Sistemde veya kullanıcılarda meydana gelen hataların kodlarını (Örn: 564, 405) buraya girerek sorunun kaynağını ve çözüm yolunu anında öğrenebilirsin.
+          Kullanıcıların veya sistemin karşılaştığı hata kodlarını buraya girerek (Örn: 564 veya 564-A7B2) hatanın tam kaynağını, hangi dosyanın hangi satırında patladığını anında tespit et.
         </p>
         <form onSubmit={handleSearch} className="flex gap-4 mb-8">
           <input 
             type="text" 
-            placeholder="Hata Kodu Girin (Örn: 564)" 
+            placeholder="Tam Hata Kodunu Girin (Örn: 564-A7B2)" 
             value={code} 
             onChange={e => setCode(e.target.value)}
-            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white text-lg font-mono focus:outline-none focus:border-amber-500 transition-all shadow-inner"
+            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white text-lg font-mono focus:outline-none focus:border-amber-500 transition-all shadow-inner uppercase"
           />
-          <button type="submit" className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-xl transition-all shadow-lg shadow-amber-600/20">SORGULA</button>
+          <button type="submit" disabled={loading} className="px-8 py-4 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black rounded-xl transition-all shadow-lg shadow-amber-600/20">
+            {loading ? 'TARANIYOR...' : 'SORGULA'}
+          </button>
         </form>
 
         {result && (
@@ -1407,14 +1419,29 @@ function ErrorDecoderPanel() {
               <span className="bg-amber-500 text-black px-2 py-0.5 rounded text-sm font-black">{code}</span>
               {result.name}
             </h3>
-            <div className="space-y-4 mt-4">
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
               <div>
-                <span className="block text-[10px] text-amber-500/60 font-black uppercase tracking-widest mb-1">Teşhis / Sebep</span>
-                <p className="text-slate-300 text-sm leading-relaxed">{result.description}</p>
-              </div>
-              <div className="bg-black/40 rounded-xl p-4 border border-white/5">
+                <span className="block text-[10px] text-amber-500/60 font-black uppercase tracking-widest mb-1">Genel Teşhis / Sebep</span>
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">{result.description}</p>
+                
                 <span className="block text-[10px] text-emerald-400 font-black uppercase tracking-widest mb-1">Çözüm Yolu</span>
-                <p className="text-emerald-300/90 text-sm leading-relaxed">{result.solution}</p>
+                <div className="bg-black/40 rounded-xl p-4 border border-white/5">
+                  <p className="text-emerald-300/90 text-sm leading-relaxed">{result.solution}</p>
+                </div>
+              </div>
+              <div>
+                <span className="block text-[10px] text-red-400 font-black uppercase tracking-widest mb-1">SİBER KOD İZİ (STACK TRACE)</span>
+                <div className="bg-black/80 rounded-xl p-4 border border-red-500/20 h-full max-h-[300px] overflow-y-auto custom-scrollbar">
+                  {result.stackTrace ? (
+                    <pre className="text-[10px] text-red-400/80 font-mono whitespace-pre-wrap">{result.stackTrace}</pre>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-500 text-xs italic opacity-50">
+                      <AlertTriangle size={24} className="mb-2" />
+                      <p>Kısa kod girildiği için detaylı kod izi (satır bilgisi) çekilemedi.</p>
+                      <p className="mt-1 text-[9px]">Kullanıcıdan "XXX-ABCD" formatındaki tam kodu isteyin.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
