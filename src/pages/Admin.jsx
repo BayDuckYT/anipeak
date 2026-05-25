@@ -1148,14 +1148,6 @@ function UsersPanel({ showToast }) {
                       <option value="aethe" className="bg-[#0a0a14]">Efsanevi Aethe</option>
                     </select>
                   </div>
-                </div>
-                
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mt-2">
-                  <label className="block text-[11px] text-amber-500 mb-2 font-black uppercase tracking-widest">Şifre Sıfırlama</label>
-                  <input type="password" value={editingUser.password || ''} onChange={e => setEditingUser(p => ({ ...p, password: e.target.value }))}
-                    placeholder="Sıfırlamak istemiyorsanız boş bırakın..."
-                    className="w-full bg-black/40 border border-amber-500/30 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-all placeholder-amber-700/50" />
-                </div>
               </div>
 
               <div className="p-6 border-t border-white/10 bg-white/[0.02] flex justify-end gap-3">
