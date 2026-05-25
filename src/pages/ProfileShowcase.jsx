@@ -907,38 +907,60 @@ export default function ProfileShowcase() {
                     </h1>
                   </div>
 
-                  <div className="inline-flex px-4 py-1.5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-md shadow-lg">
-                     <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
-                        {displayUser.is_elite && (
-                           displayUser.active_plan_id === 'aethe' ? (
-                               <div className="w-4 h-4 flex items-center justify-center shrink-0 mr-1 mb-0.5">
-                                  <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
-                               </div>
-                           ) :
-                           displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
-                           displayUser.active_plan_id === 'pro' ? <Trophy size={10} className="inline mr-1 mb-0.5" /> :
-                           <Crown size={10} className="inline mr-1 mb-0.5" />
-                        )}
-                        <span>{displayUser.fullLabel}</span>
-                     </span>
-                  </div>
+                  <div className="flex flex-col items-center gap-2 mt-2">
+                    <div className="inline-flex px-4 py-1.5 rounded-xl bg-white/5 border border-white/20 backdrop-blur-md shadow-lg">
+                       <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
+                          {displayUser.is_elite && (
+                             displayUser.active_plan_id === 'aethe' ? (
+                                 <div className="w-4 h-4 flex items-center justify-center shrink-0 mr-1 mb-0.5">
+                                    <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                 </div>
+                             ) :
+                             displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
+                             displayUser.active_plan_id === 'pro' ? <Trophy size={10} className="inline mr-1 mb-0.5" /> :
+                             <Crown size={10} className="inline mr-1 mb-0.5" />
+                          )}
+                          <span>{displayUser.fullLabel}</span>
+                       </span>
+                    </div>
 
-                  {displayUser.house_id && (
-                     <div className={`mt-2 inline-flex px-4 py-1.5 rounded-xl bg-black/40 border backdrop-blur-md shadow-lg ${
-                        displayUser.house_id === 'dragon' ? 'border-red-500/30 text-red-500' :
-                        displayUser.house_id === 'fox' ? 'border-purple-500/30 text-purple-400' :
-                        displayUser.house_id === 'wolf' ? 'border-blue-500/30 text-blue-400' :
-                        'border-orange-500/30 text-orange-400'
-                     }`}>
-                        <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 drop-shadow-md">
-                           <Shield size={12} className="shrink-0" />
-                           {displayUser.house_id === 'dragon' ? 'KIZIL EJDER' :
-                            displayUser.house_id === 'fox' ? 'GÜMÜŞ KITSUNE' :
-                            displayUser.house_id === 'wolf' ? 'BUZ KURT' :
-                            'ALTIN ANKA'}
-                        </span>
-                     </div>
-                  )}
+                    {displayUser.active_plan_id && (
+                       <div className={`inline-flex px-4 py-1.5 rounded-xl bg-black/40 border backdrop-blur-md shadow-lg ${
+                          displayUser.active_plan_id === 'aethe' ? 'border-pink-500/30 text-pink-400' :
+                          displayUser.active_plan_id === 'shadow' ? 'border-purple-500/30 text-purple-400' :
+                          displayUser.active_plan_id === 'pro' ? 'border-cyan-500/30 text-cyan-400' :
+                          'border-amber-500/30 text-amber-400'
+                       }`}>
+                          <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 drop-shadow-md">
+                             {displayUser.active_plan_id === 'aethe' ? <Sparkles size={12} className="shrink-0 animate-pulse" /> :
+                              displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="shrink-0" /> :
+                              displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="shrink-0" /> :
+                              <Crown size={12} className="shrink-0" />}
+                             {displayUser.active_plan_id === 'aethe' ? 'EFSANEVİ AETHE MÜHRÜ' :
+                              displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ' :
+                              displayUser.active_plan_id === 'pro' ? 'ANIPEAK PRO' :
+                              'HÜKÜMDAR'}
+                          </span>
+                       </div>
+                    )}
+
+                    {displayUser.house_id && (
+                       <div className={`inline-flex px-4 py-1.5 rounded-xl bg-black/40 border backdrop-blur-md shadow-lg ${
+                          displayUser.house_id === 'dragon' ? 'border-red-500/30 text-red-500' :
+                          displayUser.house_id === 'fox' ? 'border-purple-500/30 text-purple-400' :
+                          displayUser.house_id === 'wolf' ? 'border-blue-500/30 text-blue-400' :
+                          'border-orange-500/30 text-orange-400'
+                       }`}>
+                          <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 drop-shadow-md">
+                             <Shield size={12} className="shrink-0" />
+                             {displayUser.house_id === 'dragon' ? 'KIZIL EJDER' :
+                              displayUser.house_id === 'fox' ? 'GÜMÜŞ KITSUNE' :
+                              displayUser.house_id === 'wolf' ? 'BUZ KURT' :
+                              'ALTIN ANKA'}
+                          </span>
+                       </div>
+                    )}
+                  </div>
 
                   <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-60 mt-4" />
                   
