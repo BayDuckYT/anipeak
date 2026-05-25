@@ -138,6 +138,20 @@ export default function EliteUpgrade() {
   const { user, upgradeToElite } = useAuth();
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState(null);
+  
+  // Promo Kodu State'leri
+  const [promoCode, setPromoCode] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoMsg, setPromoMsg] = useState(null);
+
+  // Modal Scroll Kilidi
+  useEffect(() => {
+    if (selectedPlan) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [selectedPlan]);
+  
+  const [isGift, setIsGift] = useState(false);
 
   useSEO({
     title: 'Elite Premium',
@@ -157,15 +171,59 @@ export default function EliteUpgrade() {
 
   const handlePurchase = async () => {
     if (!selectedPlan) return;
-    if (selectedPlan.id === 'aethe') {
+    if (selectedPlan.id === 'aethe' || isGift) {
       window.open('https://discord.gg/anipeak', '_blank');
       setSelectedPlan(null);
+      setIsGift(false);
       return;
     }
     const success = await upgradeToElite(selectedPlan.id);
     if (success) {
       setSelectedPlan(null);
       navigate('/profile');
+    }
+  };
+
+  const handleUsePromo = async () => {
+    if (!user) {
+      window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }));
+      return;
+    }
+    if (!promoCode.trim()) return;
+    
+    setPromoLoading(true);
+    setPromoMsg(null);
+    try {
+      // Kodu veritabanından bul
+      const { data: codeData, error } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .eq('code', promoCode.trim().toUpperCase())
+        .eq('is_active', true)
+        .single();
+        
+      if (error || !codeData) throw new Error("Kod geçersiz veya bulunamadı.");
+      if (codeData.used_count >= codeData.max_uses) throw new Error("Bu kodun kullanım limiti dolmuş.");
+      if (codeData.type !== 'elite') throw new Error("Bu kod Elite paketleri için geçerli değil.");
+      
+      // Kullanıcıya paketi tanımla
+      const success = await upgradeToElite(codeData.value);
+      if (success) {
+        // Kodun kullanım sayısını artır
+        await supabase.from('promo_codes')
+          .update({ used_count: codeData.used_count + 1 })
+          .eq('id', codeData.id);
+          
+        setPromoMsg({ type: 'success', text: 'Kod başarıyla kullanıldı! Paketiniz aktif edildi.' });
+        setPromoCode('');
+        setTimeout(() => navigate('/profile'), 2000);
+      } else {
+        throw new Error("Paket tanımlanırken bir hata oluştu.");
+      }
+    } catch (err) {
+      setPromoMsg({ type: 'error', text: err.message });
+    } finally {
+      setPromoLoading(false);
     }
   };
 
@@ -281,8 +339,42 @@ export default function EliteUpgrade() {
           </div>
         </section>
 
-        {/* ── 3. PREMİUM ÜYELİKLER ── */}
-        <section id="plans-section" className="py-32">
+        {/* ── 3. PROMO KODU KULLANIMI ── */}
+        <section className="py-16 flex justify-center">
+          <div className="w-full max-w-lg p-6 md:p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <Gift className="text-purple-400" size={24} />
+              <h3 className="text-xl font-black text-white uppercase tracking-wider">Hediye Kodu Kullan</h3>
+            </div>
+            <p className="text-sm text-slate-400 mb-6">Elinde bir Elite Paket kodu mu var? Buradan kodunu girerek paketi anında hesabına tanımlayabilirsin.</p>
+            
+            <div className="flex gap-3">
+              <input 
+                type="text" 
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                placeholder="Örn: PP-XXXX..."
+                className="flex-grow bg-[#070511] border border-white/10 rounded-xl px-4 py-3 text-white font-mono uppercase focus:border-purple-500/50 outline-none transition-all"
+              />
+              <button 
+                onClick={handleUsePromo}
+                disabled={promoLoading}
+                className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold uppercase tracking-wider transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                {promoLoading ? 'Bekle...' : 'Kullan'}
+              </button>
+            </div>
+            {promoMsg && (
+              <div className={`mt-4 p-3 rounded-xl text-sm font-bold flex items-center gap-2 ${promoMsg.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                {promoMsg.type === 'success' ? <Check size={16} /> : <AlertTriangle size={16} />}
+                {promoMsg.text}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ── 4. PREMİUM ÜYELİKLER ── */}
+        <section id="plans-section" className="py-16">
           <div className="text-center mb-20 px-4">
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter uppercase mb-6">
               PREMİUM <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">ÜYELİKLER</span>
@@ -411,7 +503,7 @@ export default function EliteUpgrade() {
             })}
           </div>
 
-          {/* ── 4. KARŞILAŞTIRMA TABLOSU ── */}
+          {/* ── 5. KARŞILAŞTIRMA TABLOSU ── */}
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-black text-white tracking-tight uppercase mb-4">
@@ -566,17 +658,30 @@ export default function EliteUpgrade() {
                   </div>
                 </div>
 
+                {/* Hediye Et Checkbox */}
+                <div className="mb-6 px-2">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isGift ? `bg-gradient-to-r ${getColorClasses(selectedPlan.color).gradient} ${getColorClasses(selectedPlan.color).borderStrong}` : 'border-white/20 bg-white/5 group-hover:border-white/40'}`}>
+                      {isGift && <Check size={14} className="text-white" />}
+                    </div>
+                    <div>
+                      <span className="block text-sm font-bold text-white group-hover:text-purple-300 transition-colors">Hediye Et (Başkası İçin Kod Al)</span>
+                      <span className="block text-[10px] text-slate-500">Seçildiğinde Discord üzerinden bir hediye kodu oluşturulacaktır.</span>
+                    </div>
+                  </label>
+                </div>
+
                 {/* Purchase Button */}
                 <button 
                   onClick={handlePurchase}
                   className={`w-full py-5 rounded-2xl font-black text-base uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 border bg-gradient-to-r ${getColorClasses(selectedPlan.color).gradient} ${getColorClasses(selectedPlan.color).borderStrong} text-white hover:scale-[1.02] hover:shadow-xl ${getColorClasses(selectedPlan.color).shadow} active:scale-[0.98]`}
                 >
                   <Sparkles size={18} />
-                  {selectedPlan.id === 'aethe' ? 'DISCORD\'DAN SATIN AL' : 'SATIN AL'}
+                  {isGift ? "HEDİYE KODU AL" : (selectedPlan.id === 'aethe' ? 'DISCORD\'DAN SATIN AL' : 'SATIN AL')}
                 </button>
 
                 <p className="text-center text-[10px] text-slate-600 mt-4 font-medium">
-                  Satın alma işlemi Discord sunucumuz üzerinden gerçekleştirilmektedir.
+                  {isGift ? "Hediye kodu satın almak için Discord sunucumuzdan destek talebi oluşturun." : "Satın alma işlemi Discord sunucumuz üzerinden gerçekleştirilmektedir."}
                 </p>
               </div>
             </motion.div>

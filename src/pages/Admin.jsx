@@ -20,12 +20,12 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
@@ -62,6 +62,7 @@ const ALL_NAV = [
   { id: 'errorDecoder', label: 'Hata Bulucu', icon: AlertTriangle },
   { id: 'pages', label: 'Sayfa Yönetimi', icon: FileText },
   { id: 'messages', label: 'Mesajlar', icon: Mail },
+  { id: 'promoCodes', label: 'Promo Kodları', icon: CreditCard },
   { id: 'settings', label: 'Genel Ayarlar', icon: Settings },
   { id: 'trash', label: 'Çöp Kutusu', icon: Trash2 },
 ];
@@ -1474,6 +1475,203 @@ function ErrorDecoderPanel() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: PromoCodesPanel
+// ─────────────────────────────────────────────────────────────────────────────
+function PromoCodesPanel({ showToast }) {
+  const [codes, setCodes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    type: 'elite', // 'elite' | 'aura'
+    value: 'pro', // default elite package ID
+    max_uses: 1
+  });
+  const [generating, setGenerating] = useState(false);
+
+  const fetchCodes = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('promo_codes').select('*').order('created_at', { ascending: false });
+    if (!error && data) setCodes(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchCodes(); }, [fetchCodes]);
+
+  const handleGenerate = async (e) => {
+    e.preventDefault();
+    setGenerating(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Oturum bulunamadı");
+
+      // Generate random code
+      const prefix = formData.type === 'elite' ? 'PP-' : 'AU-';
+      const randomStr = Math.random().toString(36).substring(2, 10).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
+      const codeStr = prefix + randomStr;
+
+      const { error } = await supabase.from('promo_codes').insert({
+        code: codeStr,
+        type: formData.type,
+        value: formData.value.toString(),
+        max_uses: parseInt(formData.max_uses),
+        created_by: user.id
+      });
+
+      if (error) throw error;
+      showToast("Kod başarıyla oluşturuldu!", "success");
+      fetchCodes();
+    } catch (err) {
+      console.error(err);
+      showToast("Hata: " + err.message, "error");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleDeactivate = async (id, currentStatus) => {
+    const { error } = await supabase.from('promo_codes').update({ is_active: !currentStatus }).eq('id', id);
+    if (!error) {
+      showToast(currentStatus ? "Kod pasifleştirildi." : "Kod aktifleştirildi.", "success");
+      fetchCodes();
+    }
+  };
+
+  return (
+    <div className="space-y-8 animate-fade-in pb-20">
+      <div className="glass-strong border border-white/5 rounded-2xl p-6">
+        <h2 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+          <CreditCard className="text-indigo-400" />
+          YENİ PROMO KODU OLUŞTUR
+        </h2>
+        
+        <form onSubmit={handleGenerate} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kod Tipi</label>
+            <select 
+              className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value, value: e.target.value === 'elite' ? 'pro' : '250000' })}
+            >
+              <option value="elite">Elite Paket Kodu</option>
+              <option value="aura">Aura Puanı Kodu</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Değer / Paket</label>
+            {formData.type === 'elite' ? (
+              <select 
+                className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
+                value={formData.value}
+                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+              >
+                <option value="pro">Pro Paket</option>
+                <option value="shadow">Hükümdar Gölgesi</option>
+                <option value="ruler">Hükümdar</option>
+                <option value="aethe">Aethe</option>
+              </select>
+            ) : (
+              <input 
+                type="number" 
+                className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
+                value={formData.value}
+                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                placeholder="Örn: 250000"
+                min="100"
+              />
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kullanım Limiti</label>
+            <input 
+              type="number" 
+              className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
+              value={formData.max_uses}
+              onChange={(e) => setFormData({ ...formData, max_uses: parseInt(e.target.value) || 1 })}
+              min="1"
+            />
+          </div>
+
+          <div className="flex items-end">
+            <button 
+              type="submit" 
+              disabled={generating}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors disabled:opacity-50"
+            >
+              {generating ? 'ÜRETİLİYOR...' : 'KOD ÜRET'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="glass-strong border border-white/5 rounded-2xl p-6">
+        <h2 className="text-xl font-black text-white mb-6">Mevcut Kodlar</h2>
+        
+        {loading ? (
+          <div className="text-center py-10 text-slate-500"><RefreshCw className="animate-spin mx-auto mb-2" /> Yükleniyor...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10 text-xs font-black text-slate-500 uppercase tracking-widest">
+                  <th className="p-4">KOD</th>
+                  <th className="p-4">TİP</th>
+                  <th className="p-4">DEĞER</th>
+                  <th className="p-4">KULLANIM</th>
+                  <th className="p-4">DURUM</th>
+                  <th className="p-4">İŞLEM</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm font-medium text-slate-300">
+                {codes.map(c => (
+                  <tr key={c.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <td className="p-4 font-mono text-indigo-400 font-bold">{c.code}</td>
+                    <td className="p-4 uppercase">{c.type}</td>
+                    <td className="p-4">{c.value}</td>
+                    <td className="p-4">{c.used_count} / {c.max_uses}</td>
+                    <td className="p-4">
+                      {c.is_active && c.used_count < c.max_uses ? (
+                        <span className="text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md text-xs">Aktif</span>
+                      ) : (
+                        <span className="text-rose-400 bg-rose-500/10 px-2 py-1 rounded-md text-xs">Pasif/Doldu</span>
+                      )}
+                    </td>
+                    <td className="p-4 flex gap-2">
+                      <button 
+                        onClick={() => handleDeactivate(c.id, c.is_active)}
+                        className="p-1.5 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                        title={c.is_active ? "Pasifleştir" : "Aktifleştir"}
+                      >
+                        {c.is_active ? <X size={16} className="text-rose-400" /> : <Check size={16} className="text-emerald-400" />}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const { error } = await supabase.from('promo_codes').delete().eq('id', c.id);
+                          if (!error) fetchCodes();
+                        }}
+                        className="p-1.5 bg-white/5 rounded-lg hover:bg-rose-500/20 text-rose-400 transition-colors"
+                        title="Sil"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {codes.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="p-8 text-center text-slate-500">Henüz kod oluşturulmadı.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAIN Admin Component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Admin() {
@@ -1870,6 +2068,7 @@ export default function Admin() {
         {safeActiveNav === 'chapterEditor' && <ChapterEditor seriesList={series} showToast={showToast} />}
         {safeActiveNav === 'schedule' && <ScheduleManager showToast={showToast} />}
         {safeActiveNav === 'suggestions' && <SuggestionsPanel />}
+        {safeActiveNav === 'promoCodes' && <PromoCodesPanel showToast={showToast} />}
 
         {/* Universe Settings */}
         {safeActiveNav === 'settings' && (
