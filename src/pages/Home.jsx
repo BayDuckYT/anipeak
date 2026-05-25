@@ -2,7 +2,7 @@ import { useEffect, useRef, useMemo, lazy, Suspense, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Star, BookOpen, ChevronRight, Flame, Play, Plus,
+  Star, BookOpen, ChevronRight, Flame, Play, Plus, Info,
   TrendingUp, Crown, Bell, Compass, Search, Zap, Trophy, Sparkles
 } from 'lucide-react';
 
@@ -219,34 +219,50 @@ export default function Home({ onAuthOpen }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-                className="flex flex-col lg:w-[50%]"
+                className="flex flex-col lg:flex-row items-center lg:items-end gap-8 lg:gap-12"
               >
-                
-                {/* Title */}
-                <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1] mb-6 drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
-                  {activeHero.title}
-                </h1>
-                
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm sm:text-base font-bold text-slate-300 mb-6 uppercase tracking-wider drop-shadow-md">
-                  <span className="text-emerald-400">{activeHero.rating} Puan</span>
-                  <span>{heroChapterCount} Bölüm</span>
-                  <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">
-                    {Array.isArray(activeHero.genre) ? activeHero.genre[0] : activeHero.genre || 'AKSİYON'}
-                  </span>
-                  <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">HD</span>
+                {/* Sol Taraf - Poster (Netflix stili ama poster görünümlü) */}
+                <div className="hidden md:block flex-shrink-0 w-48 lg:w-64 shadow-[0_20px_50px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden border border-white/10 group relative">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                    <Link to={`/read/${activeHero.id}/${heroChapterCount > 0 ? 1 : ''}`} className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center hover:scale-110 transition-transform">
+                      <BookOpen size={24} className="text-white" />
+                    </Link>
+                  </div>
+                  <img 
+                    src={getOptimizedImage(activeHero.cover, 400)} 
+                    alt={activeHero.title} 
+                    className="w-full aspect-[2/3] object-cover"
+                  />
                 </div>
 
-                <p className="text-slate-200 text-base sm:text-lg leading-relaxed mb-10 line-clamp-3 lg:line-clamp-4 font-medium drop-shadow-md max-w-2xl">
-                  {activeHero.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi seni bekliyor."}
-                </p>
-                
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                  <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-3.5 bg-white text-black font-bold text-lg rounded md:rounded-md hover:bg-white/80 transition-all flex items-center justify-center gap-3 active:scale-95">
-                    <Play size={24} className="fill-black" /> Oynat
-                  </Link>
-                  <button onClick={() => { if (!user) onAuthOpen('login'); }} aria-label="Listeme ekle" className="w-full sm:w-auto px-8 py-3.5 bg-[#6d6d6eb3] hover:bg-[#6d6d6e] text-white font-bold text-lg rounded md:rounded-md backdrop-blur-sm transition-colors flex items-center justify-center gap-3 active:scale-95">
-                    <Plus size={24} /> Daha Fazla Bilgi
-                  </button>
+                {/* Sağ Taraf - Metin ve Butonlar */}
+                <div className="flex flex-col w-full lg:w-[60%]">
+                  {/* Title */}
+                  <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1] mb-6 drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+                    {activeHero.title}
+                  </h1>
+                  
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm sm:text-base font-bold text-slate-300 mb-6 uppercase tracking-wider drop-shadow-md">
+                    <span className="text-emerald-400">{activeHero.rating} Puan</span>
+                    <span>{heroChapterCount} Bölüm</span>
+                    <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">
+                      {Array.isArray(activeHero.genre) ? activeHero.genre[0] : activeHero.genre || 'AKSİYON'}
+                    </span>
+                    <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">HD</span>
+                  </div>
+
+                  <p className="text-slate-200 text-base sm:text-lg leading-relaxed mb-10 line-clamp-3 lg:line-clamp-4 font-medium drop-shadow-md max-w-2xl">
+                    {activeHero.description || "Efsanevi maceraya hemen katıl. Yüksek kaliteli çevirilerle kesintisiz okuma deneyimi seni bekliyor."}
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                    <Link to={`/read/${activeHero.id}/${heroChapterCount > 0 ? 1 : ''}`} className="w-full sm:w-auto px-8 py-3.5 bg-white text-black font-bold text-lg rounded md:rounded-md hover:bg-white/80 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-lg">
+                      <BookOpen size={24} className="text-black" /> Oku
+                    </Link>
+                    <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-3.5 bg-[#6d6d6eb3] hover:bg-[#6d6d6e] text-white font-bold text-lg rounded md:rounded-md backdrop-blur-sm transition-colors flex items-center justify-center gap-3 active:scale-95 shadow-lg">
+                      <Info size={24} /> Daha Fazla Bilgi
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>

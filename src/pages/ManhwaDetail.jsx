@@ -189,16 +189,17 @@ export default function ManhwaDetail({ onAuthOpen }) {
       className="min-h-screen bg-[#070511]"
     >
       {/* ── HERO ── */}
-      <div className="relative w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden min-h-[60vh] lg:min-h-[80vh] flex items-end">
         {/* Full width edge-to-edge background */}
         <div
-          className="absolute inset-0 bg-cover bg-center blur-md opacity-30 scale-110 transition-all duration-1000"
-          style={{ backgroundImage: `url(${manhwa.cover})` }}
+          className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${manhwa.hero_bg ? 'opacity-60 lg:opacity-80 object-top' : 'blur-xl opacity-30 scale-110'}`}
+          style={{ backgroundImage: `url(${manhwa.hero_bg || manhwa.cover})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/80 to-transparent lg:w-[75%]" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#070511] to-transparent z-10" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-end min-h-[60vh]">
+        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-12 flex flex-col lg:flex-row gap-8 lg:gap-16 items-center lg:items-end">
           
           <Link to="/" className="absolute top-6 left-4 sm:left-6 lg:left-8 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-black/40 backdrop-blur-md text-slate-300 hover:text-white border border-white/10 hover:border-white/30 text-sm transition-all group">
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Geri Dön
@@ -249,11 +250,11 @@ export default function ManhwaDetail({ onAuthOpen }) {
                 </span>
               )}
               {manhwa.genre?.slice(0, 3).map(g => (
-                <span key={g} className="px-3 py-1 rounded-full text-[10px] font-bold text-slate-300 bg-white/5 border border-white/10 uppercase tracking-wider">{g}</span>
+                <span key={g} className="px-3 py-1 rounded-sm text-[10px] font-bold text-slate-300 border border-slate-600 uppercase tracking-wider">{g}</span>
               ))}
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-4 tracking-tighter leading-none drop-shadow-2xl">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-4 tracking-tighter leading-none drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
               {manhwa.title}
             </h1>
             
@@ -266,20 +267,19 @@ export default function ManhwaDetail({ onAuthOpen }) {
               )}
             </p>
 
-            {/* Action Row */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-8">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-8">
               <button
                 onClick={() => handleReadChapter(continueChapter || (filteredChapters[filteredChapters.length - 1]?.number))}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-purple-600 text-white font-black text-sm hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] active:scale-95 whitespace-nowrap"
+                className="w-full sm:w-auto px-10 py-4 bg-white text-black font-black text-lg rounded-md hover:bg-white/80 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
               >
-                <Play size={18} className="fill-white" /> {continueChapter ? 'Kaldığın Yerden' : 'Okumaya Başla'}
+                <BookOpen size={20} className="text-black" /> {continueChapter ? 'KALDIĞIN YERDEN' : 'OKUMAYA BAŞLA'}
               </button>
 
               <button
                 onClick={() => user ? setShowListModal(true) : onAuthOpen('login')}
-                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all font-bold text-sm active:scale-95 whitespace-nowrap"
+                className="flex items-center justify-center gap-2 px-6 py-4 rounded-md bg-[#2a2a2a]/80 backdrop-blur-md text-white hover:bg-[#3a3a3a] transition-all font-bold text-sm active:scale-95 shadow-lg border border-white/10"
               >
-                <Plus size={18} /> <span className="hidden sm:inline">Listeye Ekle</span>
+                <Plus size={20} /> <span className="hidden sm:inline">Listeye Ekle</span>
               </button>
 
               <button

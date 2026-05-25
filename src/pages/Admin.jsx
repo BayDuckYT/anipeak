@@ -440,7 +440,7 @@ function QuickAddForm({ seriesList, showToast }) {
 
   // Series State
   const [newSeries, setNewSeries] = useState({
-    title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor',
+    title: '', cover: '', hero_bg: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor',
   });
 
   const compressToBase64 = (file) => new Promise((resolve, reject) => {
@@ -519,6 +519,8 @@ function QuickAddForm({ seriesList, showToast }) {
 
       if (target === 'pages') {
         setPageUrls(prev => [...(prev.trim() ? prev.split('\n') : []), ...urls].join('\n'));
+      } else if (target === 'hero_bg') {
+        setNewSeries(p => ({ ...p, hero_bg: urls[0] }));
       } else {
         setNewSeries(p => ({ ...p, cover: urls[0] }));
       }
@@ -536,7 +538,7 @@ function QuickAddForm({ seriesList, showToast }) {
     try {
       await addSeries(newSeries);
       showToast('Seri başarıyla oluşturuldu!', 'success');
-      setNewSeries({ title: '', cover: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor' });
+      setNewSeries({ title: '', cover: '', hero_bg: '', description: '', genre: 'Aksiyon', status: 'Devam Ediyor' });
       setSubmitted('series');
       setTimeout(() => setSubmitted(null), 3000);
     } catch (err) {
@@ -594,6 +596,15 @@ function QuickAddForm({ seriesList, showToast }) {
               </div>
               <input type="url" value={newSeries.cover} onChange={e => setNewSeries(p => ({ ...p, cover: e.target.value }))} className={inputCls} placeholder="https://..." />
             </div>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-1.5 ml-1">
+              <label className="text-[10px] uppercase font-bold text-slate-500">Arka Plan (Hero) URL</label>
+              <label className="cursor-pointer text-[9px] font-black text-green-400 hover:text-green-300">
+                Yükle <input type="file" accept="image/*" className="hidden" onChange={e => handleFileSelect(e, 'hero_bg')} />
+              </label>
+            </div>
+            <input type="url" value={newSeries.hero_bg} onChange={e => setNewSeries(p => ({ ...p, hero_bg: e.target.value }))} className={inputCls} placeholder="Opsiyonel yatay banner..." />
           </div>
           <div>
             <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1.5 ml-1">Açıklama</label>
