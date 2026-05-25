@@ -1986,7 +1986,7 @@ export default function Admin() {
                       <div className="flex gap-4 items-start">
                         <img src={editingSeries.cover} className="w-24 h-32 rounded-xl object-cover border border-white/10 shadow-lg" alt="" />
                         <div className="flex-1 space-y-2">
-                          <input type="url" value={editingSeries.cover} onChange={e => setEditingSeries({ ...editingSeries, cover: e.target.value })}
+                          <input type="text" value={editingSeries.cover} onChange={e => setEditingSeries({ ...editingSeries, cover: e.target.value })}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" placeholder="Görsel URL" />
                           <label className="flex items-center justify-center gap-2 w-full py-2.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-400 font-bold text-xs rounded-xl cursor-pointer transition-colors border border-purple-500/30">
                             <Upload size={14} /> PC'den Yükle
@@ -2011,7 +2011,7 @@ export default function Admin() {
                       <div className="flex gap-4 items-start">
                         {editingSeries.hero_bg ? <img src={editingSeries.hero_bg} className="w-32 h-20 rounded-xl object-cover border border-white/10 shadow-lg" alt="Hero" /> : null}
                         <div className="flex-1 space-y-2">
-                          <input type="url" value={editingSeries.hero_bg || ''} onChange={e => setEditingSeries({ ...editingSeries, hero_bg: e.target.value })}
+                          <input type="text" value={editingSeries.hero_bg || ''} onChange={e => setEditingSeries({ ...editingSeries, hero_bg: e.target.value })}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none text-xs" placeholder="Görsel URL (Boş bırakırsanız vitrinden kalkar)" />
                           <label className="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 font-bold text-xs rounded-xl cursor-pointer transition-colors border border-blue-500/30">
                             <Upload size={14} /> PC'den Yükle
