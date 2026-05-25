@@ -1148,6 +1148,7 @@ function UsersPanel({ showToast }) {
                       <option value="aethe" className="bg-[#0a0a14]">Efsanevi Aethe</option>
                     </select>
                   </div>
+                </div>
               </div>
 
               <div className="p-6 border-t border-white/10 bg-white/[0.02] flex justify-end gap-3">
