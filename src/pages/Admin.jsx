@@ -1092,9 +1092,10 @@ function UsersPanel({ showToast }) {
       {/* ── EDIT USER MODAL ── */}
       <AnimatePresence>
         {editingUser && (
-          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar flex items-start justify-center pt-20 pb-20 px-4 bg-black/90 backdrop-blur-xl">
-            <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="w-full max-w-lg glass-strong border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(59,130,246,0.15)] relative">
+          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
+             <div className="min-h-full flex items-center justify-center py-20 px-4">
+              <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                className="w-full max-w-lg glass-strong border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(59,130,246,0.15)] relative">
               <div className="absolute top-0 right-0 w-full h-32 bg-gradient-to-br from-blue-600/20 to-purple-600/20 blur-3xl" />
               
               <div className="relative p-8 border-b border-white/10 flex items-start justify-between">
@@ -1162,6 +1163,7 @@ function UsersPanel({ showToast }) {
                 </button>
               </div>
             </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence>
@@ -1296,19 +1298,21 @@ function PageManagement({ showToast }) {
       </div>
 
       {editingPage && (
-        <div className="fixed inset-0 z-[200] overflow-y-auto custom-scrollbar flex items-start justify-center pt-20 pb-20 px-4 bg-black/90 backdrop-blur-xl">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl glass-strong border border-white/10 rounded-3xl p-8 space-y-6">
-            <h3 className="text-2xl font-black text-white">Sayfa Düzenle: {editingPage.slug}</h3>
-            <div className="space-y-4">
-              <input type="text" placeholder="Slug (örn: gizlilik)" value={editingPage.slug} onChange={e => setEditingPage({ ...editingPage, slug: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
-              <input type="text" placeholder="Başlık" value={editingPage.title} onChange={e => setEditingPage({ ...editingPage, title: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
-              <textarea rows={10} placeholder="İçerik (HTML destekler)" value={editingPage.content} onChange={e => setEditingPage({ ...editingPage, content: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none resize-none" />
-            </div>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setEditingPage(null)} className="px-6 py-2 text-slate-400 font-bold">Vazgeç</button>
-              <button onClick={handleSavePage} className="px-8 py-2 bg-blue-600 text-white font-black rounded-xl">Kaydet</button>
-            </div>
-          </motion.div>
+        <div className="fixed inset-0 z-[200] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
+           <div className="min-h-full flex items-center justify-center py-20 px-4">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl glass-strong border border-white/10 rounded-3xl p-8 space-y-6">
+              <h3 className="text-2xl font-black text-white">Sayfa Düzenle: {editingPage.slug}</h3>
+              <div className="space-y-4">
+                <input type="text" placeholder="Slug (örn: gizlilik)" value={editingPage.slug} onChange={e => setEditingPage({ ...editingPage, slug: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
+                <input type="text" placeholder="Başlık" value={editingPage.title} onChange={e => setEditingPage({ ...editingPage, title: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
+                <textarea rows={10} placeholder="İçerik (HTML destekler)" value={editingPage.content} onChange={e => setEditingPage({ ...editingPage, content: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white outline-none resize-none" />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setEditingPage(null)} className="px-6 py-2 text-slate-400 font-bold">Vazgeç</button>
+                <button onClick={handleSavePage} className="px-8 py-2 bg-blue-600 text-white font-black rounded-xl">Kaydet</button>
+              </div>
+            </motion.div>
+          </div>
         </div>
       )}
     </div>
@@ -1934,9 +1938,10 @@ export default function Admin() {
       {/* Editing Series Modal */}
       <AnimatePresence>
         {editingSeries && (
-          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar flex items-start justify-center pt-20 pb-20 px-4 bg-black/90 backdrop-blur-xl">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
+             <div className="min-h-full flex items-center justify-center py-20 px-4">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
               <div className="p-6 border-b border-white/10 flex items-center justify-between">
                 <h3 className="text-2xl font-black text-white">Seri Düzenle: {editingSeries.title}</h3>
                 <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl"><X size={24} /></button>
@@ -2035,6 +2040,7 @@ export default function Admin() {
                 </div>
               </form>
             </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence>
