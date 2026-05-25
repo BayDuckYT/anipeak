@@ -340,12 +340,15 @@ export default function AuraMarket() {
     return buildMarketItems(effectsData, nameplatesData);
   }, []);
 
+  // Items filtered only by category (used for rarity counts)
+  const itemsInCategory = useMemo(() => {
+    if (selectedCategory === 'all') return allItems;
+    return allItems.filter(i => i.category === selectedCategory);
+  }, [allItems, selectedCategory]);
+
   // Filtered items
   const filteredItems = useMemo(() => {
-    let items = allItems;
-    if (selectedCategory !== 'all') {
-      items = items.filter(i => i.category === selectedCategory);
-    }
+    let items = itemsInCategory;
     if (selectedRarity !== 'all') {
       items = items.filter(i => i.rarity === selectedRarity);
     }
@@ -559,7 +562,7 @@ export default function AuraMarket() {
                 {r.icon && <span>{r.icon}</span>}
                 {r.label}
                 <span className="text-[8px] opacity-60 ml-1">
-                  ({r.id === 'all' ? allItems.length : allItems.filter(i => i.rarity === r.id).length})
+                  ({r.id === 'all' ? itemsInCategory.length : itemsInCategory.filter(i => i.rarity === r.id).length})
                 </span>
               </button>
             );
