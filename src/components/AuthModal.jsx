@@ -100,24 +100,17 @@ export default function AuthModal({ mode, onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-[1000] overflow-y-auto custom-scrollbar flex items-start justify-center pt-10 pb-10 px-4 sm:px-6 bg-black/80 backdrop-blur-md"
+      onClick={onClose}
     >
-      {/* Backdrop */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80 backdrop-blur-md" 
-        onClick={onClose}
-      />
-
       {/* Modal Content */}
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 10 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 10 }}
         transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-        className="relative z-[1001] w-full max-w-[400px] bg-[#0c0a10] glass-strong rounded-[2rem] p-6 shadow-[0_0_50px_rgba(168,85,247,0.15)] border border-white/10 overflow-y-auto max-h-full no-scrollbar"
+        onClick={(e) => e.stopPropagation()}
+        className="relative z-[1001] w-full max-w-[400px] bg-[#0c0a10] glass-strong rounded-[2rem] p-6 shadow-[0_0_50px_rgba(168,85,247,0.15)] border border-white/10"
       >
           {/* Glows */}
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />

@@ -1084,7 +1084,7 @@ function UsersPanel({ showToast }) {
       {/* ── EDIT USER MODAL ── */}
       <AnimatePresence>
         {editingUser && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar flex items-start justify-center pt-20 pb-20 px-4 bg-black/90 backdrop-blur-xl">
             <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
               className="w-full max-w-lg glass-strong border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(59,130,246,0.15)] relative">
               <div className="absolute top-0 right-0 w-full h-32 bg-gradient-to-br from-blue-600/20 to-purple-600/20 blur-3xl" />
@@ -1288,7 +1288,7 @@ function PageManagement({ showToast }) {
       </div>
 
       {editingPage && (
-        <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] overflow-y-auto custom-scrollbar flex items-start justify-center pt-20 pb-20 px-4 bg-black/90 backdrop-blur-xl">
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl glass-strong border border-white/10 rounded-3xl p-8 space-y-6">
             <h3 className="text-2xl font-black text-white">Sayfa Düzenle: {editingPage.slug}</h3>
             <div className="space-y-4">
@@ -1926,7 +1926,7 @@ export default function Admin() {
       {/* Editing Series Modal */}
       <AnimatePresence>
         {editingSeries && (
-          <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar flex items-start justify-center pt-20 pb-20 px-4 bg-black/90 backdrop-blur-xl">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
               <div className="p-6 border-b border-white/10 flex items-center justify-between">

@@ -64,19 +64,17 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
-      {/* Backdrop with extreme blur and dark overlay */}
-      <div 
-        onClick={onClose}
-        className="absolute inset-0 bg-black/95 backdrop-blur-[20px]"
-      />
-
+    <div 
+      className="fixed inset-0 z-[999999] overflow-y-auto custom-scrollbar flex items-start justify-center pt-10 pb-10 px-4 bg-black/95 backdrop-blur-[20px]"
+      onClick={onClose}
+    >
       {/* Modal Content */}
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
-        className="relative w-full max-w-lg glass border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.2)] bg-[#070511]"
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg glass border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.2)] bg-[#070511] my-auto"
       >
         {/* Decorative background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-red-600/20 blur-[80px] pointer-events-none" />
