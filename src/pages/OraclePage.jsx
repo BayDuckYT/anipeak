@@ -209,36 +209,46 @@ export default function OraclePage() {
   }, [user]);
 
   return (
-    <div className="relative min-h-screen pt-24 pb-20 text-white selection:bg-cyan-500/30">
+    <div className="relative min-h-screen bg-[#070511] pb-20 text-white selection:bg-cyan-500/30">
       <NebulaBackground />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ── CINEMATIC HERO HEADER ── */}
+      <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden flex items-end mb-12">
+        <div className="absolute inset-0 bg-[url('/yayinarkaplan.jpg')] bg-cover bg-center opacity-30 mix-blend-screen scale-105 transition-all duration-1000" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/70 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#070511] to-transparent z-10" />
         
-        {/* Header Section */}
-        <div className="flex flex-col items-center text-center mb-16">
+        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-12 flex flex-col md:flex-row items-center md:items-end gap-8">
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-20 h-20 bg-gradient-to-tr from-purple-600 to-cyan-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(138,43,226,0.4)] mb-6"
+            className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-purple-600 to-cyan-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(138,43,226,0.4)] flex-shrink-0"
           >
-            <Compass className="w-10 h-10 text-white animate-spin-slow" />
+            <Compass className="w-12 h-12 sm:w-16 sm:h-16 text-white animate-spin-slow" />
           </motion.div>
-          <motion.h1 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-5xl sm:text-7xl font-black tracking-tighter mb-4"
-          >
-            AKILLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-500 animate-gradient-x">ÖNERİ SİSTEMİ</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="text-gray-400 text-lg max-w-2xl font-light italic"
-          >
-            Okuma geçmişini, XP verilerini ve favori türlerini analiz eden akıllı algoritmamız senin için en uygun serileri buluyor.
-          </motion.p>
+          <div className="text-center md:text-left flex-1">
+            <motion.h1 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter mb-4 drop-shadow-2xl"
+              style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}
+            >
+              AKILLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-500 animate-gradient-x">ÖNERİ</span>
+            </motion.h1>
+            <motion.p 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="text-gray-300 text-lg sm:text-xl max-w-2xl font-medium drop-shadow-md"
+            >
+              Okuma geçmişini, XP verilerini ve favori türlerini analiz eden akıllı algoritmamız senin için en uygun serileri buluyor.
+            </motion.p>
+          </div>
         </div>
+      </div>
+
+      <div className="relative z-30 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12">
 
         <div className="min-h-[80vh]">
             <motion.div

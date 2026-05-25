@@ -77,25 +77,26 @@ export default function SchedulePage() {
   }
 
   return (
-    <main className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Header Section (Banner style) */}
-      <div className="relative w-full rounded-3xl overflow-hidden glass border border-white/8 mb-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-purple-900/30" />
-        <div className="absolute right-0 top-0 h-full w-1/2 bg-[url('/yayinarkaplan.jpg')] bg-cover bg-center opacity-40 mix-blend-screen" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />
+    <main className="min-h-screen bg-[#070511] pb-20">
+      {/* ── CINEMATIC HERO HEADER ── */}
+      <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden flex items-end">
+        <div className="absolute inset-0 bg-[url('/yayinarkaplan.jpg')] bg-cover bg-center opacity-40 mix-blend-screen scale-105 transition-all duration-1000" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/60 to-transparent" />
         
-        <div className="relative z-10 p-8 sm:p-12">
-          <div className="max-w-xl">
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight uppercase mb-3">
-              YAYIN PROGRAMI
-            </h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Yeni bölümlerin ne zaman yayınlanacağını buradan takip edebilirsin. AniPeak mühürlü serileri anında okumak için bildirimleri açmayı unutma!
-            </p>
-          </div>
+        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-12 flex flex-col gap-4">
+          <h1 className="text-5xl sm:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+            YAYIN <span className="text-purple-500">PROGRAMI</span>
+          </h1>
+          <p className="text-slate-300 text-lg max-w-2xl drop-shadow-md">
+            Yeni bölümlerin ne zaman yayınlanacağını buradan takip edebilirsin. AniPeak mühürlü serileri anında okumak için bildirimleri açmayı unutma!
+          </p>
         </div>
+      </div>
 
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 -mt-8 relative z-30">
         {/* Days Tabs (Functional Weekly Calendar) */}
-        <div className="relative z-10 border-t border-white/10 p-4 sm:px-8">
+        <div className="bg-[#141414]/90 backdrop-blur-xl border border-white/5 rounded-2xl p-4 sm:px-8 mb-8 shadow-2xl">
           <div className="flex items-center gap-2 sm:gap-4">
             <button onClick={handlePrevWeek} aria-label="Önceki hafta" className="p-2 sm:p-3 text-slate-400 hover:text-white glass hover:bg-white/10 rounded-xl transition-all">
               <ChevronLeft size={20} />
@@ -139,9 +140,9 @@ export default function SchedulePage() {
       </div>
 
       {/* Schedule Table List */}
-      <div className="glass border border-white/8 rounded-3xl overflow-hidden mb-8">
+      <div className="bg-[#141414]/80 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden mb-8 shadow-2xl">
         {/* Table Header */}
-        <div className="grid grid-cols-[80px_1fr_120px_100px_40px] sm:grid-cols-[100px_1fr_150px_120px_50px] items-center px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+        <div className="grid grid-cols-[80px_1fr_120px_100px_40px] sm:grid-cols-[100px_1fr_150px_120px_50px] items-center px-6 py-5 border-b border-white/10 bg-black/40">
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">SAAT</span>
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">SERİ</span>
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider hidden sm:block">BÖLÜM</span>

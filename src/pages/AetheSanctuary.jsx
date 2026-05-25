@@ -124,47 +124,62 @@ export default function AetheSanctuary() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070511] pt-24 pb-12 px-6">
-      <div className="max-w-6xl mx-auto">
-        {!profile?.house_id ? (
-          <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
-            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 uppercase tracking-tighter mb-4">Kaderini Seç</h1>
-            <p className="text-zinc-400 mb-12 max-w-lg">Aethe Kutsal Alanı'na hoş geldin. Dört büyük haneden hangisine ait olacağına kader karar verecek. Bu seçim sadece bir kez yapılır ve asla değiştirilemez.</p>
+    <div className="min-h-screen bg-[#070511] pb-12">
+      {!profile?.house_id ? (
+        <div className="relative w-full h-screen min-h-[600px] overflow-hidden flex items-center justify-center">
+          <div className="absolute inset-0 bg-[url('/yayinarkaplan.jpg')] bg-cover bg-center opacity-30 mix-blend-screen scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
+          
+          <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
+            <h1 className="text-6xl sm:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 uppercase tracking-tighter mb-6 drop-shadow-2xl">
+              KADERİNİ SEÇ
+            </h1>
+            <p className="text-slate-300 text-lg sm:text-2xl mb-12 max-w-2xl font-medium drop-shadow-md">
+              Aethe Kutsal Alanı'na hoş geldin. Dört büyük haneden hangisine ait olacağına kader karar verecek. Bu seçim sadece bir kez yapılır ve asla değiştirilemez.
+            </p>
             
             {isSelecting ? (
               <motion.div 
                 animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="w-40 h-40 rounded-full border-4 border-dashed border-purple-500 flex items-center justify-center shadow-[0_0_50px_rgba(168,85,247,0.5)]"
+                className="w-40 h-40 rounded-full border-4 border-dashed border-purple-500 flex items-center justify-center shadow-[0_0_50px_rgba(168,85,247,0.5)] bg-black/50 backdrop-blur-sm"
               >
                 <Sparkles size={40} className="text-white animate-pulse" />
               </motion.div>
             ) : (
               <button 
                 onClick={handleSelection}
-                className="relative group px-12 py-5 rounded-full bg-black border border-purple-500/50 overflow-hidden hover:scale-105 transition-all"
+                className="relative group px-12 py-6 rounded-2xl bg-white text-black overflow-hidden hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)]"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 group-hover:opacity-100 opacity-50 transition-all" />
-                <span className="relative z-10 text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                  <Sparkles size={20} /> Ritüeli Başlat
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 group-hover:opacity-100 opacity-0 transition-all" />
+                <span className="relative z-10 text-2xl font-black uppercase tracking-widest flex items-center gap-3">
+                  <Sparkles size={24} /> RİTÜELİ BAŞLAT
                 </span>
               </button>
             )}
           </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            {selectedHouse && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                {/* House Header */}
-                <div className={`relative overflow-hidden rounded-3xl border ${selectedHouse.border} bg-gradient-to-br ${selectedHouse.bg} to-black p-10 flex flex-col items-center text-center shadow-2xl`}>
-                   <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0" />
-                   <div className="relative z-10">
-                     <h1 className={`text-5xl font-black ${selectedHouse.color} uppercase tracking-tighter mb-2 drop-shadow-lg`}>{selectedHouse.name}</h1>
-                     <p className="text-white/80 font-medium tracking-wide max-w-2xl">{selectedHouse.desc}</p>
-                   </div>
-                </div>
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
+          {selectedHouse && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full">
+              {/* ── CINEMATIC HERO HEADER ── */}
+              <div className={`relative w-full h-[50vh] min-h-[400px] overflow-hidden flex items-end mb-12 border-b border-white/10`}>
+                 <div className={`absolute inset-0 bg-gradient-to-br ${selectedHouse.bg} to-[#070511] opacity-50 mix-blend-screen scale-105 transition-all duration-1000`} />
+                 <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
+                 <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#070511] to-transparent z-10" />
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                 <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-12 text-center md:text-left">
+                   <h1 className={`text-6xl sm:text-8xl lg:text-9xl font-black ${selectedHouse.color} uppercase tracking-tighter mb-4 drop-shadow-2xl`} style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+                     {selectedHouse.name}
+                   </h1>
+                   <p className="text-slate-200 text-lg sm:text-2xl font-medium tracking-wide max-w-2xl drop-shadow-md">
+                     {selectedHouse.desc}
+                   </p>
+                 </div>
+              </div>
+
+              <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* House Chat */}
                   <div className="lg:col-span-2 bg-card-navy/50 border border-white/5 rounded-3xl p-6 flex flex-col h-[600px]">
                     <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
@@ -268,11 +283,11 @@ export default function AetheSanctuary() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
-      </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   );
 }

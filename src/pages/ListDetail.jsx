@@ -258,80 +258,91 @@ export default function ListDetail() {
   );
 
   return (
-    <div className="min-h-screen bg-[#070511] pt-24 pb-20 relative overflow-hidden text-zinc-300 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
-      {/* Immersive Background */}
-      <div className="absolute top-0 left-0 w-full h-[800px] pointer-events-none overflow-hidden">
-         <div className="absolute inset-0 bg-gradient-to-b from-[#070511] via-[#070511] to-transparent z-10" />
-         {listItems?.length > 0 && (
-           <motion.div 
-             initial={{ opacity: 0, scale: 1.1 }}
-             animate={{ opacity: 0.15, scale: 1 }}
-             className="absolute inset-0 flex flex-wrap gap-1 blur-[10px] scale-105"
-           >
-              {listItems?.slice(0, 12).map((item, idx) => {
-                const s = item.series || series?.find(ser => String(ser.id) === String(item.series_id));
-                return s ? <img key={idx} src={s.cover} alt="" className="w-1/4 h-1/2 object-cover" loading="lazy" /> : null;
-              })}
-           </motion.div>
-         )}
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[700px] bg-indigo-500/10 rounded-full blur-[180px]" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 relative z-20">
+    <div className="min-h-screen bg-[#070511] pb-20 relative overflow-hidden text-zinc-300 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+      
+      {/* ── CINEMATIC HERO HEADER ── */}
+      <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden flex items-end mb-12">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/70 to-transparent z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#070511] to-transparent z-10" />
         
-        {/* Navigation & Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-16">
-           <div className="space-y-4">
-              <button onClick={() => navigate(-1)} className="group flex items-center gap-3 text-zinc-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.2em]">
-                 <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-all">
-                   <ArrowLeft size={16} />
-                 </div>
-                 Geri Dön
-              </button>
-              
-              <div className="flex items-center gap-6">
-                 <div className="relative">
-                    {isEditing ? (
-                       <input 
-                         value={editTitle}
-                         onChange={e => setEditTitle(e.target.value)}
-                         className="text-4xl md:text-7xl font-black text-white bg-white/5 border border-white/10 rounded-3xl px-8 py-2 w-full outline-none focus:border-indigo-500 transition-all uppercase tracking-tighter shadow-2xl"
-                         placeholder="Liste Adı..."
-                       />
-                    ) : (
-                       <div className="flex items-center gap-6">
-                          <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-2xl">{list.name}</h1>
-                          {isOwner && (
-                             <button onClick={() => setIsEditing(true)} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-zinc-500 hover:text-white hover:border-indigo-500/30 transition-all shadow-xl">
-                               <Edit3 size={24} />
-                             </button>
-                          )}
-                       </div>
-                    )}
-                 </div>
-              </div>
-
+        {listItems?.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 0.3, scale: 1 }}
+            className="absolute inset-0 flex flex-wrap gap-0 blur-[8px] scale-105 z-0"
+          >
+            {listItems?.slice(0, 16).map((item, idx) => {
+              const s = item.series || series?.find(ser => String(ser.id) === String(item.series_id));
+              return s ? <img key={idx} src={s.cover} alt="" className="w-1/4 h-1/2 object-cover opacity-80 mix-blend-screen" loading="lazy" /> : null;
+            })}
+          </motion.div>
+        )}
+        
+        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-12">
+          {/* Navigation */}
+          <button onClick={() => navigate(-1)} className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.2em] mb-8">
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-all">
+              <ArrowLeft size={16} />
+            </div>
+            Geri Dön
+          </button>
+          
+          <div className="flex flex-col md:flex-row items-start md:items-end gap-8">
+            <div className="flex-1">
               {isEditing ? (
-                 <textarea 
-                   value={editDesc}
-                   onChange={e => setEditDesc(e.target.value)}
-                   className="text-lg text-zinc-400 bg-white/5 border border-white/10 rounded-3xl px-8 py-6 w-full max-w-2xl outline-none focus:border-indigo-500 transition-all resize-none shadow-2xl mt-4"
-                   rows={3}
-                   placeholder="Bu koleksiyonun hikayesi nedir uşağım?"
-                 />
+                <input 
+                  value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)}
+                  className="text-4xl sm:text-7xl lg:text-8xl font-black text-white bg-black/40 border border-white/10 rounded-2xl px-6 py-4 w-full outline-none focus:border-indigo-500 transition-all uppercase tracking-tighter shadow-2xl drop-shadow-2xl mb-4"
+                  placeholder="Liste Adı..."
+                />
               ) : (
-                 <p className="text-zinc-500 text-xl md:text-2xl max-w-2xl font-medium italic opacity-80 border-l-4 border-indigo-500/30 pl-6 py-2">
-                   {list.description || 'Bu kadim koleksiyon için henüz bir açıklama mühürlenmemiş...'}
-                 </p>
-              )}
-
-              {isEditing && (
-                <div className="flex gap-4 mt-4">
-                   <button onClick={handleUpdate} className="px-10 py-4 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all">Kaydet</button>
-                   <button onClick={() => setIsEditing(false)} className="px-10 py-4 bg-card-navy text-zinc-500 text-xs font-black uppercase tracking-widest rounded-2xl border border-white/5 transition-all">İptal</button>
+                <div className="flex items-center gap-6 mb-4">
+                  <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white uppercase tracking-tighter leading-[1] drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+                    {list.name}
+                  </h1>
+                  {isOwner && (
+                    <button onClick={() => setIsEditing(true)} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-indigo-500/50 transition-all shadow-xl">
+                      <Edit3 size={24} />
+                    </button>
+                  )}
                 </div>
               )}
+
+              {isEditing ? (
+                <textarea 
+                  value={editDesc}
+                  onChange={e => setEditDesc(e.target.value)}
+                  className="text-lg text-zinc-300 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 w-full max-w-2xl outline-none focus:border-indigo-500 transition-all resize-none shadow-2xl drop-shadow-md"
+                  rows={3}
+                  placeholder="Bu koleksiyonun hikayesi nedir uşağım?"
+                />
+              ) : (
+                <p className="text-slate-200 text-lg sm:text-xl max-w-2xl font-medium drop-shadow-md border-l-4 border-indigo-500/50 pl-6 py-2">
+                  {list.description || 'Bu kadim koleksiyon için henüz bir açıklama mühürlenmemiş...'}
+                </p>
+              )}
+              
+              {isEditing && (
+                <div className="flex gap-4 mt-6">
+                   <button onClick={handleUpdate} className="px-10 py-4 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:scale-105 transition-all">Kaydet</button>
+                   <button onClick={() => setIsEditing(false)} className="px-10 py-4 bg-black/40 text-zinc-400 text-xs font-black uppercase tracking-widest rounded-2xl border border-white/10 hover:text-white transition-all">İptal</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 relative z-30">
+        
+        {/* Navigation & Header (Artık yukarıdaki Hero alanında) */}
+        <div className="flex flex-col md:flex-row items-start justify-between gap-8 mb-16">
+           <div className="space-y-4 flex-1 hidden md:block">
+              {/* Desktop boşluk, içerik yukarı taşındı */}
            </div>
+
 
            {/* Stats & Actions Card */}
            <div className="w-full md:w-auto min-w-[320px] p-8 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-3xl border border-white/5 shadow-2xl space-y-8">
