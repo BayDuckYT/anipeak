@@ -120,7 +120,7 @@ export default function Header({ onAuthOpen }) {
           <Link to="/" className="flex items-center group flex-shrink-0 relative" aria-label="Ana Sayfa">
             <div className="relative">
               <img 
-                src="/anipeaklogo.png" 
+                src="https://wsrv.nl/?url=https://anipeak.com.tr/anipeaklogo.png&w=320&output=webp" 
                 alt="AniPeak Logo" 
                 width="160"
                 height="64"
@@ -456,13 +456,13 @@ export default function Header({ onAuthOpen }) {
           )}
 
             {/* Mobile toggle */}
-            <button
-              aria-label="Menü"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
-            >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+          <button 
+            className="md:hidden p-2 -ml-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Ana menüyü aç"
+          >
+            <Menu size={24} />
+          </button>
           </div>
         </div>
 
