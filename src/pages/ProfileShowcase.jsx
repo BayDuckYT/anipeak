@@ -1181,7 +1181,7 @@ export default function ProfileShowcase() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 sm:gap-4 w-full sm:w-auto overflow-x-auto no-scrollbar pb-2 sm:pb-0">
+                  <div className="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto pb-2 sm:pb-0">
                      {[
                         { label: 'SERİ', value: readHistory.length, icon: BookOpen },
                         { label: 'FAVORİ', value: favoritesCount, icon: Star },
@@ -1198,7 +1198,7 @@ export default function ProfileShowcase() {
 
             {/* ACTION BAR & TABS */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-4 z-40 bg-[#070511]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] p-2 shadow-2xl">
-              <div className="flex w-full sm:w-auto items-center overflow-x-auto no-scrollbar rounded-[1.5rem] bg-white/5 p-1 border border-white/5">
+              <div className="flex flex-wrap w-full sm:w-auto items-center justify-center rounded-[1.5rem] bg-white/5 p-1 border border-white/5">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -1427,7 +1427,7 @@ export default function ProfileShowcase() {
 
                 <div className="p-6 sm:p-8 space-y-10 flex-1 overflow-y-auto no-scrollbar">
                    {/* Drawer Category Selector */}
-                   <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+                   <div className="flex flex-wrap gap-2 pb-2">
                       {['Tümü', 'Auralar', 'Avatar Çerçeveleri', 'Plaketler', 'İsim Efektleri'].map((f) => (
                         <button 
                           key={f} 
