@@ -1,22 +1,22 @@
 import React from 'react';
-import { ShieldAlert, RotateCcw } from 'lucide-react';
+import { ShieldAlert, RotateCcw, AlertTriangle } from 'lucide-react';
+import { getErrorCode, ERROR_DICTIONARY } from '../utils/errorDictionary.js';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorCode: "500" };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    const errorCode = getErrorCode(error?.message || error?.toString());
+    return { hasError: true, error, errorCode };
   }
 
   componentDidCatch(error, errorInfo) {
     console.error("Hata Yakalandı:", error, errorInfo);
     
     // Vite Sürüm Güncelleme (Chunk Missing) Hatası Çözümü
-    // Yeni deploy atıldığında eski dosyalar (assets/js/SettingsPage-xxx.js) silindiği için bu hata fırlar.
-    // Otomatik olarak sayfayı yenileterek tarayıcının yeni dosyaları çekmesini sağlıyoruz.
     if (error.message && (error.message.includes('Failed to fetch dynamically imported module') || error.message.includes('Importing a module script failed'))) {
       window.location.reload(true);
     }
@@ -34,10 +34,18 @@ class ErrorBoundary extends React.Component {
                  Bu içerik yüklenirken bir sorun oluştu. Diğer sayfalar hâlâ çalışır durumda!
                </p>
                
-               {/* HATA TEŞHİS - DIAGNOSTIC CODE ADDED */}
-               <div className="mb-6 px-4 py-2 bg-red-950/30 border border-red-500/20 rounded-lg text-left overflow-hidden">
-                  <span className="text-red-500/80 font-bold text-[10px] uppercase">GELİŞTİRİCİ HATA TEŞHİSİ:</span>
-                  <p className="text-red-400 font-mono text-[10px] break-all mt-1">{this.state.error?.message || this.state.error?.toString() || 'Bilinmeyen Hata'}</p>
+               {/* HATA TEŞHİS */}
+               <div className="mb-6 px-4 py-3 bg-red-950/30 border border-red-500/20 rounded-xl text-left overflow-hidden">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-black bg-red-600 text-white">HATA KODU: {this.state.errorCode}</span>
+                    <span className="text-[10px] text-red-400 font-bold truncate">{ERROR_DICTIONARY[this.state.errorCode]?.name}</span>
+                  </div>
+                  <p className="text-red-300/80 text-[10px] leading-relaxed mb-2">
+                    {ERROR_DICTIONARY[this.state.errorCode]?.description}
+                  </p>
+                  <p className="text-red-500/50 font-mono text-[9px] break-all border-t border-red-500/10 pt-2">
+                    Log: {this.state.error?.message || this.state.error?.toString()}
+                  </p>
                </div>
                <button 
                   onClick={() => window.location.href = '/'}
@@ -63,14 +71,32 @@ class ErrorBoundary extends React.Component {
             
             <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center gap-2 mx-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-800 text-white font-bold text-base hover:from-red-500 hover:to-red-700 transition-all shadow-neon-red shadow-[0_0_30px_rgba(239,68,68,0.3)] hover:shadow-[0_0_50px_rgba(239,68,68,0.45)]"
+              className="flex items-center gap-2 mx-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-800 text-white font-bold text-base hover:from-red-500 hover:to-red-700 transition-all shadow-neon-red shadow-[0_0_30px_rgba(239,68,68,0.3)] hover:shadow-[0_0_50px_rgba(239,68,68,0.45)] mb-8"
             >
               <RotateCcw size={18} />
               Ana Sayfaya Dön
             </button>
             
-            <div className="mt-8 text-[10px] text-slate-400 font-mono opacity-50">
-              Hata Kodu: {this.state.error?.message || 'Bilinmeyen Hata'}
+            <div className="text-left bg-red-950/40 border border-red-500/20 rounded-2xl p-5 backdrop-blur-sm">
+               <div className="flex items-center gap-3 mb-3 pb-3 border-b border-red-500/20">
+                  <span className="px-3 py-1 rounded-lg text-xs font-black bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                    HATA KODU: {this.state.errorCode}
+                  </span>
+                  <span className="text-sm text-red-400 font-bold">{ERROR_DICTIONARY[this.state.errorCode]?.name}</span>
+               </div>
+               <p className="text-red-200/90 text-xs leading-relaxed mb-4">
+                 {ERROR_DICTIONARY[this.state.errorCode]?.description}
+               </p>
+               <div className="bg-black/50 rounded-xl p-3 border border-red-500/10">
+                 <span className="block text-[10px] text-red-500/60 font-bold mb-1">ÇÖZÜM ÖNERİSİ:</span>
+                 <p className="text-red-300/80 text-xs">{ERROR_DICTIONARY[this.state.errorCode]?.solution}</p>
+               </div>
+               <div className="mt-4 pt-4 border-t border-red-500/10">
+                 <span className="block text-[10px] text-red-500/60 font-bold mb-1">TEKNİK LOG:</span>
+                 <div className="text-[10px] text-red-500/40 font-mono break-all max-h-20 overflow-y-auto">
+                   {this.state.error?.message || this.state.error?.toString() || 'Bilinmeyen Hata'}
+                 </div>
+               </div>
             </div>
           </div>
         </div>

@@ -9,21 +9,22 @@ import {
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
   Crown, Check, X, Search, Image as ImageIcon, Activity,
   UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell,
-  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost
+  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
+import { ERROR_DICTIONARY } from '../utils/errorDictionary.js';
 
 // ── RBAC Map ──────────────────────────────────────────────────────────────────
 export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'suggestions', 'settings', 'trash'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
@@ -57,6 +58,7 @@ const ALL_NAV = [
   { id: 'schedule', label: 'Yayın Takvimi', icon: Calendar },
   { id: 'users', label: 'Kullanıcılar', icon: UserCheck },
   { id: 'tickets', label: 'Destek Talepleri', icon: ShieldAlert },
+  { id: 'errorDecoder', label: 'Hata Bulucu', icon: AlertTriangle },
   { id: 'pages', label: 'Sayfa Yönetimi', icon: FileText },
   { id: 'messages', label: 'Mesajlar', icon: Mail },
   { id: 'settings', label: 'Genel Ayarlar', icon: Settings },
@@ -1360,6 +1362,69 @@ function InboxPanel({ showToast }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Error Decoder Panel
+// ─────────────────────────────────────────────────────────────────────────────
+function ErrorDecoderPanel() {
+  const [code, setCode] = useState('');
+  const [result, setResult] = useState(null);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const cleanCode = code.trim();
+    if (ERROR_DICTIONARY[cleanCode]) {
+      setResult(ERROR_DICTIONARY[cleanCode]);
+    } else {
+      setResult({ name: "Bulunamadı", description: "Bu koda ait bir hata kaydı bulunmuyor. Yeni bir hata türü olabilir veya geçersiz bir kod girdiniz.", solution: "Sistem yöneticisine başvurun veya konsol loglarını inceleyin." });
+    }
+  };
+
+  return (
+    <div className="space-y-6 max-w-3xl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-black text-white flex items-center gap-2">
+          <AlertTriangle size={24} className="text-amber-500" /> Hata Bulucu (Error Decoder)
+        </h2>
+      </div>
+
+      <div className="glass border border-white/8 rounded-3xl p-8">
+        <p className="text-slate-400 text-sm mb-6">
+          Sistemde veya kullanıcılarda meydana gelen hataların kodlarını (Örn: 564, 405) buraya girerek sorunun kaynağını ve çözüm yolunu anında öğrenebilirsin.
+        </p>
+        <form onSubmit={handleSearch} className="flex gap-4 mb-8">
+          <input 
+            type="text" 
+            placeholder="Hata Kodu Girin (Örn: 564)" 
+            value={code} 
+            onChange={e => setCode(e.target.value)}
+            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white text-lg font-mono focus:outline-none focus:border-amber-500 transition-all shadow-inner"
+          />
+          <button type="submit" className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-xl transition-all shadow-lg shadow-amber-600/20">SORGULA</button>
+        </form>
+
+        {result && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-amber-950/20 border border-amber-500/20 rounded-2xl p-6">
+            <h3 className="text-xl font-black text-white mb-2 flex items-center gap-2">
+              <span className="bg-amber-500 text-black px-2 py-0.5 rounded text-sm font-black">{code}</span>
+              {result.name}
+            </h3>
+            <div className="space-y-4 mt-4">
+              <div>
+                <span className="block text-[10px] text-amber-500/60 font-black uppercase tracking-widest mb-1">Teşhis / Sebep</span>
+                <p className="text-slate-300 text-sm leading-relaxed">{result.description}</p>
+              </div>
+              <div className="bg-black/40 rounded-xl p-4 border border-white/5">
+                <span className="block text-[10px] text-emerald-400 font-black uppercase tracking-widest mb-1">Çözüm Yolu</span>
+                <p className="text-emerald-300/90 text-sm leading-relaxed">{result.solution}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAIN Admin Component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Admin() {
@@ -1732,10 +1797,10 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Other tabs like announcements and users are simple enough */}
         {safeActiveNav === 'announcements' && <AnnouncementsPanel showToast={showToast} />}
         {safeActiveNav === 'users' && <UsersPanel showToast={showToast} />}
         {safeActiveNav === 'tickets' && <TicketsPanel showToast={showToast} />}
+        {safeActiveNav === 'errorDecoder' && <ErrorDecoderPanel />}
         {safeActiveNav === 'pages' && <PageManagement showToast={showToast} />}
         {safeActiveNav === 'messages' && <InboxPanel showToast={showToast} />}
         {safeActiveNav === 'add' && <QuickAddForm seriesList={series} showToast={showToast} />}
