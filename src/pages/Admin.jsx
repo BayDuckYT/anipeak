@@ -1553,9 +1553,23 @@ export default function Admin() {
 
   const handleSaveSeries = async (e) => {
     e.preventDefault();
-    await updateSeries(editingSeries.id, editingSeries);
-    showToast('Seri detayları güncellendi!', 'success');
-    setEditingSeries(null);
+    try {
+      // Supabase'e gönderirken SADECE formda olan ve veritabanında var olan sütunları gönder!
+      const safeUpdates = {
+        title: editingSeries.title,
+        author: editingSeries.author,
+        description: editingSeries.description,
+        cover: editingSeries.cover,
+        hero_bg: editingSeries.hero_bg,
+        rating: editingSeries.rating,
+        status: editingSeries.status
+      };
+      await updateSeries(editingSeries.id, safeUpdates);
+      showToast('Seri detayları güncellendi!', 'success');
+      setEditingSeries(null);
+    } catch (err) {
+      showToast('Kayıt başarısız: ' + err.message, 'error');
+    }
   };
 
   return (
