@@ -288,6 +288,5 @@ export default function AetheSanctuary() {
           </AnimatePresence>
         )}
       </div>
-    </div>
   );
 }
