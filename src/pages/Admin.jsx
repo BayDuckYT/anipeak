@@ -1600,7 +1600,7 @@ export default function Admin() {
                             </button>
                             {s.is_trending && (
                               <span className="flex items-center gap-1 text-[9px] text-orange-400 font-black uppercase bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full w-fit">
-                                <Flame size={9} className="fill-orange-400" /> Trend
+                                <Flame size={9} className="fill-orange-400" /> VİTRİN
                               </span>
                             )}
                           </div>
@@ -1628,11 +1628,12 @@ export default function Admin() {
                                 <button onClick={async () => {
                                   try {
                                     await toggleTrend(s.id);
-                                    showToast(s.is_trending ? 'Trend kaldırıldı' : 'Trend yapıldı!', 'success');
+                                    showToast(s.is_trending ? 'Vitrinden kaldırıldı' : 'Vitrine eklendi!', 'success');
                                   } catch (err) {
-                                    showToast('Trend hatası: Yetkiniz olmayabilir (RLS)', 'error');
+                                    showToast('Hata: Yetkiniz olmayabilir (RLS)', 'error');
                                   }
                                 }}
+                                  title="Ana Sayfa Vitrinine (Hero) Ekle/Çıkar"
                                   className={`p-2 rounded-lg transition-all border ${s.is_trending ? 'text-orange-400 bg-orange-500/20 border-orange-500/30' : 'text-slate-500 border-transparent hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/10'}`}>
                                   <Flame size={15} className={s.is_trending ? 'fill-orange-400' : ''} />
                                 </button>

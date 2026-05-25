@@ -113,7 +113,12 @@ export default function Home({ onAuthOpen }) {
   }, [sortedSeries]);
 
   // 2. Veri Setleri
-  const trendingSeries = useMemo(() => validSeries.filter(s => s.is_trending).slice(0, 5), [validSeries]);
+  // Admin panelindeki alev ikonu (is_trending) artık VİTRİN/HERO seçimini temsil ediyor.
+  const adminSelectedHeroSeries = useMemo(() => validSeries.filter(s => s.is_trending || (s.hero_bg && s.hero_bg.trim() !== '')), [validSeries]);
+  
+  // Trend Seriler artık EN ÇOK OKUNAN (reads_num) serileri gösteriyor.
+  const trendingSeries = useMemo(() => [...validSeries].sort((a, b) => (b.reads_num || 0) - (a.reads_num || 0)).slice(0, 15), [validSeries]);
+
   const [activeType, setActiveType] = useState('TÜMÜ');
 
   const newChapterSeries = useMemo(() => {
@@ -140,8 +145,7 @@ export default function Home({ onAuthOpen }) {
 
   // 3. Hero Carousel Logic
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
-  const heroSeriesList = validSeries.filter(s => s.hero_bg && s.hero_bg.trim() !== '');
-  const heroItems = heroSeriesList.length > 0 ? heroSeriesList : (trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5));
+  const heroItems = adminSelectedHeroSeries.length > 0 ? adminSelectedHeroSeries : validSeries.slice(0, 5);
   
   useEffect(() => {
     if (heroItems.length <= 1) return;
@@ -313,7 +317,7 @@ export default function Home({ onAuthOpen }) {
               </div>
               
               <VirtualHScroll 
-                items={trendingSeries.length > 0 ? trendingSeries : validSeries.slice(0, 5)} 
+                items={trendingSeries} 
                 itemWidth={200} 
                 gap={16} 
                 className="netflix-row-container"
