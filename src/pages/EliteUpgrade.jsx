@@ -685,6 +685,7 @@ export default function EliteUpgrade() {
                 </p>
               </div>
             </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
