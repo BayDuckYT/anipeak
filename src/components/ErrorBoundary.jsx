@@ -49,23 +49,15 @@ class ErrorBoundary extends React.Component {
                </p>
                
                {/* HATA TEŞHİS */}
-               <div className="mb-6 px-4 py-3 bg-red-950/30 border border-red-500/20 rounded-xl text-left overflow-hidden">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-black bg-red-600 text-white">HATA KODU: {this.state.fullCode}</span>
-                    <span className="text-[10px] text-red-400 font-bold truncate">{ERROR_DICTIONARY[this.state.errorCode]?.name}</span>
-                  </div>
-                  <p className="text-red-300/80 text-[10px] leading-relaxed mb-2">
-                    {ERROR_DICTIONARY[this.state.errorCode]?.description}
-                  </p>
-                  <p className="text-red-500/50 font-mono text-[9px] break-all border-t border-red-500/10 pt-2">
-                    Bu kodu yetkiliye iletirseniz sorunun tam olarak nerede (hangi satırda) olduğunu Admin panelinden görebilir.
-                  </p>
+               <div className="mb-6 p-4 bg-red-950/30 border border-red-500/20 rounded-xl text-center">
+                  <span className="block text-[10px] font-black text-red-500/70 uppercase tracking-widest mb-1">HATA KODU</span>
+                  <span className="block text-xl font-black text-white tracking-wider">{this.state.fullCode}</span>
                </div>
                <button 
                   onClick={() => window.location.href = '/'}
                   className="w-full py-2.5 rounded-lg bg-red-600/20 hover:bg-red-600/40 text-red-400 font-bold text-xs transition-colors flex items-center justify-center gap-2 border border-red-500/30"
                >
-                  <RotateCcw size={14} /> Sayfayı Yenile
+                  <RotateCcw size={14} /> Ana Sayfaya Dön
                </button>
             </div>
           </div>
