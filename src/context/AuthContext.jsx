@@ -58,11 +58,10 @@ export function getLevelInfo(xp, is_elite = false, active_plan_id = null) {
 
   if (level > 100) level = 100;
 
-  if (active_plan_id === 'aethe') rank = 'Efsanevi Aethe Mührü';
-  else if (active_plan_id === 'ruler') rank = 'Hükümdar';
-  else if (active_plan_id === 'shadow') rank = 'Hükümdar Gölgesi';
-  else if (active_plan_id === 'pro') rank = 'AniPeak Pro';
-  else if (is_elite) rank = `Elite ${rank}`;
+  // Eğer premium kullanıcısıysa (is_elite) başına sadece Elite ekle
+  if (is_elite || active_plan_id) {
+    rank = `Elite ${rank}`;
+  }
 
   return { 
     level, 
@@ -71,7 +70,7 @@ export function getLevelInfo(xp, is_elite = false, active_plan_id = null) {
     xpForNext, 
     progress: level === 100 ? 100 : (xpInLevel / xpForNext) * 100,
     fullLabel: `Lv. ${level} ${rank}`,
-    rankStyle: is_elite ? 'elite-gold-glow' : 'normal-rank'
+    rankStyle: (is_elite || active_plan_id) ? 'elite-gold-glow' : 'normal-rank'
   };
 }
 
