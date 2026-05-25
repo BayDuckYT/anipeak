@@ -137,6 +137,7 @@ const getColorClasses = (color) => ({
 export default function EliteUpgrade() {
   const { user, upgradeToElite } = useAuth();
   const navigate = useNavigate();
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useSEO({
     title: 'Elite Premium',
@@ -146,17 +147,24 @@ export default function EliteUpgrade() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  const handlePurchase = async (plan) => {
+  const handleSelectPlan = (plan) => {
     if (!user) {
       window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }));
       return;
     }
-    if (plan.id === 'aethe') {
+    setSelectedPlan(plan);
+  };
+
+  const handlePurchase = async () => {
+    if (!selectedPlan) return;
+    if (selectedPlan.id === 'aethe') {
       window.open('https://discord.gg/anipeak', '_blank');
+      setSelectedPlan(null);
       return;
     }
-    const success = await upgradeToElite(plan.id);
+    const success = await upgradeToElite(selectedPlan.id);
     if (success) {
+      setSelectedPlan(null);
       navigate('/profile');
     }
   };
@@ -390,11 +398,11 @@ export default function EliteUpgrade() {
 
                     {/* Action Button */}
                     <button 
-                      onClick={() => handlePurchase(plan)}
+                      onClick={() => handleSelectPlan(plan)}
                       className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2.5 border bg-gradient-to-r ${cc.gradient} ${cc.borderStrong} text-white hover:scale-[1.03] hover:shadow-lg ${cc.shadow} active:scale-[0.98]`}
                     >
                       <PlanIcon size={16} />
-                      <span>{plan.id === 'aethe' ? 'DISCORD\'DAN AL' : 'SATIN AL'}</span>
+                      <span>{plan.id === 'aethe' ? 'DISCORD\'DAN AL' : 'PAKETİ SEÇ'}</span>
                       <ChevronRight size={16} />
                     </button>
                   </div>
@@ -470,6 +478,111 @@ export default function EliteUpgrade() {
         </section>
 
       </div>
+
+      {/* ── PURCHASE CONFIRMATION MODAL ── */}
+      <AnimatePresence>
+        {selectedPlan && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            onClick={() => setSelectedPlan(null)}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
+            
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg rounded-[2.5rem] overflow-hidden border border-white/10 bg-[#0c0b15] shadow-2xl"
+              style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
+            >
+              {/* Modal Header */}
+              <div className="relative p-8 pb-6">
+                <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
+                
+                <button 
+                  onClick={() => setSelectedPlan(null)} 
+                  className="absolute top-5 right-5 p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                >
+                  <X size={20} />
+                </button>
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${getColorClasses(selectedPlan.color).gradient} flex items-center justify-center shadow-lg`}>
+                      <selectedPlan.icon size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className={`text-xl font-black uppercase tracking-wider ${getColorClasses(selectedPlan.color).text}`}>{selectedPlan.name}</h3>
+                      <p className="text-xs text-slate-500 font-bold">{selectedPlan.isSubscription ? 'Abonelik Planı' : 'Tek Seferlik Satın Alma'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plan Summary */}
+              <div className="px-8 pb-4">
+                <div className={`p-5 rounded-2xl ${getColorClasses(selectedPlan.color).bgLight} border ${getColorClasses(selectedPlan.color).border}`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-slate-400 font-bold mb-1">
+                        {selectedPlan.isSubscription ? 'Aylık Ödeme' : 'Tek Seferlik Ödeme'}
+                      </p>
+                      <div className="flex items-baseline gap-2">
+                        {selectedPlan.oldPrice && (
+                          <span className="text-lg text-slate-500 line-through font-bold">{selectedPlan.oldPrice} TL</span>
+                        )}
+                        <span className="text-3xl font-black text-white">{selectedPlan.basePrice} TL</span>
+                      </div>
+                    </div>
+                    {selectedPlan.oldPrice && (
+                      <div className={`px-3 py-1.5 rounded-xl ${getColorClasses(selectedPlan.color).bgLight} border ${getColorClasses(selectedPlan.color).border}`}>
+                        <span className={`text-sm font-black ${getColorClasses(selectedPlan.color).text}`}>
+                          %{calcDiscount(selectedPlan.oldPrice, selectedPlan.basePrice)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className={`text-xs font-bold mt-3 ${getColorClasses(selectedPlan.color).textDark}`}>
+                    {selectedPlan.isSubscription ? 'Her ay yenilenir. İstediğin zaman iptal edebilirsin.' : 'Ömür boyu geçerli. Bir kez öde, sonsuza kadar kullan.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Summary & Purchase */}
+              <div className="px-8 pb-8 pt-4">
+                {/* Total Display */}
+                <div className="flex items-center justify-between mb-6 px-2">
+                  <span className="text-sm font-bold text-slate-400">Toplam Tutar</span>
+                  <div className="text-right">
+                    <span className="text-3xl font-black text-white">{selectedPlan.basePrice}</span>
+                    <span className="text-lg font-bold text-slate-400 ml-1.5">TL</span>
+                  </div>
+                </div>
+
+                {/* Purchase Button */}
+                <button 
+                  onClick={handlePurchase}
+                  className={`w-full py-5 rounded-2xl font-black text-base uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 border bg-gradient-to-r ${getColorClasses(selectedPlan.color).gradient} ${getColorClasses(selectedPlan.color).borderStrong} text-white hover:scale-[1.02] hover:shadow-xl ${getColorClasses(selectedPlan.color).shadow} active:scale-[0.98]`}
+                >
+                  <Sparkles size={18} />
+                  {selectedPlan.id === 'aethe' ? 'DISCORD\'DAN SATIN AL' : 'SATIN AL'}
+                </button>
+
+                <p className="text-center text-[10px] text-slate-600 mt-4 font-medium">
+                  Satın alma işlemi Discord sunucumuz üzerinden gerçekleştirilmektedir.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @keyframes marquee-slower {
