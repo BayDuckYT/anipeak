@@ -275,7 +275,7 @@ export default function Wallet() {
               initial={{ scale: 0.9, opacity: 0 }} 
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md bg-[#070511] border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar bg-[#070511] border border-white/10 rounded-3xl p-8 shadow-2xl"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 blur-[50px] -translate-y-1/2 translate-x-1/2" />
               

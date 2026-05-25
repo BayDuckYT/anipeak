@@ -591,7 +591,7 @@ export default function EliteUpgrade() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', damping: 25 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg rounded-[2.5rem] overflow-hidden border border-white/10 bg-[#0c0b15] shadow-2xl"
+              className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar rounded-[2.5rem] border border-white/10 bg-[#0c0b15] shadow-2xl"
               style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
             >
               {/* Modal Header */}
