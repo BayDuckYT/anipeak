@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Crown, Check, ArrowRight, Zap, Star, Shield, 
   Monitor, Clock, Gift, Layout, Download, Sparkles,
-  Palette, Box, Users, Trophy, Rocket, Ghost, Infinity, AlertTriangle, X
+  Palette, Box, Users, Trophy, Rocket, Ghost, Infinity, AlertTriangle, X,
+  Flame, Calendar, Tag, ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,11 +14,141 @@ import effectsData from '../data/effects.json';
 import nameplatesData from '../data/nameplates.json';
 import { useSEO } from '../hooks/useSEO';
 
+// ─── PLAN DATA ───────────────────────────────────────────────────────────────
+const PLAN_DATA = [
+  {
+    id: 'pro',
+    name: 'ANIPEAK PRO',
+    basePrice: 199,
+    oldPrice: 269,
+    color: 'cyan',
+    colorHex: '#06b6d4',
+    gradientFrom: 'from-cyan-500',
+    gradientTo: 'to-blue-600',
+    bgGlow: 'rgba(6,182,212,0.15)',
+    icon: Trophy,
+    aura: '25.000',
+    duration: 'AYLIK',
+    isSubscription: true,
+    bgImage: '/plans/pro-bg.png',
+    features: [
+      '5 İsim Plakası & 10 Avatar Efekti', 
+      'PRO Rozeti & Özel Profil Çerçevesi', 
+      'Tamamen Reklamsız Okuma Deneyimi', 
+      'Bölümleri Çevrimdışı İndirme', 
+      'Sohbet ve Yorumlarda Özel Renk',
+      'Aylık 25.000 Aura Kazanımı'
+    ],
+    periods: [
+      { label: '1 Ay', months: 1, price: 199, perMonth: 199, bonusText: '+3 Bonus Avatar Efekti' },
+      { label: '3 Ay', months: 3, price: 549, perMonth: 183, discount: 8 },
+      { label: '6 Ay', months: 6, price: 999, perMonth: 167, discount: 16 },
+      { label: '1 Yıl', months: 12, price: 1799, perMonth: 150, discount: 25, best: true }
+    ]
+  },
+  {
+    id: 'shadow',
+    name: 'HÜKÜMDAR GÖLGESİ',
+    basePrice: 349,
+    color: 'purple',
+    colorHex: '#a855f7',
+    gradientFrom: 'from-purple-500',
+    gradientTo: 'to-indigo-600',
+    bgGlow: 'rgba(168,85,247,0.15)',
+    icon: Ghost,
+    aura: '50.000',
+    duration: 'AYLIK',
+    isSubscription: true,
+    bgImage: '/plans/shadow-bg.png',
+    features: [
+      '15 İsim Plakası & 30 Avatar Efekti', 
+      '10 İsim Efekti & Dinamik Çerçeveler', 
+      'GÖLGE Rozeti & Gelişmiş Profil', 
+      'Yeni Bölümlere Erken Erişim (+24 Saat)', 
+      'Özel Yorum Stilleri & Sınırsız İndirme',
+      'Discord Özel "Gölge" Rolü',
+      'Aylık 50.000 Aura Kazanımı'
+    ],
+    periods: [
+      { label: '1 Ay', months: 1, price: 349, perMonth: 349, bonusText: '+5 Bonus Avatar Efekti' },
+      { label: '3 Ay', months: 3, price: 949, perMonth: 316, discount: 9 },
+      { label: '6 Ay', months: 6, price: 1699, perMonth: 283, discount: 19 },
+      { label: '1 Yıl', months: 12, price: 2999, perMonth: 250, discount: 28, best: true }
+    ]
+  },
+  {
+    id: 'ruler',
+    name: 'HÜKÜMDAR',
+    basePrice: 499,
+    oldPrice: 699,
+    color: 'amber',
+    colorHex: '#f59e0b',
+    gradientFrom: 'from-amber-500',
+    gradientTo: 'to-yellow-600',
+    bgGlow: 'rgba(245,158,11,0.15)',
+    icon: Crown,
+    aura: '250.000',
+    duration: 'ÖMÜR BOYU',
+    is_popular: true,
+    isSubscription: false,
+    bgImage: '/plans/ruler-bg.png',
+    features: [
+      '30 İsim Plakası & 100 Avatar Efekti', 
+      '25 İsim Efekti & Animasyonlu Çerçeveler', 
+      'HÜKÜMDAR Rozeti & Hareketli Avatar', 
+      'Yeni Bölümlere En Erken Erişim (+48 Saat)', 
+      'Yorumlarda Sürekli Parlama Efekti',
+      '7/24 Öncelikli VIP Destek',
+      'Tüm Gelecek Güncellemeler Bedava',
+      'Aylık 250.000 Aura Kazanımı'
+    ]
+  },
+  {
+    id: 'aethe',
+    name: 'AETHE',
+    basePrice: 1199,
+    oldPrice: 1500,
+    color: 'rose',
+    colorHex: '#e11d48',
+    gradientFrom: 'from-rose-600',
+    gradientTo: 'to-red-800',
+    bgGlow: 'rgba(225,29,72,0.15)',
+    icon: Infinity,
+    duration: 'ÖMÜR BOYU',
+    is_limited: true,
+    isSubscription: false,
+    bgImage: '/plans/aethe-bg.png',
+    features: [
+      'Hükümdar Paketindeki TÜM Ayrıcalıklar',
+      'Dört Efsanevi Haneden Birine Katılım',
+      'Aethe Kutsal Alanı & Haneler Savaşı',
+      'Efsanevi AETHE Mührü & Kan Kırmızı Aura', 
+      'TÜM Efektlere Sınırsız Erişim (387+)', 
+      'Sadece İlk 20 Kişiye Özel Kadim Statü',
+      'Sınırsız Aura Kazanımı'
+    ]
+  }
+];
+
+// ─── COLOR UTILS ─────────────────────────────────────────────────────────────
+const getColorClasses = (color) => ({
+  text: color === 'cyan' ? 'text-cyan-400' : color === 'purple' ? 'text-purple-400' : color === 'amber' ? 'text-amber-400' : 'text-rose-400',
+  textLight: color === 'cyan' ? 'text-cyan-300' : color === 'purple' ? 'text-purple-300' : color === 'amber' ? 'text-amber-300' : 'text-rose-300',
+  textDark: color === 'cyan' ? 'text-cyan-600' : color === 'purple' ? 'text-purple-600' : color === 'amber' ? 'text-amber-600' : 'text-rose-600',
+  bg: color === 'cyan' ? 'bg-cyan-500' : color === 'purple' ? 'bg-purple-500' : color === 'amber' ? 'bg-amber-500' : 'bg-rose-500',
+  bgLight: color === 'cyan' ? 'bg-cyan-500/10' : color === 'purple' ? 'bg-purple-500/10' : color === 'amber' ? 'bg-amber-500/10' : 'bg-rose-500/10',
+  border: color === 'cyan' ? 'border-cyan-500/30' : color === 'purple' ? 'border-purple-500/30' : color === 'amber' ? 'border-amber-500/30' : 'border-rose-500/30',
+  borderStrong: color === 'cyan' ? 'border-cyan-400' : color === 'purple' ? 'border-purple-400' : color === 'amber' ? 'border-amber-400' : 'border-rose-400',
+  check: color === 'cyan' ? 'text-cyan-500' : color === 'purple' ? 'text-purple-500' : color === 'amber' ? 'text-amber-500' : 'text-rose-500',
+  gradient: color === 'cyan' ? 'from-cyan-600 to-blue-600' : color === 'purple' ? 'from-purple-600 to-indigo-600' : color === 'amber' ? 'from-amber-500 to-yellow-600' : 'from-rose-700 to-red-900',
+  shadow: color === 'cyan' ? 'shadow-cyan-500/40' : color === 'purple' ? 'shadow-purple-500/40' : color === 'amber' ? 'shadow-amber-500/40' : 'shadow-rose-500/40',
+});
+
 export default function EliteUpgrade() {
   const { user, upgradeToElite } = useAuth();
   const navigate = useNavigate();
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedPeriodIdx, setSelectedPeriodIdx] = useState(0);
 
   useSEO({
     title: 'Elite Premium',
@@ -25,99 +156,32 @@ export default function EliteUpgrade() {
     url: 'https://anipeak.com.tr/elite-upgrade'
   });
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    const customPlans = [
-      {
-        id: 'pro',
-        name: 'ANIPEAK PRO',
-        price: 75.00,
-        duration: 'AYLIK',
-        color: 'cyan',
-        bgImage: '/plans/pro-bg.png',
-        features: [
-          '5 İsim Plakası & 10 Avatar Efekti', 
-          'PRO Rozeti & Özel Profil Çerçevesi', 
-          'Tamamen Reklamsız Okuma Deneyimi', 
-          'Bölümleri Çevrimdışı İndirme', 
-          'Sohbet ve Yorumlarda Özel Renk'
-        ]
-      },
-      {
-        id: 'shadow',
-        name: 'HÜKÜMDAR GÖLGESİ',
-        price: 699.00,
-        duration: 'YILLIK',
-        color: 'purple',
-        savings: '₺201 İNDİRİM',
-        bgImage: '/plans/shadow-bg.png',
-        features: [
-          '15 İsim Plakası & 30 Avatar Efekti', 
-          '10 İsim Efekti & Dinamik Çerçeveler', 
-          'GÖLGE Rozeti & Gelişmiş Profil', 
-          'Yeni Bölümlere Erken Erişim (+24 Saat)', 
-          'Özel Yorum Stilleri & Sınırsız İndirme',
-          'Discord Özel "Gölge" Rolü'
-        ]
-      },
-      {
-        id: 'ruler',
-        name: 'HÜKÜMDAR',
-        price: 999.00,
-        duration: 'ÖMÜR BOYU',
-        color: 'amber',
-        is_popular: true,
-        bgImage: '/plans/ruler-bg.png',
-        features: [
-          '30 İsim Plakası & 100 Avatar Efekti', 
-          '25 İsim Efekti & Animasyonlu Çerçeveler', 
-          'HÜKÜMDAR Rozeti & Hareketli Avatar', 
-          'Yeni Bölümlere En Erken Erişim (+48 Saat)', 
-          'Yorumlarda Sürekli Parlama Efekti',
-          '7/24 Öncelikli VIP Destek',
-          'Tüm Gelecek Güncellemeler Bedava'
-        ]
-      },
-      {
-        id: 'aethe',
-        name: 'AETHE',
-        price: 1500.00,
-        duration: 'ÖMÜR BOYU',
-        color: 'rose',
-        is_limited: true,
-        bgImage: '/plans/aethe-bg.png',
-        features: [
-          'Hükümdar Paketindeki TÜM Ayrıcalıklar',
-          'Dört Efsanevi Haneden Birine Katılım',
-          'Aethe Kutsal Alanı & Haneler Savaşı',
-          'Efsanevi AETHE Mührü & Kan Kırmızı Aura', 
-          'TÜM Efektlere Sınırsız Erişim (387+)', 
-          'Sadece İlk 20 Kişiye Özel Kadim Statü'
-        ]
-      }
-    ];
-    setPlans(customPlans);
-    setLoading(false);
-  }, []);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  const handleUpgrade = async (plan) => {
+  const handleSelectPlan = (plan) => {
     if (!user) {
-      const event = new CustomEvent('open-auth', { detail: 'login' });
-      window.dispatchEvent(event);
+      window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }));
       return;
     }
-    
-    // Aethe package logic placeholder (Direct to Discord)
-    if (plan.id === 'aethe') {
-      window.open('https://discord.gg/anipeak', '_blank');
-      return;
-    }
+    setSelectedPlan(plan);
+    setSelectedPeriodIdx(0);
+  };
 
-    const success = await upgradeToElite(plan.id);
+  const handlePurchase = async () => {
+    if (!selectedPlan) return;
+    if (selectedPlan.id === 'aethe') {
+      window.open('https://discord.gg/anipeak', '_blank');
+      setSelectedPlan(null);
+      return;
+    }
+    const success = await upgradeToElite(selectedPlan.id);
     if (success) {
+      setSelectedPlan(null);
       navigate('/profile');
     }
   };
+
+  const calcDiscount = (oldPrice, newPrice) => Math.round(((oldPrice - newPrice) / oldPrice) * 100);
 
   const allDecorations = effectsData.filter(e => e.category === 'decorations');
   const marqueeList = [...allDecorations, ...allDecorations];
@@ -177,7 +241,7 @@ export default function EliteUpgrade() {
           </motion.div>
         </section>
 
-        {/* ── 2. DEVASA CEPHANELİK (KORUNAN BÖLÜM) ── */}
+        {/* ── 2. DEVASA CEPHANELİK ── */}
         <section className="py-24 border-y border-white/5 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent">
           <div className="text-center mb-20 px-4">
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter mb-4 uppercase">
@@ -229,7 +293,7 @@ export default function EliteUpgrade() {
           </div>
         </section>
 
-        {/* ── 3. MODERN PLANLARIMIZ ── */}
+        {/* ── 3. PREMİUM ÜYELİKLER ── */}
         <section id="plans-section" className="py-32">
           <div className="text-center mb-20 px-4">
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter uppercase mb-6">
@@ -240,25 +304,11 @@ export default function EliteUpgrade() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4 mb-32">
-            {plans.map((plan, idx) => {
-              const isAethe = plan.id === 'aethe';
-              
-              // Her pakete özel buton renk şeması (Glow, Gradient, Hover efekti)
-              const buttonClasses = {
-                cyan: 'bg-cyan-600 border-cyan-400 text-white hover:bg-cyan-500 hover:shadow-[0_0_20px_rgba(34,211,238,0.6)]',
-                purple: 'bg-purple-600 border-purple-400 text-white hover:bg-purple-500 hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]',
-                amber: 'bg-gradient-to-r from-amber-500 to-yellow-600 border-yellow-400 text-black hover:from-yellow-400 hover:to-amber-500 hover:shadow-[0_0_30px_rgba(245,158,11,0.8)]',
-                rose: 'bg-gradient-to-r from-rose-700 to-red-900 border-red-500 text-white hover:from-red-600 hover:to-rose-800 hover:shadow-[0_0_40px_rgba(225,29,72,0.9)] animate-pulse hover:animate-none'
-              };
-
-              // Buton ikonları
-              const buttonIcons = {
-                cyan: <Trophy size={16} className="text-cyan-200" />,
-                purple: <Ghost size={16} className="text-purple-200" />,
-                amber: <Crown size={16} className="text-yellow-900" />,
-                rose: <Infinity size={16} className="text-rose-200" />
-              };
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 mb-32">
+            {PLAN_DATA.map((plan, idx) => {
+              const cc = getColorClasses(plan.color);
+              const discount = plan.oldPrice ? calcDiscount(plan.oldPrice, plan.basePrice) : null;
+              const PlanIcon = plan.icon;
 
               return (
                 <motion.div
@@ -267,84 +317,105 @@ export default function EliteUpgrade() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  whileHover={{ scale: 1.03, y: -10 }}
-                  className="relative flex flex-col w-full rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5 bg-[#0A0A10]"
+                  whileHover={{ y: -8 }}
+                  className={`relative flex flex-col w-full rounded-[2rem] overflow-hidden group cursor-pointer border bg-[#0c0b15] transition-all duration-500 ${
+                    plan.is_popular ? `border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.15)]` : 
+                    plan.is_limited ? `border-rose-500/30 shadow-[0_0_25px_rgba(225,29,72,0.1)]` :
+                    'border-white/[0.06] hover:border-white/10'
+                  }`}
+                  style={{ boxShadow: `0 0 80px ${plan.bgGlow}` }}
                 >
-                  {/* Arkaplan Görseli (Tasarımın Kendisi, kendi boyutunda) */}
+                  {/* Background Image */}
                   <img 
                     src={plan.bgImage} 
                     alt={plan.name}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-[1.02]"
+                    className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-[1.03] opacity-80"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c0b15] via-[#0c0b15]/85 to-[#0c0b15]/40 z-[1] pointer-events-none" />
 
-                  {/* Koyu Degrade (Yazıların okunabilirliğini garantilemek için) */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent z-10 pointer-events-none" />
-
-                  {/* İçerik Konteyneri */}
-                  <div className="relative z-20 flex flex-col flex-grow p-6 pt-32">
-                    
-                    {/* Üstteki etiketler */}
-                    {plan.savings && (
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/50 backdrop-blur-md">
-                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{plan.savings}</span>
-                      </div>
-                    )}
+                  {/* Top Badges */}
+                  <div className="relative z-[2] p-5 flex items-start justify-between">
                     {plan.is_popular && (
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 backdrop-blur-md flex items-center gap-1">
+                      <div className="px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/50 backdrop-blur-md flex items-center gap-1.5">
                         <Star size={10} className="text-amber-400 fill-amber-400" />
-                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">En Popüler</span>
+                        <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">En Popüler</span>
                       </div>
                     )}
-                    {isAethe && (
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/50 backdrop-blur-md flex items-center gap-1 animate-pulse">
+                    {plan.is_limited && (
+                      <div className="px-3 py-1.5 rounded-full bg-rose-500/20 border border-rose-500/50 backdrop-blur-md flex items-center gap-1.5 animate-pulse">
                         <AlertTriangle size={10} className="text-rose-400" />
-                        <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Son 20 Kişi</span>
+                        <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Son 20 Kişi</span>
                       </div>
                     )}
-
-                    {/* Fiyat ve Süre */}
-                    <div className="mb-6 mt-4 border-b border-white/5 pb-6">
-                      <h3 className={`text-xl font-black uppercase tracking-wider mb-2 ${
-                        plan.color === 'cyan' ? 'text-cyan-400' :
-                        plan.color === 'purple' ? 'text-purple-400' :
-                        plan.color === 'amber' ? 'text-amber-400' :
-                        'text-rose-400'
-                      }`}>{plan.name}</h3>
-                      <div className="flex items-baseline gap-1 mb-1">
-                        <span className="text-4xl lg:text-5xl font-black text-white">₺{plan.price.toFixed(0)}</span>
+                    {!plan.is_popular && !plan.is_limited && <div />}
+                    
+                    {/* Aura Badge */}
+                    {plan.aura && (
+                      <div className={`px-3 py-1.5 rounded-full ${cc.bgLight} border ${cc.border} backdrop-blur-md flex items-center gap-1.5`}>
+                        <Flame size={10} className={cc.text} />
+                        <span className={`text-[9px] font-black ${cc.text} uppercase tracking-widest`}>{plan.aura} Aura/Ay</span>
                       </div>
-                      <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="relative z-[2] flex flex-col flex-grow px-6 pb-6 pt-16">
+                    
+                    {/* Plan Icon & Name */}
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cc.gradient} flex items-center justify-center shadow-lg ${cc.shadow}`}>
+                        <PlanIcon size={20} className="text-white" />
+                      </div>
+                      <h3 className={`text-lg font-black uppercase tracking-wider ${cc.text}`}>{plan.name}</h3>
+                    </div>
+
+                    {/* Price Block */}
+                    <div className="mb-6 border-b border-white/5 pb-6">
+                      {/* Old Price with Strikethrough */}
+                      {plan.oldPrice && (
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="text-lg text-slate-500 line-through font-bold">{plan.oldPrice} TL</span>
+                          <div className={`px-2.5 py-1 rounded-lg ${cc.bgLight} border ${cc.border}`}>
+                            <span className={`text-[10px] font-black ${cc.text} uppercase tracking-wider`}>%{discount} İNDİRİM</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Current Price */}
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-4xl lg:text-5xl font-black text-white">{plan.basePrice}</span>
+                        <span className="text-lg font-bold text-slate-400">TL</span>
+                      </div>
+                      
+                      {/* Duration */}
+                      <span className={`text-[11px] font-black uppercase tracking-[0.2em] mt-1 inline-block ${cc.textDark}`}>
                         {plan.duration}
                       </span>
                     </div>
 
-                    {/* Özellikler */}
-                    <div className="space-y-4 mb-8 flex-grow">
+                    {/* Features */}
+                    <div className="space-y-3.5 mb-8 flex-grow">
                       {plan.features.map((feature, i) => (
-                        <div key={i} className="flex items-start gap-3 group/item">
-                          <div className={`mt-1 shrink-0 ${
-                            plan.color === 'cyan' ? 'text-cyan-500' :
-                            plan.color === 'purple' ? 'text-purple-500' :
-                            plan.color === 'amber' ? 'text-amber-500' :
-                            'text-rose-500'
-                          }`}>
-                            <Check size={16} strokeWidth={3} />
+                        <div key={i} className="flex items-start gap-3">
+                          <div className={`mt-0.5 shrink-0 ${cc.check}`}>
+                            <Check size={15} strokeWidth={3} />
                           </div>
-                          <span className="text-sm font-bold text-slate-300 leading-snug">
+                          <span className="text-[13px] font-semibold text-slate-300 leading-snug">
                             {feature}
                           </span>
                         </div>
                       ))}
                     </div>
 
-                    {/* Aksiyon Butonu */}
+                    {/* Action Button */}
                     <button 
-                      onClick={() => handleUpgrade(plan)}
-                      className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-[0.1em] transition-all duration-300 flex items-center justify-center gap-2 ${buttonClasses[plan.color]}`}
+                      onClick={() => handleSelectPlan(plan)}
+                      className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2.5 border bg-gradient-to-r ${cc.gradient} ${cc.borderStrong} text-white hover:scale-[1.03] hover:shadow-lg ${cc.shadow} active:scale-[0.98]`}
                     >
-                      {buttonIcons[plan.color]}
-                      <span>{isAethe ? 'DISCORD\'DAN AL' : 'PAKETİ SEÇ'}</span>
+                      <PlanIcon size={16} />
+                      <span>{plan.id === 'aethe' ? 'DISCORD\'DAN AL' : 'PAKETİ SEÇ'}</span>
+                      <ChevronRight size={16} />
                     </button>
                   </div>
                 </motion.div>
@@ -383,9 +454,9 @@ export default function EliteUpgrade() {
                   </tr>
                 </thead>
                 <tbody className="text-sm font-bold text-slate-300">
-                  {/* Satır Öğeleri */}
                   {[
                     { label: 'Reklamsız Okuma', pro: true, shadow: true, ruler: true, aethe: true },
+                    { label: 'Aylık Aura Kazanımı', pro: '25.000', shadow: '50.000', ruler: '250.000', aethe: 'Sınırsız' },
                     { label: 'Bölümleri Çevrimdışı İndirme', pro: 'Limitli (Günlük 10)', shadow: 'Sınırsız', ruler: 'Sınırsız', aethe: 'Sınırsız' },
                     { label: 'Özel Profil Çerçevesi', pro: true, shadow: 'Dinamik', ruler: 'Animasyonlu', aethe: 'Efsanevi Kırmızı Aura' },
                     { label: 'Sohbet ve Yorum Rengi', pro: 'Mavi Ton', shadow: 'Mor Ton', ruler: 'Altın Parlaması', aethe: 'Kan Kırmızısı Efekti' },
@@ -419,6 +490,181 @@ export default function EliteUpgrade() {
         </section>
 
       </div>
+
+      {/* ── PERIOD SELECTION MODAL ── */}
+      <AnimatePresence>
+        {selectedPlan && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            onClick={() => setSelectedPlan(null)}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
+            
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg rounded-[2.5rem] overflow-hidden border border-white/10 bg-[#0c0b15] shadow-2xl"
+              style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
+            >
+              {/* Modal Header */}
+              <div className="relative p-8 pb-6">
+                <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
+                
+                <button 
+                  onClick={() => setSelectedPlan(null)} 
+                  className="absolute top-5 right-5 p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                >
+                  <X size={20} />
+                </button>
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${getColorClasses(selectedPlan.color).gradient} flex items-center justify-center shadow-lg`}>
+                      <selectedPlan.icon size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className={`text-xl font-black uppercase tracking-wider ${getColorClasses(selectedPlan.color).text}`}>{selectedPlan.name}</h3>
+                      <p className="text-xs text-slate-500 font-bold">{selectedPlan.isSubscription ? 'Abonelik Planı' : 'Tek Seferlik Satın Alma'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Period Selection (for subscription plans) */}
+              {selectedPlan.isSubscription && selectedPlan.periods ? (
+                <div className="px-8 pb-4">
+                  <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-4">Süre Seçin</p>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    {selectedPlan.periods.map((period, pidx) => {
+                      const isSelected = selectedPeriodIdx === pidx;
+                      const cc = getColorClasses(selectedPlan.color);
+                      
+                      return (
+                        <button
+                          key={pidx}
+                          onClick={() => setSelectedPeriodIdx(pidx)}
+                          className={`relative p-4 rounded-2xl border-2 transition-all duration-300 text-left ${
+                            isSelected 
+                              ? `${cc.borderStrong} bg-white/[0.04]` 
+                              : 'border-white/[0.06] hover:border-white/10 bg-white/[0.02]'
+                          }`}
+                        >
+                          {/* Best Value Badge */}
+                          {period.best && (
+                            <div className={`absolute -top-2.5 right-3 px-2.5 py-0.5 rounded-full ${cc.bg} text-white text-[8px] font-black uppercase tracking-widest`}>
+                              En Avantajlı
+                            </div>
+                          )}
+
+                          {/* Bonus for Monthly */}
+                          {period.bonusText && (
+                            <div className="absolute -top-2.5 right-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest">
+                              Bonus
+                            </div>
+                          )}
+                          
+                          <span className={`block text-sm font-black uppercase tracking-wider mb-2 ${isSelected ? 'text-white' : 'text-slate-400'}`}>
+                            {period.label}
+                          </span>
+                          
+                          <div className="flex items-baseline gap-1.5">
+                            <span className={`text-2xl font-black ${isSelected ? 'text-white' : 'text-slate-300'}`}>{period.price}</span>
+                            <span className="text-sm text-slate-500 font-bold">TL</span>
+                          </div>
+                          
+                          {period.months > 1 && (
+                            <span className="text-[11px] text-slate-500 font-bold mt-1 block">
+                              aylık {period.perMonth} TL
+                            </span>
+                          )}
+
+                          {period.discount && (
+                            <div className={`inline-block mt-2 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${cc.bgLight} ${cc.text}`}>
+                              %{period.discount} Tasarruf
+                            </div>
+                          )}
+
+                          {period.bonusText && (
+                            <span className="text-[10px] text-emerald-400 font-bold mt-1.5 block">
+                              {period.bonusText}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* Lifetime Plan Summary */
+                <div className="px-8 pb-4">
+                  <div className={`p-5 rounded-2xl ${getColorClasses(selectedPlan.color).bgLight} border ${getColorClasses(selectedPlan.color).border}`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-slate-400 font-bold mb-1">Tek Seferlik Ödeme</p>
+                        <div className="flex items-baseline gap-2">
+                          {selectedPlan.oldPrice && (
+                            <span className="text-lg text-slate-500 line-through font-bold">{selectedPlan.oldPrice} TL</span>
+                          )}
+                          <span className="text-3xl font-black text-white">{selectedPlan.basePrice} TL</span>
+                        </div>
+                      </div>
+                      {selectedPlan.oldPrice && (
+                        <div className={`px-3 py-1.5 rounded-xl ${getColorClasses(selectedPlan.color).bgLight} border ${getColorClasses(selectedPlan.color).border}`}>
+                          <span className={`text-sm font-black ${getColorClasses(selectedPlan.color).text}`}>
+                            %{calcDiscount(selectedPlan.oldPrice, selectedPlan.basePrice)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <p className={`text-xs font-bold mt-3 ${getColorClasses(selectedPlan.color).textDark}`}>
+                      Ömür boyu geçerli. Bir kez öde, sonsuza kadar kullan.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Summary & Purchase */}
+              <div className="px-8 pb-8 pt-4">
+                {/* Total Display */}
+                <div className="flex items-center justify-between mb-6 px-2">
+                  <span className="text-sm font-bold text-slate-400">Toplam Tutar</span>
+                  <div className="text-right">
+                    <span className="text-3xl font-black text-white">
+                      {selectedPlan.isSubscription && selectedPlan.periods 
+                        ? selectedPlan.periods[selectedPeriodIdx].price 
+                        : selectedPlan.basePrice
+                      }
+                    </span>
+                    <span className="text-lg font-bold text-slate-400 ml-1.5">TL</span>
+                  </div>
+                </div>
+
+                {/* Purchase Button */}
+                <button 
+                  onClick={handlePurchase}
+                  className={`w-full py-5 rounded-2xl font-black text-base uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 border bg-gradient-to-r ${getColorClasses(selectedPlan.color).gradient} ${getColorClasses(selectedPlan.color).borderStrong} text-white hover:scale-[1.02] hover:shadow-xl ${getColorClasses(selectedPlan.color).shadow} active:scale-[0.98]`}
+                >
+                  <Sparkles size={18} />
+                  {selectedPlan.id === 'aethe' ? 'DISCORD\'DAN SATIN AL' : 'SATIN AL'}
+                </button>
+
+                <p className="text-center text-[10px] text-slate-600 mt-4 font-medium">
+                  Satın alma işlemi Discord sunucumuz üzerinden gerçekleştirilmektedir.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @keyframes marquee-slower {
