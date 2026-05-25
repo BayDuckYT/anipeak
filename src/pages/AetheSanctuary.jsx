@@ -282,8 +282,6 @@ export default function AetheSanctuary() {
                       <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">Haftalık görevleri tamamlayıp siteye katkıda bulunarak hanene puan kazandır. Zirvedeki hane her cuma gece yarısı özel ödüller kazanır!</p>
                     </div>
                   </div>
-                </div>
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
