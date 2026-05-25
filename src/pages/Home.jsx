@@ -268,15 +268,8 @@ export default function Home({ onAuthOpen }) {
             </button>
           </div>
         </section>
-      )}x)}
-                  aria-label={`Slayt ${idx + 1}`}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-8 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'w-2 bg-white/30 hover:bg-white/60'}`}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
       )}
+
 
       {/* ── İÇERİK BÖLÜMÜ (Netflix Rows) ── */}
       <div className="w-full px-4 sm:px-12 lg:px-16 py-8 sm:py-12 bg-[#141414] min-h-screen">
@@ -390,8 +383,6 @@ export default function Home({ onAuthOpen }) {
                 </Link>
               </div>
             </motion.section>
-
-          </div>
 
           </div>
         </div>
