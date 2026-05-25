@@ -19,8 +19,8 @@ const PLAN_DATA = [
   {
     id: 'pro',
     name: 'ANIPEAK PRO',
-    basePrice: 199,
-    oldPrice: 269,
+    basePrice: 75,
+    oldPrice: 150,
     color: 'cyan',
     colorHex: '#06b6d4',
     gradientFrom: 'from-cyan-500',
@@ -37,19 +37,14 @@ const PLAN_DATA = [
       'Tamamen Reklamsız Okuma Deneyimi', 
       'Bölümleri Çevrimdışı İndirme', 
       'Sohbet ve Yorumlarda Özel Renk',
-      'Aylık 25.000 Aura Kazanımı'
-    ],
-    periods: [
-      { label: '1 Ay', months: 1, price: 199, perMonth: 199, bonusText: '+3 Bonus Avatar Efekti' },
-      { label: '3 Ay', months: 3, price: 549, perMonth: 183, discount: 8 },
-      { label: '6 Ay', months: 6, price: 999, perMonth: 167, discount: 16 },
-      { label: '1 Yıl', months: 12, price: 1799, perMonth: 150, discount: 25, best: true }
+      'Aylık 25.000 Aura Puanı Kazanımı'
     ]
   },
   {
     id: 'shadow',
     name: 'HÜKÜMDAR GÖLGESİ',
     basePrice: 349,
+    oldPrice: 699,
     color: 'purple',
     colorHex: '#a855f7',
     gradientFrom: 'from-purple-500',
@@ -67,20 +62,14 @@ const PLAN_DATA = [
       'Yeni Bölümlere Erken Erişim (+24 Saat)', 
       'Özel Yorum Stilleri & Sınırsız İndirme',
       'Discord Özel "Gölge" Rolü',
-      'Aylık 50.000 Aura Kazanımı'
-    ],
-    periods: [
-      { label: '1 Ay', months: 1, price: 349, perMonth: 349, bonusText: '+5 Bonus Avatar Efekti' },
-      { label: '3 Ay', months: 3, price: 949, perMonth: 316, discount: 9 },
-      { label: '6 Ay', months: 6, price: 1699, perMonth: 283, discount: 19 },
-      { label: '1 Yıl', months: 12, price: 2999, perMonth: 250, discount: 28, best: true }
+      'Aylık 50.000 Aura Puanı Kazanımı'
     ]
   },
   {
     id: 'ruler',
     name: 'HÜKÜMDAR',
-    basePrice: 499,
-    oldPrice: 699,
+    basePrice: 500,
+    oldPrice: 1000,
     color: 'amber',
     colorHex: '#f59e0b',
     gradientFrom: 'from-amber-500',
@@ -100,7 +89,7 @@ const PLAN_DATA = [
       'Yorumlarda Sürekli Parlama Efekti',
       '7/24 Öncelikli VIP Destek',
       'Tüm Gelecek Güncellemeler Bedava',
-      'Aylık 250.000 Aura Kazanımı'
+      'Aylık 250.000 Aura Puanı Kazanımı'
     ]
   },
   {
@@ -114,6 +103,7 @@ const PLAN_DATA = [
     gradientTo: 'to-red-800',
     bgGlow: 'rgba(225,29,72,0.15)',
     icon: Infinity,
+    aura: '1.000.000',
     duration: 'ÖMÜR BOYU',
     is_limited: true,
     isSubscription: false,
@@ -125,7 +115,7 @@ const PLAN_DATA = [
       'Efsanevi AETHE Mührü & Kan Kırmızı Aura', 
       'TÜM Efektlere Sınırsız Erişim (387+)', 
       'Sadece İlk 20 Kişiye Özel Kadim Statü',
-      'Sınırsız Aura Kazanımı'
+      'Aylık 1.000.000 Aura Puanı Kazanımı'
     ]
   }
 ];
@@ -147,8 +137,6 @@ const getColorClasses = (color) => ({
 export default function EliteUpgrade() {
   const { user, upgradeToElite } = useAuth();
   const navigate = useNavigate();
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [selectedPeriodIdx, setSelectedPeriodIdx] = useState(0);
 
   useSEO({
     title: 'Elite Premium',
@@ -158,25 +146,17 @@ export default function EliteUpgrade() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  const handleSelectPlan = (plan) => {
+  const handlePurchase = async (plan) => {
     if (!user) {
       window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }));
       return;
     }
-    setSelectedPlan(plan);
-    setSelectedPeriodIdx(0);
-  };
-
-  const handlePurchase = async () => {
-    if (!selectedPlan) return;
-    if (selectedPlan.id === 'aethe') {
+    if (plan.id === 'aethe') {
       window.open('https://discord.gg/anipeak', '_blank');
-      setSelectedPlan(null);
       return;
     }
-    const success = await upgradeToElite(selectedPlan.id);
+    const success = await upgradeToElite(plan.id);
     if (success) {
-      setSelectedPlan(null);
       navigate('/profile');
     }
   };
@@ -410,11 +390,11 @@ export default function EliteUpgrade() {
 
                     {/* Action Button */}
                     <button 
-                      onClick={() => handleSelectPlan(plan)}
+                      onClick={() => handlePurchase(plan)}
                       className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2.5 border bg-gradient-to-r ${cc.gradient} ${cc.borderStrong} text-white hover:scale-[1.03] hover:shadow-lg ${cc.shadow} active:scale-[0.98]`}
                     >
                       <PlanIcon size={16} />
-                      <span>{plan.id === 'aethe' ? 'DISCORD\'DAN AL' : 'PAKETİ SEÇ'}</span>
+                      <span>{plan.id === 'aethe' ? 'DISCORD\'DAN AL' : 'SATIN AL'}</span>
                       <ChevronRight size={16} />
                     </button>
                   </div>
@@ -456,7 +436,7 @@ export default function EliteUpgrade() {
                 <tbody className="text-sm font-bold text-slate-300">
                   {[
                     { label: 'Reklamsız Okuma', pro: true, shadow: true, ruler: true, aethe: true },
-                    { label: 'Aylık Aura Kazanımı', pro: '25.000', shadow: '50.000', ruler: '250.000', aethe: 'Sınırsız' },
+                    { label: 'Aura Puanı Kazanımı', pro: 'Aylık 25.000', shadow: 'Aylık 50.000', ruler: 'Aylık 250.000', aethe: 'Aylık 1.000.000' },
                     { label: 'Bölümleri Çevrimdışı İndirme', pro: 'Limitli (Günlük 10)', shadow: 'Sınırsız', ruler: 'Sınırsız', aethe: 'Sınırsız' },
                     { label: 'Özel Profil Çerçevesi', pro: true, shadow: 'Dinamik', ruler: 'Animasyonlu', aethe: 'Efsanevi Kırmızı Aura' },
                     { label: 'Sohbet ve Yorum Rengi', pro: 'Mavi Ton', shadow: 'Mor Ton', ruler: 'Altın Parlaması', aethe: 'Kan Kırmızısı Efekti' },
@@ -490,181 +470,6 @@ export default function EliteUpgrade() {
         </section>
 
       </div>
-
-      {/* ── PERIOD SELECTION MODAL ── */}
-      <AnimatePresence>
-        {selectedPlan && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-            onClick={() => setSelectedPlan(null)}
-          >
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
-            
-            {/* Modal Content */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', damping: 25 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg rounded-[2.5rem] overflow-hidden border border-white/10 bg-[#0c0b15] shadow-2xl"
-              style={{ boxShadow: `0 0 100px ${selectedPlan.bgGlow}` }}
-            >
-              {/* Modal Header */}
-              <div className="relative p-8 pb-6">
-                <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
-                
-                <button 
-                  onClick={() => setSelectedPlan(null)} 
-                  className="absolute top-5 right-5 p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                >
-                  <X size={20} />
-                </button>
-
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${getColorClasses(selectedPlan.color).gradient} flex items-center justify-center shadow-lg`}>
-                      <selectedPlan.icon size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className={`text-xl font-black uppercase tracking-wider ${getColorClasses(selectedPlan.color).text}`}>{selectedPlan.name}</h3>
-                      <p className="text-xs text-slate-500 font-bold">{selectedPlan.isSubscription ? 'Abonelik Planı' : 'Tek Seferlik Satın Alma'}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Period Selection (for subscription plans) */}
-              {selectedPlan.isSubscription && selectedPlan.periods ? (
-                <div className="px-8 pb-4">
-                  <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-4">Süre Seçin</p>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    {selectedPlan.periods.map((period, pidx) => {
-                      const isSelected = selectedPeriodIdx === pidx;
-                      const cc = getColorClasses(selectedPlan.color);
-                      
-                      return (
-                        <button
-                          key={pidx}
-                          onClick={() => setSelectedPeriodIdx(pidx)}
-                          className={`relative p-4 rounded-2xl border-2 transition-all duration-300 text-left ${
-                            isSelected 
-                              ? `${cc.borderStrong} bg-white/[0.04]` 
-                              : 'border-white/[0.06] hover:border-white/10 bg-white/[0.02]'
-                          }`}
-                        >
-                          {/* Best Value Badge */}
-                          {period.best && (
-                            <div className={`absolute -top-2.5 right-3 px-2.5 py-0.5 rounded-full ${cc.bg} text-white text-[8px] font-black uppercase tracking-widest`}>
-                              En Avantajlı
-                            </div>
-                          )}
-
-                          {/* Bonus for Monthly */}
-                          {period.bonusText && (
-                            <div className="absolute -top-2.5 right-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest">
-                              Bonus
-                            </div>
-                          )}
-                          
-                          <span className={`block text-sm font-black uppercase tracking-wider mb-2 ${isSelected ? 'text-white' : 'text-slate-400'}`}>
-                            {period.label}
-                          </span>
-                          
-                          <div className="flex items-baseline gap-1.5">
-                            <span className={`text-2xl font-black ${isSelected ? 'text-white' : 'text-slate-300'}`}>{period.price}</span>
-                            <span className="text-sm text-slate-500 font-bold">TL</span>
-                          </div>
-                          
-                          {period.months > 1 && (
-                            <span className="text-[11px] text-slate-500 font-bold mt-1 block">
-                              aylık {period.perMonth} TL
-                            </span>
-                          )}
-
-                          {period.discount && (
-                            <div className={`inline-block mt-2 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${cc.bgLight} ${cc.text}`}>
-                              %{period.discount} Tasarruf
-                            </div>
-                          )}
-
-                          {period.bonusText && (
-                            <span className="text-[10px] text-emerald-400 font-bold mt-1.5 block">
-                              {period.bonusText}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                /* Lifetime Plan Summary */
-                <div className="px-8 pb-4">
-                  <div className={`p-5 rounded-2xl ${getColorClasses(selectedPlan.color).bgLight} border ${getColorClasses(selectedPlan.color).border}`}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-slate-400 font-bold mb-1">Tek Seferlik Ödeme</p>
-                        <div className="flex items-baseline gap-2">
-                          {selectedPlan.oldPrice && (
-                            <span className="text-lg text-slate-500 line-through font-bold">{selectedPlan.oldPrice} TL</span>
-                          )}
-                          <span className="text-3xl font-black text-white">{selectedPlan.basePrice} TL</span>
-                        </div>
-                      </div>
-                      {selectedPlan.oldPrice && (
-                        <div className={`px-3 py-1.5 rounded-xl ${getColorClasses(selectedPlan.color).bgLight} border ${getColorClasses(selectedPlan.color).border}`}>
-                          <span className={`text-sm font-black ${getColorClasses(selectedPlan.color).text}`}>
-                            %{calcDiscount(selectedPlan.oldPrice, selectedPlan.basePrice)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <p className={`text-xs font-bold mt-3 ${getColorClasses(selectedPlan.color).textDark}`}>
-                      Ömür boyu geçerli. Bir kez öde, sonsuza kadar kullan.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Summary & Purchase */}
-              <div className="px-8 pb-8 pt-4">
-                {/* Total Display */}
-                <div className="flex items-center justify-between mb-6 px-2">
-                  <span className="text-sm font-bold text-slate-400">Toplam Tutar</span>
-                  <div className="text-right">
-                    <span className="text-3xl font-black text-white">
-                      {selectedPlan.isSubscription && selectedPlan.periods 
-                        ? selectedPlan.periods[selectedPeriodIdx].price 
-                        : selectedPlan.basePrice
-                      }
-                    </span>
-                    <span className="text-lg font-bold text-slate-400 ml-1.5">TL</span>
-                  </div>
-                </div>
-
-                {/* Purchase Button */}
-                <button 
-                  onClick={handlePurchase}
-                  className={`w-full py-5 rounded-2xl font-black text-base uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 border bg-gradient-to-r ${getColorClasses(selectedPlan.color).gradient} ${getColorClasses(selectedPlan.color).borderStrong} text-white hover:scale-[1.02] hover:shadow-xl ${getColorClasses(selectedPlan.color).shadow} active:scale-[0.98]`}
-                >
-                  <Sparkles size={18} />
-                  {selectedPlan.id === 'aethe' ? 'DISCORD\'DAN SATIN AL' : 'SATIN AL'}
-                </button>
-
-                <p className="text-center text-[10px] text-slate-600 mt-4 font-medium">
-                  Satın alma işlemi Discord sunucumuz üzerinden gerçekleştirilmektedir.
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <style>{`
         @keyframes marquee-slower {
