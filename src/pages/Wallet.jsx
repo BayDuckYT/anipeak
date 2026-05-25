@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet as WalletIcon, Sparkles, ShieldCheck, Zap, ArrowRight, CreditCard, Clock, History } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -24,6 +24,17 @@ export default function Wallet() {
   const { user } = useAuth();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
 
   useSEO({
     title: 'Cüzdanım - Aura',

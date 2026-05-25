@@ -15,7 +15,13 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
   useEffect(() => {
     if (isOpen) {
       console.log("[MODAL] Hata Bildirim Modalı Açıldı!", { seriesId, chapterNum });
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
     }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen, seriesId, chapterNum]);
 
   const handleSubmit = async (e) => {

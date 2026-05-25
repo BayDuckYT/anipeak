@@ -1385,6 +1385,18 @@ export default function Admin() {
     setSettingPrefs(p => ({ ...p, tempMaintenance: maintenanceMode }));
   }, [maintenanceMode]);
 
+  // Modal Scroll Lock
+  useEffect(() => {
+    if (editingSeries) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [editingSeries]);
+
   const showToast = useCallback((msg, type = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);

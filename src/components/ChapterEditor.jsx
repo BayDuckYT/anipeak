@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext, closestCenter, PointerSensor, KeyboardSensor,
@@ -192,6 +192,11 @@ function SortablePage({ page, index, onDelete, onReplace }) {
 //  Webtoon Preview Modal
 // ──────────────────────────────────────────
 function PreviewModal({ pages, series, chapterNum, onClose }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[300] bg-[#070511] flex flex-col">
       {/* Top bar */}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, LogIn, UserPlus, Eye, EyeOff, Zap, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -9,6 +9,14 @@ export default function AuthModal({ mode, onClose }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  // Modal Scroll Lock
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   const [form, setForm] = useState({ username: '', email: '', password: '', password2: '' });
   const { login, signup, loginWithGoogle, resetPassword } = useAuth();
