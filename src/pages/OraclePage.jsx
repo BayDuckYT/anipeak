@@ -1,20 +1,17 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, Compass, Zap, Ghost, Eye, Terminal, 
   Activity, Star, Clock, Target, Layers, ArrowRight,
-  TrendingUp, BookOpen, Shield, Crown, BarChart3
+  TrendingUp, BookOpen, Shield, Crown, BarChart3, Play, Info
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
-import { useAuth } from '../context/AuthContext.jsx';
-import { getLevelInfo } from '../context/AuthContext.jsx';
+import { useAuth, getLevelInfo } from '../context/AuthContext.jsx';
 import { supabase } from '../lib/supabaseClient';
-import { 
-  NebulaBackground, 
-  SoulDNA, 
-  OracleCard, 
-  MetricBox 
-} from '../components/NebulaOracle.jsx';
+import { NebulaBackground, SoulDNA, MetricBox } from '../components/NebulaOracle.jsx';
+import NetflixRow from '../components/NetflixRow.jsx';
+import NetflixCard from '../components/NetflixCard.jsx';
 import { useSEO } from '../hooks/useSEO';
 import Loader from '../components/Loader.jsx';
 
@@ -27,33 +24,12 @@ const SOUL_TYPES = [
   { name: 'Void Hunter', title: 'Boşluk Avcısı', desc: 'Kaybolmuş serilerin ve gizli kalmış hikayelerin kaşifi.', color: 'blue', genres: ['Gizem', 'Mystery', 'Dedektif', 'Suç', 'Crime'] }
 ];
 
-// ─── GERÇEK VERİYE DAYALI KEHANETLERİ OLUŞTUR ───────────────────────
-function generateProphecy(manga, userGenres) {
-  const topGenre = manga.genres?.[0] || 'Aksiyon';
-  const prophecies = {
-    'Aksiyon': `"${manga.title}" serisindeki savaş koreografisi, senin okuma ritmine mükemmel uyuyor.`,
-    'Action': `"${manga.title}" serisindeki savaş koreografisi, senin okuma ritmine mükemmel uyuyor.`,
-    'Drama': `"${manga.title}" hikaye derinliği ve karakter gelişimiyle tam senin ruhuna hitap ediyor.`,
-    'Fantezi': `"${manga.title}" dünya inşası ve mitolojik alt metinleriyle seni başka bir evrene taşıyacak.`,
-    'Fantasy': `"${manga.title}" dünya inşası ve mitolojik alt metinleriyle seni başka bir evrene taşıyacak.`,
-    'Korku': `"${manga.title}" atmosferi ve gerilim unsurlarıyla karanlık tarafını besleyecek.`,
-    'Horror': `"${manga.title}" atmosferi ve gerilim unsurlarıyla karanlık tarafını besleyecek.`,
-  };
-  return prophecies[topGenre] || `"${manga.title}" algoritmamızın senin için seçtiği ${manga.rating ? `${manga.rating} puanlık` : 'özel'} bir eser.`;
-}
-
-// ─── GERÇEK EŞLEŞME SKORU HESAPLA ───────────────────────────────────
 function calculateMatchScore(manga, userTopGenres) {
   if (!manga.genres || !userTopGenres.length) return 75;
-  
-  const matchingGenres = manga.genres.filter(g => 
-    userTopGenres.some(ug => ug.toLowerCase() === g.toLowerCase())
-  );
-  
+  const matchingGenres = manga.genres.filter(g => userTopGenres.some(ug => ug.toLowerCase() === g.toLowerCase()));
   const genreScore = Math.min((matchingGenres.length / Math.max(manga.genres.length, 1)) * 60, 60);
   const ratingBonus = manga.rating ? Math.min((manga.rating / 10) * 25, 25) : 10;
   const popularityBonus = manga.reads_num ? Math.min((manga.reads_num / 10000) * 15, 15) : 5;
-  
   return Math.min(Math.round(genreScore + ratingBonus + popularityBonus), 99);
 }
 
@@ -72,367 +48,193 @@ export default function OraclePage() {
   }
 
   const { soulProfile, userStats } = useMemo(() => {
-    // 1. Kullanıcının favori serilerini çek (gerçek veri)
     let favoriteGenres = [];
     let favCount = 0;
-    
     if (user?.id) {
       favCount = 0;
       favoriteGenres = [];
     }
     
-    // 2. Tüm serilerin tür dağılımını hesapla (okuma geçmişi bazlı)
     const genreCount = {};
     const readSeries = sortedSeries.filter(s => {
       const chapterList = chapters[String(s.id)];
       return chapterList && chapterList.length > 0;
     });
     
-    // Favori türlerini ağırlıklı say
-    favoriteGenres.forEach(g => {
-      genreCount[g] = (genreCount[g] || 0) + 3; // Favoriler 3x ağırlık
-    });
-    
-    // Genel tür dağılımı
+    favoriteGenres.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 3; });
     readSeries.forEach(s => {
-      (s.genres || []).forEach(g => {
-        genreCount[g] = (genreCount[g] || 0) + 1;
-      });
+      (s.genres || []).forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
     });
     
-    // 3. Tür dağılımını sırala
-    const sortedGenres = Object.entries(genreCount)
-      .sort((a, b) => b[1] - a[1]);
-    
+    const sortedGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]);
     const topGenres = sortedGenres.slice(0, 5);
     const totalGenrePoints = topGenres.reduce((sum, [, v]) => sum + v, 0) || 1;
     
     const cosmicDistribution = topGenres.slice(0, 3).map(([label, value]) => ({
-      label,
-      value: Math.round((value / totalGenrePoints) * 100)
+      label, value: Math.round((value / totalGenrePoints) * 100)
     }));
     
-    // 4. Ruh tipini gerçek veriye göre belirle (rastgele DEĞİL)
     const userTopGenreNames = topGenres.map(([name]) => name.toLowerCase());
     
-    let bestSoulMatch = SOUL_TYPES[2]; // Default: Nebula Dreamer
+    let bestSoulMatch = SOUL_TYPES[2];
     let bestScore = 0;
     
     for (const soul of SOUL_TYPES) {
-      const matchCount = soul.genres.filter(sg => 
-        userTopGenreNames.some(ug => ug.includes(sg.toLowerCase()) || sg.toLowerCase().includes(ug))
-      ).length;
+      const matchCount = soul.genres.filter(sg => userTopGenreNames.some(ug => ug.includes(sg.toLowerCase()) || sg.toLowerCase().includes(ug))).length;
       if (matchCount > bestScore) {
         bestScore = matchCount;
         bestSoulMatch = soul;
       }
     }
     
-    // 5. XP ve Seviye bilgilerini kullan (gerçek veri)
     const xp = user?.xp || 0;
     const levelInfo = getLevelInfo(xp, user?.is_elite);
-    
-    // 6. Gerçek istatistikler
     const totalChaptersRead = Object.values(chapters).reduce((sum, chs) => sum + (chs?.length || 0), 0);
     const totalSeries = sortedSeries.length;
     
-    // Okuma ritmi: XP bazlı gerçek hesaplama
     let readingRhythm = 'Keşfedici';
     if (xp > 10000) readingRhythm = 'Yoğun';
     else if (xp > 5000) readingRhythm = 'Düzenli';
     else if (xp > 1000) readingRhythm = 'Aktif';
     else if (xp > 100) readingRhythm = 'Başlangıç';
     
-    // Etkileşim oranı: gerçek hesaplama (favori/toplam seri)
-    const engagementRate = totalSeries > 0 
-      ? `${Math.min(Math.round((favCount / Math.max(totalSeries * 0.1, 1)) * 100), 100)}%`
-      : '0%';
+    const engagementRate = totalSeries > 0 ? `${Math.min(Math.round((favCount / Math.max(totalSeries * 0.1, 1)) * 100), 100)}%` : '0%';
     
-    // DNA skoru: XP + favori + okuma bazlı gerçek skor
-    const dnaScore = Math.min(
-      50 + (xp > 0 ? 15 : 0) + (favCount > 0 ? 15 : 0) + (totalChaptersRead > 100 ? 10 : totalChaptersRead / 10) + (bestScore > 0 ? 10 : 0),
-      99.9
-    ).toFixed(1);
+    const dnaScore = Math.min(50 + (xp > 0 ? 15 : 0) + (favCount > 0 ? 15 : 0) + (totalChaptersRead > 100 ? 10 : totalChaptersRead / 10) + (bestScore > 0 ? 10 : 0), 99.9).toFixed(1);
     
     const calculatedSoulProfile = {
       ...bestSoulMatch,
-      dnaScore,
-      readingRhythm,
-      engagementRate,
-      cosmicDistribution: cosmicDistribution.length > 0 ? cosmicDistribution : [
-        { label: 'Henüz Veri Yok', value: 100 }
-      ]
+      dnaScore, readingRhythm, engagementRate,
+      cosmicDistribution: cosmicDistribution.length > 0 ? cosmicDistribution : [{ label: 'Henüz Veri Yok', value: 100 }]
     };
     
-    const calculatedUserStats = {
-      totalChaptersRead,
-      totalSeries,
-      favCount,
-      xp,
-      levelInfo,
-      topGenres: topGenres.map(([name]) => name),
-    };
+    const calculatedUserStats = { totalChaptersRead, totalSeries, favCount, xp, levelInfo, topGenres: topGenres.map(([name]) => name) };
     
     return { soulProfile: calculatedSoulProfile, userStats: calculatedUserStats };
   }, [user, sortedSeries, chapters]);
 
-  // ─── GERÇEK VERİYE DAYALI ÖNERİLER ───────────────────────────────
   const recommendedSeries = useMemo(() => {
-    if (!userStats?.topGenres) {
-      return sortedSeries.filter(s => s.rating >= 8.5).slice(0, 4);
-    }
-    
-    // Kullanıcının en çok okuduğu türlere göre eşleşme skoru hesapla
-    const scored = sortedSeries
-      .map(s => ({
-        ...s,
-        matchScore: calculateMatchScore(s, userStats.topGenres)
-      }))
-      .filter(s => s.matchScore > 60) // Minimum %60 eşleşme
-      .sort((a, b) => b.matchScore - a.matchScore);
-    
-    return scored.slice(0, 6);
+    if (!userStats?.topGenres) return sortedSeries.filter(s => s.rating >= 8.5).slice(0, 20);
+    const scored = sortedSeries.map(s => ({ ...s, matchScore: calculateMatchScore(s, userStats.topGenres) }))
+      .filter(s => s.matchScore > 60).sort((a, b) => b.matchScore - a.matchScore);
+    return scored.slice(0, 20);
   }, [sortedSeries, userStats]);
 
-  // ─── SİSTEM RÜTBESİ (GERÇEK) ───────────────────────────────────
   const systemRank = useMemo(() => {
     if (!user) return { value: 'Misafir', subtext: 'Giriş yaparak rütbenizi görün.' };
-    
     const levelInfo = getLevelInfo(user.xp || 0, user.is_elite);
-    
-    return {
-      value: levelInfo.rank,
-      subtext: user.discord_id 
-        ? `Discord ile senkronize · Lv.${levelInfo.level}` 
-        : `Lv.${levelInfo.level} · Discord bağlantısı bekleniyor`
-    };
+    return { value: levelInfo.rank, subtext: user.discord_id ? `Discord ile senkronize · Lv.${levelInfo.level}` : `Lv.${levelInfo.level} · Discord bağlantısı bekleniyor` };
   }, [user]);
 
+  const topMatch = recommendedSeries[0];
+  const row1 = recommendedSeries.slice(1, 10);
+  const row2 = recommendedSeries.slice(10, 20);
+
   return (
-    <div className="relative min-h-screen bg-[#070511] pb-20 text-white selection:bg-cyan-500/30">
+    <div className="relative min-h-screen bg-[#070511] pb-20 text-white selection:bg-cyan-500/30 overflow-x-hidden">
       <NebulaBackground />
 
-      {/* ── CINEMATIC HERO HEADER ── */}
-      <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden flex items-end mb-12">
-        <div className="absolute inset-0 bg-[url('/yayinarkaplan.jpg')] bg-cover bg-center opacity-30 mix-blend-screen scale-105 transition-all duration-1000" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/70 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#070511] to-transparent z-10" />
+      {/* ── NETFLIX TOP HERO (RUH EŞLEŞMEN) ── */}
+      <div className="relative w-full h-[80vh] min-h-[600px] mb-12">
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-all duration-1000 scale-105" 
+          style={{ backgroundImage: `url(${topMatch?.cover || '/yayinarkaplan.jpg'})`, opacity: 0.5, mixBlendMode: 'screen' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/90 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#070511] to-transparent z-10" />
         
-        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-12 flex flex-col md:flex-row items-center md:items-end gap-8">
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-purple-600 to-cyan-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(138,43,226,0.4)] flex-shrink-0"
-          >
-            <Compass className="w-12 h-12 sm:w-16 sm:h-16 text-white animate-spin-slow" />
+        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-12 h-full flex flex-col justify-end pb-24">
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center gap-2 mb-4 px-3 py-1 bg-cyan-500/10 backdrop-blur-md rounded-full w-fit border border-cyan-500/20">
+            <Sparkles size={14} className="text-cyan-400" />
+            <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase">%99 RUH EŞLEŞMESİ</span>
           </motion.div>
-          <div className="text-center md:text-left flex-1">
-            <motion.h1 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter mb-4 drop-shadow-2xl"
-              style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}
-            >
-              AKILLI <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-500 animate-gradient-x">ÖNERİ</span>
-            </motion.h1>
-            <motion.p 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="text-gray-300 text-lg sm:text-xl max-w-2xl font-medium drop-shadow-md"
-            >
-              Okuma geçmişini, XP verilerini ve favori türlerini analiz eden akıllı algoritmamız senin için en uygun serileri buluyor.
-            </motion.p>
-          </div>
+          
+          <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-6xl sm:text-8xl lg:text-9xl font-black text-white uppercase tracking-tighter drop-shadow-2xl mb-4 max-w-4xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+            {topMatch?.title || 'KADERİNİ SEÇ'}
+          </motion.h1>
+          
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="flex items-center gap-4 text-slate-300 text-sm font-bold mb-6">
+            <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded uppercase">{soulProfile.name} Seçimi</span>
+            <span>•</span>
+            <span className="flex items-center gap-1 text-amber-400"><Star size={14} className="fill-amber-400" /> {topMatch?.rating || '9.5'}</span>
+            <span>•</span>
+            <span className="truncate max-w-[200px]">{Array.isArray(topMatch?.genre) ? topMatch.genre.join(', ') : topMatch?.genre}</span>
+          </motion.div>
+          
+          <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="text-slate-200 text-lg sm:text-xl font-medium max-w-2xl mb-8 drop-shadow-md line-clamp-3">
+            Algoritmamızın derinliklerinde sana en uygun hikaye bu. {topMatch?.summary || 'Ruh profilin bu maceranın her karesinde kendinden bir parça bulacak.'}
+          </motion.p>
+          
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="flex gap-4">
+            {topMatch && (
+              <Link to={`/manhwa/${topMatch.id}`} className="px-8 py-3 bg-white text-black font-black uppercase tracking-widest rounded flex items-center gap-2 hover:bg-slate-200 transition-colors">
+                <Play size={20} className="fill-black" /> Hemen Oku
+              </Link>
+            )}
+            <button className="px-8 py-3 bg-white/20 text-white font-black uppercase tracking-widest rounded flex items-center gap-2 backdrop-blur-md hover:bg-white/30 transition-colors">
+              <Info size={20} /> Detaylar
+            </button>
+          </motion.div>
         </div>
       </div>
 
-      <div className="relative z-30 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12">
+      {/* ── NETFLIX ROWS ── */}
+      <div className="relative z-30 -mt-20">
+        <NetflixRow title="Sistem Öneriyor" subtitle={`${soulProfile.name} DNA'sına Uygun`} items={row1} />
+        <NetflixRow title="Karanlık ve Derin" subtitle="Belki Gözden Kaçırmışsındır" items={row2} />
+      </div>
 
-        <div className="min-h-[80vh]">
-            <motion.div
-              key="results"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8"
-            >
-              {/* Soul Mirror Section */}
-              <div className="lg:col-span-8 space-y-8">
-                <div className="relative p-8 rounded-3xl bg-gradient-to-br from-[#1a1a3a]/40 to-[#0d0d1a]/80 border border-white/5 backdrop-blur-2xl overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-20">
-                    <Layers className="w-32 h-32 text-purple-500" />
+      {/* ── SOUL PROFILE DASHBOARD ── */}
+      <div className="relative z-30 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 mt-24 mb-12">
+        <div className="flex items-center gap-3 mb-8">
+          <Terminal size={28} className="text-cyan-400" />
+          <h2 className="text-3xl font-black text-white uppercase tracking-tight">ANALİZ <span className="text-cyan-400">RAPORU</span></h2>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Soul Mirror */}
+          <div className="lg:col-span-8">
+            <div className="relative p-8 rounded-3xl bg-[#141414] border border-white/5 shadow-2xl overflow-hidden h-full">
+              <div className="absolute top-0 right-0 p-6 opacity-10"><Layers className="w-40 h-40 text-cyan-500" /></div>
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 h-full">
+                <SoulDNA profile={soulProfile} />
+                <div className="flex-1 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <span className="text-xs font-mono text-cyan-400 tracking-widest uppercase">RUH MERTEBESİ</span>
                   </div>
-                  
-                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-                    <SoulDNA profile={soulProfile} />
-                    <div className="flex-1 text-center md:text-left">
-                      <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span className="text-xs font-mono text-purple-400 tracking-widest uppercase">RUH MERTEBESİ</span>
+                  <h3 className="text-4xl font-black mb-3 text-white">{soulProfile.name}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-lg">
+                    {soulProfile.desc} Sistemdeki eşleşme oranınız %{soulProfile.dnaScore} oranında benzersiz bulundu.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {soulProfile.cosmicDistribution.map(item => (
+                      <div key={item.label} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10">
+                        <div className="text-[10px] text-gray-500 uppercase mb-1 font-mono">{item.label}</div>
+                        <div className="text-lg font-bold text-cyan-400">%{item.value}</div>
                       </div>
-                      <h2 className="text-4xl font-black mb-3 text-white">
-                        {soulProfile.name} <span className="text-purple-400">/ {soulProfile.title}</span>
-                      </h2>
-                      <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-lg">
-                        {soulProfile.desc} Sistemdeki eşleşme oranınız %{soulProfile.dnaScore} oranında benzersiz bulundu.
-                      </p>
-                      <div className="flex flex-wrap gap-3">
-                        {soulProfile.cosmicDistribution.map(item => (
-                          <div key={item.label} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-                            <div className="text-[10px] text-gray-500 uppercase mb-1 font-mono">{item.label}</div>
-                            <div className="text-lg font-bold text-cyan-400">%{item.value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Metrics Grid — GERÇEK VERİLER */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <MetricBox 
-                    icon={Activity} 
-                    label="Okuma Ritmi" 
-                    value={soulProfile.readingRhythm} 
-                    subtext={`${userStats?.xp || 0} XP · ${userStats?.favCount || 0} favori seri`}
-                    color="purple"
-                  />
-                  <MetricBox 
-                    icon={Zap} 
-                    label="Etkileşim" 
-                    value={soulProfile.engagementRate} 
-                    subtext={`${userStats?.totalSeries || 0} seri · ${userStats?.totalChaptersRead || 0} bölüm`}
-                    color="cyan"
-                  />
-                  <MetricBox 
-                    icon={user?.discord_id ? Shield : Clock} 
-                    label="Sistem Rütbesi" 
-                    value={systemRank.value} 
-                    subtext={systemRank.subtext}
-                    color="pink"
-                  />
-                </div>
-
-                {/* Recommendations Header */}
-                <div className="pt-10">
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
-                        <Terminal className="w-6 h-6 text-cyan-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-black">AKILLI ALGORİTMA <span className="text-cyan-400">ÖNERİYOR</span></h2>
-                        <p className="text-xs text-gray-500 font-mono">SİSTEM ANALİZİ: {recommendedSeries.length} OPTİMAL EŞLEŞME · {userStats?.topGenres?.slice(0, 2).join(' + ') || 'Genel'} bazlı</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-[10px] text-emerald-400 font-mono tracking-widest uppercase">CANLI VERİ</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {recommendedSeries.map((s, i) => (
-                      <OracleCard 
-                        key={s.id} 
-                        manga={s} 
-                        matchScore={s.matchScore || calculateMatchScore(s, userStats?.topGenres || [])} 
-                        prophecy={generateProphecy(s, userStats?.topGenres || [])} 
-                        idx={i}
-                      />
                     ))}
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Sidebar Info */}
-              <div className="lg:col-span-4 space-y-8">
-                <div className="p-6 rounded-3xl bg-[#16162a]/60 border border-purple-500/10 backdrop-blur-md">
-                  <h3 className="text-sm font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-purple-400" /> ANALİZ RAPORU
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10">
-                      <p className="text-[11px] text-red-400/70 mb-1 font-mono uppercase tracking-tighter">Filtrelenen Parametreler</p>
-                      <p className="text-xs text-gray-400 italic">
-                        {userStats?.topGenres?.length > 0 
-                          ? `"${userStats.topGenres[0]}" türü dışındaki düşük puanlı seriler elendi.`
-                          : '"Yeterli okuma verisi toplanmadan filtre uygulanamaz."'
-                        }
-                      </p>
-                    </div>
-                    <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                      <p className="text-[11px] text-emerald-400/70 mb-1 font-mono uppercase tracking-tighter">Onaylanan Akış</p>
-                      <p className="text-xs text-gray-400 italic">
-                        {userStats?.topGenres?.length >= 2
-                          ? `"${userStats.topGenres[0]}" ve "${userStats.topGenres[1]}" türlerinde yüksek eşleşme tespit edildi.`
-                          : '"Daha fazla seri okuyarak algoritmanın hassasiyetini artırabilirsin."'
-                        }
-                      </p>
-                    </div>
-                    
-                    {/* Gerçek İstatistik Özeti */}
-                    <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/10">
-                      <p className="text-[11px] text-cyan-400/70 mb-2 font-mono uppercase tracking-tighter">Veri Kaynakları</p>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Toplam XP</span>
-                          <span className="text-cyan-400 font-mono">{userStats?.xp?.toLocaleString() || '0'}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Favori Seriler</span>
-                          <span className="text-cyan-400 font-mono">{userStats?.favCount || 0}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Analiz Edilen Seriler</span>
-                          <span className="text-cyan-400 font-mono">{userStats?.totalSeries || 0}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Seviye</span>
-                          <span className="text-cyan-400 font-mono">Lv.{userStats?.levelInfo?.level || 1}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative group p-8 rounded-3xl bg-gradient-to-br from-cyan-600/20 to-purple-600/20 border border-white/5 overflow-hidden text-center">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.05)_0%,_transparent_100%)] mix-blend-overlay" />
-                  <div className="relative z-10">
-                    {user?.discord_id ? (
-                      <>
-                        <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold mb-2">DISCORD BAĞLI</h3>
-                        <p className="text-xs text-gray-300 mb-4 font-light">
-                          Discord hesabınız senkronize. Rütbeniz ve XP'niz anlık olarak güncelleniyor.
-                        </p>
-                        <div className="w-full py-3 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 border border-emerald-500/30">
-                          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          SENKRONİZE
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <Ghost className="w-12 h-12 text-white mx-auto mb-4 animate-bounce" />
-                        <h3 className="text-xl font-bold mb-2">DISCORD BAĞLANTISI</h3>
-                        <p className="text-xs text-gray-300 mb-6 font-light">
-                          Discord hesabınızı bağlayarak rütbenizi senkronize edin ve ek XP kazanın.
-                        </p>
-                        <button className="w-full py-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-cyan-400 transition-colors flex items-center justify-center gap-2">
-                          SENKRONİZE ET <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
+          {/* Sidebar Metrics */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="p-6 rounded-3xl bg-[#141414] border border-white/5">
+              <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Metrikler</h4>
+              <div className="space-y-3">
+                <MetricBox icon={Activity} label="Okuma Ritmi" value={soulProfile.readingRhythm} subtext={`${userStats?.xp || 0} XP`} color="purple" />
+                <MetricBox icon={Zap} label="Etkileşim" value={soulProfile.engagementRate} subtext={`${userStats?.totalChaptersRead || 0} bölüm`} color="cyan" />
+                <MetricBox icon={Shield} label="Sistem Rütbesi" value={systemRank.value} subtext={systemRank.subtext} color="pink" />
               </div>
-
-            </motion.div>
+            </div>
+          </div>
         </div>
-
       </div>
+
     </div>
   );
 }
