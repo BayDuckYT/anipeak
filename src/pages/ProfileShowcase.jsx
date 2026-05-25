@@ -702,13 +702,23 @@ export default function ProfileShowcase() {
   const categories = useMemo(() => ['Tümü', ...new Set(decorationEffectsData.map(d => d.category))], [decorationEffectsData]);
 
   const filteredDecorations = useMemo(() => {
-    if (decorationCategory === 'Tümü') return decorationEffectsData;
-    if (decorationCategory === 'Auralar') return decorationEffectsData.filter(d => d.category === 'profile_effects');
-    if (decorationCategory === 'Avatar Çerçeveleri') return decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
-    if (decorationCategory === 'Plaketler') return nameplatesData.map((n, i) => ({ id: n, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
-    if (decorationCategory === 'İsim Efektleri') return decorationEffectsData.filter(d => d.category === 'name_effects');
-    return decorationEffectsData.filter(d => d.category === decorationCategory);
-  }, [decorationCategory, decorationEffectsData]);
+    let result = [];
+    if (decorationCategory === 'Tümü') result = decorationEffectsData;
+    else if (decorationCategory === 'Auralar') result = decorationEffectsData.filter(d => d.category === 'profile_effects');
+    else if (decorationCategory === 'Avatar Çerçeveleri') result = decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
+    else if (decorationCategory === 'Plaketler') result = nameplatesData.map((n, i) => ({ id: `nameplate_${n}`, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
+    else if (decorationCategory === 'İsim Efektleri') result = decorationEffectsData.filter(d => d.category === 'name_effects');
+    else result = decorationEffectsData.filter(d => d.category === decorationCategory);
+
+    // Satın alınanlar (kilidi açık olanlar) üstte çıksın
+    return [...result].sort((a, b) => {
+      const aUnlocked = canUseEffect(a.id, currentUser);
+      const bUnlocked = canUseEffect(b.id, currentUser);
+      if (aUnlocked && !bUnlocked) return -1;
+      if (!aUnlocked && bUnlocked) return 1;
+      return 0;
+    });
+  }, [decorationCategory, decorationEffectsData, currentUser]);
 
   const getSocialIcon = (platform) => {
     switch (platform) {
@@ -873,7 +883,7 @@ export default function ProfileShowcase() {
                     {displayUser.active_mix?.nameplate && displayUser.active_mix?.nameplate !== 'none' && (
                       <div className="absolute inset-0 z-[-1] rounded-xl overflow-hidden shadow-2xl border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                         <video 
-                          src={`/nameplates/${displayUser.active_mix.nameplate}`} 
+                          src={`/nameplates/${displayUser.active_mix.nameplate.replace('nameplate_', '')}`} 
                           autoPlay 
                           muted 
                           loop 
@@ -1552,7 +1562,7 @@ export default function ProfileShowcase() {
                           >
                              <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-xl bg-black border border-white/5 mb-3`}>
                                {isNameplate ? (
-                                 <video src={`/nameplates/${effect.id}`} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                                 <video src={`/nameplates/${effect.url}`} className="w-full h-full object-cover" muted loop autoPlay playsInline />
                                ) : isNameEffect ? (
                                  <div className="flex items-center justify-center w-full h-full p-2">
                                    <span className="text-[10px] font-black uppercase tracking-tighter name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.hue || 0}deg)` }}>KULLANICI</span>
