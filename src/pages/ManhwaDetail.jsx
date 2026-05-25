@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -432,7 +433,8 @@ export default function ManhwaDetail({ onAuthOpen }) {
       </div>
 
       {/* ── ADD TO LIST MODAL ── */}
-      <AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
         {showListModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
@@ -504,7 +506,9 @@ export default function ManhwaDetail({ onAuthOpen }) {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </motion.main>
   );
 }

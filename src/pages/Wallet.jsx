@@ -16,10 +16,10 @@ const AURA_PACKAGES = [
 ];
 
 const HISTORY_MOCK = [
-  { id: 1, action: 'Aura Yüklemesi', amount: '+250.000', date: 'Bugün', icon: <Zap className="text-emerald-400" /> },
+  { id: 1, action: 'Aura Puanı Yüklemesi', amount: '+250.000', date: 'Bugün', icon: <Zap className="text-emerald-400" /> },
   { id: 2, action: 'İsim Plakası (Neon)', amount: '-15.000', date: 'Dün', icon: <CreditCard className="text-red-400" /> },
   { id: 3, action: 'Elit Çerçeve', amount: '-50.000', date: '3 Gün Önce', icon: <CreditCard className="text-red-400" /> },
-  { id: 4, action: 'Aura Yüklemesi', amount: '+500.000', date: '1 Hafta Önce', icon: <Zap className="text-emerald-400" /> },
+  { id: 4, action: 'Aura Puanı Yüklemesi', amount: '+500.000', date: '1 Hafta Önce', icon: <Zap className="text-emerald-400" /> },
 ];
 
 export default function Wallet() {
@@ -45,8 +45,8 @@ export default function Wallet() {
   }, [isModalOpen]);
 
   useSEO({
-    title: 'Cüzdanım - Aura',
-    description: 'AniPeak sanal cüzdanınız. Aura bakiyenizi görüntüleyin ve yeni Aura satın alın.',
+    title: 'Cüzdanım - Aura Puanı',
+    description: 'AniPeak sanal cüzdanınız. Aura Puanı bakiyenizi görüntüleyin ve yeni Aura Puanı satın alın.',
     url: 'https://anipeak.com.tr/cuzdan'
   });
 
@@ -97,7 +97,7 @@ export default function Wallet() {
       // Fetch user aura again if context provides a way, else reload or just optimistic update
       if (fetchUserAura) await fetchUserAura();
         
-      setPromoMsg({ type: 'success', text: `${auraValue.toLocaleString('tr-TR')} Aura başarıyla eklendi!` });
+      setPromoMsg({ type: 'success', text: `${auraValue.toLocaleString('tr-TR')} Aura Puanı başarıyla eklendi!` });
       setPromoCode('');
     } catch (err) {
       setPromoMsg({ type: 'error', text: err.message });
@@ -213,7 +213,7 @@ export default function Wallet() {
                         {pkg.aura >= 1000000 ? (pkg.aura / 1000000) + 'M' : (pkg.aura / 1000) + 'K'}
                       </h3>
                       <div className="text-pink-400 font-bold uppercase tracking-widest text-sm flex items-center gap-1 mt-1">
-                        <Sparkles size={14} /> AURA
+                        <Sparkles size={14} /> AURA PUANI
                       </div>
                       {pkg.bonus && (
                         <div className="inline-block mt-4 px-3 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-wider border border-emerald-500/20">
@@ -257,7 +257,7 @@ export default function Wallet() {
                 <div>
                   <h3 className="text-sm font-bold text-white mb-1">{item.action}</h3>
                   <div className={`text-xl font-black tracking-tight ${item.amount.startsWith('+') ? 'text-emerald-400' : 'text-slate-300'}`}>
-                    {item.amount} <span className="text-xs font-bold uppercase tracking-widest text-slate-500">AURA</span>
+                    {item.amount} <span className="text-xs font-bold uppercase tracking-widest text-slate-500">AURA PUANI</span>
                   </div>
                 </div>
               </div>
@@ -288,13 +288,13 @@ export default function Wallet() {
                 </div>
                 <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Sipariş Oluştur</h3>
                 <p className="text-slate-400 text-sm font-medium">
-                  <strong className="text-white">{selectedPackage.aura.toLocaleString('tr-TR')} Aura</strong> satın almak üzeresiniz. İşlemi tamamlamak için lütfen Discord sunucumuza gelip destek talebi oluşturun.
+                  <strong className="text-white">{selectedPackage.aura.toLocaleString('tr-TR')} Aura Puanı</strong> satın almak üzeresiniz. İşlemi tamamlamak için lütfen Discord sunucumuza gelip destek talebi oluşturun.
                 </p>
                 
                 <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 my-6 shadow-inner">
                   <div className="flex justify-between items-center text-sm font-bold text-slate-400 mb-2">
                     <span>Paket:</span>
-                    <span className="text-white">{selectedPackage.aura.toLocaleString('tr-TR')} Aura</span>
+                    <span className="text-white">{selectedPackage.aura.toLocaleString('tr-TR')} Aura Puanı</span>
                   </div>
                   <div className="flex justify-between items-center text-xl font-black text-white">
                     <span>Tutar:</span>
@@ -304,7 +304,7 @@ export default function Wallet() {
 
                 {/* Hediye Et Checkbox */}
                 <div className="my-6 px-2 text-left">
-                  <label className="flex items-center gap-3 cursor-pointer group">
+                  <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsGift(!isGift)}>
                     <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isGift ? 'bg-gradient-to-r from-pink-500 to-purple-600 border-pink-500 text-white' : 'border-white/20 bg-white/5 group-hover:border-white/40'}`}>
                       {isGift && <ShieldCheck size={14} />}
                     </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -572,7 +573,8 @@ export default function ListDetail() {
       </div>
 
       {/* Add Series Modal */}
-      <AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
         {showAddModal && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
              <motion.div 
@@ -623,7 +625,9 @@ export default function ListDetail() {
              </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
 
       {/* Toast Notification */}
       <AnimatePresence>

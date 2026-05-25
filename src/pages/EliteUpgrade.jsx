@@ -661,7 +661,7 @@ export default function EliteUpgrade() {
 
                 {/* Hediye Et Checkbox */}
                 <div className="mb-6 px-2">
-                  <label className="flex items-center gap-3 cursor-pointer group">
+                  <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsGift(!isGift)}>
                     <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isGift ? `bg-gradient-to-r ${getColorClasses(selectedPlan.color).gradient} ${getColorClasses(selectedPlan.color).borderStrong}` : 'border-white/20 bg-white/5 group-hover:border-white/40'}`}>
                       {isGift && <Check size={14} className="text-white" />}
                     </div>

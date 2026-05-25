@@ -1,4 +1,5 @@
 import { Suspense, lazy, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ShieldAlert, Zap, Lock, Wrench, Calendar, Clock, Instagram } from 'lucide-react';
@@ -314,15 +315,18 @@ function AppContent() {
             </>
           )}
 
-          <AnimatePresence>
-            {authModal && (
-              <AuthModal
-                key="auth-modal"
-                mode={authModal}
-                onClose={() => setAuthModal(null)}
-              />
-            )}
-          </AnimatePresence>
+          {createPortal(
+            <AnimatePresence>
+              {authModal && (
+                <AuthModal
+                  key="auth-modal"
+                  mode={authModal}
+                  onClose={() => setAuthModal(null)}
+                />
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
         </main>
       </BrowserRouter>
     </>

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -1091,13 +1092,14 @@ function UsersPanel({ showToast }) {
       )}
 
       {/* ── EDIT USER MODAL ── */}
-      <AnimatePresence>
-        {editingUser && (
-          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
-             <div className="min-h-screen flex items-center justify-center py-20 px-4">
-              <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                className="w-full max-w-lg glass-strong border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(59,130,246,0.15)] relative">
-              <div className="absolute top-0 right-0 w-full h-32 bg-gradient-to-br from-blue-600/20 to-purple-600/20 blur-3xl" />
+      {createPortal(
+        <AnimatePresence>
+          {editingUser && (
+            <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
+               <div className="min-h-screen flex items-center justify-center py-20 px-4">
+                <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                  className="w-full max-w-lg glass-strong border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(59,130,246,0.15)] relative">
+                <div className="absolute top-0 right-0 w-full h-32 bg-gradient-to-br from-blue-600/20 to-purple-600/20 blur-3xl" />
               
               <div className="relative p-8 border-b border-white/10 flex items-start justify-between">
                 <div className="flex items-center gap-4">
@@ -1173,11 +1175,11 @@ function UsersPanel({ showToast }) {
                   <Save size={18} /> Profili Güncelle
                 </button>
               </div>
-            </motion.div>
             </div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
@@ -1308,7 +1310,7 @@ function PageManagement({ showToast }) {
         ))}
       </div>
 
-      {editingPage && (
+      {editingPage && createPortal(
         <div className="fixed inset-0 z-[200] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
            <div className="min-h-screen flex items-center justify-center py-20 px-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl glass-strong border border-white/10 rounded-3xl p-8 space-y-6">
@@ -1490,6 +1492,10 @@ function PromoCodesPanel({ showToast }) {
   const fetchCodes = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.from('promo_codes').select('*').order('created_at', { ascending: false });
+    if (error) {
+      console.error("fetchCodes error:", error);
+      showToast("Hata: " + error.message, "error");
+    }
     if (!error && data) setCodes(data);
     setLoading(false);
   }, []);
@@ -2143,31 +2149,35 @@ export default function Admin() {
       </AnimatePresence>
 
       {/* Chapter Editor Modal */}
-      <AnimatePresence>
-        {safeActiveNav === 'chapterEditor' && (
-          <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl pt-16">
-            <div className="absolute top-4 right-8 z-[110] flex gap-4">
-              <button onClick={() => setActiveNav('dashboard')} className="p-3 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all flex items-center gap-2 font-bold">
-                <X size={20} /> Editörü Kapat
-              </button>
+      {createPortal(
+        <AnimatePresence>
+          {safeActiveNav === 'chapterEditor' && (
+            <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl pt-16">
+              <div className="absolute top-4 right-8 z-[110] flex gap-4">
+                <button onClick={() => setActiveNav('dashboard')} className="p-3 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all flex items-center gap-2 font-bold">
+                  <X size={20} /> Editörü Kapat
+                </button>
+              </div>
+              <div className="h-full w-full overflow-y-auto custom-scrollbar">
+                <ChapterEditor seriesList={series.filter(s => !s.is_deleted)} showToast={showToast} />
+              </div>
             </div>
-            <div className="h-full w-full overflow-y-auto custom-scrollbar">
-              <ChapterEditor seriesList={series.filter(s => !s.is_deleted)} showToast={showToast} />
-            </div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Editing Series Modal */}
-      <AnimatePresence>
-        {editingSeries && (
-          <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
-             <div className="min-h-screen flex items-center justify-center py-20 px-4">
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-                className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <h3 className="text-2xl font-black text-white">Seri Düzenle: {editingSeries.title}</h3>
-                <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl"><X size={24} /></button>
+      {createPortal(
+        <AnimatePresence>
+          {editingSeries && (
+            <div className="fixed inset-0 z-[150] overflow-y-auto custom-scrollbar bg-black/90 backdrop-blur-xl">
+               <div className="min-h-screen flex items-center justify-center py-20 px-4">
+                <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                  className="w-full max-w-4xl glass-strong border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                  <h3 className="text-2xl font-black text-white">Seri Düzenle: {editingSeries.title}</h3>
+                  <button onClick={() => setEditingSeries(null)} className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl"><X size={24} /></button>
               </div>
 
               <form onSubmit={handleSaveSeries} className="p-6 space-y-6" noValidate>
@@ -2262,11 +2272,11 @@ export default function Admin() {
                   </button>
                 </div>
               </form>
-            </motion.div>
             </div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

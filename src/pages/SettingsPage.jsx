@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Shield, Bell, Eye, Palette, Link as LinkIcon, 
@@ -354,9 +355,10 @@ export default function SettingsPage() {
       </AnimatePresence>
 
       {/* Cropper Modal */}
-      <AnimatePresence>
-        {cropModal.isOpen && (
-          <motion.div 
+      {createPortal(
+        <AnimatePresence>
+          {cropModal.isOpen && (
+            <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -438,11 +440,14 @@ export default function SettingsPage() {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* GIF Boyut Seçim Modalı */}
-      <AnimatePresence>
-        {gifSizeModal.isOpen && (
+      {createPortal(
+        <AnimatePresence>
+          {gifSizeModal.isOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -525,7 +530,9 @@ export default function SettingsPage() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       <div className="max-w-[1400px] mx-auto px-4 lg:px-8 relative z-10">
         

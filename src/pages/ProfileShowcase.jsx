@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -741,32 +742,38 @@ export default function ProfileShowcase() {
     <div className="min-h-screen text-zinc-100 font-sans selection:bg-purple-500/30 pt-24 pb-12 bg-[#020203]">
       
       {/* ── MODALS ── */}
-      <AnimatePresence>
-        {showLinksModal && (
-          <ConnectedAccountsModal 
-            isOpen={showLinksModal} 
-            onClose={() => setShowLinksModal(false)} 
-            onSave={handleSaveLinks}
-            initialLinks={userLinks}
-          />
-        )}
-      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {showLinksModal && (
+            <ConnectedAccountsModal 
+              isOpen={showLinksModal} 
+              onClose={() => setShowLinksModal(false)} 
+              onSave={handleSaveLinks}
+              initialLinks={userLinks}
+            />
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
-      <AnimatePresence>
-        {isMixModalOpen && (
-          <EliteMixModal 
-            isOpen={isMixModalOpen} 
-            onClose={() => setIsMixModalOpen(false)} 
-            mixState={mixState} 
-            setMixState={setMixState} 
-            onSave={(newMix) => {
-              updateProfile({ active_mix: newMix });
-              showToast('Profiliniz Güncellendi');
-            }} 
-            currentUser={currentUser}
-          />
-        )}
-      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {isMixModalOpen && (
+            <EliteMixModal 
+              isOpen={isMixModalOpen} 
+              onClose={() => setIsMixModalOpen(false)} 
+              mixState={mixState} 
+              setMixState={setMixState} 
+              onSave={(newMix) => {
+                updateProfile({ active_mix: newMix });
+                showToast('Profiliniz Güncellendi');
+              }} 
+              currentUser={currentUser}
+            />
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       <AnimatePresence>
         {toast && (
@@ -787,36 +794,39 @@ export default function ProfileShowcase() {
           </motion.div>
         )}
       </AnimatePresence>
-      <AnimatePresence>
-        {showPremiumModal && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPremiumModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-5xl bg-zinc-950 border border-amber-500/30 rounded-[3rem] p-10 overflow-hidden shadow-[0_0_100px_rgba(245,158,11,0.15)]">
-              <div className="absolute top-0 right-0 p-6">
-                <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-card-navy text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
-              </div>
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÜYELİK</div>
-                <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span></h2>
-                <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş.</p>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
-                {ELITE_BUNDLES.slice(0, 5).map(bundle => (
-                  <div key={bundle.id} className="p-4 rounded-3xl bg-card-navy border border-zinc-800 text-center relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-all" />
-                    <span className="text-3xl block mb-2">{bundle.icon}</span>
-                    <span className="block text-[10px] font-black text-zinc-300 uppercase truncate">{bundle.name}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-400 hover:text-white transition-all">Şimdilik Kalsın</button>
-                <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ŞİMDİ YÜKSELT <ArrowRight size={16} /></button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {showPremiumModal && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPremiumModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
+              <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-5xl max-h-[85vh] overflow-y-auto custom-scrollbar bg-zinc-950 border border-amber-500/30 rounded-[3rem] p-10 shadow-[0_0_100px_rgba(245,158,11,0.15)]">
+                <div className="absolute top-0 right-0 p-6 z-10">
+                  <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-[#0a0815] border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
+                </div>
+                <div className="text-center mb-12">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÜYELİK</div>
+                  <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span></h2>
+                  <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş.</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
+                  {ELITE_BUNDLES.slice(0, 5).map(bundle => (
+                    <div key={bundle.id} className="p-4 rounded-3xl bg-[#0a0815] border border-zinc-800 text-center relative overflow-hidden group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-all" />
+                      <span className="text-3xl block mb-2">{bundle.icon}</span>
+                      <span className="block text-[10px] font-black text-zinc-300 uppercase truncate">{bundle.name}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-400 hover:text-white transition-all">Şimdilik Kalsın</button>
+                  <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ŞİMDİ YÜKSELT <ArrowRight size={16} /></button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start max-w-[1700px] mx-auto px-4 sm:px-6">
           

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   SendHorizontal, 
@@ -818,6 +819,7 @@ export default function MessagesPage() {
         </main>
 
         {/* MODAL: NEW CHAT / GROUP */}
+        {createPortal(
         <AnimatePresence>
           {showNewChat && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -910,7 +912,9 @@ export default function MessagesPage() {
               </motion.div>
             </div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+        )}
       </div>
 
       <style jsx global>{`
