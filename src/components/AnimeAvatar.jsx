@@ -51,6 +51,7 @@ function AutoSpritesheet({ src, style, isHovered, forcePlay, label }) {
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
         animation: `${isV ? 'siber-spritesheet-vertical' : 'siber-spritesheet'} ${duration}s steps(${frameData.count - 1}) infinite`,
+        animationPlayState: (isHovered || forcePlay) ? 'running' : 'paused',
       }}
       className="max-w-none"
     />
@@ -93,7 +94,6 @@ export default function AnimeAvatar({
         }
       } else {
         videoRef.current.pause();
-        videoRef.current.currentTime = 0;
       }
     }
   }, [isHovered, forcePlay, isVisible]);
@@ -178,19 +178,9 @@ export default function AnimeAvatar({
       </div>
 
       {/* KATMAN 2: EFEKT */}
-      <AnimatePresence>
-        {(isHovered || forcePlay) && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0"
-          >
-            {renderEffect()}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="absolute inset-0">
+        {renderEffect()}
+      </div>
       
       {/* Glow */}
       <div className="absolute inset-0 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

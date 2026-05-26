@@ -1666,11 +1666,13 @@ export default function ProfileShowcase() {
                               setMixState(newMix);
                               updateProfile({ active_mix: newMix });
                             }} 
+                            onMouseEnter={(e) => e.currentTarget.querySelector('video')?.play()}
+                            onMouseLeave={(e) => e.currentTarget.querySelector('video')?.pause()}
                             className={`group relative p-4 rounded-2xl bg-black/40 transition-all cursor-pointer border ${isActive ? 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : !isUnlocked ? 'border-white/5 opacity-60 hover:opacity-80' : 'border-white/10 hover:border-white/30'}`}
                           >
                              <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-xl bg-black border border-white/5 mb-3`}>
                                {isNameplate ? (
-                                 <video src={`/nameplates/${effect.url}`} className="w-full h-full object-cover" style={{ filter: `hue-rotate(${mixState.nameplateHue || 0}deg)` }} muted loop autoPlay playsInline />
+                                 <video src={`/nameplates/${effect.url}`} className="w-full h-full object-cover" style={{ filter: `hue-rotate(${mixState.nameplateHue || 0}deg)` }} muted loop playsInline />
                                ) : isNameEffect ? (
                                  <div className="flex items-center justify-center w-full h-full p-2">
                                    <span className="text-[10px] font-black uppercase tracking-tighter name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.nametagHue || 0}deg)` }}>KULLANICI</span>

@@ -44,6 +44,7 @@ function RarityBadge({ rarity, size = 'sm' }) {
 
 // ── Efekt Kartı ────────────────────────────────────────────────
 function EffectCard({ item, isOwned, onBuy, user }) {
+  const videoRef = React.useRef(null);
   const config = item.rarityConfig;
   const isNameplate = item.category === 'nameplates';
   const isNameEffect = item.category === 'name_effects';
@@ -63,6 +64,8 @@ function EffectCard({ item, isOwned, onBuy, user }) {
       }`}
       style={!isOwned ? { '--tw-shadow-color': config.glow, boxShadow: 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 30px var(--tw-shadow-color))' } : {}}
       onClick={() => !isOwned && onBuy(item)}
+      onMouseEnter={() => videoRef.current?.play()}
+      onMouseLeave={() => videoRef.current?.pause()}
     >
       {/* Glow effect on hover */}
       <div
@@ -74,9 +77,10 @@ function EffectCard({ item, isOwned, onBuy, user }) {
       <div className={`relative ${isNameplate ? 'aspect-[2.5/1]' : isNameEffect ? 'aspect-[2/1]' : 'aspect-square'} flex items-center justify-center overflow-hidden bg-black/40`}>
         {isNameplate ? (
           <video
+            ref={videoRef}
             src={item.url}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-            muted loop autoPlay playsInline
+            muted loop playsInline
           />
         ) : isNameEffect ? (
           <div className="flex items-center justify-center w-full h-full p-4 bg-gradient-to-br from-black to-zinc-900">
