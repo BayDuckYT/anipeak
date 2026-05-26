@@ -164,6 +164,7 @@ export default function ProfileShowcase() {
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [hoveredEffectId, setHoveredEffectId] = useState(null);
+  const [visibleDecorationCount, setVisibleDecorationCount] = useState(20);
   const [decorationCategory, setDecorationCategory] = useState('Tümü');
   const [activeDecoration, setActiveDecoration] = useState(isOwnProfile ? (currentUser?.active_decoration || 'none') : 'none');
   const [userLinks, setUserLinks] = useState(isOwnProfile ? (currentUser?.links || []) : []);
@@ -1515,8 +1516,7 @@ export default function ProfileShowcase() {
                      </div>
                   )}
                </motion.div>
-            </AnimatePresence>
-          </main>
+            </main>
        </div>
 
       {/* RIGHT SIDE DRAWER FOR CUSTOMIZATION */}
@@ -1550,7 +1550,7 @@ export default function ProfileShowcase() {
                       {['Tümü', 'Auralar', 'Avatar Çerçeveleri', 'Plaketler', 'İsim Efektleri'].map((f) => (
                         <button 
                           key={f} 
-                          onClick={() => setDecorationCategory(f)}
+                          onClick={() => { setDecorationCategory(f); setVisibleDecorationCount(20); }}
                           className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${decorationCategory === f ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'}`}
                         >
                            {f}
@@ -1643,8 +1643,9 @@ export default function ProfileShowcase() {
                    )}
 
                    {/* Effect Items */}
-                   <div className="grid grid-cols-2 gap-4">
-                      {filteredDecorations.length > 0 ? filteredDecorations.map(effect => {
+                   <div className="flex flex-col items-center">
+                     <div className="grid grid-cols-2 gap-4 w-full">
+                        {filteredDecorations.length > 0 ? filteredDecorations.slice(0, visibleDecorationCount).map(effect => {
                         const isNameplate = effect.category === 'nameplates';
                         const isProfileEffect = effect.category === 'profile_effects';
                         const isNameEffect = effect.category === 'name_effects';
@@ -1716,7 +1717,7 @@ export default function ProfileShowcase() {
                         );
                       }) : (
                         <div className="col-span-2 flex flex-col items-center justify-center py-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10">
-                          <Lock size={32} className="text-zinc-600 mb-3" />
+                          <Palette size={32} className="text-zinc-600 mb-3" />
                           <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Efektiniz Yok</p>
                           <p className="text-[8px] text-zinc-600 mb-4">Aura Market'ten efekt satın alabilirsiniz.</p>
                           <button
@@ -1727,6 +1728,15 @@ export default function ProfileShowcase() {
                           </button>
                         </div>
                       )}
+                     </div>
+                     {visibleDecorationCount < filteredDecorations.length && (
+                       <button
+                         onClick={() => setVisibleDecorationCount(v => v + 20)}
+                         className="mt-6 px-6 py-2 rounded-full bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-white/10 hover:border-white/20 transition-all"
+                       >
+                         Daha Fazla Göster ({filteredDecorations.length - visibleDecorationCount})
+                       </button>
+                     )}
                    </div>
                 </div>
              </motion.div>

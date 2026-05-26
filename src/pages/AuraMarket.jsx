@@ -351,6 +351,7 @@ export default function AuraMarket() {
   const [purchaseItem, setPurchaseItem] = useState(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [toast, setToast] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(30);
 
   useSEO({
     title: 'Aura Market - Efekt Mağazası',
@@ -388,6 +389,10 @@ export default function AuraMarket() {
     });
     return items;
   }, [allItems, selectedCategory, selectedRarity, searchQuery]);
+
+  useEffect(() => {
+    setVisibleCount(30);
+  }, [selectedCategory, selectedRarity, searchQuery]);
 
   const userAura = user?.aura || 0;
   const ownedEffects = user?.unlocked_effects || [];
@@ -609,16 +614,26 @@ export default function AuraMarket() {
 
         {/* ── ITEM GRID ── */}
         {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-            {filteredItems.map((item) => (
-              <EffectCard
-                key={item.id}
-                item={item}
-                isOwned={ownedEffects.includes(item.id) || canUseEffect(item.id, user)}
-                onBuy={() => setPurchaseItem(item)}
-                user={user}
-              />
-            ))}
+          <div className="flex flex-col items-center pb-20">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
+              {filteredItems.slice(0, visibleCount).map((item) => (
+                <EffectCard
+                  key={item.id}
+                  item={item}
+                  isOwned={ownedEffects.includes(item.id) || canUseEffect(item.id, user)}
+                  onBuy={() => setPurchaseItem(item)}
+                  user={user}
+                />
+              ))}
+            </div>
+            {visibleCount < filteredItems.length && (
+              <button
+                onClick={() => setVisibleCount(v => v + 30)}
+                className="mt-10 px-8 py-3 rounded-full bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/10 hover:border-white/20 transition-all"
+              >
+                Daha Fazla Göster ({filteredItems.length - visibleCount})
+              </button>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 rounded-[3rem] bg-white/[0.02] border border-dashed border-white/10">
