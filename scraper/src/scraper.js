@@ -74,7 +74,9 @@ export async function getSeriesDetails(seriesUrl) {
       let classAttr = $(el).attr('class') || '';
       if (src && (classAttr.includes('wp-post-image') || classAttr.includes('ts-post-image') || src.includes('/uploads/'))) {
         if (!src.includes('data:image') && !src.includes('avatar')) {
-          cover = src.trim();
+          // Thumbnail eklerini (örn: -175x238.jpg) temizleyip orijinal devasa (HD) kapak fotoğrafını al
+          let highResCover = src.trim().replace(/-\d+x\d+(\.[a-zA-Z0-9]+)$/, '$1');
+          cover = highResCover;
         }
       }
     });
