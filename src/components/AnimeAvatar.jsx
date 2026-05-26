@@ -7,7 +7,7 @@ import { StaticImageFallback } from './StaticImageFallback.jsx';
  * AutoSpritesheet — Otomatik kare tespitli spritesheet animatörü.
  * Resmin naturalWidth/naturalHeight oranından kare sayısını hesaplar.
  */
-function AutoSpritesheet({ src, style, isHovered, forcePlay, label }) {
+function AutoSpritesheet({ src, style, isHovered, forcePlay, hoverOnly = false, label }) {
   const [frameData, setFrameData] = useState({ count: null, direction: 'h' });
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function AutoSpritesheet({ src, style, isHovered, forcePlay, label }) {
   }, [src]);
 
   if (frameData.count === null || frameData.count <= 1) {
-    if (isHovered || forcePlay) {
+    if (!hoverOnly || isHovered || forcePlay) {
       return (
         <img 
           src={src}
@@ -63,7 +63,7 @@ function AutoSpritesheet({ src, style, isHovered, forcePlay, label }) {
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
         animation: `${isV ? 'siber-spritesheet-vertical' : 'siber-spritesheet'} ${duration}s steps(${frameData.count - 1}) infinite`,
-        animationPlayState: (isHovered || forcePlay) ? 'running' : 'paused',
+        animationPlayState: (!hoverOnly || isHovered || forcePlay) ? 'running' : 'paused',
       }}
       className="max-w-none"
     />
@@ -76,6 +76,7 @@ export default function AnimeAvatar({
   size = "w-32 h-32", 
   className = "",
   forcePlay = false,
+  hoverOnly = false,
   eager = false
 }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -99,7 +100,7 @@ export default function AnimeAvatar({
 
   useEffect(() => {
     if (videoRef.current && isVisible) {
-      if (isHovered || forcePlay) {
+      if (!hoverOnly || isHovered || forcePlay) {
         const playPromise = videoRef.current.play();
         if (playPromise !== undefined) {
           playPromise.catch(() => {});
@@ -108,7 +109,7 @@ export default function AnimeAvatar({
         videoRef.current.pause();
       }
     }
-  }, [isHovered, forcePlay, isVisible]);
+  }, [isHovered, forcePlay, isVisible, hoverOnly]);
 
   const renderEffect = () => {
     if (!effect || !isVisible) return null;
@@ -168,6 +169,7 @@ export default function AnimeAvatar({
           style={effectStyle} 
           isHovered={isHovered} 
           forcePlay={forcePlay} 
+          hoverOnly={hoverOnly}
           label={effect.label || 'Effect'} 
         />
       </div>

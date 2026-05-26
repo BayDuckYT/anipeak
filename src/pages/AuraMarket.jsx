@@ -130,6 +130,7 @@ function EffectCard({ item, isOwned, onBuy, user }) {
               effect={item}
               size="w-20 h-20"
               forcePlay={isHovered}
+              hoverOnly={true}
             />
           </div>
         )}

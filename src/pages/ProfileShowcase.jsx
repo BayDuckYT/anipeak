@@ -1686,7 +1686,7 @@ export default function ProfileShowcase() {
                                    <StaticImageFallback src={getOptimizedImage(effect.url, 200)} className="w-full h-full object-contain drop-shadow-2xl" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
                                  )
                                ) : (
-                                 <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-12 h-12" forcePlay={false} />
+                                 <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-12 h-12" forcePlay={hoveredEffectId === effect.id} hoverOnly={true} />
                                )}
                                <div className="absolute inset-0 pointer-events-none" />
                                {!isUnlocked && (
