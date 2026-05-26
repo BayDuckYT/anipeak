@@ -6,10 +6,13 @@
 export function getOptimizedImage(url, width = 300) {
   if (!url) return getFallbackImage();
   
+  // Retina (Yüksek çözünürlüklü) ekranlar için genişliği %50 artırıp kaliteyi yükseltiyoruz.
+  const targetWidth = Math.round(width * 1.5);
+
   // Eğer url zaten optimize edilmiş bir servis ise
   if (url.includes('wsrv.nl')) {
     // Veritabanında w=300 olarak kaydedilmiş olabilir, onu istenen genişlikle değiştir
-    return url.replace(/&w=\d+/, `&w=${width}`).replace(/\?w=\d+&/, `?w=${width}&`);
+    return url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=85');
   }
   
   if (url.startsWith('/') || url.startsWith('data:')) {
@@ -26,7 +29,7 @@ export function getOptimizedImage(url, width = 300) {
   const isGif = url.toLowerCase().includes('.gif');
   if (isGif) return url;
 
-  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&output=webp&q=70`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${targetWidth}&output=webp&q=85`;
 }
 
 // Sadece tek bir kare (animasyonsuz) halini getiren fonksiyon
@@ -34,8 +37,10 @@ export function getOptimizedImage(url, width = 300) {
 export function getStaticImage(url, width = 300) {
   if (!url) return getFallbackImage();
   
+  const targetWidth = Math.round(width * 1.5);
+
   if (url.includes('wsrv.nl')) {
-    let staticUrl = url.replace(/&w=\d+/, `&w=${width}`).replace(/\?w=\d+&/, `?w=${width}&`);
+    let staticUrl = url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=85');
     if (!staticUrl.includes('&n=')) {
       staticUrl += '&n=1&page=5';
     }
@@ -50,7 +55,7 @@ export function getStaticImage(url, width = 300) {
   }
 
   // n=1 (sadece 1 kare) ve page=5 (5. kareyi al ki fade-in efekti boş çıkmasın)
-  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${width}&output=webp&q=70&n=1&page=5`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&q=85&n=1&page=5`;
 }
 
 // Resim yüklenemezse gösterilecek güvenli (çökmeyen) siyah/mor yer tutucu
