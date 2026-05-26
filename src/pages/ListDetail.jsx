@@ -84,7 +84,7 @@ export default function ListDetail() {
         .from('custom_list_items')
         .select('*, series(*)')
         .eq('list_id', listId)
-        .order('added_at', { ascending: false });
+        .order('created_at', { ascending: false });
       
       if (itemsErr) throw itemsErr;
       console.log("Supabase'den Gelen Derin Liste İçeriği (JOIN):", items);

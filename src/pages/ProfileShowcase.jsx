@@ -1333,32 +1333,39 @@ export default function ProfileShowcase() {
                               </h3>
                            </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
-                           {customLists.map((list, i) => (
-                             <div 
-                               key={i} 
-                               onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
-                               className="group relative aspect-[4/3] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden cursor-pointer border border-white/10 hover:border-blue-500/50 shadow-2xl"
-                             >
-                                <div className="absolute inset-0 flex flex-wrap">
-                                  {list.custom_list_items?.slice(0, 4).map((item, idx) => {
-                                    const s = series?.find(ser => String(ser.id) === String(item.series_id));
-                                    return <div key={idx} className="w-1/2 h-1/2 overflow-hidden bg-zinc-900 border border-[#070511]"><img src={getOptimizedImage(s?.cover || '/placeholder.png', 300)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" /></div>;
-                                  })}
-                                </div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-                                <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8 flex items-end justify-between">
-                                   <div>
-                                      <h4 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-1 drop-shadow-md">{list.name}</h4>
-                                      <span className="inline-block px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-[9px] font-black text-blue-300 uppercase tracking-widest">{list.custom_list_items?.length || 0} SERİ</span>
+                        {customLists.length > 0 ? (
+                           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+                              {customLists.map((list, i) => (
+                                <div 
+                                  key={i} 
+                                  onClick={() => navigate(`/${displayUser.username}/liste/${list.id}`)}
+                                  className="group relative aspect-[4/3] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden cursor-pointer border border-white/10 hover:border-blue-500/50 shadow-2xl"
+                                >
+                                   <div className="absolute inset-0 flex flex-wrap">
+                                     {list.custom_list_items?.slice(0, 4).map((item, idx) => {
+                                       const s = series?.find(ser => String(ser.id) === String(item.series_id));
+                                       return <div key={idx} className="w-1/2 h-1/2 overflow-hidden bg-zinc-900 border border-[#070511]"><img src={getOptimizedImage(s?.cover || '/placeholder.png', 300)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" /></div>;
+                                     })}
                                    </div>
-                                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md group-hover:bg-blue-600 transition-colors">
-                                      <ChevronRight size={18} />
+                                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+                                   <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8 flex items-end justify-between">
+                                      <div>
+                                         <h4 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-1 drop-shadow-md">{list.name}</h4>
+                                         <span className="inline-block px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-[9px] font-black text-blue-300 uppercase tracking-widest">{list.custom_list_items?.length || 0} SERİ</span>
+                                      </div>
+                                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md group-hover:bg-blue-600 transition-colors">
+                                         <ChevronRight size={18} />
+                                      </div>
                                    </div>
                                 </div>
-                             </div>
-                           ))}
-                        </div>
+                              ))}
+                           </div>
+                        ) : (
+                           <div className="w-full py-20 flex flex-col items-center justify-center rounded-[3rem] bg-white/5 border border-dashed border-white/10 backdrop-blur-md">
+                              <BookOpen size={48} className="text-zinc-600 mb-4" />
+                              <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">Henüz bir özel liste oluşturulmamış.</p>
+                           </div>
+                        )}
                      </div>
                   )}
 
