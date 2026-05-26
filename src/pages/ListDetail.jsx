@@ -11,6 +11,7 @@ import {
   X, 
   BookOpen, 
   Eye, 
+  EyeOff,
   ArrowLeft,
   ChevronRight,
   Shield,
@@ -45,6 +46,8 @@ export default function ListDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
+  const [editIsPublic, setEditIsPublic] = useState(true);
+  const [isPrivate, setIsPrivate] = useState(false);
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,10 +77,18 @@ export default function ListDetail() {
         .single();
       
       if (listErr) throw listErr;
+      
+      if (!listData.is_public && currentUser?.id !== listData.user_id) {
+          setIsPrivate(true);
+          setLoading(false);
+          return;
+      }
+      
       console.log("Supabase'den Gelen Liste Verisi:", listData);
       setList(listData);
       setEditTitle(listData.name);
       setEditDesc(listData.description || '');
+      setEditIsPublic(listData.is_public ?? true);
 
       // Fetch Items with Deep Join
       const { data: items, error: itemsErr } = await supabase
@@ -146,10 +157,10 @@ export default function ListDetail() {
     try {
       const { error } = await supabase
         .from('custom_lists')
-        .update({ name: editTitle, description: editDesc })
+        .update({ name: editTitle, description: editDesc, is_public: editIsPublic })
         .eq('id', listId);
       if (error) throw error;
-      setList(prev => ({ ...prev, name: editTitle, description: editDesc }));
+      setList(prev => ({ ...prev, name: editTitle, description: editDesc, is_public: editIsPublic }));
       setIsEditing(false);
       showToast('Liste başarıyla güncellendi!');
     } catch (err) {
@@ -249,6 +260,15 @@ export default function ListDetail() {
 
   if (loading) return <Loader text="Sayfa Yükleniyor..." />;
   
+  if (isPrivate) return (
+    <div className="min-h-screen bg-[#070511] flex flex-col items-center justify-center p-6 text-center">
+       <Shield size={80} className="text-red-500 mb-6 opacity-40 drop-shadow-[0_0_30px_rgba(239,68,68,0.4)]" />
+       <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Gizli Operasyon Bölgesi</h1>
+       <p className="text-zinc-500 text-sm mb-8">Bu koleksiyon ustası tarafından mühürlenmiş ve gizli tutuluyor uşağım.</p>
+       <button onClick={() => navigate(-1)} className="px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 font-black uppercase text-xs hover:text-white transition-all">Geri Dön</button>
+    </div>
+  );
+
   if (!list) return (
     <div className="min-h-screen bg-[#070511] flex flex-col items-center justify-center p-6 text-center">
        <X size={80} className="text-red-500 mb-6 opacity-20" />
@@ -312,13 +332,29 @@ export default function ListDetail() {
               )}
 
               {isEditing ? (
-                <textarea 
-                  value={editDesc}
-                  onChange={e => setEditDesc(e.target.value)}
-                  className="text-lg text-zinc-300 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 w-full max-w-2xl outline-none focus:border-indigo-500 transition-all resize-none shadow-2xl drop-shadow-md"
-                  rows={3}
-                  placeholder="Bu koleksiyonun hikayesi nedir uşağım?"
-                />
+                <>
+                  <textarea 
+                    value={editDesc}
+                    onChange={e => setEditDesc(e.target.value)}
+                    className="text-lg text-zinc-300 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 w-full max-w-2xl outline-none focus:border-indigo-500 transition-all resize-none shadow-2xl drop-shadow-md"
+                    rows={3}
+                    placeholder="Bu koleksiyonun hikayesi nedir uşağım?"
+                  />
+                  <div className="flex items-center justify-between p-4 mt-4 rounded-xl bg-black/40 border border-white/10 max-w-2xl">
+                     <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${editIsPublic ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                           {editIsPublic ? <Eye size={20} /> : <EyeOff size={20} />}
+                        </div>
+                        <div>
+                           <h4 className="text-sm font-bold text-white">{editIsPublic ? 'Herkese Açık' : 'Gizli Liste'}</h4>
+                           <p className="text-[10px] text-zinc-400">{editIsPublic ? 'Bu listeyi herkes görebilir' : 'Sadece sen görebilirsin'}</p>
+                        </div>
+                     </div>
+                     <button type="button" onClick={() => setEditIsPublic(!editIsPublic)} className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${editIsPublic ? 'bg-emerald-500' : 'bg-zinc-700'}`}>
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${editIsPublic ? 'left-7' : 'left-1'}`} />
+                     </button>
+                  </div>
+                </>
               ) : (
                 <p className="text-slate-200 text-lg sm:text-xl max-w-2xl font-medium drop-shadow-md border-l-4 border-indigo-500/50 pl-6 py-2">
                   {list.description || 'Bu kadim koleksiyon için henüz bir açıklama mühürlenmemiş...'}
@@ -355,9 +391,9 @@ export default function ListDetail() {
                        <Link to={`/profil/${list.profiles?.username}`} className="text-[11px] font-black text-white hover:text-indigo-400 transition-colors">@{list.profiles?.username}</Link>
                     </div>
                  </div>
-                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                    <Eye size={12} />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Açık</span>
+                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${list.is_public ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                    {list.is_public ? <Eye size={12} /> : <EyeOff size={12} />}
+                    <span className="text-[9px] font-black uppercase tracking-widest">{list.is_public ? 'Açık' : 'Gizli'}</span>
                  </div>
               </div>
 

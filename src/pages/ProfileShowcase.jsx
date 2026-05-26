@@ -179,6 +179,7 @@ export default function ProfileShowcase() {
   const [listLikes, setListLikes] = useState({}); // { listId: { count: 0, isLiked: false } }
   const [newListName, setNewListName] = useState('');
   const [newListDesc, setNewListDesc] = useState('');
+  const [newListIsPublic, setNewListIsPublic] = useState(true);
   const [isListCreating, setIsListCreating] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -306,10 +307,16 @@ export default function ProfileShowcase() {
     setReadHistory(rhData || []);
 
     // 2. Custom Lists
-    const { data: clData } = await supabase
+    let clQuery = supabase
       .from('custom_lists')
       .select('*, custom_list_items(series_id, series(title, cover))')
       .eq('user_id', userId);
+      
+    if (currentUser?.id !== userId) {
+      clQuery = clQuery.eq('is_public', true);
+    }
+    
+    const { data: clData } = await clQuery;
     setCustomLists(clData || []);
 
     // 3. Achievements
@@ -357,7 +364,7 @@ export default function ProfileShowcase() {
           user_id: currentUser.id,
           name: newListName,
           description: newListDesc,
-          is_public: true
+          is_public: newListIsPublic
         })
         .select()
         .single();
@@ -371,6 +378,7 @@ export default function ProfileShowcase() {
       setShowCreateListModal(false);
       setNewListName('');
       setNewListDesc('');
+      setNewListIsPublic(true);
       
       // Anında ışınlanıyoruz uşağım!
       navigate(`/${currentUser.username}/liste/${data.id}`);
@@ -762,6 +770,52 @@ export default function ProfileShowcase() {
               onSave={handleSaveLinks}
               initialLinks={userLinks}
             />
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {createPortal(
+        <AnimatePresence>
+          {showCreateListModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCreateListModal(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+              <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-lg bg-[#0a0a0f] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                    <h3 className="text-lg font-black text-white tracking-widest flex items-center gap-2"><BookOpen size={20} className="text-blue-500"/> YENİ LİSTE OLUŞTUR</h3>
+                    <button onClick={() => setShowCreateListModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"><X size={16}/></button>
+                 </div>
+                 <form onSubmit={handleCreateList} className="p-6 space-y-6">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">LİSTE ADI (ZORUNLU)</label>
+                       <input type="text" value={newListName} onChange={(e) => setNewListName(e.target.value)} placeholder="Örn: Okunacak Şaheserler" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-colors" required />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">AÇIKLAMA (OPSİYONEL)</label>
+                       <textarea value={newListDesc} onChange={(e) => setNewListDesc(e.target.value)} placeholder="Bu liste ne hakkında?" rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-colors resize-none" />
+                    </div>
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                       <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${newListIsPublic ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                             {newListIsPublic ? <Eye size={20} /> : <EyeOff size={20} />}
+                          </div>
+                          <div>
+                             <h4 className="text-sm font-bold text-white">{newListIsPublic ? 'Herkese Açık' : 'Gizli Liste'}</h4>
+                             <p className="text-[10px] text-zinc-400">{newListIsPublic ? 'Bu listeyi profilinde herkes görebilir' : 'Sadece sen görebilirsin'}</p>
+                          </div>
+                       </div>
+                       <button type="button" onClick={() => setNewListIsPublic(!newListIsPublic)} className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${newListIsPublic ? 'bg-green-500' : 'bg-zinc-700'}`}>
+                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${newListIsPublic ? 'left-7' : 'left-1'}`} />
+                       </button>
+                    </div>
+                    <div className="pt-2">
+                       <button type="submit" disabled={isListCreating || !newListName.trim()} className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] flex items-center justify-center gap-2">
+                          {isListCreating ? <Loader className="w-4 h-4" /> : <><Plus size={16} /> OLUŞTUR</>}
+                       </button>
+                    </div>
+                 </form>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>,
         document.body
@@ -1327,11 +1381,19 @@ export default function ProfileShowcase() {
                   {activeTab === 'listeler' && (
                      <div className="space-y-10">
                         <div className="flex justify-between items-end">
-                           <div>
+                            <div>
                               <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-2 drop-shadow-md">
                                 <BookOpen size={24} className="text-blue-400" /> ÖZEL LİSTELER
                               </h3>
                            </div>
+                           {isOwnProfile && (
+                             <button
+                               onClick={() => setShowCreateListModal(true)}
+                               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
+                             >
+                               <Plus size={16} /> YENİ LİSTE
+                             </button>
+                           )}
                         </div>
                         {customLists.length > 0 ? (
                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">

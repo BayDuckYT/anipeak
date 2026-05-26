@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Eye, BookOpen, ArrowLeft, Heart, Bookmark,
+  Eye, EyeOff, BookOpen, ArrowLeft, Heart, Bookmark,
   Clock, CheckCircle, Play, ChevronRight, Calendar, User,
   Flame, Lock, Sparkles, Search, SortAsc, Star, ListPlus, Plus, X, Trash2,
   Share2, MessageCircle, ChevronDown, ChevronUp
@@ -55,6 +55,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const [userLists, setUserLists] = useState([]);
   const [listLoading, setListLoading] = useState(false);
   const [newListName, setNewListName] = useState('');
+  const [newListIsPublic, setNewListIsPublic] = useState(true);
   const [showCreateInput, setShowCreateInput] = useState(false);
 
   const history         = readingHistory?.find((h) => h.manhwaId === manhwa?.id);
@@ -158,7 +159,8 @@ export default function ManhwaDetail({ onAuthOpen }) {
         .from('custom_lists')
         .insert({
           user_id: user.id,
-          name: newListName.trim()
+          name: newListName.trim(),
+          is_public: newListIsPublic
         })
         .select()
         .single();
@@ -166,6 +168,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
       if (error) throw error;
       setUserLists(prev => [...prev, { ...data, custom_list_items: [] }]);
       setNewListName('');
+      setNewListIsPublic(true);
       setShowCreateInput(false);
     } catch (err) {
       console.error("Create list error:", err);
@@ -490,9 +493,18 @@ export default function ManhwaDetail({ onAuthOpen }) {
                     onChange={e => setNewListName(e.target.value)}
                     className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm text-white focus:border-purple-500 outline-none"
                   />
+                  <div className="flex items-center justify-between px-2 bg-black/20 py-2 rounded-xl border border-white/5">
+                     <div className="flex items-center gap-2 text-xs font-black uppercase text-slate-400">
+                        {newListIsPublic ? <Eye size={14} className="text-green-400"/> : <EyeOff size={14} className="text-red-400"/>}
+                        <span className={newListIsPublic ? 'text-green-400' : 'text-red-400'}>{newListIsPublic ? 'Herkese Açık' : 'Gizli'}</span>
+                     </div>
+                     <button type="button" onClick={() => setNewListIsPublic(!newListIsPublic)} className={`relative w-10 h-5 rounded-full transition-colors duration-300 ${newListIsPublic ? 'bg-green-500' : 'bg-zinc-700'}`}>
+                        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-300 ${newListIsPublic ? 'left-5' : 'left-1'}`} />
+                     </button>
+                  </div>
                   <div className="flex gap-2">
-                    <button onClick={() => setShowCreateInput(false)} className="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 text-xs font-black uppercase">İptal</button>
-                    <button onClick={handleCreateList} className="flex-1 py-3 rounded-xl bg-purple-600 text-white text-xs font-black uppercase">Oluştur</button>
+                    <button onClick={() => setShowCreateInput(false)} className="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 text-xs font-black uppercase transition-colors hover:bg-white/10 hover:text-white">İptal</button>
+                    <button onClick={handleCreateList} className="flex-1 py-3 rounded-xl bg-purple-600 text-white text-xs font-black uppercase shadow-lg shadow-purple-600/30 hover:bg-purple-500 transition-colors">Oluştur</button>
                   </div>
                 </div>
               ) : (
