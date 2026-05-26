@@ -58,6 +58,7 @@ import UserBadges from '../components/UserBadges';
 import { getOptimizedImage } from '../utils/imageOpt.js';
 import effectsData from '../data/effects.json';
 import nameplatesData from '../data/nameplates.json';
+import { StaticImageFallback } from '../components/StaticImageFallback.jsx';
 import Cropper from 'react-easy-crop';
 import { uploadAvatar } from '../lib/imageService';
 import { getEffectCSS, canUseBundle, getUnlockedEffectParts, ELITE_BUNDLES } from '../lib/eliteBundles';
@@ -162,6 +163,7 @@ export default function ProfileShowcase() {
   const [activeTab, setActiveTab] = useState('okunanlar');
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [hoveredEffectId, setHoveredEffectId] = useState(null);
   const [decorationCategory, setDecorationCategory] = useState('Tümü');
   const [activeDecoration, setActiveDecoration] = useState(isOwnProfile ? (currentUser?.active_decoration || 'none') : 'none');
   const [userLinks, setUserLinks] = useState(isOwnProfile ? (currentUser?.links || []) : []);
@@ -1666,8 +1668,8 @@ export default function ProfileShowcase() {
                               setMixState(newMix);
                               updateProfile({ active_mix: newMix });
                             }} 
-                            onMouseEnter={(e) => e.currentTarget.querySelector('video')?.play()}
-                            onMouseLeave={(e) => e.currentTarget.querySelector('video')?.pause()}
+                            onMouseEnter={(e) => { e.currentTarget.querySelector('video')?.play(); setHoveredEffectId(effect.id); }}
+                            onMouseLeave={(e) => { e.currentTarget.querySelector('video')?.pause(); setHoveredEffectId(null); }}
                             className={`group relative p-4 rounded-2xl bg-black/40 transition-all cursor-pointer border ${isActive ? 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : !isUnlocked ? 'border-white/5 opacity-60 hover:opacity-80' : 'border-white/10 hover:border-white/30'}`}
                           >
                              <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-xl bg-black border border-white/5 mb-3`}>
@@ -1678,7 +1680,11 @@ export default function ProfileShowcase() {
                                    <span className="text-[10px] font-black uppercase tracking-tighter name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.nametagHue || 0}deg)` }}>KULLANICI</span>
                                  </div>
                                ) : isProfileEffect ? (
-                                 <img src={getOptimizedImage(effect.url, 200)} loading="lazy" className="w-full h-full object-contain drop-shadow-2xl" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
+                                 (hoveredEffectId === effect.id) ? (
+                                   <img src={getOptimizedImage(effect.url, 200)} loading="lazy" className="w-full h-full object-contain drop-shadow-2xl" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
+                                 ) : (
+                                   <StaticImageFallback src={getOptimizedImage(effect.url, 200)} className="w-full h-full object-contain drop-shadow-2xl" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
+                                 )
                                ) : (
                                  <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-12 h-12" forcePlay={false} />
                                )}

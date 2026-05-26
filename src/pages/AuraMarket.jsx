@@ -20,6 +20,7 @@ import {
 } from '../data/marketData.js';
 import AnimeAvatar from '../components/AnimeAvatar.jsx';
 import { getOptimizedImage } from '../utils/imageOpt.js';
+import { StaticImageFallback } from '../components/StaticImageFallback.jsx';
 
 // ── Fiyat formatı ──────────────────────────────────────────────
 function formatPrice(price) {
@@ -45,6 +46,7 @@ function RarityBadge({ rarity, size = 'sm' }) {
 // ── Efekt Kartı ────────────────────────────────────────────────
 function EffectCard({ item, isOwned, onBuy, user }) {
   const videoRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
   const config = item.rarityConfig;
   const isNameplate = item.category === 'nameplates';
   const isNameEffect = item.category === 'name_effects';
@@ -64,8 +66,8 @@ function EffectCard({ item, isOwned, onBuy, user }) {
       }`}
       style={!isOwned ? { '--tw-shadow-color': config.glow, boxShadow: 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 30px var(--tw-shadow-color))' } : {}}
       onClick={() => !isOwned && onBuy(item)}
-      onMouseEnter={() => videoRef.current?.play()}
-      onMouseLeave={() => videoRef.current?.pause()}
+      onMouseEnter={() => { videoRef.current?.play(); setIsHovered(true); }}
+      onMouseLeave={() => { videoRef.current?.pause(); setIsHovered(false); }}
     >
       {/* Glow effect on hover */}
       <div
@@ -92,26 +94,42 @@ function EffectCard({ item, isOwned, onBuy, user }) {
             </span>
           </div>
         ) : isProfileEffect ? (
-          <img
-            src={getOptimizedImage(item.url, 300)}
-            loading="lazy"
-            alt={item.label}
-            className="w-full h-full object-contain p-2 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
-          />
+          isHovered ? (
+            <img
+              src={getOptimizedImage(item.url, 300)}
+              loading="lazy"
+              alt={item.label}
+              className="w-full h-full object-contain p-2 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
+            />
+          ) : (
+            <StaticImageFallback
+              src={getOptimizedImage(item.url, 300)}
+              alt={item.label}
+              className="w-full h-full object-contain p-2 opacity-80"
+            />
+          )
         ) : isFlag ? (
-          <img
-            src={getOptimizedImage(item.url, 200)}
-            loading="lazy"
-            alt={item.label}
-            className="w-full h-full object-contain p-6 opacity-80 group-hover:opacity-100 transition-all"
-          />
+          isHovered ? (
+            <img
+              src={getOptimizedImage(item.url, 200)}
+              loading="lazy"
+              alt={item.label}
+              className="w-full h-full object-contain p-6 opacity-80 group-hover:opacity-100 transition-all"
+            />
+          ) : (
+            <StaticImageFallback
+              src={getOptimizedImage(item.url, 200)}
+              alt={item.label}
+              className="w-full h-full object-contain p-6 opacity-80"
+            />
+          )
         ) : (
           <div className="flex items-center justify-center w-full h-full p-4">
             <AnimeAvatar
               src={null}
               effect={item}
               size="w-20 h-20"
-              forcePlay={false}
+              forcePlay={isHovered}
             />
           </div>
         )}

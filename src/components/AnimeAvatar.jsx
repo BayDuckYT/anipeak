@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getOptimizedImage } from '../utils/imageOpt.js';
+import { StaticImageFallback } from './StaticImageFallback.jsx';
 
 /**
  * AutoSpritesheet — Otomatik kare tespitli spritesheet animatörü.
@@ -28,14 +29,25 @@ function AutoSpritesheet({ src, style, isHovered, forcePlay, label }) {
   }, [src]);
 
   if (frameData.count === null || frameData.count <= 1) {
-    return (
-      <img 
-        src={src}
-        alt={label || 'Effect'}
-        style={style}
-        className="max-w-none"
-      />
-    );
+    if (isHovered || forcePlay) {
+      return (
+        <img 
+          src={src}
+          alt={label || 'Effect'}
+          style={style}
+          className="max-w-none"
+        />
+      );
+    } else {
+      return (
+        <StaticImageFallback 
+          src={src}
+          alt={label || 'Effect'}
+          style={style}
+          className="max-w-none"
+        />
+      );
+    }
   }
 
   const fps = 12;
@@ -143,15 +155,22 @@ export default function AnimeAvatar({
     // Cloudflare zaten bunları kendi CDN'inde otomatik olarak WebP yapıp sıkıştıracaktır.
     const optimizedSrc = rawSrc;
     
-    // AutoSpritesheet akıllıdır; eğer resim bir şerit (strip) değilse otomatik olarak img tagı render eder.
     return (
-      <AutoSpritesheet 
-        src={optimizedSrc} 
-        style={effectStyle} 
-        isHovered={isHovered} 
-        forcePlay={forcePlay} 
-        label={effect.label || 'Effect'} 
-      />
+      <div 
+        className="absolute inset-0 z-0 select-none pointer-events-none flex items-center justify-center scale-[2.2]"
+        style={{ 
+          opacity: 0.9,
+          mixBlendMode: 'screen',
+        }}
+      >
+        <AutoSpritesheet 
+          src={optimizedSrc} 
+          style={effectStyle} 
+          isHovered={isHovered} 
+          forcePlay={forcePlay} 
+          label={effect.label || 'Effect'} 
+        />
+      </div>
     );
   };
 
