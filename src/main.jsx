@@ -7,8 +7,10 @@ import './styles/accessibility.css'
 // [PERFORMANS] Fontlar index.html içerisinde yüklendiğinden script kaldırıldı.
 
 // Legacy LocalStorage Cleanup (Production Migration)
-const LEGACY_KEYS = ['anipeak_user', 'anipeak_maintenance', 'anipeak_history'];
-LEGACY_KEYS.forEach(key => localStorage.removeItem(key));
+try {
+  const LEGACY_KEYS = ['anipeak_user', 'anipeak_maintenance', 'anipeak_history'];
+  LEGACY_KEYS.forEach(key => localStorage.removeItem(key));
+} catch (e) {}
 
 // [KOZMİK GÜVENLİK] Global Error Fallback & Chunk Load Fix
 window.addEventListener('unhandledrejection', (event) => {
