@@ -157,22 +157,14 @@ export default function AnimeAvatar({
     const optimizedSrc = rawSrc;
     
     return (
-      <div 
-        className="absolute inset-0 z-0 select-none pointer-events-none flex items-center justify-center scale-[2.2]"
-        style={{ 
-          opacity: 0.9,
-          mixBlendMode: 'screen',
-        }}
-      >
-        <AutoSpritesheet 
-          src={optimizedSrc} 
-          style={effectStyle} 
-          isHovered={isHovered} 
-          forcePlay={forcePlay} 
-          hoverOnly={hoverOnly}
-          label={effect.label || 'Effect'} 
-        />
-      </div>
+      <AutoSpritesheet 
+        src={optimizedSrc} 
+        style={effectStyle} 
+        isHovered={isHovered} 
+        forcePlay={forcePlay} 
+        hoverOnly={hoverOnly}
+        label={effect.label || 'Effect'} 
+      />
     );
   };
 
