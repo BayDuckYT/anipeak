@@ -9,7 +9,6 @@ import { AppProvider, useApp } from './context/AppContext.jsx';
 import { PerformanceProvider } from './context/PerformanceContext.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
-import AuthModal from './components/AuthModal.jsx';
 import GlobalEffects from './components/GlobalEffects.jsx';
 import Loader from './components/Loader.jsx';
 import XPToast from './components/XPToast.jsx';
@@ -33,6 +32,7 @@ const StaticPage = lazy(() => import('./pages/StaticPage.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const Suggestions = lazy(() => import('./pages/Suggestions.jsx'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
+const AuthPage = lazy(() => import('./pages/AuthPage.jsx'));
 
 const EliteUpgrade = lazy(() => import('./pages/EliteUpgrade.jsx'));
 const ListDetail = lazy(() => import('./pages/ListDetail.jsx'));
@@ -62,6 +62,25 @@ function ProfileRedirect() {
   return <Navigate to={`/profil/${user?.username}`} replace />;
 }
 
+// Global olarak tetiklenen Auth ekranlarını yöneten ve yönlendiren gizli bileşen
+import { useNavigate } from 'react-router-dom';
+function GlobalAuthHandler() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleOpenAuth = (e) => {
+      const mode = e.detail || 'login';
+      const nextPath = location.pathname !== '/auth' ? location.pathname + location.search : '/';
+      navigate(`/auth?mode=${mode}&next=${encodeURIComponent(nextPath)}`);
+    };
+    window.addEventListener('open-auth', handleOpenAuth);
+    return () => window.removeEventListener('open-auth', handleOpenAuth);
+  }, [navigate, location]);
+
+  return null;
+}
+
 function AnimatedRoutes({ onAuthOpen }) {
   const location = useLocation();
   return (
@@ -78,6 +97,7 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/@:username" element={<ProfileShowcase />} />
           <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
           <Route path="/cuzdan" element={<PrivateRoute><Wallet /></PrivateRoute>} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/oneriler" element={<Suggestions />} />
@@ -214,9 +234,12 @@ function MaintenanceScreen({ onAuthOpen }) {
 
 
 function AppContent() {
-  const [authModal, setAuthModal] = useState(null);
   const { maintenanceMode } = useApp();
   const { user, loading, isAdmin, isTester } = useAuth();
+
+  const handleAuthEvent = (mode) => {
+    window.dispatchEvent(new CustomEvent('open-auth', { detail: mode }));
+  };
 
   // ── Global Stability Listeners ──────────────────────────────────────────
   useEffect(() => {
@@ -231,13 +254,6 @@ function AppContent() {
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleError);
     };
-  }, []);
-
-  // ── Global Auth Modal Trigger (allows any component to open login) ───
-  useEffect(() => {
-    const handleOpenAuth = (e) => setAuthModal(e.detail || 'login');
-    window.addEventListener('open-auth', handleOpenAuth);
-    return () => window.removeEventListener('open-auth', handleOpenAuth);
   }, []);
 
   // ── DevTools & Right-Click Security (Anti-Inspect) ──────────────────
@@ -286,13 +302,14 @@ function AppContent() {
   return (
     <>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <GlobalAuthHandler />
         <ScrollToTop />
         <GlobalEffects />
         <XPToast />
 
         <main id="main-content" className="min-h-screen bg-[#070511]">
           {isMaintenanceBlocked ? (
-            <MaintenanceScreen onAuthOpen={(mode) => setAuthModal(mode)} />
+            <MaintenanceScreen onAuthOpen={handleAuthEvent} />
           ) : (
             <>
               {maintenanceMode && (
@@ -308,26 +325,13 @@ function AppContent() {
                 </div>
               )}
               <div className={(maintenanceMode ? "pt-7 " : "") + "portal-transition"}>
-                 <Header onAuthOpen={(mode) => setAuthModal(mode)} />
+                 <Header onAuthOpen={handleAuthEvent} />
                  <ErrorBoundary mini>
-                   <AnimatedRoutes onAuthOpen={(mode) => setAuthModal(mode)} />
+                   <AnimatedRoutes onAuthOpen={handleAuthEvent} />
                    <Footer />
                  </ErrorBoundary>
               </div>
             </>
-          )}
-
-          {createPortal(
-            <AnimatePresence>
-              {authModal && (
-                <AuthModal
-                  key="auth-modal"
-                  mode={authModal}
-                  onClose={() => setAuthModal(null)}
-                />
-              )}
-            </AnimatePresence>,
-            document.body
           )}
         </main>
       </BrowserRouter>
