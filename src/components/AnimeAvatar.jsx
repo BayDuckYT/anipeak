@@ -179,7 +179,7 @@ export default function AnimeAvatar({
 
       {/* KATMAN 2: EFEKT */}
       <AnimatePresence>
-        {(isHovered || forcePlay || isVisible) && (
+        {(isHovered || forcePlay) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}

@@ -107,7 +107,7 @@ function EffectCard({ item, isOwned, onBuy, user }) {
               src={null}
               effect={item}
               size="w-20 h-20"
-              forcePlay={true}
+              forcePlay={false}
             />
           </div>
         )}
@@ -217,7 +217,7 @@ function PurchaseModal({ item, isOpen, onClose, onConfirm, userAura, isPurchasin
                 ) : item.category === 'profile_effects' ? (
                   <img src={getOptimizedImage(item.url, 400)} alt={item.label} className="w-full h-full object-contain p-4" />
                 ) : (
-                  <AnimeAvatar src={null} effect={item} size="w-24 h-24" forcePlay={true} />
+                  <AnimeAvatar src={null} effect={item} size="w-24 h-24" forcePlay={false} />
                 )}
               </div>
 

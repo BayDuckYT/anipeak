@@ -50,7 +50,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const [bookmarked, setBookmarked]   = useState(false);
   const [liked, setLiked]             = useState(false);
   const [search, setSearch]           = useState('');
-  const [sortDesc, setSortDesc]       = useState(true); // newest first
+  const [sortDesc, setSortDesc]       = useState(false); // oldest first (1'den başla)
   const [showListModal, setShowListModal] = useState(false);
   const [userLists, setUserLists] = useState([]);
   const [listLoading, setListLoading] = useState(false);

@@ -432,7 +432,7 @@ export default function ProfileShowcase() {
     followers: 0,
     following: 0,
     active_decoration: 'none',
-    active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' },
+    active_mix: { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none', hue: 0, nameplateHue: 0, nametagHue: 0 },
   };
 
   const levelInfo = getLevelInfo(rawUser.xp || 0, rawUser.is_elite, rawUser.active_plan_id);
@@ -447,7 +447,7 @@ export default function ProfileShowcase() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const fileInputRef = useRef(null);
   const [isMixModalOpen, setIsMixModalOpen] = useState(false);
-  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none', hue: 0 });
+  const [mixState, setMixState] = useState(currentUser?.active_mix || { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none', hue: 0, nameplateHue: 0, nametagHue: 0 });
   const [previewEffect, setPreviewEffect] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [premiumToast, setPremiumToast] = useState(false);
@@ -483,7 +483,7 @@ export default function ProfileShowcase() {
     }
     
     if (!base.active_mix) {
-      base.active_mix = { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none' };
+      base.active_mix = { avatar: 'none', comment: 'none', nametag: 'none', aura: 'none', nameplate: 'none', profile_effect: 'none', hue: 0, nameplateHue: 0, nametagHue: 0 };
     }
     
     return base;
@@ -929,7 +929,7 @@ export default function ProfileShowcase() {
                         }
                         size="w-40 h-40"
                         className="rounded-full shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-white/10"
-                        style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
+                        style={{}}
                         eager={true}
                      />
                   </div>
@@ -948,7 +948,7 @@ export default function ProfileShowcase() {
                           loop 
                           playsInline 
                           className="w-full h-full object-fill opacity-80"
-                          style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
+                          style={{ filter: `hue-rotate(${displayUser.active_mix?.nameplateHue || 0}deg)` }}
                         />
                       </div>
                     )}
@@ -970,7 +970,7 @@ export default function ProfileShowcase() {
                       </div>
                       <span
                         className={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? 'name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]'}
-                        style={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === displayUser.active_mix.nametag)?.url})`, filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` } : {}}
+                        style={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === displayUser.active_mix.nametag)?.url})`, filter: `hue-rotate(${displayUser.active_mix?.nametagHue || 0}deg)` } : {}}
                       >
                         {displayUser.username}
                       </span>
@@ -1556,7 +1556,7 @@ export default function ProfileShowcase() {
                       ))}
                    </div>
 
-                   {/* Aura Slider */}
+                   {/* Aura Rengi Slider */}
                    <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-blue-400" /> AURA RENGİ</div>
@@ -1570,6 +1570,40 @@ export default function ProfileShowcase() {
                           updateProfile({ active_mix: { ...mixState, hue: val } });
                         }}
                         className="w-full h-1.5 bg-black rounded-full appearance-none cursor-pointer accent-purple-500"
+                      />
+                   </div>
+
+                   {/* İsim Plakası Rengi Slider */}
+                   <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-amber-400" /> İSİM PLAKASI RENGİ</div>
+                        <span className="text-[10px] font-black text-zinc-400">{mixState.nameplateHue || 0}°</span>
+                      </div>
+                      <input 
+                        type="range" min="0" max="360" value={mixState.nameplateHue || 0}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          setMixState(prev => ({ ...prev, nameplateHue: val }));
+                          updateProfile({ active_mix: { ...mixState, nameplateHue: val } });
+                        }}
+                        className="w-full h-1.5 bg-black rounded-full appearance-none cursor-pointer accent-amber-500"
+                      />
+                   </div>
+
+                   {/* İsim Efekti Rengi Slider */}
+                   <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-pink-400" /> İSİM EFEKTİ RENGİ</div>
+                        <span className="text-[10px] font-black text-zinc-400">{mixState.nametagHue || 0}°</span>
+                      </div>
+                      <input 
+                        type="range" min="0" max="360" value={mixState.nametagHue || 0}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          setMixState(prev => ({ ...prev, nametagHue: val }));
+                          updateProfile({ active_mix: { ...mixState, nametagHue: val } });
+                        }}
+                        className="w-full h-1.5 bg-black rounded-full appearance-none cursor-pointer accent-pink-500"
                       />
                    </div>
 
@@ -1636,17 +1670,17 @@ export default function ProfileShowcase() {
                           >
                              <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-xl bg-black border border-white/5 mb-3`}>
                                {isNameplate ? (
-                                 <video src={`/nameplates/${effect.url}`} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                                 <video src={`/nameplates/${effect.url}`} className="w-full h-full object-cover" style={{ filter: `hue-rotate(${mixState.nameplateHue || 0}deg)` }} muted loop autoPlay playsInline />
                                ) : isNameEffect ? (
                                  <div className="flex items-center justify-center w-full h-full p-2">
-                                   <span className="text-[10px] font-black uppercase tracking-tighter name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.hue || 0}deg)` }}>KULLANICI</span>
+                                   <span className="text-[10px] font-black uppercase tracking-tighter name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.nametagHue || 0}deg)` }}>KULLANICI</span>
                                  </div>
                                ) : isProfileEffect ? (
-                                 <img src={getOptimizedImage(effect.url, 200)} loading="lazy" className="w-full h-full object-contain drop-shadow-2xl" />
+                                 <img src={getOptimizedImage(effect.url, 200)} loading="lazy" className="w-full h-full object-contain drop-shadow-2xl" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
                                ) : (
-                                 <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-12 h-12" forcePlay={true} />
+                                 <AnimeAvatar src={displayUser.avatar_url} effect={effect} size="w-12 h-12" forcePlay={false} />
                                )}
-                               <div className="absolute inset-0 pointer-events-none" style={{ filter: `hue-rotate(${mixState.hue || 0}deg)` }} />
+                               <div className="absolute inset-0 pointer-events-none" />
                                {!isUnlocked && (
                                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[2px]">
                                    <div className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center">
