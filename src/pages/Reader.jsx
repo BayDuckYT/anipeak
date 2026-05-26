@@ -399,10 +399,8 @@ export default function Reader() {
       </AnimatePresence>
 
       {/* ── READER CONTENT ── */}
-      <motion.div
-        layout
-        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className={`w-full mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)] ${isChatOpen ? 'max-w-2xl sm:mr-96' : 'max-w-3xl'}`}
+      <div
+        className={`w-full mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)] transition-all duration-300 ${isChatOpen ? 'max-w-2xl sm:mr-96' : 'max-w-3xl'}`}
       >
         <div className="flex flex-col">
           {loadingPages ? (
@@ -484,7 +482,7 @@ export default function Reader() {
              <CommentSystem seriesId={manhwa.id} chapterNum={chapter} />
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* ── LIVE CHAT PANEL ── */}
       <LiveChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
