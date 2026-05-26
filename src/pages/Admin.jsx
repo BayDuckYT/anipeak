@@ -10,7 +10,7 @@ import {
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
   Crown, Check, X, Search, Image as ImageIcon, Activity,
   UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell,
-  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle, Upload
+  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle, Upload, KeyRound
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
 import { ERROR_DICTIONARY } from '../utils/errorDictionary.js';
@@ -43,10 +43,25 @@ export const ADMIN_ROLES = {
     badge: 'bg-gradient-to-br from-emerald-600 to-teal-800',
     access: [], // Bakım modu geçişi (App.jsx)
   },
-  'Premium': {
+  'Pro': {
+    color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
+    badge: 'bg-gradient-to-br from-cyan-500 to-blue-700',
+    access: [],
+  },
+  'Hükümdar Gölgesi': {
+    color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
+    badge: 'bg-gradient-to-br from-purple-500 to-indigo-700',
+    access: [],
+  },
+  'Hükümdar': {
     color: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
     badge: 'bg-gradient-to-br from-amber-500 to-orange-700',
-    access: [], 
+    access: [],
+  },
+  'Aethe': {
+    color: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+    badge: 'bg-gradient-to-br from-rose-500 to-pink-800',
+    access: [],
   },
 };
 
@@ -963,9 +978,9 @@ function UsersPanel({ showToast }) {
             <span className="text-2xl font-black text-white leading-none">{registeredUsers.length}</span>
           </div>
           <div className="px-5 py-3 glass border border-amber-500/20 rounded-2xl flex flex-col">
-            <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">Premium/VIP</span>
+            <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">Elite/VIP</span>
             <span className="text-2xl font-black text-white leading-none">
-              {registeredUsers.filter(u => ['Premium', 'Aethe', 'Hükümdar'].includes(u.role)).length}
+              {registeredUsers.filter(u => ['Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe'].includes(u.role)).length}
             </span>
           </div>
         </div>
@@ -984,7 +999,7 @@ function UsersPanel({ showToast }) {
           />
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 custom-scrollbar">
-          {['All', 'Kullanıcı', 'Premium', 'Editör', 'Yönetici'].map(role => (
+          {['All', 'Kullanıcı', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe', 'Editör', 'Yönetici'].map(role => (
             <button
               key={role}
               onClick={() => setFilterRole(role)}
@@ -1039,9 +1054,9 @@ function UsersPanel({ showToast }) {
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     <div className="bg-black/30 border border-white/5 rounded-xl p-3 flex flex-col justify-center">
                       <span className="text-[10px] text-slate-500 font-bold uppercase mb-1">XP / Seviye</span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-1">
                         <span className="text-sm font-black text-purple-400">{u.xp || 0}</span>
-                        <span className="text-[10px] font-bold text-white bg-white/10 px-2 py-0.5 rounded uppercase tracking-tighter truncate max-w-[80px]">
+                        <span className="text-[9px] font-bold text-white bg-white/10 px-2 py-0.5 rounded uppercase tracking-tighter">
                           {calculateTitle(u.xp || 0, u.is_elite)}
                         </span>
                       </div>
@@ -1130,7 +1145,7 @@ function UsersPanel({ showToast }) {
                     <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1">Sistem Rolü</label>
                     <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))}
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner">
-                      {['Kullanıcı', 'Premium', 'Aethe', 'Hükümdar', 'Tester', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
+                      {['Kullanıcı', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe', 'Tester', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
                         <option key={r} value={r} className="bg-[#0a0a14]">{r}</option>
                       ))}
                     </select>
@@ -1151,6 +1166,17 @@ function UsersPanel({ showToast }) {
                       <option value="aethe" className="bg-[#0a0a14]">Efsanevi Aethe</option>
                     </select>
                   </div>
+                  <div className="col-span-2">
+                    <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <KeyRound size={14} className="text-amber-400" /> Şifre Değiştir
+                    </label>
+                    <input type="password" value={editingUser.newPassword || ''} onChange={e => setEditingUser(p => ({ ...p, newPassword: e.target.value }))}
+                      placeholder="Yeni şifre girin (boş bırakırsanız değişmez)"
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-all shadow-inner" />
+                    {editingUser.newPassword && editingUser.newPassword.length > 0 && editingUser.newPassword.length < 6 && (
+                      <p className="text-[10px] text-red-400 mt-1 ml-1">⚠ Şifre en az 6 karakter olmalıdır</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1158,6 +1184,24 @@ function UsersPanel({ showToast }) {
                 <button onClick={() => setEditingUser(null)} className="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold text-sm transition-colors">İptal Et</button>
                 <button onClick={async () => {
                   try {
+                    // Şifre değiştirme işlemi (RPC Fonksiyonu)
+                    if (editingUser.newPassword && editingUser.newPassword.trim()) {
+                      if (editingUser.newPassword.length < 6) {
+                        showToast('Şifre en az 6 karakter olmalıdır!', 'error');
+                        return;
+                      }
+                      const { error: rpcError } = await supabase.rpc('admin_change_password', {
+                        target_user_id: editingUser.id,
+                        new_password: editingUser.newPassword
+                      });
+                      if (rpcError) {
+                        console.error('[Admin] Şifre değiştirme hatası:', rpcError.message);
+                        showToast('Şifre değiştirilemedi: ' + rpcError.message, 'error');
+                        return;
+                      }
+                      showToast('Şifre başarıyla değiştirildi!', 'success');
+                    }
+
                     const updates = { 
                       role: editingUser.role, 
                       username: editingUser.username, 

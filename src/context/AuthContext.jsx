@@ -686,7 +686,7 @@ export function AuthProvider({ children }) {
   const isMod    = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı']);
   const isEditor = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör']);
   const isTester = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester']);
-  const isPremium = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester', 'Premium']);
+  const isPremium = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe']);
 
   const value = {
     user,
