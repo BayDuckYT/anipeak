@@ -236,6 +236,7 @@ function MaintenanceScreen({ onAuthOpen }) {
 function AppContent() {
   const { maintenanceMode } = useApp();
   const { user, loading, isAdmin, isTester } = useAuth();
+  const location = useLocation();
 
   const handleAuthEvent = (mode) => {
     window.dispatchEvent(new CustomEvent('open-auth', { detail: mode }));
@@ -296,12 +297,12 @@ function AppContent() {
   // Global loading kaldırıldı, çünkü Home sayfası anında yüklenmeli. PrivateRoute'lar kendi loading state'ini yönetiyor.
 
   // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
-  const isResetPage = window.location.pathname === '/reset-password';
-  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isResetPage;
+  const isResetPage = location.pathname === '/reset-password';
+  const isAuthPage = location.pathname === '/auth';
+  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isResetPage && !isAuthPage;
 
   return (
     <>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <GlobalAuthHandler />
         <ScrollToTop />
         <GlobalEffects />
@@ -324,17 +325,23 @@ function AppContent() {
                    </div>
                 </div>
               )}
-              <div className={(maintenanceMode ? "pt-7 " : "") + "portal-transition"}>
-                 <Header onAuthOpen={handleAuthEvent} />
-                 <ErrorBoundary mini>
-                   <AnimatedRoutes onAuthOpen={handleAuthEvent} />
-                   <Footer />
-                 </ErrorBoundary>
-              </div>
+              {isAuthPage ? (
+                // Sadece Auth sayfasını göster (Header ve Footer olmadan)
+                <ErrorBoundary mini>
+                  <AnimatedRoutes onAuthOpen={handleAuthEvent} />
+                </ErrorBoundary>
+              ) : (
+                <div className={(maintenanceMode ? "pt-7 " : "") + "portal-transition"}>
+                   <Header onAuthOpen={handleAuthEvent} />
+                   <ErrorBoundary mini>
+                     <AnimatedRoutes onAuthOpen={handleAuthEvent} />
+                     <Footer />
+                   </ErrorBoundary>
+                </div>
+              )}
             </>
           )}
         </main>
-      </BrowserRouter>
     </>
   );
 }
@@ -345,7 +352,9 @@ export default function App() {
       <PerformanceProvider>
         <AppProvider>
           <AuthProvider>
-            <AppContent />
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <AppContent />
+            </BrowserRouter>
           </AuthProvider>
         </AppProvider>
       </PerformanceProvider>
