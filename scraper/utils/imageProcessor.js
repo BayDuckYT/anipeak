@@ -29,9 +29,9 @@ export async function processAndUploadImage(imageUrl, isCover, seriesTitle, chap
             timeout: 30000
         });
 
-        // HD Kalite: 90% WebP (Orijinal keskinliği korur, boyutu optimize eder)
+        // HD Kalite: 92% WebP (Orijinal keskinliği korur, boyutu optimize eder)
         const finalBuffer = await sharp(buffer)
-            .webp({ quality: 90, effort: 6 }) 
+            .webp({ quality: 92, effort: 6 }) 
             .toBuffer();
 
         const safeTitle = seriesTitle.replace(/[\\/:*?"<>|]/g, '_');
