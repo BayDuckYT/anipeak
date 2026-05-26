@@ -376,7 +376,7 @@ export default function AuthPage() {
                   ) : tab === 'login' ? 'Giriş Yap' : tab === 'register' ? 'Efsaneye Katıl' : 'Bağlantı Gönder'}
                 </button>
 
-                {/* Google ile Giriş (Sadece Login ve Register) */}
+                {/* Google ile Giriş Şimdilik Deaktif
                 {tab !== 'forgot' && (
                   <div className="pt-4 mt-4 border-t border-white/10 relative">
                     <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0c0a10] px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">VEYA</span>
@@ -391,6 +391,7 @@ export default function AuthPage() {
                     </button>
                   </div>
                 )}
+                */}
               </motion.form>
             </AnimatePresence>
           )}
