@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, Eye, EyeOff, Zap, CheckCircle, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useApp } from '../context/AppContext.jsx';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
@@ -13,21 +14,37 @@ export default function AuthPage() {
   // Giriş sonrası nereye döneceğini al.
   const nextPath = searchParams.get('next') || '/';
 
-  const [tab, setTab] = useState(initialMode);
+  const { login, signup, loginWithGoogle, resetPassword } = useAuth();
+  const { maintenanceMode } = useApp();
+
+  const [tab, setTab] = useState(() => {
+    const m = searchParams.get('mode') || 'login';
+    return (maintenanceMode && m === 'register') ? 'login' : m;
+  });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
   const [form, setForm] = useState({ username: '', email: '', password: '', password2: '' });
-  const { login, signup, loginWithGoogle, resetPassword } = useAuth();
 
   // Mode URL'den değişirse tab'i senkronize et
   useEffect(() => {
     if (searchParams.get('mode')) {
-      setTab(searchParams.get('mode'));
+      const targetMode = searchParams.get('mode');
+      if (maintenanceMode && targetMode === 'register') {
+        setTab('login');
+      } else {
+        setTab(targetMode);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, maintenanceMode]);
+
+  useEffect(() => {
+    if (maintenanceMode && tab === 'register') {
+      setTab('login');
+    }
+  }, [maintenanceMode, tab]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -180,7 +197,7 @@ export default function AuthPage() {
           {/* Sekmeler (Sadece Login ve Register için) */}
           {(tab === 'login' || tab === 'register') && (
             <div className="flex bg-black/40 backdrop-blur-md rounded-2xl p-1.5 mb-8 border border-white/5 relative z-20">
-              {['login', 'register'].map((t) => (
+              {(maintenanceMode ? ['login'] : ['login', 'register']).map((t) => (
                 <button
                   key={t}
                   type="button"
