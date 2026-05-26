@@ -1516,7 +1516,8 @@ export default function ProfileShowcase() {
                      </div>
                   )}
                </motion.div>
-            </main>
+            </AnimatePresence>
+          </main>
        </div>
 
       {/* RIGHT SIDE DRAWER FOR CUSTOMIZATION */}
