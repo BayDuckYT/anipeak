@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -44,7 +44,7 @@ function RarityBadge({ rarity, size = 'sm' }) {
 
 // ── Efekt Kartı ────────────────────────────────────────────────
 function EffectCard({ item, isOwned, onBuy, user }) {
-  const videoRef = React.useRef(null);
+  const videoRef = useRef(null);
   const config = item.rarityConfig;
   const isNameplate = item.category === 'nameplates';
   const isNameEffect = item.category === 'name_effects';
