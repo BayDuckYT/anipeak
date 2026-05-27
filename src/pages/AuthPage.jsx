@@ -63,10 +63,13 @@ export default function AuthPage() {
     setError('');
 
     if (tab === 'forgot') {
-      if (!form.email.includes('@')) { setError('Geçerli bir e-posta girin.'); return; }
+      if (form.email.length < 3) { setError('Geçerli bir kullanıcı adı veya e-posta girin.'); return; }
       setLoading(true);
       try {
-        await resetPassword(form.email);
+        const result = await resetPassword(form.email);
+        if (result && result.email) {
+          setForm((prev) => ({ ...prev, email: result.email }));
+        }
         setTab('verify_otp');
         setError('');
       } catch (err) {
@@ -149,6 +152,13 @@ export default function AuthPage() {
     }
   };
 
+  const censorEmail = (email) => {
+    if (!email || !email.includes('@')) return email;
+    const [name, domain] = email.split('@');
+    if (name.length <= 1) return `${name[0]}***@${domain}`;
+    return `${name[0]}***${name[name.length-1]}@${domain}`;
+  };
+
   return (
     <div className="min-h-screen bg-[#05050A] text-white flex items-center justify-center relative overflow-hidden font-inter select-none">
       
@@ -214,7 +224,7 @@ export default function AuthPage() {
               {tab === 'login' ? 'Evrene geri dön ve okumaya başla' : 
                tab === 'register' ? 'Sınırları aş, efsaneler arasına katıl' : 
                tab === 'confirm_email' ? 'Aramıza katılmana çok az kaldı' :
-               (tab === 'verify_otp' || tab === 'verify_register_otp') ? 'E-postana gelen doğrulama kodunu gir' :
+               (tab === 'verify_otp' || tab === 'verify_register_otp') ? `${censorEmail(form.email)} adresine gelen doğrulama kodunu gir` :
                'Şifreni yenilemek için adım at'}
             </p>
           </div>
@@ -321,15 +331,15 @@ export default function AuthPage() {
                 {(tab !== 'verify_otp' && tab !== 'verify_register_otp') && (
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                      {tab === 'login' ? 'E-posta Adresi veya Kullanıcı Adı' : 'E-posta Adresi'}
+                      {(tab === 'login' || tab === 'forgot') ? 'E-posta Adresi veya Kullanıcı Adı' : 'E-posta Adresi'}
                     </label>
                     <input
                       name="email"
                       value={form.email}
                       onChange={handleChange}
-                      type={tab === 'login' ? 'text' : 'email'}
+                      type={(tab === 'login' || tab === 'forgot') ? 'text' : 'email'}
                       required
-                      placeholder={tab === 'login' ? 'sen@mahorapeak.com / Efsanevi_Okuyucu' : 'sen@mahorapeak.com'}
+                      placeholder={(tab === 'login' || tab === 'forgot') ? 'sen@mahorapeak.com / Efsanevi_Okuyucu' : 'sen@mahorapeak.com'}
                       className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-blue-500/5 transition-all shadow-inner"
                     />
                   </div>

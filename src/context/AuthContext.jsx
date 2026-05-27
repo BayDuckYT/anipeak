@@ -571,9 +571,24 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const resetPassword = async (email) => {
+  const resetPassword = async (identifier) => {
     try {
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      let actualEmail = identifier;
+      
+      if (!identifier.includes('@')) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', identifier)
+          .maybeSingle();
+          
+        if (profileError || !profileData || !profileData.email) {
+          throw new Error('Kullanıcı bulunamadı.');
+        }
+        actualEmail = profileData.email;
+      }
+
+      const { data, error } = await supabase.auth.resetPasswordForEmail(actualEmail, {
         redirectTo: `https://mahorapeak.com.tr/reset-password`,
       });
       if (error) {
@@ -585,7 +600,7 @@ export function AuthProvider({ children }) {
         });
         throw error;
       }
-      return data;
+      return { data, email: actualEmail };
     } catch (err) {
       console.error('[Auth] Reset password exception:', err);
       throw err;
