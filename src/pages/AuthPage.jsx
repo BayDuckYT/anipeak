@@ -78,7 +78,7 @@ export default function AuthPage() {
     }
 
     if (tab === 'verify_otp') {
-      if (!form.otpCode || form.otpCode.length < 6) { setError('Geçerli bir 6 haneli kod girin.'); return; }
+      if (!form.otpCode || form.otpCode.length < 6) { setError('Geçerli bir doğrulama kodu girin.'); return; }
       setLoading(true);
       try {
         await verifyOtp(form.email, form.otpCode, 'recovery');
@@ -208,7 +208,7 @@ export default function AuthPage() {
               {tab === 'login' ? 'Evrene geri dön ve okumaya başla' : 
                tab === 'register' ? 'Sınırları aş, efsaneler arasına katıl' : 
                tab === 'confirm_email' ? 'Aramıza katılmana çok az kaldı' :
-               tab === 'verify_otp' ? 'E-postana gelen 6 haneli kodu gir' :
+               tab === 'verify_otp' ? 'E-postana gelen doğrulama kodunu gir' :
                'Şifreni yenilemek için adım at'}
             </p>
           </div>
@@ -328,15 +328,15 @@ export default function AuthPage() {
 
                 {tab === 'verify_otp' && (
                   <div className="space-y-1.5">
-                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 text-center">6 Haneli Doğrulama Kodu</label>
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 text-center">Doğrulama Kodu</label>
                     <input
                       name="otpCode"
                       value={form.otpCode}
                       onChange={handleChange}
                       type="text"
-                      maxLength="6"
+                      maxLength="8"
                       required
-                      placeholder="••••••"
+                      placeholder="••••••••"
                       className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-center text-2xl tracking-[0.5em] text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:bg-purple-500/5 transition-all shadow-inner"
                     />
                   </div>
