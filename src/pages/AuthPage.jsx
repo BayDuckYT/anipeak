@@ -77,14 +77,19 @@ export default function AuthPage() {
       return;
     }
 
-    if (tab === 'verify_otp') {
-      if (!form.otpCode || form.otpCode.length < 6) { setError('Geçerli bir doğrulama kodu girin.'); return; }
+    if (tab === 'verify_otp' || tab === 'verify_register_otp') {
+      if (!form.otpCode || form.otpCode.length < 8) { setError('Lütfen 8 haneli doğrulama kodunu tam girin.'); return; }
       setLoading(true);
       try {
-        await verifyOtp(form.email, form.otpCode, 'recovery');
+        const type = tab === 'verify_register_otp' ? 'signup' : 'recovery';
+        await verifyOtp(form.email, form.otpCode, type);
         setSuccess(true);
         setTimeout(() => {
-          navigate('/reset-password', { replace: true });
+          if (tab === 'verify_register_otp') {
+            handleSuccessRedirect();
+          } else {
+            navigate('/reset-password', { replace: true });
+          }
         }, 1500);
       } catch (err) {
         setError('Kod geçersiz veya süresi dolmuş.');
@@ -95,7 +100,8 @@ export default function AuthPage() {
     }
 
     // Validation
-    if (!form.email.includes('@')) { setError('Geçerli bir e-posta girin.'); return; }
+    if (tab === 'register' && !form.email.includes('@')) { setError('Kayıt olmak için geçerli bir e-posta girin.'); return; }
+    if (tab === 'login' && form.email.length < 3) { setError('Geçerli bir e-posta veya kullanıcı adı girin.'); return; }
     if (form.password.length < 6) { setError('Şifre en az 6 karakter olmalı.'); return; }
     if (tab === 'register' && form.password !== form.password2) { setError('Şifreler eşleşmiyor.'); return; }
     if (tab === 'register' && form.username.length < 3) { setError('Kullanıcı adı en az 3 karakter.'); return; }
@@ -110,7 +116,7 @@ export default function AuthPage() {
       }
       
       if (tab === 'register' && !data?.session) {
-        setTab('confirm_email');
+        setTab('verify_register_otp');
         return;
       }
 
@@ -208,7 +214,7 @@ export default function AuthPage() {
               {tab === 'login' ? 'Evrene geri dön ve okumaya başla' : 
                tab === 'register' ? 'Sınırları aş, efsaneler arasına katıl' : 
                tab === 'confirm_email' ? 'Aramıza katılmana çok az kaldı' :
-               tab === 'verify_otp' ? 'E-postana gelen doğrulama kodunu gir' :
+               (tab === 'verify_otp' || tab === 'verify_register_otp') ? 'E-postana gelen doğrulama kodunu gir' :
                'Şifreni yenilemek için adım at'}
             </p>
           </div>
@@ -260,7 +266,7 @@ export default function AuthPage() {
                   <CheckCircle size={64} className="text-emerald-400 mx-auto mb-5 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
                 </motion.div>
                 <h2 className="text-white font-black text-xl mb-2">
-                  {tab === 'verify_otp' && success ? 'Kod Doğrulandı! ✅' :
+                  {(tab === 'verify_otp' || tab === 'verify_register_otp') && success ? 'Kod Doğrulandı! ✅' :
                    tab === 'forgot' ? 'Mail Gönderildi! 📧' : 
                    tab === 'confirm_email' ? 'E-postanı Doğrula! 📧' : 
                    'Evrene Hoş Geldin! 🎉'}
@@ -269,6 +275,7 @@ export default function AuthPage() {
                   {tab === 'forgot' || tab === 'confirm_email' 
                     ? 'Kayıt olduğun e-posta adresine bir bağlantı gönderdik. Lütfen gelen kutunu (ve spam klasörünü) kontrol et.' 
                     : tab === 'verify_otp' && success ? 'Şifre sıfırlama ekranına yönlendiriliyorsun...' 
+                    : tab === 'verify_register_otp' && success ? 'Kayıt başarılı, hikayeye kaldığın yerden devam edebilirsin. Yönlendiriliyorsun...'
                     : 'Giriş başarılı, hikayeye kaldığın yerden devam edebilirsin. Yönlendiriliyorsun...'}
                 </p>
                 
@@ -311,22 +318,24 @@ export default function AuthPage() {
                   </div>
                 )}
 
-                {tab !== 'verify_otp' && (
+                {(tab !== 'verify_otp' && tab !== 'verify_register_otp') && (
                   <div className="space-y-1.5">
-                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">E-posta Adresi</label>
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                      {tab === 'login' ? 'E-posta Adresi veya Kullanıcı Adı' : 'E-posta Adresi'}
+                    </label>
                     <input
                       name="email"
                       value={form.email}
                       onChange={handleChange}
-                      type="email"
+                      type={tab === 'login' ? 'text' : 'email'}
                       required
-                      placeholder="sen@mahorapeak.com"
+                      placeholder={tab === 'login' ? 'sen@mahorapeak.com / Efsanevi_Okuyucu' : 'sen@mahorapeak.com'}
                       className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-blue-500/5 transition-all shadow-inner"
                     />
                   </div>
                 )}
 
-                {tab === 'verify_otp' && (
+                {(tab === 'verify_otp' || tab === 'verify_register_otp') && (
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 text-center">Doğrulama Kodu</label>
                     <input
@@ -342,7 +351,7 @@ export default function AuthPage() {
                   </div>
                 )}
 
-                {(tab !== 'forgot' && tab !== 'verify_otp') && (
+                {(tab !== 'forgot' && tab !== 'verify_otp' && tab !== 'verify_register_otp') && (
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Şifre</label>
                     <div className="relative">
@@ -408,7 +417,7 @@ export default function AuthPage() {
                         Şifremi Unuttum?
                       </button>
                     </>
-                  ) : tab === 'forgot' || tab === 'verify_otp' ? (
+                  ) : tab === 'forgot' || tab === 'verify_otp' || tab === 'verify_register_otp' ? (
                     <button type="button" onClick={() => setTab('login')} className="text-xs font-bold text-slate-400 hover:text-white transition-colors flex items-center gap-1">
                       <ArrowLeft size={12} /> Giriş Ekranına Dön
                     </button>
@@ -429,7 +438,7 @@ export default function AuthPage() {
                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
                       <Zap size={18} className="text-white/80" />
                     </motion.div>
-                  ) : tab === 'login' ? 'Giriş Yap' : tab === 'register' ? 'Efsaneye Katıl' : tab === 'verify_otp' ? 'Doğrula' : 'Kod Al'}
+                  ) : tab === 'login' ? 'Giriş Yap' : tab === 'register' ? 'Efsaneye Katıl' : (tab === 'verify_otp' || tab === 'verify_register_otp') ? 'Doğrula' : 'Kod Al'}
                 </button>
 
                 {/* Google ile Giriş Şimdilik Deaktif

@@ -505,9 +505,9 @@ export function AuthProvider({ children }) {
     ]);
   };
 
-  const login = async (email, password) => {
+  const login = async (identifier, password) => {
     // SUPABASE RATE LIMIT ACİL DURUM BYPASS
-    if (email === 'admin@123.com' && password === 'admin123') {
+    if (identifier === 'admin@123.com' && password === 'admin123') {
       const mockAdmin = {
         id: 'bypass-admin-id',
         email: 'admin@123.com',
@@ -519,13 +519,29 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      const { data, error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }));
+      let actualEmail = identifier;
+      
+      // Eğer identifier e-posta değilse (içinde @ yoksa), kullanıcı adı olarak kabul et ve e-postasını bul
+      if (!identifier.includes('@')) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', identifier)
+          .maybeSingle();
+          
+        if (profileError || !profileData || !profileData.email) {
+          throw new Error('Kullanıcı bulunamadı veya hatalı giriş.');
+        }
+        actualEmail = profileData.email;
+      }
+
+      const { data, error } = await withTimeout(supabase.auth.signInWithPassword({ email: actualEmail, password }));
       if (error) throw error;
       return data;
     } catch (err) {
       console.error('[Auth] Login error:', err);
       if (err.message === 'Invalid login credentials') {
-        throw new Error('E-posta veya şifre hatalı!');
+        throw new Error('Kullanıcı adı, e-posta veya şifre hatalı!');
       }
       throw err;
     }
