@@ -558,7 +558,7 @@ export function AuthProvider({ children }) {
   const resetPassword = async (email) => {
     try {
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `https://mahorapeak.com.tr/reset-password`,
       });
       if (error) {
         console.error('[Auth DEBUG] Reset Password Fail:', {
@@ -572,6 +572,20 @@ export function AuthProvider({ children }) {
       return data;
     } catch (err) {
       console.error('[Auth] Reset password exception:', err);
+      throw err;
+    }
+  };
+
+  const verifyOtp = async (email, token, type = 'recovery') => {
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({ email, token, type });
+      if (error) {
+        console.error('[Auth DEBUG] Verify OTP Fail:', error);
+        throw error;
+      }
+      return data;
+    } catch (err) {
+      console.error('[Auth] Verify OTP exception:', err);
       throw err;
     }
   };
@@ -711,6 +725,7 @@ export function AuthProvider({ children }) {
     updateReadingProgress,
     calculateTitle,
     resetPassword,
+    verifyOtp,
     updatePassword,
     updateProfile,
     upgradeToElite

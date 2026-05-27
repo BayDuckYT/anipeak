@@ -14,7 +14,7 @@ export default function AuthPage() {
   // Giriş sonrası nereye döneceğini al.
   const nextPath = searchParams.get('next') || '/';
 
-  const { login, signup, loginWithGoogle, resetPassword } = useAuth();
+  const { login, signup, loginWithGoogle, resetPassword, verifyOtp } = useAuth();
   const { maintenanceMode } = useApp();
 
   const [tab, setTab] = useState(() => {
@@ -26,7 +26,7 @@ export default function AuthPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const [form, setForm] = useState({ username: '', email: '', password: '', password2: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', password2: '', otpCode: '' });
 
   // Mode URL'den değişirse tab'i senkronize et
   useEffect(() => {
@@ -67,9 +67,27 @@ export default function AuthPage() {
       setLoading(true);
       try {
         await resetPassword(form.email);
-        setSuccess(true);
+        setTab('verify_otp');
+        setError('');
       } catch (err) {
         setError(err.message || 'Sıfırlama maili gönderilemedi.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    if (tab === 'verify_otp') {
+      if (!form.otpCode || form.otpCode.length < 6) { setError('Geçerli bir 6 haneli kod girin.'); return; }
+      setLoading(true);
+      try {
+        await verifyOtp(form.email, form.otpCode, 'recovery');
+        setSuccess(true);
+        setTimeout(() => {
+          navigate('/reset-password', { replace: true });
+        }, 1500);
+      } catch (err) {
+        setError('Kod geçersiz veya süresi dolmuş.');
       } finally {
         setLoading(false);
       }
@@ -190,6 +208,7 @@ export default function AuthPage() {
               {tab === 'login' ? 'Evrene geri dön ve okumaya başla' : 
                tab === 'register' ? 'Sınırları aş, efsaneler arasına katıl' : 
                tab === 'confirm_email' ? 'Aramıza katılmana çok az kaldı' :
+               tab === 'verify_otp' ? 'E-postana gelen 6 haneli kodu gir' :
                'Şifreni yenilemek için adım at'}
             </p>
           </div>
@@ -241,13 +260,15 @@ export default function AuthPage() {
                   <CheckCircle size={64} className="text-emerald-400 mx-auto mb-5 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
                 </motion.div>
                 <h2 className="text-white font-black text-xl mb-2">
-                  {tab === 'forgot' ? 'Mail Gönderildi! 📧' : 
+                  {tab === 'verify_otp' && success ? 'Kod Doğrulandı! ✅' :
+                   tab === 'forgot' ? 'Mail Gönderildi! 📧' : 
                    tab === 'confirm_email' ? 'E-postanı Doğrula! 📧' : 
                    'Evrene Hoş Geldin! 🎉'}
                 </h2>
                 <p className="text-slate-400 text-sm leading-relaxed mb-6">
                   {tab === 'forgot' || tab === 'confirm_email' 
                     ? 'Kayıt olduğun e-posta adresine bir bağlantı gönderdik. Lütfen gelen kutunu (ve spam klasörünü) kontrol et.' 
+                    : tab === 'verify_otp' && success ? 'Şifre sıfırlama ekranına yönlendiriliyorsun...' 
                     : 'Giriş başarılı, hikayeye kaldığın yerden devam edebilirsin. Yönlendiriliyorsun...'}
                 </p>
                 
@@ -290,20 +311,38 @@ export default function AuthPage() {
                   </div>
                 )}
 
-                <div className="space-y-1.5">
-                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">E-posta Adresi</label>
-                  <input
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    type="email"
-                    required
-                    placeholder="sen@mahorapeak.com"
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-blue-500/5 transition-all shadow-inner"
-                  />
-                </div>
+                {tab !== 'verify_otp' && (
+                  <div className="space-y-1.5">
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">E-posta Adresi</label>
+                    <input
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      type="email"
+                      required
+                      placeholder="sen@mahorapeak.com"
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-blue-500/5 transition-all shadow-inner"
+                    />
+                  </div>
+                )}
 
-                {tab !== 'forgot' && (
+                {tab === 'verify_otp' && (
+                  <div className="space-y-1.5">
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 text-center">6 Haneli Doğrulama Kodu</label>
+                    <input
+                      name="otpCode"
+                      value={form.otpCode}
+                      onChange={handleChange}
+                      type="text"
+                      maxLength="6"
+                      required
+                      placeholder="••••••"
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-center text-2xl tracking-[0.5em] text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:bg-purple-500/5 transition-all shadow-inner"
+                    />
+                  </div>
+                )}
+
+                {(tab !== 'forgot' && tab !== 'verify_otp') && (
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Şifre</label>
                     <div className="relative">
@@ -369,7 +408,7 @@ export default function AuthPage() {
                         Şifremi Unuttum?
                       </button>
                     </>
-                  ) : tab === 'forgot' ? (
+                  ) : tab === 'forgot' || tab === 'verify_otp' ? (
                     <button type="button" onClick={() => setTab('login')} className="text-xs font-bold text-slate-400 hover:text-white transition-colors flex items-center gap-1">
                       <ArrowLeft size={12} /> Giriş Ekranına Dön
                     </button>
@@ -390,7 +429,7 @@ export default function AuthPage() {
                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
                       <Zap size={18} className="text-white/80" />
                     </motion.div>
-                  ) : tab === 'login' ? 'Giriş Yap' : tab === 'register' ? 'Efsaneye Katıl' : 'Bağlantı Gönder'}
+                  ) : tab === 'login' ? 'Giriş Yap' : tab === 'register' ? 'Efsaneye Katıl' : tab === 'verify_otp' ? 'Doğrula' : 'Bağlantı Gönder'}
                 </button>
 
                 {/* Google ile Giriş Şimdilik Deaktif
