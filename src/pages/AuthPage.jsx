@@ -429,7 +429,7 @@ export default function AuthPage() {
                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
                       <Zap size={18} className="text-white/80" />
                     </motion.div>
-                  ) : tab === 'login' ? 'Giriş Yap' : tab === 'register' ? 'Efsaneye Katıl' : tab === 'verify_otp' ? 'Doğrula' : 'Bağlantı Gönder'}
+                  ) : tab === 'login' ? 'Giriş Yap' : tab === 'register' ? 'Efsaneye Katıl' : tab === 'verify_otp' ? 'Doğrula' : 'Kod Al'}
                 </button>
 
                 {/* Google ile Giriş Şimdilik Deaktif
