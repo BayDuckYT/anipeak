@@ -141,7 +141,7 @@ function MaintenanceScreen({ onAuthOpen }) {
           <img 
             src="/mahorapeaklogo.png" 
             alt="MahoraPeak Logo" 
-            className="h-28 w-auto object-contain" 
+            className="h-32 md:h-40 w-auto object-contain" 
             style={{ 
               filter: 'drop-shadow(0 0 10px rgba(168, 85, 247, 0.4))' 
             }} 
