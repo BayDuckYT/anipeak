@@ -39,8 +39,8 @@ export default function OraclePage() {
   
   useSEO({
     title: 'Oracle',
-    description: 'AniPeak Oracle - Yapay zeka destekli kişisel manhwa ve webtoon önerileri.',
-    url: 'https://anipeak.com.tr/oracle'
+    description: 'MahoraPeak Oracle - Yapay zeka destekli kişisel manhwa ve webtoon önerileri.',
+    url: 'https://mahorapeak.com.tr/oracle'
   });
 
   if (!sortedSeries || sortedSeries.length === 0) {

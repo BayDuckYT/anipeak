@@ -1,5 +1,5 @@
 # ════════════════════════════════════════════════════════════════
-# AniPeak — Cloudflare Pages Edge Güvenlik Başlıkları
+# MahoraPeak — Cloudflare Pages Edge Güvenlik Başlıkları
 # Bu dosya Cloudflare'in edge sunucularına doğrudan gömülür.
 # Her HTTP yanıtına otomatik eklenir — sunucu kodu gerektirmez.
 # ════════════════════════════════════════════════════════════════
@@ -26,7 +26,7 @@
 
   # ── 7. Teknoloji Gizleme (Hayalet Gemi) ──
   X-Powered-By: Hidden
-  Server: AniPeak Infinity Guard
+  Server: MahoraPeak Infinity Guard
   X-AspNet-Version: Hidden
   X-AspNetMvc-Version: Hidden
 

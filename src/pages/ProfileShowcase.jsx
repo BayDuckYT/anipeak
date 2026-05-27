@@ -154,8 +154,8 @@ export default function ProfileShowcase() {
 
   useSEO({
     title: `${username} - Profil`,
-    description: `${username} kullanıcısının AniPeak profil sayfası.`,
-    url: `https://anipeak.com.tr/profil/${username}`
+    description: `${username} kullanıcısının MahoraPeak profil sayfası.`,
+    url: `https://mahorapeak.com.tr/profil/${username}`
   });
   
   // Mock/Fallback data
@@ -335,7 +335,7 @@ export default function ProfileShowcase() {
     setUserAchievements(achData || []);
 
     // 4. MAL List (if provided)
-    if (malUsername && malUsername.toLowerCase() !== 'anipeak') {
+    if (malUsername && malUsername.toLowerCase() !== 'mahorapeak') {
       setMalLoading(true);
       setMalError(null);
       try {
@@ -470,7 +470,7 @@ export default function ProfileShowcase() {
   const displayUser = useMemo(() => {
     let innerUser = { ...rawUser };
 
-    if (innerUser.username === 'ANIPEAK') {
+    if (innerUser.username === 'MAHORAPEAK') {
       innerUser = { ...innerUser, active_plan_id: 'aethe', is_elite: true };
     }
 
@@ -1011,7 +1011,7 @@ export default function ProfileShowcase() {
                               <Crown size={12} className="shrink-0" />}
                              {displayUser.active_plan_id === 'aethe' ? 'EFSANEVİ AETHE MÜHRÜ' :
                               displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ' :
-                              displayUser.active_plan_id === 'pro' ? 'ANIPEAK PRO' :
+                              displayUser.active_plan_id === 'pro' ? 'MAHORAPEAK PRO' :
                               'HÜKÜMDAR'}
                           </span>
                        </div>

@@ -15,8 +15,8 @@ export default function ResetPassword() {
 
   useSEO({
     title: 'Şifre Sıfırla',
-    description: 'AniPeak hesap şifrenizi sıfırlayın.',
-    url: 'https://anipeak.com.tr/reset-password'
+    description: 'MahoraPeak hesap şifrenizi sıfırlayın.',
+    url: 'https://mahorapeak.com.tr/reset-password'
   });
   
   const { updatePassword } = useAuth();
@@ -158,7 +158,7 @@ export default function ResetPassword() {
 
         <div className="mt-10 flex items-center justify-center gap-2 opacity-30">
           <Zap size={14} className="text-purple-400" />
-          <span className="text-[10px] font-black tracking-[0.2em] text-white uppercase">AniPeak Security Protocol</span>
+          <span className="text-[10px] font-black tracking-[0.2em] text-white uppercase">MahoraPeak Security Protocol</span>
         </div>
       </motion.div>
     </div>

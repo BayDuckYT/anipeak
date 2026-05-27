@@ -16,8 +16,8 @@ export default function CitadelCategory() {
 
   useSEO({
     title: `Citadel - ${category ? category.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Forum'}`,
-    description: 'AniPeak Citadel topluluk tartışmaları.',
-    url: `https://anipeak.com.tr/citadel/${category}`
+    description: 'MahoraPeak Citadel topluluk tartışmaları.',
+    url: `https://mahorapeak.com.tr/citadel/${category}`
   });
 
   useEffect(() => {

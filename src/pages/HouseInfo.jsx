@@ -50,8 +50,8 @@ const Factions = [
 export default function HouseInfo() {
   useSEO({
     title: 'Haneler Sistemi',
-    description: 'AniPeak Aethe özel Haneler sistemi. Tarafını seç, savaşa katıl, efsaneni yarat!',
-    url: 'https://anipeak.com.tr/haneler'
+    description: 'MahoraPeak Aethe özel Haneler sistemi. Tarafını seç, savaşa katıl, efsaneni yarat!',
+    url: 'https://mahorapeak.com.tr/haneler'
   });
 
   useEffect(() => {

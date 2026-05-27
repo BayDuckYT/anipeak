@@ -96,8 +96,8 @@ export default function Home({ onAuthOpen }) {
 
   useSEO({
     title: 'Ana Sayfa',
-    description: 'AniPeak - Premium Manhwa ve Webtoon okuma platformu. En popüler manhwaları keşfet, oku ve eğlen.',
-    url: 'https://anipeak.com.tr/'
+    description: 'MahoraPeak - Premium Manhwa ve Webtoon okuma platformu. En popüler manhwaları keşfet, oku ve eğlen.',
+    url: 'https://mahorapeak.com.tr/'
   });
 
   // 1. Performans: Sadece 500 seri üzerinden işlem yap (Gereksiz render'ı önler)

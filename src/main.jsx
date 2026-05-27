@@ -8,7 +8,7 @@ import './styles/accessibility.css'
 
 // Legacy LocalStorage Cleanup (Production Migration)
 try {
-  const LEGACY_KEYS = ['anipeak_user', 'anipeak_maintenance', 'anipeak_history'];
+  const LEGACY_KEYS = ['mahorapeak_user', 'mahorapeak_maintenance', 'mahorapeak_history'];
   LEGACY_KEYS.forEach(key => localStorage.removeItem(key));
 } catch (e) {}
 

@@ -11,7 +11,7 @@ const purify = DOMPurify(window);
 
 /**
  * ═══════════════════════════════════════════════════════════════
- * ANIPEAK INFINITY-GUARD v4.0 — Kurumsal Siber Güvenlik Motoru
+ * MAHORAPEAK INFINITY-GUARD v4.0 — Kurumsal Siber Güvenlik Motoru
  * Katmanlar: Helmet CSP | CORS Whitelist | Rate-Limit | 
  *            NoSQL Injection | XSS Sanitizer | Fingerprint Hide |
  *            Request Size Limit | Proxy SSRF Guard
@@ -73,7 +73,7 @@ export function setupSecurityEngine(app) {
         res.removeHeader('Server');
         res.removeHeader('X-Powered-By');
         res.setHeader('X-Powered-By', 'Invisible-Guard');
-        res.setHeader('Server', 'AniPeak Infinity Guard');
+        res.setHeader('Server', 'MahoraPeak Infinity Guard');
         res.setHeader('X-AspNet-Version', 'Hidden');
         res.setHeader('X-AspNetMvc-Version', 'Hidden');
         // Önbellek kontrolü — API yanıtları önbelleğe alınmasın
@@ -98,8 +98,8 @@ export function setupSecurityEngine(app) {
 
     // ─── 2. CORS — Alan Adı Kısıtlaması (Beyaz Liste) ─────────────────────────
     const whitelist = [
-        'https://anipeak.com.tr',
-        'https://www.anipeak.com.tr',
+        'https://mahorapeak.com.tr',
+        'https://www.mahorapeak.com.tr',
         'http://localhost:5173',
         'http://localhost:3000',
         'http://127.0.0.1:5173',

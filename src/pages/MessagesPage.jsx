@@ -32,7 +32,7 @@ import { useSEO } from '../hooks/useSEO';
 import CryptoJS from 'crypto-js';
 
 // --- ENCRYPTION ZIRHI (WhatsApp Mantığı) ---
-const SECRET_KEY = 'anipeak-siber-karargah-guvenlik-anahtari';
+const SECRET_KEY = 'mahorapeak-siber-karargah-guvenlik-anahtari';
 
 const encryptMsg = (text) => {
   try {
@@ -211,8 +211,8 @@ export default function MessagesPage() {
 
   useSEO({
     title: 'Mesajlar',
-    description: 'AniPeak özel mesajlaşma sistemi.',
-    url: 'https://anipeak.com.tr/messages'
+    description: 'MahoraPeak özel mesajlaşma sistemi.',
+    url: 'https://mahorapeak.com.tr/messages'
   });
 
   const [activeTab, setActiveTab] = useState('dm'); // 'dm', 'group', 'community', 'friends'
@@ -238,7 +238,7 @@ export default function MessagesPage() {
   // Efekt Listesi (Pre-load from a static context or prop)
   const effectLookup = useMemo(() => {
     try {
-      return JSON.parse(localStorage.getItem('anipeak_effects_cache')) || [];
+      return JSON.parse(localStorage.getItem('mahorapeak_effects_cache')) || [];
     } catch { return []; }
   }, []);
 
@@ -256,7 +256,7 @@ export default function MessagesPage() {
     init();
 
     // SUPABASE REALTIME & PRESENCE
-    const channel = supabase.channel('anipeak-global-sync', {
+    const channel = supabase.channel('mahorapeak-global-sync', {
       config: { presence: { key: user.id } }
     });
 
@@ -546,7 +546,7 @@ export default function MessagesPage() {
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <h2 className="text-2xl font-black italic tracking-tighter text-indigo-500 uppercase">AniPeak Sohbet</h2>
+                <h2 className="text-2xl font-black italic tracking-tighter text-indigo-500 uppercase">MahoraPeak Sohbet</h2>
                 <div className="flex items-center gap-1.5 mt-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-widest">Çevrimiçi</span>
@@ -802,7 +802,7 @@ export default function MessagesPage() {
                 </motion.div>
               </div>
               <div className="space-y-4 relative z-10">
-                <h2 className="text-5xl font-black italic tracking-tighter uppercase text-indigo-500">AniPeak Sohbet</h2>
+                <h2 className="text-5xl font-black italic tracking-tighter uppercase text-indigo-500">MahoraPeak Sohbet</h2>
                 <p className="text-slate-500 text-sm font-black uppercase tracking-[0.2em] max-w-[350px] mx-auto leading-loose">
                   Sohbet başlatmak için bir arkadaşını seç uşağım!
                 </p>

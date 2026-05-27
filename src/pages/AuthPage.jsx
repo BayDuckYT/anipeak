@@ -185,7 +185,7 @@ export default function AuthPage() {
             >
               <Zap size={32} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
             </motion.div>
-            <h1 className="text-3xl font-black gradient-text tracking-tight mb-2">AniPeak</h1>
+            <h1 className="text-3xl font-black gradient-text tracking-tight mb-2">MahoraPeak</h1>
             <p className="text-slate-400 text-sm font-medium">
               {tab === 'login' ? 'Evrene geri dön ve okumaya başla' : 
                tab === 'register' ? 'Sınırları aş, efsaneler arasına katıl' : 
@@ -298,7 +298,7 @@ export default function AuthPage() {
                     onChange={handleChange}
                     type="email"
                     required
-                    placeholder="sen@anipeak.com"
+                    placeholder="sen@mahorapeak.com"
                     className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-blue-500/5 transition-all shadow-inner"
                   />
                 </div>

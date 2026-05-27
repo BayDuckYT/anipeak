@@ -112,8 +112,8 @@ export default function Achievements() {
 
   useSEO({
     title: 'Başarımlar',
-    description: 'AniPeak başarım sistemi. Rozetler kazanın ve profilinizde sergileyin.',
-    url: 'https://anipeak.com.tr/achievements'
+    description: 'MahoraPeak başarım sistemi. Rozetler kazanın ve profilinizde sergileyin.',
+    url: 'https://mahorapeak.com.tr/achievements'
   });
 
   const [achievements, setAchievements] = useState([]);

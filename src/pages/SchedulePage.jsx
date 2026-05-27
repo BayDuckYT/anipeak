@@ -94,8 +94,8 @@ export default function SchedulePage() {
 
   useSEO({
     title: 'Yayın Takvimi',
-    description: 'AniPeak yayın takvimi. Hangi manhwa ve webtoonların hangi gün yeni bölüm yayınlayacağını takip et.',
-    url: 'https://anipeak.com.tr/takvim'
+    description: 'MahoraPeak yayın takvimi. Hangi manhwa ve webtoonların hangi gün yeni bölüm yayınlayacağını takip et.',
+    url: 'https://mahorapeak.com.tr/takvim'
   });
 
   const getLocalDateString = (date) => {

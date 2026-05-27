@@ -12,8 +12,8 @@ export default function PopularityPage() {
 
   useSEO({
     title: 'Popüler Seriler',
-    description: 'AniPeak üzerindeki en popüler manhwa ve webtoon serileri.',
-    url: 'https://anipeak.com.tr/popular'
+    description: 'MahoraPeak üzerindeki en popüler manhwa ve webtoon serileri.',
+    url: 'https://mahorapeak.com.tr/popular'
   });
 
   // Sıralama Mantığı: Puanı yüksek olanlar, puanı eşitse okunma sayısı yüksek olanlar

@@ -11,8 +11,8 @@ export default function Suggestions() {
 
   useSEO({
     title: 'Öneriler',
-    description: 'AniPeak için manhwa ve webtoon önerilerinizi gönderin.',
-    url: 'https://anipeak.com.tr/oneriler'
+    description: 'MahoraPeak için manhwa ve webtoon önerilerinizi gönderin.',
+    url: 'https://mahorapeak.com.tr/oneriler'
   });
 
   const handleSubmit = async (e) => {
@@ -62,7 +62,7 @@ export default function Suggestions() {
             KULLANICI <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">ÖNERİ</span> HATTI
           </motion.h1>
           <p className="text-slate-500 max-w-xl mx-auto font-medium">
-            AniPeak'i daha iyi bir yer haline getirmek için fikirlerinize ihtiyacımız var. 
+            MahoraPeak'i daha iyi bir yer haline getirmek için fikirlerinize ihtiyacımız var. 
             <span className="text-white"> Önerinizi gönderin, ekibimizle birlikte değerlendirelim!</span>
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function Suggestions() {
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
                     rows={6}
                     className="w-full glass border border-white/10 rounded-2xl p-4 text-white placeholder-slate-400 focus:border-purple-500 outline-none transition-all resize-none"
-                    placeholder="AniPeak'te hangi özellikleri görmek istersiniz? Fikirlerinizi bizimle paylaşın..."
+                    placeholder="MahoraPeak'te hangi özellikleri görmek istersiniz? Fikirlerinizi bizimle paylaşın..."
                   />
                 </div>
 

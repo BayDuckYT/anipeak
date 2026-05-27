@@ -36,7 +36,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
 
   useSEO({
     title: manhwa ? `${manhwa.title} Oku` : 'Yükleniyor...',
-    description: manhwa ? manhwa.description : 'AniPeak - En iyi Manhwa ve Webtoon platformu.',
+    description: manhwa ? manhwa.description : 'MahoraPeak - En iyi Manhwa ve Webtoon platformu.',
     image: manhwa ? manhwa.cover : '',
     url: window.location.href
   });

@@ -2,7 +2,7 @@ import { supabase } from './supabaseClient';
 import { getLevelInfo } from '../context/AuthContext';
 
 /**
- * 🌌 ANIPEAK KOZMİK BAŞARIM SİSTEMİ — ACHIEVEMENT ENGINE
+ * 🌌 MAHORAPEAK KOZMİK BAŞARIM SİSTEMİ — ACHIEVEMENT ENGINE
  */
 
 const CATEGORIES = {

@@ -90,7 +90,7 @@ function EffectCard({ item, isOwned, onBuy, user }) {
               className="text-lg font-black uppercase tracking-tighter name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
               style={{ backgroundImage: `url(${item.url})` }}
             >
-              ANIPEAK
+              MAHORAPEAK
             </span>
           </div>
         ) : isProfileEffect ? (
@@ -235,7 +235,7 @@ function PurchaseModal({ item, isOpen, onClose, onConfirm, userAura, isPurchasin
                     className="text-2xl font-black uppercase name-effect-text"
                     style={{ backgroundImage: `url(${item.url})` }}
                   >
-                    ANIPEAK
+                    MAHORAPEAK
                   </span>
                 ) : item.category === 'profile_effects' ? (
                   <img src={getOptimizedImage(item.url, 400)} alt={item.label} className="w-full h-full object-contain p-4" />
@@ -355,8 +355,8 @@ export default function AuraMarket() {
 
   useSEO({
     title: 'Aura Market - Efekt Mağazası',
-    description: 'AniPeak Aura Market. Profil efektleri, avatar çerçeveleri, isim efektleri ve daha fazlasını Aura puanlarınla satın al.',
-    url: 'https://anipeak.com.tr/market'
+    description: 'MahoraPeak Aura Market. Profil efektleri, avatar çerçeveleri, isim efektleri ve daha fazlasını Aura puanlarınla satın al.',
+    url: 'https://mahorapeak.com.tr/market'
   });
 
   // Build market items

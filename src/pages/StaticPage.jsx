@@ -13,8 +13,8 @@ export default function StaticPage() {
 
   useSEO({
     title: page?.title || 'Bilgi Sayfası',
-    description: page?.title ? `AniPeak - ${page.title}` : 'AniPeak bilgi sayfası.',
-    url: `https://anipeak.com.tr/sayfa/${slug}`
+    description: page?.title ? `MahoraPeak - ${page.title}` : 'MahoraPeak bilgi sayfası.',
+    url: `https://mahorapeak.com.tr/sayfa/${slug}`
   });
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function StaticPage() {
             </div>
             <div>
               <h1 className="text-3xl md:text-5xl font-black text-white leading-tight">{page.title}</h1>
-              <p className="text-slate-500 text-xs mt-2 uppercase tracking-[0.2em] font-bold">AniPeak Kurumsal • Son Güncelleme: {new Date(page.updated_at).toLocaleDateString('tr-TR')}</p>
+              <p className="text-slate-500 text-xs mt-2 uppercase tracking-[0.2em] font-bold">MahoraPeak Kurumsal • Son Güncelleme: {new Date(page.updated_at).toLocaleDateString('tr-TR')}</p>
             </div>
           </div>
 

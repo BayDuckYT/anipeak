@@ -1,5 +1,5 @@
 /**
- * AniPeak Aura Market — Nadirlik & Fiyat Sistemi
+ * MahoraPeak Aura Market — Nadirlik & Fiyat Sistemi
  * 
  * Nadirlik Seviyeleri:
  * - common (Yaygın)       : 5K - 15K Aura  → Bayraklar, basit çerçeveler

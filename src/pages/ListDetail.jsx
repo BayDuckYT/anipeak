@@ -57,8 +57,8 @@ export default function ListDetail() {
 
   useSEO({
     title: list?.name ? `${list.name} - Koleksiyon` : 'Koleksiyon Detayı',
-    description: list?.description || 'AniPeak koleksiyon detay sayfası.',
-    url: `https://anipeak.com.tr/list/${listId}`
+    description: list?.description || 'MahoraPeak koleksiyon detay sayfası.',
+    url: `https://mahorapeak.com.tr/list/${listId}`
   });
 
   const showToast = (msg) => {

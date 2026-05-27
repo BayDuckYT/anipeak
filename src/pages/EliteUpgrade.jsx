@@ -19,7 +19,7 @@ import { useSEO } from '../hooks/useSEO';
 const PLAN_DATA = [
   {
     id: 'pro',
-    name: 'ANIPEAK PRO',
+    name: 'MAHORAPEAK PRO',
     basePrice: 75,
     oldPrice: 150,
     color: 'cyan',
@@ -156,8 +156,8 @@ export default function EliteUpgrade() {
 
   useSEO({
     title: 'Elite Premium',
-    description: 'AniPeak Elite Premium üyelik. Özel dekorasyonlar, rozetler ve ayrıcalıklı özellikler.',
-    url: 'https://anipeak.com.tr/elite-upgrade'
+    description: 'MahoraPeak Elite Premium üyelik. Özel dekorasyonlar, rozetler ve ayrıcalıklı özellikler.',
+    url: 'https://mahorapeak.com.tr/elite-upgrade'
   });
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -173,7 +173,7 @@ export default function EliteUpgrade() {
   const handlePurchase = async () => {
     if (!selectedPlan) return;
     if (selectedPlan.id === 'aethe' || isGift) {
-      window.open('https://discord.gg/anipeak', '_blank');
+      window.open('https://discord.gg/mahorapeak', '_blank');
       setSelectedPlan(null);
       setIsGift(false);
       return;
@@ -252,7 +252,7 @@ export default function EliteUpgrade() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-slate-300 font-bold text-xs uppercase tracking-widest backdrop-blur-md mb-8"
           >
-             <Crown size={14} className="text-purple-400" /> ANIPEAK PREMIUM DENEYİMİ
+             <Crown size={14} className="text-purple-400" /> MAHORAPEAK PREMIUM DENEYİMİ
           </motion.div>
           
           <motion.h1 

@@ -120,8 +120,8 @@ export default function Header({ onAuthOpen }) {
           <Link to="/" className="flex items-center group flex-shrink-0 relative" aria-label="Ana Sayfa">
             <div className="relative">
               <img 
-                src="https://wsrv.nl/?url=https://anipeak.com.tr/anipeaklogo.png&w=320&output=webp" 
-                alt="AniPeak Logo" 
+                src="https://wsrv.nl/?url=https://mahorapeak.com.tr/mahorapeaklogo.png&w=320&output=webp" 
+                alt="MahoraPeak Logo" 
                 width="160"
                 height="64"
                 className="h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-0.5" 

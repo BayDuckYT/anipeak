@@ -676,7 +676,7 @@ export default function ChapterEditor({ seriesList = [], showToast = () => {} })
                 value={urlInput}
                 onChange={e => setUrlInput(e.target.value)}
                 rows={4}
-                placeholder={`https://cdn.anipeak.com/series/1/ch188/01.jpg\nhttps://cdn.anipeak.com/series/1/ch188/02.jpg`}
+                placeholder={`https://cdn.mahorapeak.com/series/1/ch188/01.jpg\nhttps://cdn.mahorapeak.com/series/1/ch188/02.jpg`}
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all resize-none font-mono"
               />
               <div className="flex gap-3 mt-3">

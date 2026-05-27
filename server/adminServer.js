@@ -229,7 +229,7 @@ app.get('/api/proxy', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`\n\x1b[35m%s\x1b[0m`, `⚓ ANIPEAK YÖNETİM MERKEZİ AKTİF ⚓`);
+    console.log(`\n\x1b[35m%s\x1b[0m`, `⚓ MAHORAPEAK YÖNETİM MERKEZİ AKTİF ⚓`);
     console.log(`\x1b[36m%s\x1b[0m`, `Port: ${PORT}`);
     console.log(`\x1b[90m%s\x1b[0m`, `-----------------------------------------`);
 });

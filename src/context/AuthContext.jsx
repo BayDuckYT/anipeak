@@ -8,7 +8,7 @@ const AuthContext = createContext(null);
  * XP bazlı rütbe hesaplama
  */
 /**
- * Yeni Kademeli Seviye ve Rütbe Hesaplama (AniPeak V4)
+ * Yeni Kademeli Seviye ve Rütbe Hesaplama (MahoraPeak V4)
  */
 export function getLevelInfo(xp, is_elite = false, active_plan_id = null) {
   let level, rank, xpInLevel, xpForNext, rankColor;
@@ -83,14 +83,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     // [GÜVENLİ ÖNBELLEK] Sadece aktif session varsa ve veri tutarlıysa yükle
     try {
-      const cached = localStorage.getItem('anipeak_user_cache');
+      const cached = localStorage.getItem('mahorapeak_user_cache');
       // İlk yüklemede session kontrolü yapamadığımız için güvenli bir şekilde döneriz
       return cached ? JSON.parse(cached) : null;
     } catch { return null; }
   });
   const [loading, setLoading] = useState(() => {
     // [HIZLI YÜKLEME] Eğer cache varsa loading'i false başlatarak UI'ı anında göster
-    return !localStorage.getItem('anipeak_user_cache');
+    return !localStorage.getItem('mahorapeak_user_cache');
   });
   const [readingHistory, setReadingHistory] = useState([]);
   const [notifications, setNotifications]   = useState([]);
@@ -127,7 +127,7 @@ export function AuthProvider({ children }) {
       const isSystemOwner = authUser?.email === 'murathanozel134@gmail.com';
       const userRole = data?.role || (isSystemOwner ? 'Baş Admin' : 'Kullanıcı');
       
-      if (data && data.username === 'ANIPEAK' && data.active_plan_id !== 'aethe') {
+      if (data && data.username === 'MAHORAPEAK' && data.active_plan_id !== 'aethe') {
         supabase.from('profiles').update({ active_plan_id: 'aethe', is_elite: true }).eq('id', authUser.id).then();
         data.active_plan_id = 'aethe';
         data.is_elite = true;
@@ -166,8 +166,8 @@ export function AuthProvider({ children }) {
       };
 
       setUser(merged);
-      localStorage.setItem('anipeak_user_cache', JSON.stringify(merged));
-      localStorage.setItem('anipeak_last_user_id', authUser.id);
+      localStorage.setItem('mahorapeak_user_cache', JSON.stringify(merged));
+      localStorage.setItem('mahorapeak_last_user_id', authUser.id);
       return merged;
     } catch (err) {
       // Sessiz hata yönetimi - Kullanıcıyı rahatsız etmeden fallback'e geç
@@ -176,7 +176,7 @@ export function AuthProvider({ children }) {
       // HATA DURUMUNDA GÜVENLİ LİMANA DÖN (CACHE VEYA DEFAULT)
       let cachedUser = null;
       try {
-        const cached = localStorage.getItem('anipeak_user_cache');
+        const cached = localStorage.getItem('mahorapeak_user_cache');
         if (cached) cachedUser = JSON.parse(cached);
       } catch (e) {}
 
@@ -431,11 +431,11 @@ export function AuthProvider({ children }) {
           if (session?.user) {
             fetchProfile(session.user).then(() => {
               // Önbellek doğrulaması: Eğer session ID ile önbellek ID uyuşmuyorsa önbelleği sil (Background check)
-              const cachedId = localStorage.getItem('anipeak_last_user_id');
+              const cachedId = localStorage.getItem('mahorapeak_last_user_id');
               if (cachedId !== session.user.id) {
                 console.warn("[Auth] Önbellek uyumsuzluğu tespit edildi, temizleniyor...");
-                localStorage.removeItem('anipeak_user_cache');
-                localStorage.removeItem('anipeak_last_user_id');
+                localStorage.removeItem('mahorapeak_user_cache');
+                localStorage.removeItem('mahorapeak_last_user_id');
                 fetchProfile(session.user);
               }
               subscribeToProfile(session.user.id);
@@ -457,7 +457,7 @@ export function AuthProvider({ children }) {
             if (session?.user) {
               // Sekme değişimlerinde asla loading gösterme (UI'ı dondurma)
               // Sadece kullanıcı gerçekten ilk defa giriş yapıyorsa (cache yoksa) göster
-              if (event === 'SIGNED_IN' && !localStorage.getItem('anipeak_user_cache')) {
+              if (event === 'SIGNED_IN' && !localStorage.getItem('mahorapeak_user_cache')) {
                 setLoading(true);
               }
               await fetchProfile(session.user);
@@ -465,7 +465,7 @@ export function AuthProvider({ children }) {
             }
           } else if (event === 'SIGNED_OUT') {
             setUser(null);
-            localStorage.removeItem('anipeak_user_cache');
+            localStorage.removeItem('mahorapeak_user_cache');
             if (profileChannelRef.current) {
               supabase.removeChannel(profileChannelRef.current);
               profileChannelRef.current = null;
@@ -608,7 +608,7 @@ export function AuthProvider({ children }) {
     setUser(prev => {
       const next = { ...prev, ...updates };
       // [KRİTİK] Önbelleği anında güncelle ki sayfa yenilenince eski veri gelmesin
-      localStorage.setItem('anipeak_user_cache', JSON.stringify(next));
+      localStorage.setItem('mahorapeak_user_cache', JSON.stringify(next));
       return next;
     });
   }, [user?.id]);
@@ -617,7 +617,7 @@ export function AuthProvider({ children }) {
     // 1. İstemci (tarayıcı) tarafındaki HER ŞEYİ KESİNLİKLE SİL
     setUser(null);
     setReadingHistory([]);
-    localStorage.removeItem('anipeak_user_cache');
+    localStorage.removeItem('mahorapeak_user_cache');
     
     // 2. Sunucuya (Supabase) çıkış isteği yolla (Ağ kopuksa bile site çıkış yapmış gibi çalışmaya devam etsin)
     try {
@@ -649,7 +649,7 @@ export function AuthProvider({ children }) {
       setUser(prev => {
         const info = getLevelInfo(prev.xp, true);
         const next = { ...prev, ...info, is_elite: true, active_plan_id: planId };
-        localStorage.setItem('anipeak_user_cache', JSON.stringify(next));
+        localStorage.setItem('mahorapeak_user_cache', JSON.stringify(next));
         return next;
       });
       return true;

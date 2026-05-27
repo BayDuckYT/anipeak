@@ -1,5 +1,5 @@
 /**
- * AniPeak Elite Bundles — Merkezi Efekt ve Paket Konfigürasyonu
+ * MahoraPeak Elite Bundles — Merkezi Efekt ve Paket Konfigürasyonu
  * Profil çerçeveleri, yorum efektleri, isim etiketleri ve Canvas animasyonları.
  */
 

@@ -1,5 +1,5 @@
 {
-  "name": "anipeak",
+  "name": "mahorapeak",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -7,7 +7,7 @@
     "dev": "vite",
     "server": "node server/adminServer.js",
     "sitemap": "node scripts/generate-sitemap.js",
-    "build": "npm run sitemap && rm -f public/_redirects && rm -f dist/_redirects && vite build",
+    "build": "npm run sitemap && node -e \"fs.rmSync('public/_redirects', {force:true}); fs.rmSync('dist/_redirects', {force:true})\" && vite build",
     "preview": "vite preview",
     "start:bots": "concurrently \"node discord-bots/Infinity-Guard/index.js\" \"node discord-bots/Support/index.js\" \"node discord-bots/Haber/index.js\" \"node discord-bots/XP/index.js\""
   },

@@ -360,7 +360,7 @@ function PlanManager({ showToast }) {
           <form onSubmit={handleSave} className="space-y-4">
             <div>
               <label className="block text-[10px] font-black text-slate-500 uppercase mb-1.5 ml-1">Paket Adı</label>
-              <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={inputCls} placeholder="ANIPEAK PRO" />
+              <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={inputCls} placeholder="MAHORAPEAK PRO" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

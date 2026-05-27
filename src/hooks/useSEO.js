@@ -16,7 +16,7 @@ export function useSEO({ title, description, image, url, robots = 'index, follow
   useEffect(() => {
     // 1. Sayfa Başlığı (Sekme yazısı)
     if (title) {
-      document.title = `${title} | AniPeak`;
+      document.title = `${title} | MahoraPeak`;
     }
 
     // 2. Meta etiketlerini güncelleyen veya oluşturan yardımcı fonksiyon
@@ -55,8 +55,8 @@ export function useSEO({ title, description, image, url, robots = 'index, follow
     
     // 6. Title meta tags
     if (title) {
-      setMeta('property', 'og:title', `${title} | AniPeak`);
-      setMeta('name', 'twitter:title', `${title} | AniPeak`);
+      setMeta('property', 'og:title', `${title} | MahoraPeak`);
+      setMeta('name', 'twitter:title', `${title} | MahoraPeak`);
     }
 
     // 7. Image meta tags

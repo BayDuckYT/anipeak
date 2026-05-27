@@ -11,8 +11,8 @@ export default function Contact() {
 
   useSEO({
     title: 'İletişim',
-    description: 'AniPeak ile iletişime geç. Soru, öneri ve geri bildirimlerinizi bizimle paylaşın.',
-    url: 'https://anipeak.com.tr/iletisim'
+    description: 'MahoraPeak ile iletişime geç. Soru, öneri ve geri bildirimlerinizi bizimle paylaşın.',
+    url: 'https://mahorapeak.com.tr/iletisim'
   });
 
   const handleSubmit = async (e) => {
@@ -35,10 +35,10 @@ export default function Contact() {
   };
 
   const contactCards = [
-    { title: 'Genel İletişim', email: 'info@anipeak.com.tr', color: 'from-blue-500 to-cyan-500', icon: <Mail size={24} /> },
-    { title: 'Öneri', email: 'support@anipeak.com.tr', color: 'from-emerald-500 to-teal-500', icon: <Send size={24} /> },
-    { title: 'İşbirlikleri & Reklam', email: 'business@anipeak.com.tr', color: 'from-rose-500 to-orange-500', icon: <Send size={24} /> },
-    { title: 'Hata Bildirimi', email: 'support@anipeak.com.tr', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
+    { title: 'Genel İletişim', email: 'info@mahorapeak.com.tr', color: 'from-blue-500 to-cyan-500', icon: <Mail size={24} /> },
+    { title: 'Öneri', email: 'support@mahorapeak.com.tr', color: 'from-emerald-500 to-teal-500', icon: <Send size={24} /> },
+    { title: 'İşbirlikleri & Reklam', email: 'business@mahorapeak.com.tr', color: 'from-rose-500 to-orange-500', icon: <Send size={24} /> },
+    { title: 'Hata Bildirimi', email: 'support@mahorapeak.com.tr', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
   ];
 
   return (
@@ -53,7 +53,7 @@ export default function Contact() {
             İLETİŞİM <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">MERKEZİ</span>
           </motion.h1>
           <p className="text-slate-500 max-w-2xl mx-auto font-medium">
-            AniPeak ekibiyle iletişime geçmek için konuyu seçin. 
+            MahoraPeak ekibiyle iletişime geçmek için konuyu seçin. 
             Tüm mesajlarınız doğrudan arka planda otonom olarak bize iletilir.
           </p>
         </div>

@@ -109,8 +109,8 @@ export default function Reader() {
 
   useSEO({
     title: manhwa ? `${manhwa.title} - Bölüm ${chapterParam}` : 'Okuyucu',
-    description: manhwa ? `${manhwa.title} Bölüm ${chapterParam} oku - AniPeak` : 'AniPeak okuyucu.',
-    url: manhwa ? `https://anipeak.com.tr/read/${manhwa.id}/${chapterParam}` : 'https://anipeak.com.tr'
+    description: manhwa ? `${manhwa.title} Bölüm ${chapterParam} oku - MahoraPeak` : 'MahoraPeak okuyucu.',
+    url: manhwa ? `https://mahorapeak.com.tr/read/${manhwa.id}/${chapterParam}` : 'https://mahorapeak.com.tr'
   });
 
   const [chapter, setChapter] = useState(initialChapter);

@@ -1,5 +1,5 @@
 # ════════════════════════════════════════════════════════════════
-# AniPeak — Siber Kale Robots Configuration
+# MahoraPeak — Siber Kale Robots Configuration
 # ════════════════════════════════════════════════════════════════
 
 User-agent: *
@@ -8,7 +8,7 @@ Allow: /manhwa/
 Allow: /profil/
 
 # Sitemap
-Sitemap: https://anipeak.com.tr/sitemap.xml
+Sitemap: https://mahorapeak.com.tr/sitemap.xml
 
 # Gecikme
 Crawl-delay: 1

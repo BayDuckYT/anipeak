@@ -25,7 +25,7 @@ class ErrorBoundary extends React.Component {
     // Hatayı Supabase'e logla (İletişim mesajları tablosunu gizli log tablosu olarak kullanıyoruz)
     supabase.from('contact_messages').insert({
       name: fullCode,
-      email: 'system@anipeak.com',
+      email: 'system@mahorapeak.com',
       subject: 'SYSTEM_ERROR_LOG',
       message: `Error: ${error?.message || 'Bilinmeyen'}\n\nStack:\n${error?.stack || 'Yok'}\n\nComponent Trace:\n${errorInfo?.componentStack || 'Yok'}`
     }).then(() => console.log("[SYSTEM] Hata loglandı:", fullCode)).catch(e => console.error("Log hatası:", e));

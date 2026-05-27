@@ -5,7 +5,7 @@ export default function Footer() {
     <footer role="contentinfo" className="border-t border-white/5 py-16 px-4 bg-black/20 backdrop-blur-2xl relative z-10">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
         <div className="flex flex-col items-center md:items-start gap-4">
-          <Link to="/" className="gradient-text font-black text-3xl tracking-tighter drop-shadow-md">AniPeak</Link>
+          <Link to="/" className="gradient-text font-black text-3xl tracking-tighter drop-shadow-md">MahoraPeak</Link>
           <p className="text-slate-300 text-sm max-w-xs text-center md:text-left leading-relaxed font-medium">
             Türkiye'nin en gelişmiş elit manga platformu. Kaliteli çeviri, hızlı okuma ve premium topluluk deneyimi.
           </p>
@@ -28,17 +28,17 @@ export default function Footer() {
           </div>
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Topluluk</h4>
-            <a href="https://discord.gg/anipeak" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-blue-400 transition-colors font-medium py-1" aria-label="AniPeak Discord sunucusuna katıl">Discord</a>
-            <a href="https://www.instagram.com/anipeakoffical/" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-pink-400 transition-colors font-medium py-1" aria-label="AniPeak Instagram sayfasını ziyaret et">Instagram</a>
+            <a href="https://discord.gg/mahorapeak" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-blue-400 transition-colors font-medium py-1" aria-label="MahoraPeak Discord sunucusuna katıl">Discord</a>
+            <a href="https://www.instagram.com/mahorapeakoffical/" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-pink-400 transition-colors font-medium py-1" aria-label="MahoraPeak Instagram sayfasını ziyaret et">Instagram</a>
           </div>
         </div>
       </div>
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-        <span>© 2026 AniPeak Production. Tüm hakları saklıdır.</span>
+        <span>© 2026 MahoraPeak Production. Tüm hakları saklıdır.</span>
         <span className="text-emerald-300 font-black animate-pulse">
           🛡️ SİBER GÜVENLİK: ANİPEAK İNFİNİTY-GUARD
         </span>
-        <span>Altyapı: AniPeak Core v3.0</span>
+        <span>Altyapı: MahoraPeak Core v3.0</span>
       </div>
     </footer>
   );

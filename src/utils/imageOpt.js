@@ -49,7 +49,7 @@ export function getStaticImage(url, width = 300) {
   
   let absoluteUrl = url;
   if (url.startsWith('/')) {
-    absoluteUrl = `https://anipeak.com.tr${url}`;
+    absoluteUrl = `https://mahorapeak.com.tr${url}`;
   } else if (url.startsWith('data:')) {
     return url;
   }

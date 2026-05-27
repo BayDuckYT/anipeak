@@ -128,8 +128,8 @@ export default function AllSeries() {
 
   useSEO({
     title: 'Tüm Seriler',
-    description: 'AniPeak üzerindeki tüm manhwa ve webtoon serilerini keşfet. Türe, popülerliğe ve güncelleme tarihine göre filtrele.',
-    url: 'https://anipeak.com.tr/all-series'
+    description: 'MahoraPeak üzerindeki tüm manhwa ve webtoon serilerini keşfet. Türe, popülerliğe ve güncelleme tarihine göre filtrele.',
+    url: 'https://mahorapeak.com.tr/all-series'
   });
 
   const [search, setSearch] = useState('');

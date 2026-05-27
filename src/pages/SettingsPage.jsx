@@ -154,9 +154,9 @@ export default function SettingsPage() {
   });
 
   useSEO({
-    title: 'Ayarlar | AniPeak',
-    description: 'AniPeak komuta ve kontrol merkezi.',
-    url: 'https://anipeak.com.tr/settings'
+    title: 'Ayarlar | MahoraPeak',
+    description: 'MahoraPeak komuta ve kontrol merkezi.',
+    url: 'https://mahorapeak.com.tr/settings'
   });
 
   const [notifSettings, setNotifSettings] = useState({ newChapter: true, replies: true, system: true });

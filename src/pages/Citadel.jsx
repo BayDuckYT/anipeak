@@ -52,8 +52,8 @@ export default function Citadel() {
 
   useSEO({
     title: 'Citadel Forum',
-    description: 'AniPeak Citadel - Topluluk forum ve tartışma platformu.',
-    url: 'https://anipeak.com.tr/citadel'
+    description: 'MahoraPeak Citadel - Topluluk forum ve tartışma platformu.',
+    url: 'https://mahorapeak.com.tr/citadel'
   });
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function Citadel() {
            </div>
            <div className="text-center md:text-left">
              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white uppercase tracking-tighter mb-4 drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
-               ANIPEAK <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">FORUMU</span>
+               MAHORAPEAK <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">FORUMU</span>
              </h1>
              <p className="text-slate-300 text-lg sm:text-xl max-w-2xl font-medium drop-shadow-md">
                Siber dünyadaki manga sığınağımız. Fikirlerini paylaş, teorilerini çarpıştır, favori serilerini diğer okurlarla tartış.

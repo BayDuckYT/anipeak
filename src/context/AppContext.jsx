@@ -1,5 +1,5 @@
 /**
- * AppContext — AniPeak Production Data Store
+ * AppContext — MahoraPeak Production Data Store
  * All data lives in Supabase. Zero localStorage.
  * Real-time channels keep UI in sync globally.
  */
@@ -12,14 +12,14 @@ export function AppProvider({ children }) {
   const [loading,         setLoading]         = useState(true);
   const [series,          setSeries]          = useState(() => {
     try { 
-      const cached = localStorage.getItem('anipeak_series_cache'); 
+      const cached = localStorage.getItem('mahorapeak_series_cache'); 
       const parsed = cached ? JSON.parse(cached) : null;
       return Array.isArray(parsed) ? parsed : [];
     } catch { return []; }
   });
   const [chapters,        setChapters]        = useState(() => {
     try { 
-      const cached = localStorage.getItem('anipeak_chapters_cache'); 
+      const cached = localStorage.getItem('mahorapeak_chapters_cache'); 
       const parsed = cached ? JSON.parse(cached) : null;
       return (parsed && typeof parsed === 'object') ? parsed : {};
     } catch { return {}; }
@@ -27,7 +27,7 @@ export function AppProvider({ children }) {
   const [announcements,   setAnnouncements]   = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [maintenanceMode, setMaintenanceMode] = useState(() => {
-    try { return localStorage.getItem('anipeak_maintenance_mode') === 'true'; } catch { return false; }
+    try { return localStorage.getItem('mahorapeak_maintenance_mode') === 'true'; } catch { return false; }
   });
   const [plans,           setPlans]           = useState([]);
 
@@ -42,7 +42,7 @@ export function AppProvider({ children }) {
       // Deduplicate series by title (case-insensitive) to prevent scraper dupes
       const uniqueData = Array.from(new Map(data.map(item => [item.title?.toLowerCase().trim(), item])).values());
       setSeries(uniqueData);
-      localStorage.setItem('anipeak_series_cache', JSON.stringify(uniqueData));
+      localStorage.setItem('mahorapeak_series_cache', JSON.stringify(uniqueData));
     }
   }, []);
 
@@ -79,7 +79,7 @@ export function AppProvider({ children }) {
           return acc;
         }, {});
         setChapters(grouped);
-        localStorage.setItem('anipeak_chapters_cache', JSON.stringify(grouped));
+        localStorage.setItem('mahorapeak_chapters_cache', JSON.stringify(grouped));
       }
     } catch (err) {
       console.warn('[AppCtx] Bölüm yükleme başarısız, önbelleğe dönülüyor:', err.message);
@@ -113,7 +113,7 @@ export function AppProvider({ children }) {
     if (data?.value) {
       const isEnabled = !!data.value.enabled;
       setMaintenanceMode(isEnabled);
-      localStorage.setItem('anipeak_maintenance_mode', String(isEnabled));
+      localStorage.setItem('mahorapeak_maintenance_mode', String(isEnabled));
     }
   }, []);
 
@@ -169,7 +169,7 @@ export function AppProvider({ children }) {
 
     // ── Real-time channels ─────────────────────────────────────────────
     const channel = supabase
-      .channel('anipeak-global')
+      .channel('mahorapeak-global')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'series' },
         () => loadSeries())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chapters' },
@@ -185,7 +185,7 @@ export function AppProvider({ children }) {
           if (payload.new?.key === 'maintenance') {
             const isEnabled = !!payload.new.value?.enabled;
             setMaintenanceMode(isEnabled);
-            localStorage.setItem('anipeak_maintenance_mode', String(isEnabled));
+            localStorage.setItem('mahorapeak_maintenance_mode', String(isEnabled));
           }
         })
       .subscribe();
@@ -202,7 +202,7 @@ export function AppProvider({ children }) {
     if (error) console.error('[AppCtx] Bakım modu güncellenemedi:', error.message);
     else {
       setMaintenanceMode(enabled);
-      localStorage.setItem('anipeak_maintenance_mode', String(enabled));
+      localStorage.setItem('mahorapeak_maintenance_mode', String(enabled));
     }
   }, []);
 
