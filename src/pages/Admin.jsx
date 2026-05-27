@@ -1190,12 +1190,14 @@ function UsersPanel({ showToast }) {
                         showToast('Şifre en az 6 karakter olmalıdır!', 'error');
                         return;
                       }
-                      const { error: rpcError } = await supabase.rpc('admin_change_password', {
-                        target_user_id: editingUser.id,
-                        new_password: editingUser.newPassword
+                      const { error: rpcError } = await supabase.rpc('change_password_admin_rpc', {
+                        payload: {
+                          target_user_id: editingUser.id,
+                          new_password: editingUser.newPassword
+                        }
                       });
                       if (rpcError) {
-                        console.error('[Admin] Şifre değiştirme hatası:', rpcError.message);
+                        console.error('[Admin] Şifre değiştirme tam hatası:', rpcError);
                         showToast('Şifre değiştirilemedi: ' + rpcError.message, 'error');
                         return;
                       }
