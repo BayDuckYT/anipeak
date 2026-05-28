@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.premium
+package com.mahorapeak.manga.ui.premium
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.anipeak.manga.ui.theme.*
+import com.mahorapeak.manga.ui.theme.*
 
 @Composable
 fun PremiumScreen(onBack: () -> Unit) {
@@ -48,7 +48,7 @@ fun PremiumScreen(onBack: () -> Unit) {
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "AniPeak Premium",
+                    "MahoraPeak Premium",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Black,
                     color = TextPrimary

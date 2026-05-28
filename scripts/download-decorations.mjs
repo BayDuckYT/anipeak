@@ -1,5 +1,5 @@
 /**
- * Discord CDN Dekorasyon İndirici — AniPeak Ganimet Harekatı
+ * Discord CDN Dekorasyon İndirici — MahoraPeak Ganimet Harekatı
  * effects.json'daki Discord CDN linklerini indirir ve yerel yola günceller.
  */
 import fs from 'fs';
@@ -83,7 +83,7 @@ async function downloadFile(url, destPath, retries = 3) {
 }
 
 async function main() {
-  console.log('\n🛰️  AniPeak Discord Ganimet Harekatı Başlıyor...\n');
+  console.log('\n🛰️  MahoraPeak Discord Ganimet Harekatı Başlıyor...\n');
 
   // Klasörü oluştur
   if (!fs.existsSync(OUTPUT_DIR)) {

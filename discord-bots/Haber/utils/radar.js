@@ -16,7 +16,7 @@ export function startRadar(client) {
   console.log('[Haber Sistemi] 📡 Supabase bağlantısı kuruluyor...');
 
   // Realtime bağlantısını kur
-  const globalChannel = supabase.channel('anipeak-global');
+  const globalChannel = supabase.channel('mahorapeak-global');
 
   globalChannel.on(
     'postgres_changes',
@@ -42,7 +42,7 @@ export function startRadar(client) {
 
         const seriesTitle = seriesData.title;
         const coverImage = seriesData.cover;
-        const url = `https://anipeak.com.tr/manga/${newChapter.series_id}/bolum/${newChapter.number}`;
+        const url = `https://mahorapeak.com.tr/manga/${newChapter.series_id}/bolum/${newChapter.number}`;
 
         const embed = chapterRadarEmbed(seriesTitle, newChapter.number, newChapter.title, coverImage, url);
 
@@ -96,7 +96,7 @@ export function startRadar(client) {
         const targetChannel = await client.channels.fetch(newsChannelId).catch(() => null);
         if (!targetChannel) return;
 
-        const url = `https://anipeak.com.tr/manga/${newSeries.id}`;
+        const url = `https://mahorapeak.com.tr/manga/${newSeries.id}`;
         
         // Yeni seri için embed'i oluştur
         const embed = newSeriesRadarEmbed(

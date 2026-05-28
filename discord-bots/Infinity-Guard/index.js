@@ -5,7 +5,7 @@
 //  ██║██║╚██╗██║██╔══╝  ██║██║╚██╗██║██║   ██║     ╚██╔╝
 //  ██║██║ ╚████║██║     ██║██║ ╚████║██║   ██║      ██║
 //  ╚═╝╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝      ╚═╝
-//    GUARD — AniPeak Yönetim Merkezi | Moderation Service
+//    GUARD — MahoraPeak Yönetim Merkezi | Moderation Service
 // ============================================================
 
 import dotenv from 'dotenv';

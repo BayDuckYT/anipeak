@@ -1,5 +1,5 @@
 // =============================================
-// 🤖 ANIPEAK V49: AKILLI RADAR (SMART BYPASS) — STAGE 4
+// 🤖 MAHORAPEAK V49: AKILLI RADAR (SMART BYPASS) — STAGE 4
 // OCR-Based Ad Removal & Original Font Branding
 // =============================================
 

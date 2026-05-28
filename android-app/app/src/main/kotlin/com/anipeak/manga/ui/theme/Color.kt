@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.theme
+package com.mahorapeak.manga.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,7 +1,7 @@
 {
-  "name": "anipeak-scraper",
+  "name": "mahorapeak-scraper",
   "version": "1.0.0",
-  "description": "AniPeak paradoxscans scraping service",
+  "description": "MahoraPeak paradoxscans scraping service",
   "main": "index.js",
   "type": "module",
   "scripts": {

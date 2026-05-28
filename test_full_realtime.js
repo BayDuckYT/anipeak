@@ -11,7 +11,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function test() {
   console.log('Connecting to realtime with Service Role Key...');
-  const channel = supabase.channel('anipeak-global');
+  const channel = supabase.channel('mahorapeak-global');
   channel.on('postgres_changes', { event: '*', schema: 'public', table: 'series' }, (payload) => {
     console.log('\n🔥 RECEIVED EVENT:', payload.eventType, 'for series ID:', payload.new?.id || payload.old?.id);
   });
@@ -24,7 +24,7 @@ async function test() {
         console.log('Inserting test series...');
         const { data, error } = await supabase.from('series').insert([{
           title: 'Realtime Bot Test',
-          cover: 'https://i.ibb.co/3Wk09r7/anipeak-logo.png',
+          cover: 'https://i.ibb.co/3Wk09r7/mahorapeak-logo.png',
           status: 'Devam Ediyor',
           genre: ['Aksiyon']
         }]).select().single();

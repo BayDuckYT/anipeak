@@ -18,9 +18,9 @@ export const COLORS = {
   LOG_LEAVE:   0xE67E22,  // Turuncu — ayrılma
 };
 
-// ── AniPeak Branding ────────────────────────────────────────
-export const ANIPEAK = {
-  FOOTER_TEXT: '⚡ Infinity Guard | AniPeak Haber Merkezi',
+// ── MahoraPeak Branding ────────────────────────────────────────
+export const MAHORAPEAK = {
+  FOOTER_TEXT: '⚡ Infinity Guard | MahoraPeak Haber Merkezi',
   FOOTER_ICON: 'https://cdn.discordapp.com/embed/avatars/0.png',
   PANEL_TITLE: '🛡️ INFINITY GUARD — YÖNETİM MERKEZİ',
 };
@@ -39,8 +39,8 @@ export const STRICT_LINK_CHANNELS = [
 
 // ── Anti-Link Whitelist ─────────────────────────────────────
 export const WHITELIST_DOMAINS = [
-  'anipeak.com.tr',
-  'discord.gg/anipeak',
+  'mahorapeak.com.tr',
+  'discord.gg/mahorapeak',
   'youtube.com',
   'youtu.be',
   'twitter.com',
@@ -58,7 +58,7 @@ export const WHITELIST_DOMAINS = [
 export const BLOCKED_PATTERNS = [
   /discord\.gg\/[a-zA-Z0-9]+/gi,
   /discord\.com\/invite\/[a-zA-Z0-9]+/gi,
-  /https?:\/\/(?!.*(?:anipeak\.com\.tr|youtube\.com|youtu\.be|twitter\.com|x\.com|instagram\.com|github\.com))[a-zA-Z0-9-]+\.(com|org|net|io|gg|me|xyz|site|online|fun|click|top|info|moe)(?:\/[^\s]*)?/gi,
+  /https?:\/\/(?!.*(?:mahorapeak\.com\.tr|youtube\.com|youtu\.be|twitter\.com|x\.com|instagram\.com|github\.com))[a-zA-Z0-9-]+\.(com|org|net|io|gg|me|xyz|site|online|fun|click|top|info|moe)(?:\/[^\s]*)?/gi,
 ];
 
 // ── Anti-Spam Ayarları ──────────────────────────────────────

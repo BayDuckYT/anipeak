@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.components
+package com.mahorapeak.manga.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,11 +17,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.anipeak.manga.ui.navigation.Screen
-import com.anipeak.manga.ui.theme.*
+import com.mahorapeak.manga.ui.navigation.Screen
+import com.mahorapeak.manga.ui.theme.*
 
 @Composable
-fun AniPeakBottomBar(navController: NavController) {
+fun MahoraPeakBottomBar(navController: NavController) {
     val items = listOf(
         BottomNavItem("Ana Sayfa", Screen.Home.route, Icons.Default.Home),
         BottomNavItem("Keşfet", Screen.Discover.route, Icons.Default.Explore),

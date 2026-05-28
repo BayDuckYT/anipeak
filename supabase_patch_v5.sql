@@ -1,5 +1,5 @@
 -- ==============================================================================
--- ANIPEAK SUPABASE YAMA V5 (İLİŞKİ TAMİRİ & JOIN FIX)
+-- MAHORAPEAK SUPABASE YAMA V5 (İLİŞKİ TAMİRİ & JOIN FIX)
 -- ==============================================================================
 
 -- 1. FOREIGN KEY BAĞLANTILARINI PROFİLLER TABLOSUNA YÖNLENDİR

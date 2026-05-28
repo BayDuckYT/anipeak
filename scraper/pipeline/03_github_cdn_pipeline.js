@@ -24,13 +24,13 @@ const rl = readline.createInterface({
 const askQuestion = (query) => new Promise((resolve) => rl.question(query, resolve));
 
 // ==========================================
-// 🛡️ ANIPEAK SİBER NİZAM OPERASYON MERKEZİ
+// 🛡️ MAHORAPEAK SİBER NİZAM OPERASYON MERKEZİ
 // ==========================================
 const BASE_URL = 'https://mangaokutr.co';
 const GITHUB_TOKEN = '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';
 const GITHUB_USER = 'murathanozel48-prog';
-const REPO_NAME = 'anipeak-manga-assets';
-const STAGING_DIR = 'C:\\Users\\Murathan\\Desktop\\anipeak-manga-assets';
+const REPO_NAME = 'mahorapeak-manga-assets';
+const STAGING_DIR = 'C:\\Users\\Murathan\\Desktop\\mahorapeak-manga-assets';
 const JSDELIVR_BASE = `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${REPO_NAME}@main/`;
 const BATCH_SIZE = 40; // SİBER IŞIK HIZI
 
@@ -198,7 +198,7 @@ async function processSingleSeries(title, browser) {
 async function runSiberNizam() {
   console.clear();
   console.log("\x1b[35m%s\x1b[0m", "==========================================================");
-  console.log("\x1b[35m%s\x1b[0m", "⚓ ANIPEAK: SİBER NİZAM (MANGAOKUTR ÖZEL) V67 ⚓");
+  console.log("\x1b[35m%s\x1b[0m", "⚓ MAHORAPEAK: SİBER NİZAM (MANGAOKUTR ÖZEL) V67 ⚓");
   console.log("\x1b[35m%s\x1b[0m", "==========================================================");
 
     try {

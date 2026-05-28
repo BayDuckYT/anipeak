@@ -12,7 +12,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function runScraper() {
   logger.info("==========================================");
-  logger.info("🚀 AniPeak: Profesyonel Scraper V3 Başladı");
+  logger.info("🚀 MahoraPeak: Profesyonel Scraper V3 Başladı");
   logger.info("==========================================");
 
   try {

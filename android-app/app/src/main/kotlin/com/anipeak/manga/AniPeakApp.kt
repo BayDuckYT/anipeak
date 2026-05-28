@@ -1,7 +1,7 @@
-package com.anipeak.manga
+package com.mahorapeak.manga
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class AniPeakApp : Application()
+class MahoraPeakApp : Application()

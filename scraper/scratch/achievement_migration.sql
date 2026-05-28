@@ -1,5 +1,5 @@
 -- ============================================================
--- 🌌 ANIPEAK KOZMİK BAŞARIMLAR SİSTEMİ (v1) — TEMİZ KURULUM
+-- 🌌 MAHORAPEAK KOZMİK BAŞARIMLAR SİSTEMİ (v1) — TEMİZ KURULUM
 -- ============================================================
 
 -- ÖNCEKİ TABLOLARI TEMİZLE (ÇAKIŞMAYI ÖNLEMEK İÇİN)
@@ -159,5 +159,5 @@ INSERT INTO achievements (name, description, category, requirement_type, require
 ('Hata Avcısı', 'Sitede bir bug bul ve adminlere bildir.', 'Efsanevi', 'special', 1, true),
 ('Güneş Doğarken', 'Kesintisiz 6 saat manga oku daa.', 'Efsanevi', 'session_time', 360, true),
 ('Solo Leveling Ustası', 'Tüm Solo Leveling bölümlerini tek günde bitir.', 'Efsanevi', 'special', 1, true),
-('AniPeak CEO Yardımcısı', 'Tüm başarımların %50''sini aç.', 'Efsanevi', 'completion_rate', 50, true),
+('MahoraPeak CEO Yardımcısı', 'Tüm başarımların %50''sini aç.', 'Efsanevi', 'completion_rate', 50, true),
 ('KOZMİK TANRI', '100 başarımı da tamamla ve imzanı mühürle amk!', 'Efsanevi', 'completion_rate', 100, true);

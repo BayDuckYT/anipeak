@@ -4,13 +4,13 @@ import { CONFIG } from './config.js';
 export const baseEmbed = (color = CONFIG.COLORS.PRIMARY) => {
   return new EmbedBuilder()
     .setColor(color)
-    .setFooter({ text: 'AniPeak Çözüm Merkezi | Kalite ve Güven' })
+    .setFooter({ text: 'MahoraPeak Çözüm Merkezi | Kalite ve Güven' })
     .setTimestamp();
 };
 
 export const supportHubEmbed = () => {
   return baseEmbed()
-    .setTitle('🎫 AniPeak Çözüm Merkezi')
+    .setTitle('🎫 MahoraPeak Çözüm Merkezi')
     .setDescription(
       'Bize ulaşmak, hata bildirmek veya destek almak mı istiyorsunuz?\n\n' +
       'Aşağıdaki butona basarak bir destek talebi oluşturabilirsiniz. Ekibimiz en kısa sürede size yardımcı olacaktır.'

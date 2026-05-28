@@ -9,7 +9,7 @@ import {
   ButtonBuilder,
   ButtonStyle
 } from 'discord.js';
-import { COLORS, ANIPEAK } from '../utils/config.js';
+import { COLORS, MAHORAPEAK } from '../utils/config.js';
 import { getSettings } from '../utils/settingsManager.js';
 
 export default {
@@ -41,7 +41,7 @@ export default {
         `, inline: false }
       )
       .setColor(COLORS.CYBER_BLUE)
-      .setFooter({ text: ANIPEAK.FOOTER_TEXT, iconURL: ANIPEAK.FOOTER_ICON });
+      .setFooter({ text: MAHORAPEAK.FOOTER_TEXT, iconURL: MAHORAPEAK.FOOTER_ICON });
 
     // Kanal Seçim Menüsü
     const channelSelect = new ActionRowBuilder().addComponents(

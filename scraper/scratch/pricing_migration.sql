@@ -1,4 +1,4 @@
--- AniPeak Pricing Plans Migration
+-- MahoraPeak Pricing Plans Migration
 CREATE TABLE IF NOT EXISTS pricing_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS pricing_plans (
 
 -- Seed Data
 INSERT INTO pricing_plans (name, duration, price, features, is_popular, icon, color) VALUES 
-('ANIPEAK PRO', '30 GÜN', 75, ARRAY['Reklamsız Deneyim', 'PRO Rozeti', 'Özel Discord Rolü', 'Sohbette Parlama'], false, 'Zap', 'cyan'),
+('MAHORAPEAK PRO', '30 GÜN', 75, ARRAY['Reklamsız Deneyim', 'PRO Rozeti', 'Özel Discord Rolü', 'Sohbette Parlama'], false, 'Zap', 'cyan'),
 ('HÜKÜMDAR', 'ÖMÜR BOYU', 999, ARRAY['Tüm Efektler ÜCRETSİZ', 'HÜKÜMDAR Mührü', 'Öncelikli Destek', 'Kozmik İsim Plakası', 'Tüm Gelecek Güncellemeler'], true, 'Crown', 'amber'),
 ('HÜKÜMDAR GÖLGESİ', '1 YIL', 699, ARRAY['Özel Profil Çerçeveleri', 'GÖLGE Rozeti', 'Erken Erişim Hakları', 'Özel Aura Efektleri'], false, 'Ghost', 'purple');
 

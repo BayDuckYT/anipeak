@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.profile
+package com.mahorapeak.manga.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.anipeak.manga.ui.theme.*
+import com.mahorapeak.manga.ui.theme.*
 
 @Composable
 fun ProfileScreen(onNavigateToPremium: () -> Unit) {

@@ -24,7 +24,7 @@ export default {
         return interaction.editReply({ 
           content: target.id === interaction.user.id 
             ? '❌ Henüz hesabını bağlamamışsın! `/link` komutunu kullanarak bağlayabilirsin.' 
-            : '❌ Bu kullanıcının bağlı bir AniPeak hesabı bulunamadı.' 
+            : '❌ Bu kullanıcının bağlı bir MahoraPeak hesabı bulunamadı.' 
         });
       }
 
@@ -45,7 +45,7 @@ export default {
         )
         .setThumbnail(target.displayAvatarURL())
         .setColor('#8B5CF6')
-        .setFooter({ text: 'AniPeak Seviye Sistemi', iconURL: interaction.guild.iconURL() })
+        .setFooter({ text: 'MahoraPeak Seviye Sistemi', iconURL: interaction.guild.iconURL() })
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });

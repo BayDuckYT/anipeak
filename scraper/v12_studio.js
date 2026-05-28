@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V12 — AI MANGA PRODUCTION STUDIO (TAPAS EDITION)
+// 🚀 MAHORAPEAK V12 — AI MANGA PRODUCTION STUDIO (TAPAS EDITION)
 // Ana Orkestratör — Tapas Sızma & AI Üretim Hattı
 // ============================================================
 
@@ -18,7 +18,7 @@ const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   🚀 ANIPEAK V12 — TAPAS ELITE AI STUDIO 🚀            ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   🚀 MAHORAPEAK V12 — TAPAS ELITE AI STUDIO 🚀            ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Canvas Extraction & AI Stealth Cleaner             ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
   console.log();

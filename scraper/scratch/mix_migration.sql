@@ -1,5 +1,5 @@
 -- ============================================================
--- AniPeak Elite Mix & Karıştır Paketi — Veritabanı Migration
+-- MahoraPeak Elite Mix & Karıştır Paketi — Veritabanı Migration
 -- Supabase SQL Editor > New Query > Paste & Run
 -- ============================================================
 

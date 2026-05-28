@@ -1,7 +1,7 @@
 {
-  "name": "anipeak-support",
+  "name": "mahorapeak-support",
   "version": "1.0.0",
-  "description": "AniPeak Support — Ticket & Help Bot",
+  "description": "MahoraPeak Support — Ticket & Help Bot",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -12,9 +12,9 @@
     "discord",
     "bot",
     "support",
-    "anipeak"
+    "mahorapeak"
   ],
-  "author": "AniPeak Global",
+  "author": "MahoraPeak Global",
   "license": "ISC",
   "dependencies": {
     "discord-html-transcripts": "^3.2.0",

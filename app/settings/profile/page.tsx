@@ -21,7 +21,7 @@ const NAMEPLATES = effectsData.nameplates;
 
 export default function ProfileSettingsPage() {
   const [username, setUsername] = useState('Murathan');
-  const [bio, setBio] = useState('AniPeak Global Kurucusu | Dijital İnşaatçı');
+  const [bio, setBio] = useState('MahoraPeak Global Kurucusu | Dijital İnşaatçı');
   const [selectedDecoration, setSelectedDecoration] = useState(AVATAR_DECORATIONS[0]);
   const [selectedNameplate, setSelectedNameplate] = useState(NAMEPLATES[0]);
   const [avatarUrl, setAvatarUrl] = useState('https://github.com/shadcn.png');
@@ -249,7 +249,7 @@ export default function ProfileSettingsPage() {
 
                       <div className="flex items-center gap-3 pt-2">
                         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[10px] font-bold text-zinc-500">
-                          <LinkIcon size={12} /> anipeak.com/murathan
+                          <LinkIcon size={12} /> mahorapeak.com/murathan
                         </div>
                       </div>
                    </div>

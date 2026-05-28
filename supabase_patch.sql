@@ -1,5 +1,5 @@
 -- ============================================================
--- AniPeak — Supabase Patch (Siber Uyumluluk Modu)
+-- MahoraPeak — Supabase Patch (Siber Uyumluluk Modu)
 -- ============================================================
 
 -- 1. Temizlik (Eski tabloları ve bağımlılıklarını kökten sil)
@@ -86,7 +86,7 @@ VALUES ('00000000-0000-0000-0000-000000000000', 'TOPLULUK', 'community', NOW())
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO messages (conversation_id, sender_id, content)
-VALUES ('00000000-0000-0000-0000-000000000000', NULL, 'AniPeak Dünyasına Hoş Geldiniz! 🚀')
+VALUES ('00000000-0000-0000-0000-000000000000', NULL, 'MahoraPeak Dünyasına Hoş Geldiniz! 🚀')
 ON CONFLICT DO NOTHING;
 
 -- 6. Site Yapılandırması (Bakım Modu vb.) Kalkanları

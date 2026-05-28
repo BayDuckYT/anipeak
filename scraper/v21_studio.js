@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V21: PYTHON-HYBRID CORE — ELITE AI MANGA PRODUCTION STUDIO
+// 🚀 MAHORAPEAK V21: PYTHON-HYBRID CORE — ELITE AI MANGA PRODUCTION STUDIO
 // Akıllı Arşivleme + Çakışma Önleme + Eksik Sayfa Tamiri
 // ============================================================
 
@@ -20,7 +20,7 @@ const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ ANIPEAK V21: PYTHON-HYBRID CORE (ELİTE) ⚡      ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ MAHORAPEAK V21: PYTHON-HYBRID CORE (ELİTE) ⚡      ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Elite OCR · Inpainting · Profesyonel Dizgi           ║');
   console.log('\x1b[35m%s\x1b[0m', '║   [TR Hazır → Sevkiyat] VEYA [ENG → PYTHON → TR]       ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');

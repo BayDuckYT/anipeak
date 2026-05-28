@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.library
+package com.mahorapeak.manga.ui.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,10 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.anipeak.manga.ui.components.ContinuingCard
-import com.anipeak.manga.ui.home.HomeUiState
-import com.anipeak.manga.ui.home.HomeViewModel
-import com.anipeak.manga.ui.theme.*
+import com.mahorapeak.manga.ui.components.ContinuingCard
+import com.mahorapeak.manga.ui.home.HomeUiState
+import com.mahorapeak.manga.ui.home.HomeViewModel
+import com.mahorapeak.manga.ui.theme.*
 
 @Composable
 fun LibraryScreen(

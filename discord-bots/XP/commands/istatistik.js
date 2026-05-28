@@ -4,7 +4,7 @@ import { getLevelInfo } from '../utils/levelUtils.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('istatistik')
-    .setDescription('AniPeak web hesabındaki okuma ve XP istatistiklerini gösterir.'),
+    .setDescription('MahoraPeak web hesabındaki okuma ve XP istatistiklerini gösterir.'),
 
   async execute(interaction, client) {
     await interaction.deferReply();
@@ -25,7 +25,7 @@ export default {
       if (!profile) {
         console.warn(`[XP istatistik] Profil bulunamadı — discord_id: ${discord_id}`);
         return interaction.editReply({
-          content: '❌ Discord hesabın AniPeak\'e mühürlü değil!\n\n**Nasıl bağlarım?**\n1️⃣ Siteye gir → Profilim → "Discord Bağla" butonuna tıkla\n2️⃣ Oluşan kodu kopyala\n3️⃣ Buraya `/bağla kod:AP_XXXX` yaz',
+          content: '❌ Discord hesabın MahoraPeak\'e mühürlü değil!\n\n**Nasıl bağlarım?**\n1️⃣ Siteye gir → Profilim → "Discord Bağla" butonuna tıkla\n2️⃣ Oluşan kodu kopyala\n3️⃣ Buraya `/bağla kod:AP_XXXX` yaz',
         });
       }
 
@@ -43,7 +43,7 @@ export default {
       const levelInfo = getLevelInfo(profile.xp || 0, profile.is_elite);
 
       const embed = new EmbedBuilder()
-        .setTitle(`📊 ANIPEAK KARARGAH VERİLERİ — ${profile.username}`)
+        .setTitle(`📊 MAHORAPEAK KARARGAH VERİLERİ — ${profile.username}`)
         .setDescription('```ansi\n\u001b[2;34m[ VERİ SENKRONİZASYONU BAŞARILI ]\u001b[0m\n```')
         .setThumbnail(interaction.user.displayAvatarURL())
         .addFields(
@@ -53,7 +53,7 @@ export default {
           { name: '📖 Toplam Okuma', value: `\`${totalChapters} Bölüm\` (${totalSeries} Seri)`, inline: true },
         )
         .setColor('#8B5CF6')
-        .setFooter({ text: 'AniPeak Social Ecosystem — Real-time Statistics' })
+        .setFooter({ text: 'MahoraPeak Social Ecosystem — Real-time Statistics' })
         .setTimestamp();
 
       // İlerleme çubuğu

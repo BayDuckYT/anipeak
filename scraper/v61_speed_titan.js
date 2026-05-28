@@ -17,7 +17,7 @@ process.setMaxListeners(0);
 EventEmitter.defaultMaxListeners = 0;
 https.globalAgent.setMaxListeners(0);
 
-dotenv.config({ path: '/root/anipeak/scraper/.env' });
+dotenv.config({ path: '/root/mahorapeak/scraper/.env' });
 
 // ────────────────────────────────────────────────────────────
 // ⚙️ KONFİGÜRASYON (R2 & HD EDITION)
@@ -40,7 +40,7 @@ const s3Client = new S3Client({
   },
 });
 
-const R2_BUCKET = (process.env.R2_BUCKET || 'anipeakimage').trim();
+const R2_BUCKET = (process.env.R2_BUCKET || 'mahorapeakimage').trim();
 const R2_PUBLIC_URL = 'https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev';
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
@@ -302,13 +302,13 @@ async function extractCatalogUrls(page, url) {
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ ANIPEAK V62: OMNI-TITAN — MULTI-SITE EDITION ⚡      ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ MAHORAPEAK V62: OMNI-TITAN — MULTI-SITE EDITION ⚡      ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Toplu Liste Tarama · Akıllı Algılama · Limit Kırıcı    ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
 
   let urlPath = path.resolve('scraper', 'url.txt');
   if (!fs.existsSync(urlPath)) {
-    urlPath = '/root/anipeak/scraper/url.txt'; // VDS Fallback
+    urlPath = '/root/mahorapeak/scraper/url.txt'; // VDS Fallback
   }
 
   if (fs.existsSync(urlPath)) {

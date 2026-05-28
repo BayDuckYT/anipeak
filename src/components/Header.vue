@@ -1,6 +1,6 @@
 <template>
   <header class='header'>
-    <h1>ANIPEAK STUDIO</h1>
+    <h1>MAHORAPEAK STUDIO</h1>
   </header>
 </template>
 

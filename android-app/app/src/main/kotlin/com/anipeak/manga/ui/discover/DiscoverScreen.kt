@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.discover
+package com.mahorapeak.manga.ui.discover
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,11 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.anipeak.manga.ui.components.MangaCard
-import com.anipeak.manga.ui.components.SectionHeader
-import com.anipeak.manga.ui.home.HomeUiState
-import com.anipeak.manga.ui.home.HomeViewModel
-import com.anipeak.manga.ui.theme.*
+import com.mahorapeak.manga.ui.components.MangaCard
+import com.mahorapeak.manga.ui.components.SectionHeader
+import com.mahorapeak.manga.ui.home.HomeUiState
+import com.mahorapeak.manga.ui.home.HomeViewModel
+import com.mahorapeak.manga.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

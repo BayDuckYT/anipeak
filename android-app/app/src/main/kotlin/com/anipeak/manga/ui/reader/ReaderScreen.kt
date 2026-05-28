@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.reader
+package com.mahorapeak.manga.ui.reader
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.anipeak.manga.ui.theme.*
+import com.mahorapeak.manga.ui.theme.*
 
 @Composable
 fun ReaderScreen(

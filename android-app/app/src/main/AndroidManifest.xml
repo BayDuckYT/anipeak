@@ -5,16 +5,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".AniPeakApp"
+        android:name=".MahoraPeakApp"
         android:allowBackup="true"
-        android:label="AniPeak"
+        android:label="MahoraPeak"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AniPeak"
+        android:theme="@style/Theme.MahoraPeak"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AniPeak">
+            android:theme="@style/Theme.MahoraPeak">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -1,4 +1,4 @@
-package com.anipeak.manga.data.model
+package com.mahorapeak.manga.data.model
 
 import com.google.gson.annotations.SerializedName
 

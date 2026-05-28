@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V22: OMNI-REAPER ARCHITECTURE — ELITE AI MANGA PRODUCTION STUDIO
+// 🚀 MAHORAPEAK V22: OMNI-REAPER ARCHITECTURE — ELITE AI MANGA PRODUCTION STUDIO
 // Jilet Gibi Sevkiyat + Madara-Defeat Scraper + AI Fallback
 // ============================================================
 
@@ -20,14 +20,14 @@ const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 async function main() {
   console.clear();
   console.log('\x1b[31m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[31m%s\x1b[0m', '║   🔥 ANIPEAK V22: OMNI-REAPER ARCHITECTURE 🔥       ║');
+  console.log('\x1b[31m%s\x1b[0m', '║   🔥 MAHORAPEAK V22: OMNI-REAPER ARCHITECTURE 🔥       ║');
   console.log('\x1b[31m%s\x1b[0m', '║   Ultra-HD Scraper · AI-Fallback · Jilet Sevkiyat    ║');
   console.log('\x1b[31m%s\x1b[0m', '║   [AD-SCRAPE & REBRAND] VEYA [ELITE AI TRANSLATE]    ║');
   console.log('\x1b[31m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
   console.log();
 
   console.log('\x1b[36m[OPERASYON PROTOKOLÜ]\x1b[0m');
-  console.log('\x1b[32m[1] RE-BRAND & SPEED (Hızlı Sevkiyat):\x1b[0m Sayfaları Ultra-HD indir. Reklamları kazı, ANIPEAK bas, \\TR\\ klasörüne fırlat!');
+  console.log('\x1b[32m[1] RE-BRAND & SPEED (Hızlı Sevkiyat):\x1b[0m Sayfaları Ultra-HD indir. Reklamları kazı, MAHORAPEAK bas, \\TR\\ klasörüne fırlat!');
   console.log('\x1b[35m[2] ELITE TRANSLATE (Full AI Edit):\x1b[0m GPT-4o Vision ile balonları tespit et, çevir, reklam sil, \\EDIT\\ klasörüne işle!');
   console.log();
 

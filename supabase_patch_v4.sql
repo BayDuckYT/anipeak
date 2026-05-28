@@ -1,5 +1,5 @@
     -- ==============================================================================
-    -- ANIPEAK SUPABASE YAMA V4 (INSTAGRAM & WHATSAPP MANTIĞI)
+    -- MAHORAPEAK SUPABASE YAMA V4 (INSTAGRAM & WHATSAPP MANTIĞI)
     -- ==============================================================================
 
     -- 1. ESKİ TABLOLARI SIFIRLA (DİKKAT: Veriler silinebilir)

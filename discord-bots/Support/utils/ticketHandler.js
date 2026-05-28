@@ -261,7 +261,7 @@ async function handleTicketDelete(interaction) {
         const completion = await openai.chat.completions.create({
           model: "gpt-3.5-turbo",
           messages: [
-            { role: "system", content: "Sen bir AniPeak moderatör asistanısın. Sana bir destek talebi konuşması vereceğim. Bunu 2-3 cümlede özetle. Kim ne sorun yaşamış, yetkili nasıl çözmüş belirt. Türkçe cevap ver." },
+            { role: "system", content: "Sen bir MahoraPeak moderatör asistanısın. Sana bir destek talebi konuşması vereceğim. Bunu 2-3 cümlede özetle. Kim ne sorun yaşamış, yetkili nasıl çözmüş belirt. Türkçe cevap ver." },
             { role: "user", content: `Konuşma Logu:\n${chatLog}` }
           ],
           max_tokens: 200

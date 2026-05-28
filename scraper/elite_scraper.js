@@ -17,10 +17,10 @@ const rl = readline.createInterface({
 const askQuestion = (query) => new Promise((resolve) => rl.question(query, resolve));
 
 // ==========================================
-// 🛡️ ANIPEAK OPERASYON MERKEZİ
+// 🛡️ MAHORAPEAK OPERASYON MERKEZİ
 // ==========================================
 const BASE_URL = 'https://mangafire.to';
-const DISCLAIMER = "\n\n*Bu seri MangaFire kaynaklı olup, Gemini AI tarafından Türkçeleştirilmiştir. Çeviri ve edit AniPeak AI sistemine aittir.*";
+const DISCLAIMER = "\n\n*Bu seri MangaFire kaynaklı olup, Gemini AI tarafından Türkçeleştirilmiştir. Çeviri ve edit MahoraPeak AI sistemine aittir.*";
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function autoScroll(page) {
@@ -44,7 +44,7 @@ async function autoScroll(page) {
 async function runAIEliteScraper() {
   console.clear();
   console.log("\x1b[35m%s\x1b[0m", "==========================================================");
-  console.log("\x1b[35m%s\x1b[0m", "🌐 ANIPEAK: AI ELITE SCRAPER V10 (INTERACTIVE MODE) 🌐");
+  console.log("\x1b[35m%s\x1b[0m", "🌐 MAHORAPEAK: AI ELITE SCRAPER V10 (INTERACTIVE MODE) 🌐");
   console.log("\x1b[35m%s\x1b[0m", "==========================================================");
 
   const input = await askQuestion("\n\x1b[33m[TEĞMEN-SORUSU]\x1b[0m >> Seri isimleri veya URL girin (Boş bırakırsanız popülerleri çeker): ");

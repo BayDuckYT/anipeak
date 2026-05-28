@@ -1,5 +1,5 @@
 -- ============================================================
--- AniPeak Elite Efekt Paketi — Veritabanı Migration
+-- MahoraPeak Elite Efekt Paketi — Veritabanı Migration
 -- Supabase SQL Editor > New Query > Paste & Run
 -- ============================================================
 

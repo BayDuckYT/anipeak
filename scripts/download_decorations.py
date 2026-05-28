@@ -46,7 +46,7 @@ def download_file(url, dest_path, retries=3):
                 raise Exception(f"Indirme basarisiz: {e}")
 
 def main():
-    print("\nAniPeak Discord Ganimet Harekatı Basliyor...\n")
+    print("\nMahoraPeak Discord Ganimet Harekatı Basliyor...\n")
 
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)

@@ -5,7 +5,7 @@
 //  ██╔══██║██╔══██║██╔══██╗██╔══╝  ██╔══██╗
 //  ██║  ██║██║  ██║██████╔╝███████╗██║  ██║
 //  ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝
-//    HABER — AniPeak Haber Merkezi | News & Announcement Service
+//    HABER — MahoraPeak Haber Merkezi | News & Announcement Service
 // ============================================================
 
 import dotenv from 'dotenv';

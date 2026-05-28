@@ -4,7 +4,7 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve('scraper', '.env') });
 if (!process.env.SUPABASE_URL) {
-  dotenv.config({ path: '/root/anipeak/scraper/.env' }); // VDS fallback
+  dotenv.config({ path: '/root/mahorapeak/scraper/.env' }); // VDS fallback
 }
 
 const supabase = createClient(
@@ -41,7 +41,7 @@ async function wipeDatabase() {
       }
     }
 
-    console.log("\n✨ TEMİZLİK TAMAMLANDI! AniPeak artık bomboş ve hazır.");
+    console.log("\n✨ TEMİZLİK TAMAMLANDI! MahoraPeak artık bomboş ve hazır.");
   } catch (err) {
     console.error("💥 Kritik Hata:", err.message);
   }

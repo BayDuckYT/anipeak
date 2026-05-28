@@ -4,7 +4,7 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve('scraper', '.env') });
 if (!process.env.R2_ACCOUNT_ID) {
-    dotenv.config({ path: '/root/anipeak/scraper/.env' });
+    dotenv.config({ path: '/root/mahorapeak/scraper/.env' });
 }
 
 async function testR2() {
@@ -27,7 +27,7 @@ async function testR2() {
 
     try {
         const command = new ListObjectsV2Command({
-            Bucket: (process.env.R2_BUCKET || 'anipeakimage').trim(),
+            Bucket: (process.env.R2_BUCKET || 'mahorapeakimage').trim(),
             MaxKeys: 1
         });
         await s3Client.send(command);

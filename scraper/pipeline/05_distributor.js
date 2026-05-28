@@ -1,5 +1,5 @@
 // =============================================
-// ☁️ ANIPEAK V24: FINAL-REAPER — PIPELINE STAGE 5: DISTRIBUTOR
+// ☁️ MAHORAPEAK V24: FINAL-REAPER — PIPELINE STAGE 5: DISTRIBUTOR
 // Advanced Key Rotation + 30s Cool-off
 // =============================================
 

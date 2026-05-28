@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════
--- AniPeak Comment System v2 — Instagram-style Migration
+-- MahoraPeak Comment System v2 — Instagram-style Migration
 -- Supabase Dashboard > SQL Editor > New Query > Paste & Run
 -- ═══════════════════════════════════════════════════════════
 

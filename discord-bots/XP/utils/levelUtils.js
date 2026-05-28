@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 
 /**
- * Yeni Kademeli Seviye ve Rütbe Hesaplama (AniPeak V4 - 100 Seviye Kuralı)
+ * Yeni Kademeli Seviye ve Rütbe Hesaplama (MahoraPeak V4 - 100 Seviye Kuralı)
  */
 export function getLevelInfo(xp) {
   let level, rank, xpInLevel, xpForNext;

@@ -1,4 +1,4 @@
-package com.anipeak.manga
+package com.mahorapeak.manga
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.anipeak.manga.ui.theme.AniPeakTheme
-import com.anipeak.manga.ui.theme.BackgroundDark
+import com.mahorapeak.manga.ui.theme.MahoraPeakTheme
+import com.mahorapeak.manga.ui.theme.BackgroundDark
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
         })
 
         setContent {
-            AniPeakTheme {
+            MahoraPeakTheme {
                 val systemUiController = rememberSystemUiController()
                 SideEffect {
                     systemUiController.setSystemBarsColor(
@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                                     super.onPageStarted(view, url, favicon)
                                 }
                             }
-                            loadUrl("https://anipeak.com.tr")
+                            loadUrl("https://mahorapeak.com.tr")
                         }
                     },
                     modifier = Modifier.fillMaxSize()

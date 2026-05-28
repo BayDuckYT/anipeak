@@ -7,7 +7,7 @@ const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SU
 async function test() {
   console.log('Inserting series...');
   const { data: s, error: se } = await supabase.from('series').insert([
-    { title: 'Test Series ' + Date.now(), cover: 'https://i.ibb.co/3Wk09r7/anipeak-logo.png', genre: ['Aksiyon'], reads_num: 0, rating: 0, status: 'Devam Ediyor' }
+    { title: 'Test Series ' + Date.now(), cover: 'https://i.ibb.co/3Wk09r7/mahorapeak-logo.png', genre: ['Aksiyon'], reads_num: 0, rating: 0, status: 'Devam Ediyor' }
   ]).select().single();
   
   if (se) return console.error('Series Error:', se);

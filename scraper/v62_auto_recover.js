@@ -1,5 +1,5 @@
 // ============================================================
-// ⚡ ANIPEAK V62: AUTO RECOVER — MASS RESTORATION
+// ⚡ MAHORAPEAK V62: AUTO RECOVER — MASS RESTORATION
 // Veritabanındaki tüm serileri otomatik tarar ve silinmiş/eksik bölümleri onarır.
 // ============================================================
 
@@ -28,9 +28,9 @@ const CONFIG = {
     'YEDEK_TOKEN_2_BURAYA'
   ],
   GITHUB_USER:     'murathanozel48-prog',
-  REPO_NAME:       'anipeak-manga-assets',
+  REPO_NAME:       'mahorapeak-manga-assets',
   BRANCH:          'main',
-  JSDELIVR_BASE:   'https://cdn.jsdelivr.net/gh/murathanozel48-prog/anipeak-manga-assets@main/',
+  JSDELIVR_BASE:   'https://cdn.jsdelivr.net/gh/murathanozel48-prog/mahorapeak-manga-assets@main/',
   BASE_URL:        'https://mangaokutr.co',
 
   CHAPTER_CONCURRENCY: 5,   
@@ -46,7 +46,7 @@ function getGhHeaders() {
   return {
     Authorization: `token ${CONFIG.GITHUB_TOKENS[currentTokenIndex]}`,
     'Content-Type': 'application/json',
-    'User-Agent': 'AniPeak-AutoRecover/62'
+    'User-Agent': 'MahoraPeak-AutoRecover/62'
   };
 }
 
@@ -348,7 +348,7 @@ async function processSeries(seriesUrl, browser) {
     
     await batchCommitToGitHub(
       allFiles,
-      `AniPeak Upload/Repair: ${seriesData.title} — ${chapterDataList.length} bölüm`
+      `MahoraPeak Upload/Repair: ${seriesData.title} — ${chapterDataList.length} bölüm`
     );
 
     for (const ch of chapterDataList) {
@@ -388,7 +388,7 @@ async function processSeries(seriesUrl, browser) {
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ ANIPEAK V62: AUTO RECOVER — MASS RESTORATION ⚡     ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   ⚡ MAHORAPEAK V62: AUTO RECOVER — MASS RESTORATION ⚡     ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Veritabanındaki Tüm Serileri Tarayıp Eksikleri Çeker   ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
   console.log();

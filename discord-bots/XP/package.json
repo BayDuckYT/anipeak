@@ -1,15 +1,15 @@
 {
-  "name": "anipeak-xp",
+  "name": "mahorapeak-xp",
   "version": "1.0.0",
-  "description": "AniPeak XP — Leveling & Experience Bot with Supabase",
+  "description": "MahoraPeak XP — Leveling & Experience Bot with Supabase",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js"
   },
-  "keywords": ["discord", "bot", "xp", "leveling", "supabase", "anipeak"],
-  "author": "AniPeak Global",
+  "keywords": ["discord", "bot", "xp", "leveling", "supabase", "mahorapeak"],
+  "author": "MahoraPeak Global",
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",

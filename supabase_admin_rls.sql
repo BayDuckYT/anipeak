@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════
--- AniPeak Admin Panel RLS Düzeltmesi
+-- MahoraPeak Admin Panel RLS Düzeltmesi
 -- Bu SQL, admin kullanıcıların series/chapters tablolarında
 -- update/delete yapabilmesini sağlar.
 -- Supabase Dashboard > SQL Editor'de çalıştırın.

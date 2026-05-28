@@ -89,7 +89,7 @@ new_sidebar = '''          <aside className="w-full lg:w-[320px] shrink-0 space-
                        </div>
                     </div>
 
-                    <p className="text-zinc-500 text-[7px] font-bold tracking-[0.15em] uppercase mt-2 opacity-50 truncate">anipeak.com/profil/{displayUser.username}</p>
+                    <p className="text-zinc-500 text-[7px] font-bold tracking-[0.15em] uppercase mt-2 opacity-50 truncate">mahorapeak.com/profil/{displayUser.username}</p>
                   </div>
                 </div>
 

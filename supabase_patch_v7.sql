@@ -1,5 +1,5 @@
 -- ==============================================================================
--- ANIPEAK SUPABASE MİZAÇ TAMİRİ V7 (MESAJ GÖRÜNÜRLÜĞÜ FİX)
+-- MAHORAPEAK SUPABASE MİZAÇ TAMİRİ V7 (MESAJ GÖRÜNÜRLÜĞÜ FİX)
 -- ==============================================================================
 
 -- 1. MESSAGES RLS POLİTİKALARINI EN BASİT VE GÜVENLİ HALE GETİR

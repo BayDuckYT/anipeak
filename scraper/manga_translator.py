@@ -1,5 +1,5 @@
 # ============================================================
-# 🛡️ ANIPEAK SİBER NİZAM - TRANSLATOR PASİF MOD
+# 🛡️ MAHORAPEAK SİBER NİZAM - TRANSLATOR PASİF MOD
 # ============================================================
 # Bu modül Teğmenin emriyle DEAKTİF edilmiştir.
 # Operasyon sadece "Saf Nakliye" (Raw Logistics) üzerinden yürütülmektedir.

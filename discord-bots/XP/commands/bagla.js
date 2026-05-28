@@ -4,7 +4,7 @@ import { syncUserToDiscord } from '../utils/levelUtils.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('bağla')
-    .setDescription('AniPeak web hesabını Discord ile mühürle!')
+    .setDescription('MahoraPeak web hesabını Discord ile mühürle!')
     .addStringOption(option => 
       option.setName('kod')
         .setDescription('Web sitesinden aldığın AP_XXXXXX formatındaki kod')
@@ -98,7 +98,7 @@ export default {
             .setDescription(`**${profile.username}** adlı kullanıcı hesabını mühürledi!`)
             .addFields(
               { name: 'Discord', value: `<@${discord_id}>`, inline: true },
-              { name: 'AniPeak', value: `\`${profile.username}\``, inline: true }
+              { name: 'MahoraPeak', value: `\`${profile.username}\``, inline: true }
             )
             .setColor('#8B5CF6')
             .setTimestamp();

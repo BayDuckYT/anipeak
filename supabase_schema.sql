@@ -1,5 +1,5 @@
 -- ============================================================
--- AniPeak — Production Database Schema
+-- MahoraPeak — Production Database Schema
 -- Supabase SQL Editor > New Query > Paste & Run
 -- ============================================================
 

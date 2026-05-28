@@ -1,7 +1,7 @@
-package com.anipeak.manga.data.api
+package com.mahorapeak.manga.data.api
 
-import com.anipeak.manga.data.model.Series
-import com.anipeak.manga.data.model.Chapter
+import com.mahorapeak.manga.data.model.Series
+import com.mahorapeak.manga.data.model.Chapter
 import retrofit2.http.*
 
 interface SupabaseService {

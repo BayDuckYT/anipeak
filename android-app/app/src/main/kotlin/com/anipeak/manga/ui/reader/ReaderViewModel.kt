@@ -1,9 +1,9 @@
-package com.anipeak.manga.ui.reader
+package com.mahorapeak.manga.ui.reader
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.anipeak.manga.data.api.SupabaseService
-import com.anipeak.manga.data.model.Chapter
+import com.mahorapeak.manga.data.api.SupabaseService
+import com.mahorapeak.manga.data.model.Chapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -1,6 +1,6 @@
-package com.anipeak.manga.di
+package com.mahorapeak.manga.di
 
-import com.anipeak.manga.data.api.SupabaseService
+import com.mahorapeak.manga.data.api.SupabaseService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

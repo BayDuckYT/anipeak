@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V13 — AI MANGA PRODUCTION STUDIO (MANGAKATANA)
+// 🚀 MAHORAPEAK V13 — AI MANGA PRODUCTION STUDIO (MANGAKATANA)
 // Ana Orkestratör — Tam Otomatik Scanlation Stüdyosu
 // ============================================================
 // MİMARİ:
@@ -33,7 +33,7 @@ const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   🚀 ANIPEAK V13 — MANGAKATANA ELITE AI STUDIO 🚀      ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   🚀 MAHORAPEAK V13 — MANGAKATANA ELITE AI STUDIO 🚀      ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Tam Otomatik 4-Kişilik Scanlation Stüdyosu           ║');
   console.log('\x1b[35m%s\x1b[0m', '║   [Temizlikçi · Redrawer · Çevirmen · Dizgici]          ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');

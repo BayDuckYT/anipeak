@@ -14,7 +14,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 async function purgeToday() {
     console.log("\x1b[35m%s\x1b[0m", "==========================================================");
-    console.log("\x1b[35m%s\x1b[0m", "🧹 ANIPEAK: BUGÜNÜN HATALI VERİLERİNİ TEMİZLEME 🧹");
+    console.log("\x1b[35m%s\x1b[0m", "🧹 MAHORAPEAK: BUGÜNÜN HATALI VERİLERİNİ TEMİZLEME 🧹");
     console.log("\x1b[35m%s\x1b[0m", "==========================================================");
     
     // Bugünün tarihini al (UTC bazlı)

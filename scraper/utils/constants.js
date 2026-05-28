@@ -1,5 +1,5 @@
 // =============================================
-// 🏗️ ANIPEAK V35 ULTIMATE GHOST-REAPER — CONSTANTS
+// 🏗️ MAHORAPEAK V35 ULTIMATE GHOST-REAPER — CONSTANTS
 // Smart-Scale Branding & Advanced Scraper
 // =============================================
 
@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 export const BASE_URL = 'https://mangaokutr.co';
 
 // ---- Yerel Arşiv Yolları ----
-export const ARCHIVE_BASE = 'C:\\Users\\Murathan\\Desktop\\anipeak manga';
+export const ARCHIVE_BASE = 'C:\\Users\\Murathan\\Desktop\\mahorapeak manga';
 export const PYTHON_PATH = 'python';
 
 // ---- Hız ve Paralelizm (GIGA-SCALE: 15 Series x 5 Chapters) ----
@@ -69,4 +69,4 @@ export const FONT_SIZE = 16;
 export const LINE_HEIGHT = 20;
 
 // ---- Placeholder Görseli Metni ----
-export const PLACEHOLDER_TEXT = 'ANIPEAK: Bu sayfa muhimmat kaybi sebebiyle tadilattadir.';
+export const PLACEHOLDER_TEXT = 'MAHORAPEAK: Bu sayfa muhimmat kaybi sebebiyle tadilattadir.';

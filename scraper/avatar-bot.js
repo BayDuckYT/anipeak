@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════╗
- * ║   🕷️  ANIPEAK SİBER ÖRÜMCEK v1.1 — R2 AVATAR FRAME BOT   ║
+ * ║   🕷️  MAHORAPEAK SİBER ÖRÜMCEK v1.1 — R2 AVATAR FRAME BOT   ║
  * ║   Hedef: ragnarscans.com/avatar-frame/                      ║
  * ║   Görev: Tüm avatar çerçevelerini Cloudflare R2'ye yükle    ║
  * ║   v1.1: Cloudflare SSL bypass — Puppeteer fetch engine      ║
@@ -37,7 +37,7 @@ const R2 = new S3Client({
     httpsAgent: agent,
   }),
 });
-const R2_BUCKET = process.env.R2_BUCKET_NAME || 'anipeak';
+const R2_BUCKET = process.env.R2_BUCKET_NAME || 'mahorapeak';
 const R2_PREFIX = 'avatar-frames/';
 
 // ─── HEDEF SAYFALARI ────────────────────────────────────────────
@@ -269,7 +269,7 @@ function sanitizeFilename(name, srcUrl) {
 async function main() {
   console.log(`
 ╔══════════════════════════════════════════════════════════════╗
-║   🕷️  ANIPEAK SİBER ÖRÜMCEK v1.1 (CF SSL BYPASS)           ║
+║   🕷️  MAHORAPEAK SİBER ÖRÜMCEK v1.1 (CF SSL BYPASS)           ║
 ║   Hedef: ragnarscans.com/avatar-frame/                      ║
 ║   Görev: Tüm çerçeveleri R2'ye yükle                        ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -284,7 +284,7 @@ async function main() {
     console.error(`  R2_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com`);
     console.error(`  R2_ACCESS_KEY_ID=<API_TOKEN_ACCESS_KEY>`);
     console.error(`  R2_SECRET_ACCESS_KEY=<API_TOKEN_SECRET_KEY>`);
-    console.error(`  R2_BUCKET_NAME=anipeak`);
+    console.error(`  R2_BUCKET_NAME=mahorapeak`);
     process.exit(1);
   }
 

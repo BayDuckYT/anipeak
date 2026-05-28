@@ -18,7 +18,7 @@ export default {
 
     // Rotating presence
     const activities = [
-      { name: '🛡️ AniPeak Koruma', type: 3 },   // WATCHING
+      { name: '🛡️ MahoraPeak Koruma', type: 3 },   // WATCHING
       { name: '✨ Güvenli Sohbet', type: 0 },      // PLAYING
       { name: '📊 Sunucu Takibi', type: 3 },       // WATCHING
       { name: `👥 ${client.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} üye`, type: 3 },

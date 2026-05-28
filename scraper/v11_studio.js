@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V11 — AI MANGA PRODUCTION STUDIO
+// 🚀 MAHORAPEAK V11 — AI MANGA PRODUCTION STUDIO
 // Ana Orkestratör — Tek Tuşla Profesyonel Manga Üretimi
 // ============================================================
 // MİMARİ: 
@@ -29,7 +29,7 @@ const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   🚀 ANIPEAK V11 — AI MANGA PRODUCTION STUDIO 🚀       ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   🚀 MAHORAPEAK V11 — AI MANGA PRODUCTION STUDIO 🚀       ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Tam Otomatik Manga Üretim Hattı                      ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
   console.log();

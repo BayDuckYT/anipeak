@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.anipeak.manga"
+    namespace = "com.mahorapeak.manga"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.anipeak.manga"
+        applicationId = "com.mahorapeak.manga"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

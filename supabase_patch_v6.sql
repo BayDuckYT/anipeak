@@ -1,5 +1,5 @@
 -- ==============================================================================
--- ANIPEAK SUPABASE ULTIMATE FIX V6 (TAM GAZ SİSTEM)
+-- MAHORAPEAK SUPABASE ULTIMATE FIX V6 (TAM GAZ SİSTEM)
 -- ==============================================================================
 
 -- 1. TABLOLARI VE İLİŞKİLERİ GARANTİYE AL

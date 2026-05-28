@@ -9,7 +9,7 @@ export default {
     console.log(`[Haber] 📊 ${client.guilds.cache.size} sunucuda aktif.`);
 
     client.user.setPresence({
-      activities: [{ name: '📰 AniPeak Haberler', type: 3 }], // WATCHING
+      activities: [{ name: '📰 MahoraPeak Haberler', type: 3 }], // WATCHING
       status: 'online',
     });
   },

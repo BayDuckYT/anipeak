@@ -5,7 +5,7 @@
 //   ██╔██╗ ██╔═══╝     ██╔══██╗██║   ██║   ██║
 //  ██╔╝ ██╗██║         ██████╔╝╚██████╔╝   ██║
 //  ╚═╝  ╚═╝╚═╝         ╚═════╝  ╚═════╝    ╚═╝
-//    XP — AniPeak Deneyim Merkezi | Leveling & Experience Service
+//    XP — MahoraPeak Deneyim Merkezi | Leveling & Experience Service
 // ============================================================
 
 import dotenv from 'dotenv';

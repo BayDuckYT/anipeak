@@ -1,5 +1,5 @@
 // ============================================================
-// 🏗️ ANIPEAK ASSET MIGRATOR (SİBER-TAHLİYE)
+// 🏗️ MAHORAPEAK ASSET MIGRATOR (SİBER-TAHLİYE)
 // Local -> GitHub (murathanozel48-prog) · Push & Destroy
 // ============================================================
 
@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-const SOURCE_DIR = 'C:\\Users\\Murathan\\Desktop\\anipeak-manga-assest';
+const SOURCE_DIR = 'C:\\Users\\Murathan\\Desktop\\mahorapeak-manga-assest';
 const GITHUB_REPO_URL = 'https://murathanozel48-prog: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@github.com/murathanozel48-prog/manga-assets.git';
 
 async function migrate() {

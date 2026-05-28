@@ -5,7 +5,7 @@
 //  ╚════██║██║   ██║██╔═══╝ ██╔═══╝ ██║   ██║██╔══██╗   ██║
 //  ███████║╚██████╔╝██║     ██║     ╚██████╔╝██║  ██║   ██║
 //  ╚══════╝ ╚═════╝ ╚═╝     ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝
-//    SUPPORT — AniPeak Destek Merkezi | Ticket & Help Service
+//    SUPPORT — MahoraPeak Destek Merkezi | Ticket & Help Service
 // ============================================================
 
 import dotenv from 'dotenv';

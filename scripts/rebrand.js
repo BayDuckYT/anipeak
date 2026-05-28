@@ -23,10 +23,10 @@ const scanPaths = [
 const ignoreDirs = ['node_modules', 'dist', 'build', '.git', '.gemini', 'android-app', 'discord-bots', 'artifacts'];
 
 const replacements = [
-  { from: /Anipeak/g, to: 'MahoraPeak' },
-  { from: /anipeak/g, to: 'mahorapeak' },
-  { from: /ANIPEAK/g, to: 'MAHORAPEAK' },
-  { from: /AniPeak/g, to: 'MahoraPeak' }
+  { from: /MahoraPeak/g, to: 'MahoraPeak' },
+  { from: /mahorapeak/g, to: 'mahorapeak' },
+  { from: /MAHORAPEAK/g, to: 'MAHORAPEAK' },
+  { from: /MahoraPeak/g, to: 'MahoraPeak' }
 ];
 
 let modifiedFilesCount = 0;
@@ -68,7 +68,7 @@ function walkAndReplace(currentPath) {
   }
 }
 
-console.log('Starting site-wide rebrand from Anipeak to MahoraPeak...');
+console.log('Starting site-wide rebrand from MahoraPeak to MahoraPeak...');
 
 for (const scanPath of scanPaths) {
   const fullPath = path.join(rootDir, scanPath);

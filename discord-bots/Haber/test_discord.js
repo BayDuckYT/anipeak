@@ -16,7 +16,7 @@ client.once('ready', async () => {
   } else {
     console.log('Channel found:', targetChannel.name);
     try {
-      await targetChannel.send('🚀 AniPeak Radar Sistemi test mesajı.');
+      await targetChannel.send('🚀 MahoraPeak Radar Sistemi test mesajı.');
       console.log('Successfully sent message');
     } catch (err) {
       console.error('Failed to send message:', err.message);

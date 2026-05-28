@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-dotenv.config({ path: '/root/anipeak/scraper/.env' });
+dotenv.config({ path: '/root/mahorapeak/scraper/.env' });
 
 const s3Client = new S3Client({
   region: 'auto',
@@ -16,7 +16,7 @@ const s3Client = new S3Client({
   },
 });
 
-const R2_BUCKET = process.env.R2_BUCKET || 'anipeakimage';
+const R2_BUCKET = process.env.R2_BUCKET || 'mahorapeakimage';
 
 export async function processAndUploadImage(imageUrl, isCover, seriesTitle, chapterNumber, pageIndex) {
     try {

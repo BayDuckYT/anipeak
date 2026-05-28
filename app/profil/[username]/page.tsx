@@ -25,7 +25,7 @@ export default function PublicProfilePage({ params }: { params: { username: stri
     username: params.username || 'Murathan',
     fullName: 'Murathan Özel',
     role: 'Malevolent Elite',
-    bio: 'AniPeak Global Kurucusu | Dijital Dünyaların Mimarisi ve Geleceğin Teknolojileri Üzerine Çalışıyorum.',
+    bio: 'MahoraPeak Global Kurucusu | Dijital Dünyaların Mimarisi ve Geleceğin Teknolojileri Üzerine Çalışıyorum.',
     avatar: 'https://github.com/shadcn.png',
     banner: 'https://images.unsplash.com/photo-1614850523296-e84e09ad8a73?q=80&w=2070&auto=format&fit=crop',
     xp: 25400,
@@ -186,7 +186,7 @@ export default function PublicProfilePage({ params }: { params: { username: stri
               
               <div className="pt-4 flex flex-wrap gap-3">
                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold text-zinc-400">
-                    <LinkIcon size={14} /> anipeak.com/murathan
+                    <LinkIcon size={14} /> mahorapeak.com/murathan
                  </div>
               </div>
             </section>

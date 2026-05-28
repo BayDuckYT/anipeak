@@ -15,8 +15,8 @@ export function baseEmbed(color = COLORS.PRIMARY) {
   return new EmbedBuilder()
     .setColor(color)
     .setFooter({
-      text: '⚡ AniPeak Haber Ajansı • ' + new Date().toLocaleString('tr-TR'),
-      iconURL: 'https://i.ibb.co/3Wk09r7/anipeak-logo.png', // Opsiyonel logo
+      text: '⚡ MahoraPeak Haber Ajansı • ' + new Date().toLocaleString('tr-TR'),
+      iconURL: 'https://i.ibb.co/3Wk09r7/mahorapeak-logo.png', // Opsiyonel logo
     });
 }
 
@@ -45,7 +45,7 @@ export function chapterRadarEmbed(seriesTitle, chapterNumber, chapterTitle, cove
       `\n> Hemen okumak için aşağıdaki butona tıkla veya [buraya tıkla](${url}).`
     );
 
-  const fallbackImage = 'https://i.ibb.co/3Wk09r7/anipeak-logo.png';
+  const fallbackImage = 'https://i.ibb.co/3Wk09r7/mahorapeak-logo.png';
   const finalImage = (coverImage && coverImage.startsWith('http')) ? coverImage : fallbackImage;
 
   embed.setImage(finalImage);
@@ -63,7 +63,7 @@ export function newSeriesRadarEmbed(seriesTitle, synopsis, coverImage, url) {
       `> Bu yeni efsaneye başlamak için aşağıdaki butona tıkla veya [buraya tıkla](${url}).`
     );
 
-  const fallbackImage = 'https://i.ibb.co/3Wk09r7/anipeak-logo.png';
+  const fallbackImage = 'https://i.ibb.co/3Wk09r7/mahorapeak-logo.png';
   const finalImage = (coverImage && coverImage.startsWith('http')) ? coverImage : fallbackImage;
 
   embed.setImage(finalImage);
@@ -78,7 +78,7 @@ export function haberPanelEmbed() {
     .setDescription(
       '```\n' +
       '╔═══════════════════════════════════════╗\n' +
-      '║   ANIPEAK HABER MERKEZİ               ║\n' +
+      '║   MAHORAPEAK HABER MERKEZİ               ║\n' +
       '║   ─────────────────────────────────    ║\n' +
       '║   Haber oluştur, düzenle ve yayınla.  ║\n' +
       '╚═══════════════════════════════════════╝\n' +
@@ -89,7 +89,7 @@ export function haberPanelEmbed() {
 
 export function abonePanelEmbed() {
   return baseEmbed(COLORS.PRIMARY)
-    .setTitle('📡 ANIPEAK HABER ABONELİK MERKEZİ')
+    .setTitle('📡 MAHORAPEAK HABER ABONELİK MERKEZİ')
     .setDescription(
       'Zırt pırt `@everyone` atıp kafanızı şişirmiyoruz!\n\n' +
       'Aşağıdaki menüden takip ettiğiniz serileri seçin, **sadece o seriye yeni bölüm geldiğinde** size haber gelsin amk.\n\n' +

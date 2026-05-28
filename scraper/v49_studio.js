@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V49: PARALEL TİTAN-MODU ARCHITECTURE
+// 🚀 MAHORAPEAK V49: PARALEL TİTAN-MODU ARCHITECTURE
 // Multi-Threading Scrape · GPU Task Queueing · Unified Command
 // ============================================================
 
@@ -154,7 +154,7 @@ async function processSeries(target, isAiEdit, modeLabel) {
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   🌪️  ANIPEAK V49: QUAD-STORM V2 ARCHITECTURE 🌪️      ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   🌪️  MAHORAPEAK V49: QUAD-STORM V2 ARCHITECTURE 🌪️      ║');
   console.log('\x1b[35m%s\x1b[0m', '║   4-Way Parallel Scrape · Dynamic GPU Guardrails     ║');
   console.log('\x1b[35m%s\x1b[0m', '║   [ELITE STAGE] Smart VRAM & OOM Protection Active    ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');

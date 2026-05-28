@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.search
+package com.mahorapeak.manga.ui.search
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

@@ -1,7 +1,7 @@
 <template>
   <div class='home'>
     <header>
-      <h1>Welcome to ANIPEAK STUDIO</h1>
+      <h1>Welcome to MAHORAPEAK STUDIO</h1>
     </header>
     <main>
       <ServiceCard v-for='service in services' :key='service._id' :service='service' @open-modal='openModal'/>

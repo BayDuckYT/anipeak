@@ -4,13 +4,13 @@
 // ============================================================
 
 import { EmbedBuilder } from 'discord.js';
-import { COLORS, ANIPEAK } from './config.js';
+import { COLORS, MAHORAPEAK } from './config.js';
 
 // ── Base Embed (Her embed'in temeli) ────────────────────────
 export function baseEmbed(color = COLORS.CYBER_BLUE) {
   return new EmbedBuilder()
     .setColor(color)
-    .setFooter({ text: ANIPEAK.FOOTER_TEXT, iconURL: ANIPEAK.FOOTER_ICON })
+    .setFooter({ text: MAHORAPEAK.FOOTER_TEXT, iconURL: MAHORAPEAK.FOOTER_ICON })
     .setTimestamp();
 }
 
@@ -21,7 +21,7 @@ export function modPanelEmbed(guild) {
   ).size;
 
   return baseEmbed(COLORS.PURPLE)
-    .setTitle(ANIPEAK.PANEL_TITLE)
+    .setTitle(MAHORAPEAK.PANEL_TITLE)
     .setDescription(
       '```\n' +
       '╔═══════════════════════════════════════╗\n' +
@@ -80,7 +80,7 @@ export function modSuccessEmbed({ action, targetUser, reason, moderator }) {
 // ── Anti-Spam Devreye Girdi Embed ───────────────────────────
 export function antiSpamEmbed(user) {
   return baseEmbed(COLORS.DANGER)
-    .setTitle('🚨 ANIPEAK KORUMA — OTOMATİK ENGELLEME')
+    .setTitle('🚨 MAHORAPEAK KORUMA — OTOMATİK ENGELLEME')
     .setDescription(
       '```ansi\n' +
       '\u001b[2;34m██ SPAM ALGILANDI — OTOMATİK MÜDAHALE ██\u001b[0m\n' +
@@ -96,7 +96,7 @@ export function antiSpamEmbed(user) {
 // ── Anti-Link Embed ─────────────────────────────────────────
 export function antiLinkEmbed(user, deletedUrl) {
   return baseEmbed(COLORS.NEON_PINK)
-    .setTitle('🔗 ANIPEAK KORUMA — LİNK FİLTRESİ')
+    .setTitle('🔗 MAHORAPEAK KORUMA — LİNK FİLTRESİ')
     .setDescription(
       '> Link filtresi tarafından bir bağlantı tespit edildi ve engellendi.'
     )
@@ -314,7 +314,7 @@ export function writeEmbed({ title, description, image, color }) {
 // ── Güvenlik Uyarısı Embed ────────────────────────────────────
 export function securityAlertEmbed(user, reason) {
   return baseEmbed(COLORS.NEON_PINK)
-    .setTitle('🚨 ANIPEAK KORUMA — GÜVENLİK SİSTEMİ')
+    .setTitle('🚨 MAHORAPEAK KORUMA — GÜVENLİK SİSTEMİ')
     .setDescription(
       `> Sayın ${user}, gönderdiğiniz içerik güvenlik politikalarımızı ihlal etmektedir.\n` +
       `> **İhlal Nedeni:** \`${reason}\``

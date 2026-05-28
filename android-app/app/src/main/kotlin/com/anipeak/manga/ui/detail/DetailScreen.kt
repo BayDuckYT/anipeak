@@ -1,4 +1,4 @@
-package com.anipeak.manga.ui.detail
+package com.mahorapeak.manga.ui.detail
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -22,9 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.anipeak.manga.data.model.Chapter
-import com.anipeak.manga.data.model.Series
-import com.anipeak.manga.ui.theme.*
+import com.mahorapeak.manga.data.model.Chapter
+import com.mahorapeak.manga.data.model.Series
+import com.mahorapeak.manga.ui.theme.*
 
 @Composable
 fun DetailScreen(

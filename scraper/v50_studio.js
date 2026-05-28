@@ -1,5 +1,5 @@
 // ============================================================
-// 🌪️ ANIPEAK V61: SNIPER-STEALTH (GHOST REAPER)
+// 🌪️ MAHORAPEAK V61: SNIPER-STEALTH (GHOST REAPER)
 // 3-Upload Limit · 10s FailSafe · Elite Accuracy
 // ============================================================
 
@@ -96,7 +96,7 @@ async function processSeries(target) {
         await syncChapter(seriesId, chapter.number, chapterTitle, pageUrls);
         await notifyNewChapter(seriesId, seriesData.title, chapter.number);
 
-        console.log(`\x1b[32m[✓]\x1b[0m Bölüm ${chapter.number} - Başarıyla Karargaha (AniPeak) Taşındı.`);
+        console.log(`\x1b[32m[✓]\x1b[0m Bölüm ${chapter.number} - Başarıyla Karargaha (MahoraPeak) Taşındı.`);
         await delay(3000); 
 
       } catch (err) {
@@ -118,7 +118,7 @@ async function processSeries(target) {
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   🌪️  ANIPEAK V61: OPTIMIZED REAPER (FINAL) 🌪️          ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   🌪️  MAHORAPEAK V61: OPTIMIZED REAPER (FINAL) 🌪️          ║');
   console.log('\x1b[35m%s\x1b[0m', '║   1600px OPT · No-Disk · Stealth Flow · 3-Batch      ║');
   console.log('\x1b[35m%s\x1b[0m', '║   [FINAL] Peak Performance & Elite Image Quality     ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');

@@ -15,7 +15,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 async function cleanup() {
     console.log("\x1b[35m%s\x1b[0m", "==========================================================");
-    console.log("\x1b[35m%s\x1b[0m", "🛡️ ANIPEAK: SİBER KURTARMA OPERASYONU (CLEANUP V1) 🛡️");
+    console.log("\x1b[35m%s\x1b[0m", "🛡️ MAHORAPEAK: SİBER KURTARMA OPERASYONU (CLEANUP V1) 🛡️");
     console.log("\x1b[35m%s\x1b[0m", "==========================================================");
     
     console.log("🔍 [TARAMA] JSDelivr linki içeren bölümler analiz ediliyor...");

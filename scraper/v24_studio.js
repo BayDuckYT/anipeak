@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V24: FINAL-REAPER ARCHITECTURE — ELITE AI MANGA PRODUCTION STUDIO
+// 🚀 MAHORAPEAK V24: FINAL-REAPER ARCHITECTURE — ELITE AI MANGA PRODUCTION STUDIO
 // Auto-Python · ImgBB Pool · Madara Bypass Interception
 // ============================================================
 
@@ -48,7 +48,7 @@ async function checkPython() {
 async function main() {
   console.clear();
   console.log('\x1b[31m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[31m%s\x1b[0m', '║   💀 ANIPEAK V24: FINAL-REAPER ARCHITECTURE 💀      ║');
+  console.log('\x1b[31m%s\x1b[0m', '║   💀 MAHORAPEAK V24: FINAL-REAPER ARCHITECTURE 💀      ║');
   console.log('\x1b[31m%s\x1b[0m', '║   Auto-Python · ImgBB Pool · Madara Bypass Intercept ║');
   console.log('\x1b[31m%s\x1b[0m', '║   [FINAL STAGE] Zero Failure Protocol Active         ║');
   console.log('\x1b[31m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');

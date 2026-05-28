@@ -25,7 +25,7 @@ const logger = winston.createLogger({
       level: 'error' 
     }),
     new winston.transports.File({ 
-      filename: 'anipeak_bot.log' 
+      filename: 'mahorapeak_bot.log' 
     })
   ]
 });

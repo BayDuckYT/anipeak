@@ -1,5 +1,5 @@
 -- ==============================================================================
--- ANIPEAK SUPABASE OTOMASYON V8 (TRIGGER & AUTO-UPDATE)
+-- MAHORAPEAK SUPABASE OTOMASYON V8 (TRIGGER & AUTO-UPDATE)
 -- ==============================================================================
 
 -- 1. CONVERSATIONS TABLOSUNA SON GÖNDEREN EKLE

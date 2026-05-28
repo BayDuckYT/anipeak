@@ -1,5 +1,5 @@
 -- ==============================================================================
--- ANIPEAK SUPABASE YAMA V3 (DM & BEĞENİ DÜZELTME)
+-- MAHORAPEAK SUPABASE YAMA V3 (DM & BEĞENİ DÜZELTME)
 -- ==============================================================================
 
 -- 1. EKSİK TABLOLARI OLUŞTURMA (LİSTE BEĞENİLERİ)

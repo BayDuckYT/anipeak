@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V35: ULTIMATE GHOST-REAPER ARCHITECTURE
+// 🚀 MAHORAPEAK V35: ULTIMATE GHOST-REAPER ARCHITECTURE
 // Smart-Scale Seal · Professional Folders · Unified Ops
 // ============================================================
 
@@ -48,7 +48,7 @@ async function checkPython() {
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   🛡️  ANIPEAK V35: ULTIMATE GHOST-REAPER 🛡️         ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   🛡️  MAHORAPEAK V35: ULTIMATE GHOST-REAPER 🛡️         ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Smart-Scale Seal · Hybrid AI-Sharp · Siber Mühür   ║');
   console.log('\x1b[35m%s\x1b[0m', '║   [PROFESSIONAL GRADE] Unified Operation Protocol    ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');

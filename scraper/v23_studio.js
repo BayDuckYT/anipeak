@@ -1,5 +1,5 @@
 // ============================================================
-// 🚀 ANIPEAK V23: GHOST-REAPER ARCHITECTURE — ELITE AI MANGA PRODUCTION STUDIO
+// 🚀 MAHORAPEAK V23: GHOST-REAPER ARCHITECTURE — ELITE AI MANGA PRODUCTION STUDIO
 // Ghost-Scraper · Anti-Spam Filter · Silent Python Fallback
 // ============================================================
 
@@ -20,7 +20,7 @@ const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 async function main() {
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
-  console.log('\x1b[35m%s\x1b[0m', '║   👻 ANIPEAK V23: GHOST-REAPER ARCHITECTURE 👻      ║');
+  console.log('\x1b[35m%s\x1b[0m', '║   👻 MAHORAPEAK V23: GHOST-REAPER ARCHITECTURE 👻      ║');
   console.log('\x1b[35m%s\x1b[0m', '║   Ghost-Scraper · Anti-Spam Filter · Silent Fallback   ║');
   console.log('\x1b[35m%s\x1b[0m', '║   [DIRECT TR] VEYA [GHOST AI EDIT]                     ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
