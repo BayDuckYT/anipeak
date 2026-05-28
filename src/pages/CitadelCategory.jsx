@@ -39,7 +39,7 @@ export default function CitadelCategory() {
         >
           <Lock size={80} className="text-red-500 mx-auto mb-6 opacity-90" />
           <h1 className="text-3xl font-black text-white mb-2">YASAK BÖLGE</h1>
-          <p className="text-slate-400 mb-8">Sadece Elite statüsündeki okurlar bu odaya girebilir. Buradaki gizli gönderileri okumak ve siber elitlerin arasına katılmak için Premium'a yükselt.</p>
+          <p className="text-slate-400 mb-8">Sadece Elite statüsündeki okurlar bu odaya girebilir. Buradaki gizli gönderileri okumak ve seçkin okurların arasına katılmak için Premium'a yükselt.</p>
           
           <div className="flex flex-col gap-4">
             <button 

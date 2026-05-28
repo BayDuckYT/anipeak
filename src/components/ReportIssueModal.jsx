@@ -110,7 +110,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
                 <CheckCircle2 size={48} />
               </div>
               <h4 className="text-3xl font-black text-white mb-3">MESAJIN ULAŞTI!</h4>
-              <p className="text-slate-400 text-base font-medium">Siber ekiplerimiz radara düşen hatayı temizlemeye gidiyor.</p>
+              <p className="text-slate-400 text-base font-medium">Teknik ekibimiz bildirilen hatayı inceleyip düzeltecektir.</p>
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -162,7 +162,7 @@ export default function ReportIssueModal({ isOpen, onClose, seriesId, chapterNum
                   required
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
-                  placeholder="Hata hakkında net bilgi ver, siber ekiplerimiz şaşırmasın..."
+                  placeholder="Hata hakkında detaylı bilgi verin..."
                   className="w-full bg-white/[0.03] border border-white/10 rounded-[2rem] px-6 py-5 text-white text-sm focus:border-red-600 outline-none transition-all min-h-[160px] resize-none shadow-inner"
                 />
               </div>

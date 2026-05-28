@@ -696,7 +696,7 @@ export default function MessagesPage() {
                         </div>
                         <div className="min-w-0">
                           <h3 className="text-sm md:text-lg font-black truncate tracking-tighter uppercase italic text-indigo-100">
-                            {partner?.username || 'Siber Üye'}
+                            {partner?.username || 'Bilinmeyen Üye'}
                           </h3>
                           <div className="flex items-center gap-2">
                             <div className={`w-1.5 h-1.5 rounded-full ${onlineUsers[partner?.id] ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}`} />

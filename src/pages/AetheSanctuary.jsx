@@ -115,7 +115,7 @@ export default function AetheSanctuary() {
       <div className="min-h-screen bg-[#070511] flex flex-col items-center justify-center text-center p-6">
         <Shield size={60} className="text-red-500 mb-6" />
         <h1 className="text-3xl font-black text-white uppercase tracking-widest mb-4">Aethe Kutsal Alanı</h1>
-        <p className="text-zinc-400 mb-8 max-w-md">Bu gizli karargaha sadece Efsanevi Aethe Mührü'ne sahip olan savaşçılar girebilir. Hane savaşlarına katılmak için Aethe paketine yükseltmelisin.</p>
+        <p className="text-zinc-400 mb-8 max-w-md">Bu gizli alana sadece Efsanevi Aethe Mührü'ne sahip olan savaşçılar girebilir. Hane savaşlarına katılmak için Aethe paketine yükseltmelisin.</p>
         <button onClick={() => navigate('/elite-upgrade')} className="px-8 py-3 rounded-xl bg-purple-600 text-white font-bold uppercase tracking-widest hover:bg-purple-500 transition-all">Aethe Mührü Al</button>
       </div>
     );
@@ -226,10 +226,10 @@ export default function AetheSanctuary() {
                   </div>
                 </div>
 
-                {/* ── HANE KARARGAHI (CHAT) ── */}
+                {/* ── HANE MERKEZİ (CHAT) ── */}
                 <div className="mb-20">
                   <div className="flex items-end gap-3 mb-6">
-                    <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight">Karargah</h2>
+                    <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight">Hane Merkezi</h2>
                     <span className="text-sm font-bold text-slate-500 mb-1">Sohbet Merkezi</span>
                   </div>
                   

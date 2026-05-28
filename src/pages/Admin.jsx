@@ -804,7 +804,7 @@ function TicketsPanel({ showToast }) {
     const { error } = await supabase.from('error_reports').delete().eq('id', id);
     if (!error) {
       setTickets(prev => prev.filter(t => t.id !== id));
-      showToast('İhbar siber boşluğa gönderildi.', 'error');
+      showToast('İhbar başarıyla gönderildi.', 'error');
     }
   };
 
@@ -816,7 +816,7 @@ function TicketsPanel({ showToast }) {
           <h2 className="text-3xl font-black text-white flex items-center gap-3">
             <ShieldAlert size={32} className="text-red-500" /> Hata Bildirimleri
           </h2>
-          <p className="text-slate-500 font-medium mt-1">Siber sahadan gelen tüm teknik ihbarlar burada toplanır.</p>
+          <p className="text-slate-500 font-medium mt-1">Sistemden gelen tüm teknik ihbarlar burada toplanır.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="px-4 py-2 glass border border-white/5 rounded-2xl">
@@ -935,7 +935,7 @@ function TicketsPanel({ showToast }) {
             <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6">
               <CheckCircle2 size={40} />
             </div>
-            <h5 className="text-2xl font-black text-white mb-2">Siber Saha Temiz!</h5>
+            <h5 className="text-2xl font-black text-white mb-2">Sistem Temiz!</h5>
             <p className="text-slate-500 max-w-xs">Şu an için bekleyen herhangi bir hata bildirimi bulunmuyor.</p>
           </div>
         )}
@@ -1317,7 +1317,7 @@ function PageManagement({ showToast }) {
 
       if (error) throw error;
 
-      showToast('Sayfa siber olarak mühürlendi!', 'success');
+      showToast('Sayfa başarıyla mühürlendi!', 'success');
       setEditingPage(null);
       fetchPages();
     } catch (err) {
@@ -1400,7 +1400,7 @@ function InboxPanel({ showToast }) {
     if (!window.confirm('Bu mesaj silinsin mi?')) return;
     await supabase.from('contact_messages').delete().eq('id', id);
     setMessages(prev => prev.filter(m => m.id !== id));
-    showToast('Mesaj siber boşluğa gönderildi.', 'error');
+    showToast('Mesaj başarıyla gönderildi.', 'error');
   };
 
   return (

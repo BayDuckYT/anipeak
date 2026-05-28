@@ -154,7 +154,7 @@ export default function HouseInfo() {
 
           <div className="space-y-6">
             {[
-              { title: "Kutsal Alan (Karargah) Erişimi", desc: "Aethe Sanctuary (Kutsal Alan) sayfasından hanenize özel gizli karargaha girebilirsiniz. Kendi hane üyelerinizle özel, şifreli bir chate erişim sağlarsınız.", icon: Castle, color: "text-purple-400" },
+              { title: "Kutsal Alan (Özel Oda) Erişimi", desc: "Aethe Sanctuary (Kutsal Alan) sayfasından hanenize ait özel odaya girebilirsiniz. Kendi hane üyelerinizle özel, şifreli bir chate erişim sağlarsınız.", icon: Castle, color: "text-purple-400" },
               { title: "Haneler Arası Savaş (Yakında)", desc: "Her hafta düzenlenen gizli görevleri yerine getirerek hanene puan kazandır. Haftanın sonunda en çok puanı toplayan hane özel ödüller, efektler ve sitenin ana sayfasında şampiyonluk bayrağı kazanır.", icon: Sword, color: "text-rose-400" },
               { title: "Profil & Yorumlarda Prestij", desc: "Seçtiğiniz hanenin renkli küçük mühür kalkanı profilinizin her yerinde parlar. Yorum yaptığınızda herkes sizin hangi büyük hane çatısı altında olduğunuzu görür.", icon: Zap, color: "text-amber-400" },
             ].map((feature, i) => (

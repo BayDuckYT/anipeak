@@ -8,13 +8,13 @@ import { useSEO } from '../hooks/useSEO';
 const FORUM_CATEGORIES = [
   { id: 'teoriler', name: 'Teoriler', description: 'Evrenin sırlarını çöz. Seriler hakkındaki en çılgın teorilerini paylaş.', icon: <Zap size={24} className="text-amber-400" />, requiresElite: false, color: 'from-amber-600/20 to-amber-900/20', borderColor: 'border-amber-500/30' },
   { id: 'yeni-bolumler', name: 'Yeni Bölüm', description: 'Son çıkan bölümler hakkında sıcağı sıcağına muhabbet.', icon: <Flame size={24} className="text-orange-500" />, requiresElite: false, color: 'from-orange-600/20 to-red-900/20', borderColor: 'border-orange-500/30' },
-  { id: 'off-topic', name: 'Siber Kahve', description: 'Anime/Manga dışı her şey. Geyik serbest daa.', icon: <MessageSquare size={24} className="text-emerald-400" />, requiresElite: false, color: 'from-emerald-600/20 to-teal-900/20', borderColor: 'border-emerald-500/30' },
+  { id: 'off-topic', name: 'Serbest Sohbet', description: 'Anime/Manga dışı her şey. Serbest sohbet alanı.', icon: <MessageSquare size={24} className="text-emerald-400" />, requiresElite: false, color: 'from-emerald-600/20 to-teal-900/20', borderColor: 'border-emerald-500/30' },
   { id: 'elite-odasi', name: 'Elite Mabet', description: 'Sadece Elite statüsüne sahip manga gurmelerinin odası.', icon: <Crown size={24} className="text-red-500" />, requiresElite: true, color: 'from-red-600/20 via-blue-900/20 to-purple-900/20', borderColor: 'border-red-500/50', glow: 'shadow-[0_0_30px_rgba(239,68,68,0.2)]' }
 ];
 
 const HOT_DISCUSSIONS = [
   { id: 1, title: 'Solo Leveling Son Bölüm İncelemesi', cat: 'Yeni Bölüm', replies: 142, views: 5000, poster: '/yayinarkaplan.jpg' },
-  { id: 2, title: 'Kızıl Ejder Hanesi Neden En İyisi?', cat: 'Siber Kahve', replies: 89, views: 2400, poster: 'https://via.placeholder.com/400x200?text=KızılEjder' },
+  { id: 2, title: 'Kızıl Ejder Hanesi Neden En İyisi?', cat: 'Serbest Sohbet', replies: 89, views: 2400, poster: 'https://via.placeholder.com/400x200?text=KızılEjder' },
   { id: 3, title: 'Gelecek Hafta Çıkacak Efsane Seri', cat: 'Teoriler', replies: 312, views: 8900, poster: 'https://via.placeholder.com/400x200?text=Teori' },
   { id: 4, title: 'Aethe Mührü Almalı mıyım?', cat: 'Elite Mabet', replies: 45, views: 1200, poster: 'https://via.placeholder.com/400x200?text=Elite' },
 ];
@@ -78,7 +78,7 @@ export default function Citadel() {
                MAHORAPEAK <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">FORUMU</span>
              </h1>
              <p className="text-slate-300 text-lg sm:text-xl max-w-2xl font-medium drop-shadow-md">
-               Siber dünyadaki manga sığınağımız. Fikirlerini paylaş, teorilerini çarpıştır, favori serilerini diğer okurlarla tartış.
+               MahoraPeak topluluk merkezi. Fikirlerini paylaş, teorilerini çarpıştır, favori serilerini diğer okurlarla tartış.
              </p>
            </div>
         </div>

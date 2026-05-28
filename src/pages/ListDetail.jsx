@@ -120,7 +120,7 @@ export default function ListDetail() {
 
     } catch (err) {
       console.error("Fetch list error:", err);
-      // navigate('/'); // Sorun çözülene kadar anasayfaya atmayı durduruyoruz amk!
+      // navigate('/'); // Sorun çözülene kadar anasayfaya yönlendirmeyi durduruyoruz.
     } finally {
       setLoading(false);
     }
@@ -263,7 +263,7 @@ export default function ListDetail() {
   if (isPrivate) return (
     <div className="min-h-screen bg-[#070511] flex flex-col items-center justify-center p-6 text-center">
        <Shield size={80} className="text-red-500 mb-6 opacity-40 drop-shadow-[0_0_30px_rgba(239,68,68,0.4)]" />
-       <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Gizli Operasyon Bölgesi</h1>
+       <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Gizli Okuma Bölgesi</h1>
        <p className="text-zinc-500 text-sm mb-8">Bu koleksiyon ustası tarafından mühürlenmiş ve gizli tutuluyor uşağım.</p>
        <button onClick={() => navigate(-1)} className="px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 font-black uppercase text-xs hover:text-white transition-all">Geri Dön</button>
     </div>
