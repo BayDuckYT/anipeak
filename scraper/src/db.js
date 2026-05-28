@@ -23,6 +23,13 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
  * Checks if a series exists by title, creates it if not.
  * @returns {number|string} series ID
  */
+function generateSlug(text) {
+  if (!text) return '';
+  const trMap = { 'çÇ': 'c', 'ğĞ': 'g', 'şŞ': 's', 'üÜ': 'u', 'ıİ': 'i', 'öÖ': 'o' };
+  for (let key in trMap) text = text.replace(new RegExp('[' + key + ']', 'g'), trMap[key]);
+  return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
 export async function getOrCreateSeries(title, cover, description, genre = ['Aksiyon'], status = 'Devam Ediyor') {
   const { data: existing, error: searchError } = await supabase
     .from('series')
@@ -58,10 +65,12 @@ export async function getOrCreateSeries(title, cover, description, genre = ['Aks
     fetchedRating = parseFloat((Math.random() * (9.8 - 7.5) + 7.5).toFixed(1));
   }
 
+  const baseSlug = generateSlug(title);
   const { data: newSeries, error: insertError } = await supabase
     .from('series')
     .insert([{
       title: title.trim(),
+      slug: baseSlug + '-' + Math.floor(Math.random() * 10000), // Prevent collision on insert
       cover: cover || '',
       description: description || '',
       genre: Array.isArray(genre) ? genre : [genre],

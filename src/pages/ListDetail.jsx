@@ -93,7 +93,7 @@ export default function ListDetail() {
       // Fetch Items with Deep Join
       const { data: items, error: itemsErr } = await supabase
         .from('custom_list_items')
-        .select('*, series(*)')
+        .select('*, series(id, title, cover, slug)')
         .eq('list_id', listId)
         .order('created_at', { ascending: false });
       
@@ -193,7 +193,7 @@ export default function ListDetail() {
       const { data: inserted, error } = await supabase
         .from('custom_list_items')
         .insert(eklenecekVeri)
-        .select('*, series(*)')
+        .select('*, series(id, title, cover, slug)')
         .single();
       
       if (error) {
@@ -502,7 +502,7 @@ export default function ListDetail() {
                                     <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/20 transition-all" />
                                  </div>
                                  <div className="flex flex-col gap-1">
-                                    <Link to={`/manhwa/${s.id}`} className="text-sm font-black text-white hover:text-indigo-400 transition-all uppercase tracking-tight line-clamp-1">{s.title}</Link>
+                                    <Link to={`/manga/${s.slug}`} className="text-sm font-black text-white hover:text-indigo-400 transition-all uppercase tracking-tight line-clamp-1">{s.title}</Link>
                                     <div className="flex items-center gap-3">
                                        <span className="text-[10px] text-zinc-500 font-bold uppercase">{s.author || 'Anonim'}</span>
                                        <span className="w-1 h-1 rounded-full bg-zinc-700" />
@@ -584,7 +584,7 @@ export default function ListDetail() {
                                    <Minus size={16} />
                                 </button>
                               ) : (
-                                <Link to={`/manhwa/${s.id}`} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-zinc-500 flex items-center justify-center hover:border-indigo-500/50 hover:text-white transition-all">
+                                <Link to={`/manga/${s.slug}`} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-zinc-500 flex items-center justify-center hover:border-indigo-500/50 hover:text-white transition-all">
                                    <ChevronRight size={18} />
                                 </Link>
                               )}

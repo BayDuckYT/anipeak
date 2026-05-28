@@ -23,15 +23,15 @@ function formatNum(n) {
 }
 
 export default function ManhwaDetail({ onAuthOpen }) {
-  const { id }       = useParams();
+  const { slug }     = useParams();
   const navigate     = useNavigate();
   const { user, readingHistory } = useAuth();
   const { sortedSeries, getChapters } = useApp();
 
   // Find series from AppContext (dynamic data)
   const manhwa = useMemo(
-    () => sortedSeries.find((m) => String(m.id) === String(id)),
-    [sortedSeries, id]
+    () => sortedSeries.find((m) => m.slug === slug),
+    [sortedSeries, slug]
   );
 
   useSEO({
@@ -110,7 +110,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
   }, [manhwa?.id]);
 
   const handleReadChapter = (chNum) => {
-    navigate(`/read/${manhwa.id}/${chNum}`);
+    navigate(`/manga/${manhwa.slug}/bolum-${chNum}`);
   };
 
   const fetchUserLists = async () => {

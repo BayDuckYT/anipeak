@@ -89,8 +89,8 @@ function AnimatedRoutes({ onAuthOpen }) {
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home onAuthOpen={onAuthOpen} />} />
           <Route path="/all-series" element={<AllSeries />} />
-          <Route path="/manhwa/:id" element={<ManhwaDetail onAuthOpen={onAuthOpen} />} />
-          <Route path="/read/:id/:chapter" element={<Reader />} />
+          <Route path="/manga/:slug" element={<ManhwaDetail onAuthOpen={onAuthOpen} />} />
+          <Route path="/manga/:slug/bolum-:chapter" element={<Reader />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfileRedirect /></PrivateRoute>} />
           <Route path="/profil/:username" element={<ProfileShowcase />} />

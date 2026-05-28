@@ -43,7 +43,7 @@ export default function ElitePodium({ items }) {
           >
             <div className="w-full aspect-[2/3] mb-4 relative group">
               <div className="absolute -inset-1 bg-gradient-to-t from-orange-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity blur-lg rounded-xl" />
-              <Link to={`/manhwa/${top3[2].id}`} aria-label={top3[2].title} className="block w-full h-full relative rounded-xl overflow-hidden border-2 border-orange-700/50 shadow-[0_10px_30px_rgba(194,65,12,0.3)] transform transition-transform hover:-translate-y-2">
+              <Link to={`/manga/${top3[2].slug}`} aria-label={top3[2].title} className="block w-full h-full relative rounded-xl overflow-hidden border-2 border-orange-700/50 shadow-[0_10px_30px_rgba(194,65,12,0.3)] transform transition-transform hover:-translate-y-2">
                 <img 
                   src={getOptimizedImage(top3[2].cover, 300)} 
                   alt={top3[2].title} 
@@ -75,7 +75,7 @@ export default function ElitePodium({ items }) {
           >
             <div className="w-full aspect-[2/3] mb-4 relative group">
               <div className="absolute -inset-2 bg-gradient-to-t from-yellow-400/60 to-transparent opacity-50 group-hover:opacity-100 transition-opacity blur-xl rounded-xl animate-pulse" />
-              <Link to={`/manhwa/${top3[0].id}`} aria-label={top3[0].title} className="block w-full h-full relative rounded-xl overflow-hidden border-2 border-yellow-400 shadow-[0_0_40px_rgba(250,204,21,0.4)] transform transition-transform hover:-translate-y-3">
+              <Link to={`/manga/${top3[0].slug}`} aria-label={top3[0].title} className="block w-full h-full relative rounded-xl overflow-hidden border-2 border-yellow-400 shadow-[0_0_40px_rgba(250,204,21,0.4)] transform transition-transform hover:-translate-y-3">
                 <img 
                   src={getOptimizedImage(top3[0].cover, 400)} 
                   alt={top3[0].title} 
@@ -110,7 +110,7 @@ export default function ElitePodium({ items }) {
           >
             <div className="w-full aspect-[2/3] mb-4 relative group">
               <div className="absolute -inset-1 bg-gradient-to-t from-slate-300/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity blur-lg rounded-xl" />
-              <Link to={`/manhwa/${top3[1].id}`} aria-label={top3[1].title} className="block w-full h-full relative rounded-xl overflow-hidden border-2 border-slate-300/50 shadow-[0_10px_30px_rgba(203,213,225,0.3)] transform transition-transform hover:-translate-y-2">
+              <Link to={`/manga/${top3[1].slug}`} aria-label={top3[1].title} className="block w-full h-full relative rounded-xl overflow-hidden border-2 border-slate-300/50 shadow-[0_10px_30px_rgba(203,213,225,0.3)] transform transition-transform hover:-translate-y-2">
                 <img 
                   src={getOptimizedImage(top3[1].cover, 300)} 
                   alt={top3[1].title} 
@@ -139,7 +139,7 @@ export default function ElitePodium({ items }) {
       {/* Rest of the list */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
         {rest.map((item, idx) => (
-          <Link key={item.id} to={`/manhwa/${item.id}`} aria-label={item.title} className="flex items-center gap-4 p-3 rounded-xl bg-card-navy/50 border border-white/5 hover:bg-zinc-800 transition-colors group">
+          <Link key={item.id} to={`/manga/${item.slug}`} aria-label={item.title} className="flex items-center gap-4 p-3 rounded-xl bg-card-navy/50 border border-white/5 hover:bg-zinc-800 transition-colors group">
              <div className="w-8 text-center text-sm font-black text-slate-500 group-hover:text-white transition-colors">{idx + 4}</div>
              <div className="w-10 h-14 rounded-md overflow-hidden bg-zinc-950 flex-shrink-0">
                <img src={getOptimizedImage(item.cover, 100)} width="66" height="100" alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" style={{ aspectRatio: '2/3' }} loading="lazy" decoding="async" />

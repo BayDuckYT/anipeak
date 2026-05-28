@@ -168,7 +168,7 @@ export default function OraclePage() {
           
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="flex gap-4">
             {topMatch && (
-              <Link to={`/manhwa/${topMatch.id}`} className="px-8 py-3 bg-white text-black font-black uppercase tracking-widest rounded flex items-center gap-2 hover:bg-slate-200 transition-colors">
+              <Link to={`/manga/${topMatch.slug}`} className="px-8 py-3 bg-white text-black font-black uppercase tracking-widest rounded flex items-center gap-2 hover:bg-slate-200 transition-colors">
                 <Play size={20} className="fill-black" /> Hemen Oku
               </Link>
             )}

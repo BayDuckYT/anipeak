@@ -60,8 +60,8 @@ export default function Header({ onAuthOpen }) {
     setSearchResults(results);
   }, [searchQuery, series]);
 
-  const handleSearchSelect = (id) => {
-    navigate(`/manhwa/${id}`);
+  const handleSelect = (slug) => {
+    navigate(`/manga/${slug}`);
     setSearchQuery('');
     setSearchResults([]);
     setSearchOpen(false);
@@ -192,7 +192,7 @@ export default function Header({ onAuthOpen }) {
                   {searchResults?.map((m) => (
                     <button
                       key={m.id}
-                      onClick={() => handleSearchSelect(m.id)}
+                      onClick={() => handleSelect(m.slug)}
                       className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
                     >
                       <img 
@@ -497,7 +497,7 @@ export default function Header({ onAuthOpen }) {
                 {searchResults.length > 0 && (
                   <div className="absolute top-full mt-1 left-0 right-0 glass-strong border border-white/10 rounded-xl overflow-hidden z-50">
                     {searchResults.map((m) => (
-                      <button key={m.id} onClick={() => handleSearchSelect(m.id)} className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/5 text-left">
+                      <button key={m.id} onClick={() => handleSelect(m.slug)} className="w-full flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl transition-all group text-left">
                         <img src={m.cover} alt={m.title || 'Seri kapağı'} width={28} height={36} decoding="async" className="w-7 h-9 rounded object-cover" />
                         <span className="text-white text-xs truncate">{m.title}</span>
                       </button>

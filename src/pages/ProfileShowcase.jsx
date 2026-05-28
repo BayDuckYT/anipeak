@@ -304,7 +304,7 @@ export default function ProfileShowcase() {
     // 1. Reading History
     const { data: rhData } = await supabase
       .from('reading_history')
-      .select('*, series(title, cover, description)')
+      .select('*, series(id, title, cover, description, slug)')
       .eq('user_id', userId)
       .order('updated_at', { ascending: false });
     setReadHistory(rhData || []);
@@ -312,7 +312,7 @@ export default function ProfileShowcase() {
     // 2. Custom Lists
     let clQuery = supabase
       .from('custom_lists')
-      .select('*, custom_list_items(series_id, series(title, cover))')
+      .select('*, custom_list_items(series_id, series(id, title, cover, slug))')
       .eq('user_id', userId);
       
     if (currentUser?.id !== userId) {
@@ -1358,7 +1358,7 @@ export default function ProfileShowcase() {
                               {readHistory.map((h, i) => (
                                 <Link 
                                   key={i} 
-                                  to={`/manhwa/${h.series_id}`}
+                                  to={`/manga/${h.series?.slug || h.series_id}`}
                                   className="group relative h-40 sm:h-48 rounded-[2rem] overflow-hidden bg-zinc-900 border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.2)] transition-all flex"
                                 >
                                    <div className="w-28 sm:w-36 h-full shrink-0 overflow-hidden relative">

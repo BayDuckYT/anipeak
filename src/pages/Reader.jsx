@@ -86,7 +86,7 @@ function ReaderImage({ src, alt, idx, chapter }) {
 }
 
 export default function Reader() {
-  const { id, chapter: chapterParam } = useParams();
+  const { slug, chapter: chapterParam } = useParams();
   const navigate = useNavigate();
   const { user, addToHistory, updateXP, updateReadingProgress } = useAuth();
   const { series, getChapters } = useApp();
@@ -103,14 +103,13 @@ export default function Reader() {
     } catch(e) {}
   };
   
-  const manhwaId = id;
-  const manhwa = useMemo(() => series.find((m) => String(m.id) === String(id)), [series, id]);
+  const manhwa = useMemo(() => series.find((m) => m.slug === slug), [series, slug]);
   const initialChapter = Number(chapterParam) || 1;
 
   useSEO({
     title: manhwa ? `${manhwa.title} - Bölüm ${chapterParam}` : 'Okuyucu',
     description: manhwa ? `${manhwa.title} Bölüm ${chapterParam} oku - MahoraPeak` : 'MahoraPeak okuyucu.',
-    url: manhwa ? `https://mahorapeak.com.tr/read/${manhwa.id}/${chapterParam}` : 'https://mahorapeak.com.tr'
+    url: manhwa ? `https://mahorapeak.com.tr/manga/${manhwa.slug}/bolum-${chapterParam}` : 'https://mahorapeak.com.tr'
   });
 
   const [chapter, setChapter] = useState(initialChapter);
@@ -237,7 +236,7 @@ export default function Reader() {
 
   const handleChapterTab = (newCh) => {
     setChapter(newCh);
-    navigate(`/read/${manhwa.id}/${newCh}`);
+    navigate(`/manga/${manhwa.slug}/bolum-${newCh}`);
     window.scrollTo(0,0);
     setShowPanel(false);
   };
@@ -276,7 +275,7 @@ export default function Reader() {
             {/* Left */}
             <div className="flex items-center gap-2 sm:gap-3">
               <Link
-                to={`/manhwa/${manhwa.id}`}
+                to={`/manga/${manhwa.slug}`}
                 className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-white transition-colors text-sm bg-white/5"
                 aria-label="Seri detayına dön"
               >
@@ -413,7 +412,7 @@ export default function Reader() {
               <Sun size={64} className="text-slate-800 mx-auto mb-6 opacity-20" />
               <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">BU BÖLÜMDE GÖRÜNTÜ YOK</h2>
               <p className="text-slate-500 max-w-sm mx-auto text-xs font-bold uppercase tracking-widest leading-relaxed">Henüz sayfalar yüklenmemiş veya beklenmeyen bir hata oluşmuş. Lütfen daha sonra tekrar deneyin.</p>
-              <Link to={`/manhwa/${manhwa.id}`} className="inline-flex items-center gap-2 mt-10 px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-purple-400 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+              <Link to={`/manga/${manhwa.slug}`} className="inline-flex items-center gap-2 mt-10 px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-purple-400 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
                 <ArrowLeft size={14} /> Seri Detayına Dön
               </Link>
             </div>

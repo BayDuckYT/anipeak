@@ -8,7 +8,7 @@ export default function NetflixCard({ item, type = 'trending', rank, chapters })
   const chapterData = chapters ? (chapters[String(item.id)]?.[0]?.number || '?') : '?';
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" aria-label={`${item.title} okumaya başla`}>
+    <Link to={`/manga/${item.slug}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" aria-label={`${item.title} okumaya başla`}>
       <article 
         style={{ contentVisibility: 'auto', containIntrinsicSize: '200px 280px' }}
         className="relative rounded-md overflow-hidden bg-[#141414] border border-white/5 transition-all duration-300 shadow-xl"

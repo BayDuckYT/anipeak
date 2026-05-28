@@ -249,9 +249,12 @@ export function AppProvider({ children }) {
       ? payload.genre
       : (payload.genre ? [payload.genre] : []);
 
+    // Generate a basic slug
+    let baseSlug = payload.title ? payload.title.toLowerCase().replace(/['ğĞ'üÜ'şŞ'ıİ'öÖ'çÇ]/g, m => ({'ç':'c','Ç':'c','ğ':'g','Ğ':'g','ş':'s','Ş':'s','ü':'u','Ü':'u','ı':'i','İ':'i','ö':'o','Ö':'o'}[m])).replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '') : 'manga';
+
     const { data, error } = await supabase
       .from('series')
-      .insert([{ ...payload, genre: genreArray, reads_num: 0, rating: 0.0 }])
+      .insert([{ ...payload, slug: baseSlug + '-' + Math.floor(Math.random() * 10000), genre: genreArray, reads_num: 0, rating: 0.0 }])
       .select()
       .single();
 

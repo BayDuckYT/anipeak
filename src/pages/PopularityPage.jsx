@@ -68,7 +68,7 @@ export default function PopularityPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {remaining.map((item, idx) => (
-                <Link key={item.id} to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-yellow-500/30 transition-all group">
+                <Link key={item.id} to={`/manga/${item.slug}`} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-yellow-500/30 transition-all group">
                   <div className="w-10 text-center text-xl font-black text-slate-400 group-hover:text-yellow-400 transition-colors">
                     {idx + 11}
                   </div>

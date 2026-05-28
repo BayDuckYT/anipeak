@@ -35,7 +35,7 @@ function GlassCard({ item, type = 'trending', rank, chapters }) {
   const chapterData = chapters ? (chapters[String(item.id)]?.[0]?.number || '?') : '?';
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" aria-label={`${item.title} okumaya başla`}>
+    <Link to={`/manga/${item.slug}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" aria-label={`${item.title} okumaya başla`}>
       <article 
         style={{ contentVisibility: 'auto', containIntrinsicSize: '200px 280px' }}
         className="relative rounded-md overflow-hidden bg-[#141414] border border-white/5 transition-all duration-300 shadow-xl"
@@ -229,7 +229,7 @@ export default function Home({ onAuthOpen }) {
                 {/* Sol Taraf - Poster (Netflix stili ama poster görünümlü) */}
                 <div className="hidden md:block flex-shrink-0 w-48 lg:w-64 shadow-[0_20px_50px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden border border-white/10 group relative">
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                    <Link to={`/read/${activeHero.id}/${heroChapterCount > 0 ? 1 : ''}`} className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center hover:scale-110 transition-transform">
+                    <Link to={`/manga/${activeHero.slug}/bolum-${heroChapterCount > 0 ? 1 : ''}`} className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center hover:scale-110 transition-transform">
                       <BookOpen size={24} className="text-white" />
                     </Link>
                   </div>
@@ -261,10 +261,10 @@ export default function Home({ onAuthOpen }) {
                   </p>
                   
                   <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                    <Link to={`/read/${activeHero.id}/${heroChapterCount > 0 ? 1 : ''}`} className="w-full sm:w-auto px-8 py-3.5 bg-white text-black font-bold text-lg rounded md:rounded-md hover:bg-white/80 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-lg">
+                    <Link to={`/manga/${activeHero.slug}/bolum-${heroChapterCount > 0 ? 1 : ''}`} className="w-full sm:w-auto px-8 py-3.5 bg-white text-black font-bold text-lg rounded md:rounded-md hover:bg-white/80 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-lg">
                       <BookOpen size={24} className="text-black" /> Oku
                     </Link>
-                    <Link to={`/manhwa/${activeHero.id}`} className="w-full sm:w-auto px-8 py-3.5 bg-[#6d6d6eb3] hover:bg-[#6d6d6e] text-white font-bold text-lg rounded md:rounded-md backdrop-blur-sm transition-colors flex items-center justify-center gap-3 active:scale-95 shadow-lg">
+                    <Link to={`/manga/${activeHero.slug}`} className="w-full sm:w-auto px-8 py-3.5 bg-[#6d6d6eb3] hover:bg-[#6d6d6e] text-white font-bold text-lg rounded md:rounded-md backdrop-blur-sm transition-colors flex items-center justify-center gap-3 active:scale-95 shadow-lg">
                       <Info size={24} /> Daha Fazla Bilgi
                     </Link>
                   </div>

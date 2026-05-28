@@ -44,7 +44,7 @@ function SeriesCard({ item, idx = 0 }) {
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="group block">
+    <Link to={`/manga/${item.slug}`} className="group block">
       <div className="relative rounded-xl overflow-hidden border border-white/8 group-hover:border-purple-500/40 group-hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] transition-all duration-300">
         <div className="relative aspect-[3/4] overflow-hidden">
           <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading={idx < 10 ? 'eager' : 'lazy'} fetchpriority={idx < 5 ? 'high' : 'auto'} decoding="async" width={200} height={267}
@@ -78,7 +78,7 @@ function SeriesListItem({ item, idx = 0 }) {
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
 
   return (
-    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-4 p-3 rounded-xl border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all group">
+    <Link to={`/manga/${item.slug}`} className="flex items-center gap-4 p-3 rounded-xl border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all group">
       <img src={getOptimizedImage(item.cover, 100)} alt={item.title} className="w-12 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" loading={idx < 10 ? 'eager' : 'lazy'} fetchpriority={idx < 5 ? 'high' : 'auto'} decoding="async" width={48} height={64}
         onError={handleImageError} />
       <div className="flex-1 min-w-0">
@@ -100,7 +100,7 @@ function SeriesListItem({ item, idx = 0 }) {
 function PopularItem({ item, rank, idx = 0 }) {
   const genres = Array.isArray(item.genre) ? item.genre : item.genre ? [item.genre] : [];
   return (
-    <Link to={`/manhwa/${item.id}`} className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-white/5 transition-all group">
+    <Link to={`/manga/${item.slug}`} className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-white/5 transition-all group">
       <span className={`text-lg font-black w-6 text-center flex-shrink-0 ${
         rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-orange-400' : 'text-slate-400'
       }`}>{rank}</span>

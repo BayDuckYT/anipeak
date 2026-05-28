@@ -35,7 +35,7 @@ async function generateSitemap() {
   // Fetch series
   const { data: seriesList, error: seriesError } = await supabase
     .from('series')
-    .select('id, created_at')
+    .select('id, created_at, slug')
     .eq('is_deleted', false);
     
   if (seriesError) {
@@ -74,7 +74,8 @@ async function generateSitemap() {
     const updatedAt = series.created_at || today;
     const seriesIdentifier = series.id;
     xml += `  <url>\n`;
-    xml += `    <loc>${SITE_URL}/manhwa/${seriesIdentifier}</loc>\n`;
+    const seriesSlug = series.slug || `manga-${series.id}`;
+    xml += `    <loc>${SITE_URL}/manga/${seriesSlug}</loc>\n`;
     xml += `    <lastmod>${updatedAt.split('T')[0]}</lastmod>\n`;
     xml += `    <changefreq>daily</changefreq>\n`;
     xml += `    <priority>0.9</priority>\n`;
@@ -85,7 +86,9 @@ async function generateSitemap() {
   chaptersList.forEach((chapter) => {
     const seriesIdentifier = chapter.series_id; // Usually it's /read/:seriesId/:chapterNumber
     xml += `  <url>\n`;
-    xml += `    <loc>${SITE_URL}/read/${seriesIdentifier}/${chapter.number}</loc>\n`;
+    const series = seriesList.find(s => s.id === chapter.series_id);
+    const seriesSlug = series?.slug || `manga-${chapter.series_id}`;
+    xml += `    <loc>${SITE_URL}/manga/${seriesSlug}/bolum-${chapter.number}</loc>\n`;
     xml += `    <lastmod>${(chapter.created_at || today).split('T')[0]}</lastmod>\n`;
     xml += `    <changefreq>monthly</changefreq>\n`;
     xml += `    <priority>0.7</priority>\n`;
