@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
+import Loader from '../components/Loader.jsx';
 import { supabase } from '../lib/supabaseClient';
 import StarRating from '../components/StarRating.jsx';
 import CommentSystem from '../components/CommentSystem.jsx';
@@ -26,7 +27,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const { slug }     = useParams();
   const navigate     = useNavigate();
   const { user, readingHistory } = useAuth();
-  const { sortedSeries, getChapters } = useApp();
+  const { sortedSeries, getChapters, loading: appLoading } = useApp();
 
   // Find series from AppContext (dynamic data)
   const manhwa = useMemo(
@@ -182,7 +183,23 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [visibleChapters, setVisibleChapters] = useState(28);
 
-  if (!manhwa) return null;
+  if (appLoading || sortedSeries.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#070511] pt-24 pb-12 flex flex-col items-center justify-center text-white">
+        <Loader fullScreen={false} text="Seri Yükleniyor..." />
+      </div>
+    );
+  }
+
+  if (!manhwa) {
+    return (
+      <div className="min-h-screen bg-[#070511] pt-24 pb-12 flex flex-col items-center justify-center text-white">
+        <h2 className="text-2xl font-bold mb-4">404 - Seri Bulunamadı</h2>
+        <p className="text-slate-400">Bu seri silinmiş veya adresi değişmiş olabilir.</p>
+        <Link to="/" className="mt-6 px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-500 font-bold transition-all">Ana Sayfaya Dön</Link>
+      </div>
+    );
+  }
 
   return (
     <motion.main

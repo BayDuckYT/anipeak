@@ -14,6 +14,7 @@ import ChapterRating from '../components/ChapterRating.jsx';
 import ReportIssueModal from '../components/ReportIssueModal.jsx';
 import LiveChatPanel from '../components/LiveChatPanel.jsx';
 import { useSEO } from '../hooks/useSEO';
+import Loader from '../components/Loader.jsx';
 import { useImagePreloader } from '../hooks/useImagePreloader';
 
 function ReaderImage({ src, alt, idx, chapter }) {
@@ -89,7 +90,7 @@ export default function Reader() {
   const { slug, chapter: chapterParam } = useParams();
   const navigate = useNavigate();
   const { user, addToHistory, updateXP, updateReadingProgress } = useAuth();
-  const { series, getChapters } = useApp();
+  const { series, getChapters, loading: appLoading } = useApp();
   const imageRefs = useRef([]);
   const commentsRef = useRef(null);
   
@@ -241,7 +242,23 @@ export default function Reader() {
     setShowPanel(false);
   };
 
-  if (!manhwa) return null;
+  if (appLoading || series.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#070511] pt-24 pb-12 flex flex-col items-center justify-center text-white">
+        <Loader fullScreen={false} text="Bölüm Hazırlanıyor..." />
+      </div>
+    );
+  }
+
+  if (!manhwa) {
+    return (
+      <div className="min-h-screen bg-[#070511] pt-24 pb-12 flex flex-col items-center justify-center text-white">
+        <h2 className="text-2xl font-bold mb-4">404 - Seri Bulunamadı</h2>
+        <p className="text-slate-400">Bu seri silinmiş veya adresi değişmiş olabilir.</p>
+        <Link to="/" className="mt-6 px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-500 font-bold transition-all">Ana Sayfaya Dön</Link>
+      </div>
+    );
+  }
 
   return (
     <>
