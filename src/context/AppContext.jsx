@@ -14,6 +14,11 @@ export function AppProvider({ children }) {
     try { 
       const cached = localStorage.getItem('mahorapeak_series_cache'); 
       const parsed = cached ? JSON.parse(cached) : null;
+      if (Array.isArray(parsed) && parsed.length > 0 && !parsed[0].slug) {
+         // Cache is from old version without slugs, invalidate it
+         localStorage.removeItem('mahorapeak_series_cache');
+         return [];
+      }
       return Array.isArray(parsed) ? parsed : [];
     } catch { return []; }
   });
