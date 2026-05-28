@@ -87,7 +87,8 @@ function ReaderImage({ src, alt, idx, chapter }) {
 }
 
 export default function Reader() {
-  const { slug, chapter: chapterParam } = useParams();
+  const { slug, chapterSlug } = useParams();
+  const chapterParam = chapterSlug?.replace('bolum-', '');
   const navigate = useNavigate();
   const { user, addToHistory, updateXP, updateReadingProgress } = useAuth();
   const { series, getChapters, loading: appLoading } = useApp();
