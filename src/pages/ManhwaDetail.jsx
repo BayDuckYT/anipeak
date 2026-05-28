@@ -37,7 +37,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
 
   useSEO({
     title: manhwa ? `${manhwa.title} Oku` : 'Yükleniyor...',
-    description: manhwa ? manhwa.description : 'MahoraPeak - En iyi Manhwa ve Webtoon platformu.',
+    description: manhwa ? manhwa.description : 'MahoraPeak - Premium Manhwa ve Webtoon okuma platformu. En popüler manga,manhwa,manhua ve webtoonları keşfet, oku ve eğlen.',
     image: manhwa ? manhwa.cover : '',
     url: window.location.href
   });

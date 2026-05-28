@@ -96,7 +96,7 @@ export default function Home({ onAuthOpen }) {
 
   useSEO({
     title: 'Ana Sayfa',
-    description: 'MahoraPeak - Premium Manhwa ve Webtoon okuma platformu. En popüler manhwaları keşfet, oku ve eğlen.',
+    description: 'MahoraPeak - Premium Manhwa ve Webtoon okuma platformu. En popüler manga,manhwa,manhua ve webtoonları keşfet, oku ve eğlen.',
     url: 'https://mahorapeak.com.tr/'
   });
 
