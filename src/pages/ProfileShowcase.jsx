@@ -964,10 +964,10 @@ export default function ProfileShowcase() {
                         )}
                         {displayUser.is_elite && (
                           <>
-                            {displayUser.active_plan_id === 'aethe' ? <img src="/badges/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
-                             displayUser.active_plan_id === 'shadow' ? <img src="/badges/shadow.png" alt="Shadow" className="drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
-                             displayUser.active_plan_id === 'ruler' ? <img src="/badges/ruler.png" alt="Ruler" className="drop-shadow-[0_0_10px_rgba(251,191,36,0.5)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
-                             displayUser.active_plan_id === 'pro' ? <img src="/badges/pro.png" alt="Pro" className="drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
+                            {displayUser.active_plan_id === 'aethe' ? <img src="/badges/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 64, height: 64 }} /> :
+                             displayUser.active_plan_id === 'shadow' ? <img src="/badges/shadow.png" alt="Shadow" className="drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0 object-contain" style={{ width: 64, height: 64 }} /> :
+                             displayUser.active_plan_id === 'ruler' ? <img src="/badges/ruler.png" alt="Ruler" className="drop-shadow-[0_0_10px_rgba(251,191,36,0.5)] shrink-0 object-contain" style={{ width: 64, height: 64 }} /> :
+                             displayUser.active_plan_id === 'pro' ? <img src="/badges/pro.png" alt="Pro" className="drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0 object-contain" style={{ width: 64, height: 64 }} /> :
                              <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />}
                           </>
                         )}
@@ -986,13 +986,13 @@ export default function ProfileShowcase() {
                        <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
                           {displayUser.is_elite && (
                              displayUser.active_plan_id === 'aethe' ? (
-                                 <div className="w-4 h-4 flex items-center justify-center shrink-0 mr-1 mb-0.5">
+                                 <div className="w-5 h-5 flex items-center justify-center shrink-0 mr-1 mb-0.5">
                                     <img src="/badges/aethe.png" alt="Aethe" className="w-full h-full object-contain" />
                                  </div>
                              ) :
-                             displayUser.active_plan_id === 'shadow' ? <img src="/badges/shadow.png" alt="Shadow" className="w-3.5 h-3.5 object-contain inline mr-1 mb-0.5" /> :
-                             displayUser.active_plan_id === 'ruler' ? <img src="/badges/ruler.png" alt="Ruler" className="w-3.5 h-3.5 object-contain inline mr-1 mb-0.5" /> :
-                             displayUser.active_plan_id === 'pro' ? <img src="/badges/pro.png" alt="Pro" className="w-3.5 h-3.5 object-contain inline mr-1 mb-0.5" /> :
+                             displayUser.active_plan_id === 'shadow' ? <img src="/badges/shadow.png" alt="Shadow" className="w-4 h-4 object-contain inline mr-1 mb-0.5" /> :
+                             displayUser.active_plan_id === 'ruler' ? <img src="/badges/ruler.png" alt="Ruler" className="w-4 h-4 object-contain inline mr-1 mb-0.5" /> :
+                             displayUser.active_plan_id === 'pro' ? <img src="/badges/pro.png" alt="Pro" className="w-4 h-4 object-contain inline mr-1 mb-0.5" /> :
                              <Crown size={10} className="inline mr-1 mb-0.5" />
                           )}
                           <span>{displayUser.fullLabel}</span>
@@ -1131,15 +1131,15 @@ export default function ProfileShowcase() {
                       }`}>
                         {displayUser.active_plan_id === 'aethe' ? (
                            <>
-                              <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                              <div className="w-8 h-8 flex items-center justify-center shrink-0">
                                  <img src="/badges/aethe.png" alt="Aethe" className="w-full h-full object-contain" />
                               </div>
                               Efsanevi Aethe
                            </>
                         ) :
-                         displayUser.active_plan_id === 'shadow' ? <><img src="/badges/shadow.png" alt="Shadow" className="w-5 h-5 object-contain" /> Hükümdar Gölgesi</> :
-                         displayUser.active_plan_id === 'ruler' ? <><img src="/badges/ruler.png" alt="Ruler" className="w-5 h-5 object-contain" /> Hükümdar</> :
-                         displayUser.active_plan_id === 'pro' ? <><img src="/badges/pro.png" alt="Pro" className="w-5 h-5 object-contain" /> Pro Üye</> :
+                         displayUser.active_plan_id === 'shadow' ? <><img src="/badges/shadow.png" alt="Shadow" className="w-8 h-8 object-contain" /> Hükümdar Gölgesi</> :
+                         displayUser.active_plan_id === 'ruler' ? <><img src="/badges/ruler.png" alt="Ruler" className="w-8 h-8 object-contain" /> Hükümdar</> :
+                         displayUser.active_plan_id === 'pro' ? <><img src="/badges/pro.png" alt="Pro" className="w-8 h-8 object-contain" /> Pro Üye</> :
                          <><Crown size={14} /> PREMIUM</>}
                       </button>
                     </>
@@ -1247,13 +1247,13 @@ export default function ProfileShowcase() {
                           <span className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300' : 'text-white'}`}>
                              {displayUser.is_elite && (
                                 displayUser.active_plan_id === 'aethe' ? (
-                                   <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                   <div className="w-6 h-6 flex items-center justify-center shrink-0">
                                       <img src="/badges/aethe.png" alt="Aethe" className="w-full h-full object-contain" />
                                    </div>
                                 ) :
-                                displayUser.active_plan_id === 'shadow' ? <div className="w-4 h-4 flex items-center justify-center shrink-0"><img src="/badges/shadow.png" alt="Shadow" className="w-full h-full object-contain" /></div> :
-                                displayUser.active_plan_id === 'pro' ? <div className="w-4 h-4 flex items-center justify-center shrink-0"><img src="/badges/pro.png" alt="Pro" className="w-full h-full object-contain" /></div> :
-                                <div className="w-4 h-4 flex items-center justify-center shrink-0"><img src="/badges/ruler.png" alt="Ruler" className="w-full h-full object-contain" /></div>
+                                displayUser.active_plan_id === 'shadow' ? <div className="w-6 h-6 flex items-center justify-center shrink-0"><img src="/badges/shadow.png" alt="Shadow" className="w-full h-full object-contain" /></div> :
+                                displayUser.active_plan_id === 'pro' ? <div className="w-6 h-6 flex items-center justify-center shrink-0"><img src="/badges/pro.png" alt="Pro" className="w-full h-full object-contain" /></div> :
+                                <div className="w-6 h-6 flex items-center justify-center shrink-0"><img src="/badges/ruler.png" alt="Ruler" className="w-full h-full object-contain" /></div>
                              )}
                              <span>{displayUser.rank}</span>
                           </span>
@@ -1266,22 +1266,22 @@ export default function ProfileShowcase() {
                             'bg-amber-500/20 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
                           }`}>
                             {displayUser.active_plan_id === 'aethe' ? (
-                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                               <div className="w-6 h-6 flex items-center justify-center shrink-0">
                                   <img src="/badges/aethe.png" alt="Aethe" className="animate-pulse object-contain w-full h-full" />
                                </div>
                             ) :
                              displayUser.active_plan_id === 'shadow' ? (
-                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                               <div className="w-6 h-6 flex items-center justify-center shrink-0">
                                   <img src="/badges/shadow.png" alt="Shadow" className="animate-pulse object-contain w-full h-full" />
                                </div>
                             ) :
                              displayUser.active_plan_id === 'ruler' ? (
-                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                               <div className="w-6 h-6 flex items-center justify-center shrink-0">
                                   <img src="/badges/ruler.png" alt="Ruler" className="animate-pulse object-contain w-full h-full" />
                                </div>
                             ) :
                              displayUser.active_plan_id === 'pro' ? (
-                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                               <div className="w-6 h-6 flex items-center justify-center shrink-0">
                                   <img src="/badges/pro.png" alt="Pro" className="animate-pulse object-contain w-full h-full" />
                                </div>
                             ) :

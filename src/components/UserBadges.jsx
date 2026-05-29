@@ -22,8 +22,8 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
     navigate('/elite-upgrade');
   };
 
-  // Badge image size: slightly larger than iconSize for visual impact, but properly contained
-  const badgeSize = Math.round(iconSize * 1.6);
+  // Badge image size: significantly larger than iconSize for visual impact
+  const badgeSize = Math.round(iconSize * 2.4);
 
   const getPremiumIcon = () => {
     if (userData?.username === 'MAHORAPEAK' || planId === 'aethe') return (
