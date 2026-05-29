@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock, Crown, Plus, Image as ImageIcon, Code, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import EliteBadge from '../components/EliteBadge';
+import UserBadges from '../components/UserBadges';
 import { useSEO } from '../hooks/useSEO';
 
 import DOMPurify from 'dompurify';
@@ -205,7 +205,7 @@ export default function CitadelCategory() {
                     <span className={`text-sm font-semibold ${post.isElite ? 'elite-text-gradient' : 'text-slate-400'}`}>
                       {post.author}
                     </span>
-                    {post.isElite && <EliteBadge className="!w-4 !h-4 text-[9px]" />}
+                    {post.isElite && <UserBadges user={{ is_elite: true, active_plan_id: post.active_plan_id || 'pro' }} showCrown={true} iconSize={14} />}
                     <span className="text-xs text-slate-400">• 2 saat önce</span>
                   </div>
                 </div>

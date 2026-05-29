@@ -265,19 +265,14 @@ export default function CommentSystem({ seriesId, chapterNum }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="flex items-center gap-3">
-                    <span 
-                      onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} 
-                      className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
-                      style={mix.nametag && mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === mix.nametag)?.url})`, filter: `hue-rotate(${mix.hue || 0}deg)` } : {}}
-                    >
-                      {prof?.username || comment.username || 'Gezgin'}
-                    </span>
-                    {prof?.active_plan_id === 'aethe' && (
-                      <img src="/aethe.png" alt="Aethe" className={`shrink-0 object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.7)] ${isReply ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                    )}
-                  </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span 
+                    onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} 
+                    className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
+                    style={mix.nametag && mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === mix.nametag)?.url})`, filter: `hue-rotate(${mix.hue || 0}deg)` } : {}}
+                  >
+                    {prof?.username || comment.username || 'Gezgin'}
+                  </span>
                   <UserBadges user={prof || comment} showCrown={true} iconSize={isReply ? 12 : 14} />
                   <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest ${s.badge}`}>
                     {['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(prof?.role) ? `${prof?.role} | ${prof?.rank || 'Çaylak'}` :

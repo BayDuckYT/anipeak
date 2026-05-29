@@ -964,9 +964,10 @@ export default function ProfileShowcase() {
                         )}
                         {displayUser.is_elite && (
                           <>
-                            {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
-                             displayUser.active_plan_id === 'shadow' ? <Ghost size={28} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0" /> :
-                             displayUser.active_plan_id === 'pro' ? <Trophy size={28} className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" /> :
+                            {displayUser.active_plan_id === 'aethe' ? <img src="/badges/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
+                             displayUser.active_plan_id === 'shadow' ? <img src="/badges/shadow.png" alt="Shadow" className="drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
+                             displayUser.active_plan_id === 'ruler' ? <img src="/badges/ruler.png" alt="Ruler" className="drop-shadow-[0_0_10px_rgba(251,191,36,0.5)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
+                             displayUser.active_plan_id === 'pro' ? <img src="/badges/pro.png" alt="Pro" className="drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
                              <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />}
                           </>
                         )}
@@ -986,11 +987,12 @@ export default function ProfileShowcase() {
                           {displayUser.is_elite && (
                              displayUser.active_plan_id === 'aethe' ? (
                                  <div className="w-4 h-4 flex items-center justify-center shrink-0 mr-1 mb-0.5">
-                                    <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                    <img src="/badges/aethe.png" alt="Aethe" className="w-full h-full object-contain" />
                                  </div>
                              ) :
-                             displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
-                             displayUser.active_plan_id === 'pro' ? <Trophy size={10} className="inline mr-1 mb-0.5" /> :
+                             displayUser.active_plan_id === 'shadow' ? <img src="/badges/shadow.png" alt="Shadow" className="w-3.5 h-3.5 object-contain inline mr-1 mb-0.5" /> :
+                             displayUser.active_plan_id === 'ruler' ? <img src="/badges/ruler.png" alt="Ruler" className="w-3.5 h-3.5 object-contain inline mr-1 mb-0.5" /> :
+                             displayUser.active_plan_id === 'pro' ? <img src="/badges/pro.png" alt="Pro" className="w-3.5 h-3.5 object-contain inline mr-1 mb-0.5" /> :
                              <Crown size={10} className="inline mr-1 mb-0.5" />
                           )}
                           <span>{displayUser.fullLabel}</span>
@@ -1129,14 +1131,15 @@ export default function ProfileShowcase() {
                       }`}>
                         {displayUser.active_plan_id === 'aethe' ? (
                            <>
-                              <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                 <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                              <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                                 <img src="/badges/aethe.png" alt="Aethe" className="w-full h-full object-contain" />
                               </div>
                               Efsanevi Aethe
                            </>
                         ) :
-                         displayUser.active_plan_id === 'shadow' ? <><Ghost size={14} /> Hükümdar Gölgesi</> :
-                         displayUser.active_plan_id === 'pro' ? <><Trophy size={14} /> Pro Üye</> :
+                         displayUser.active_plan_id === 'shadow' ? <><img src="/badges/shadow.png" alt="Shadow" className="w-5 h-5 object-contain" /> Hükümdar Gölgesi</> :
+                         displayUser.active_plan_id === 'ruler' ? <><img src="/badges/ruler.png" alt="Ruler" className="w-5 h-5 object-contain" /> Hükümdar</> :
+                         displayUser.active_plan_id === 'pro' ? <><img src="/badges/pro.png" alt="Pro" className="w-5 h-5 object-contain" /> Pro Üye</> :
                          <><Crown size={14} /> PREMIUM</>}
                       </button>
                     </>
@@ -1185,7 +1188,7 @@ export default function ProfileShowcase() {
                              }`} title={`${visit.profiles?.username || 'Gizemli Seçkin'}`}>
                                 {visit.visitor_plan === 'aethe' ? (
                                   <div className="w-full h-full p-2 flex items-center justify-center animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]">
-                                     <img src="/aethe.png" alt="Aethe" className="object-contain w-full h-full" />
+                                     <img src="/badges/aethe.png" alt="Aethe" className="object-contain w-full h-full" />
                                   </div>
                                 ) : (
                                   <Crown size={18} className="text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]" />
@@ -1245,12 +1248,12 @@ export default function ProfileShowcase() {
                              {displayUser.is_elite && (
                                 displayUser.active_plan_id === 'aethe' ? (
                                    <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                      <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                      <img src="/badges/aethe.png" alt="Aethe" className="w-full h-full object-contain" />
                                    </div>
                                 ) :
-                                displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="inline" /> :
-                                displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="inline" /> :
-                                <Crown size={12} className="inline" />
+                                displayUser.active_plan_id === 'shadow' ? <div className="w-4 h-4 flex items-center justify-center shrink-0"><img src="/badges/shadow.png" alt="Shadow" className="w-full h-full object-contain" /></div> :
+                                displayUser.active_plan_id === 'pro' ? <div className="w-4 h-4 flex items-center justify-center shrink-0"><img src="/badges/pro.png" alt="Pro" className="w-full h-full object-contain" /></div> :
+                                <div className="w-4 h-4 flex items-center justify-center shrink-0"><img src="/badges/ruler.png" alt="Ruler" className="w-full h-full object-contain" /></div>
                              )}
                              <span>{displayUser.rank}</span>
                           </span>
@@ -1264,11 +1267,24 @@ export default function ProfileShowcase() {
                           }`}>
                             {displayUser.active_plan_id === 'aethe' ? (
                                <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                  <img src="/aethe.png" alt="Aethe" className="animate-pulse object-contain max-w-none drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]" style={{ width: 80, height: 80 }} />
+                                  <img src="/badges/aethe.png" alt="Aethe" className="animate-pulse object-contain w-full h-full" />
                                </div>
                             ) :
-                             displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="text-purple-400 animate-pulse" /> :
-                             displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="text-cyan-400 animate-pulse" /> :
+                             displayUser.active_plan_id === 'shadow' ? (
+                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                  <img src="/badges/shadow.png" alt="Shadow" className="animate-pulse object-contain w-full h-full" />
+                               </div>
+                            ) :
+                             displayUser.active_plan_id === 'ruler' ? (
+                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                  <img src="/badges/ruler.png" alt="Ruler" className="animate-pulse object-contain w-full h-full" />
+                               </div>
+                            ) :
+                             displayUser.active_plan_id === 'pro' ? (
+                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                                  <img src="/badges/pro.png" alt="Pro" className="animate-pulse object-contain w-full h-full" />
+                               </div>
+                            ) :
                              <Crown size={12} className="text-amber-400 animate-pulse" />}
                             <span className={`text-[9px] font-black uppercase tracking-widest ${
                               displayUser.active_plan_id === 'aethe' ? 'text-rose-300' :

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, User, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import EliteBadge from './EliteBadge';
+import UserBadges from './UserBadges';
 import AnimeAvatar from './AnimeAvatar';
 import effectsData from '../data/effects.json';
 
@@ -124,7 +124,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                       >
                         {msg.user}
                       </span>
-                      {msg.isElite && <EliteBadge className="!w-3 !h-3 text-[8px]" />}
+                      {msg.isElite && <UserBadges user={{ is_elite: true, active_plan_id: msg.active_plan_id || 'pro' }} showCrown={true} iconSize={12} />}
                       <span className="text-[8px] text-slate-500/60 font-bold">{msg.time}</span>
                     </div>
 
