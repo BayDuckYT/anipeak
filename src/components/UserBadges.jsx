@@ -23,7 +23,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
   };
 
   // Badge image size: significantly larger than iconSize for visual impact
-  const badgeSize = Math.round(iconSize * 2.4);
+  const badgeSize = Math.round(iconSize * 3.5);
 
   const getPremiumIcon = () => {
     if (userData?.username === 'MAHORAPEAK' || planId === 'aethe') return (
