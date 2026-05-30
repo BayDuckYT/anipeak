@@ -117,7 +117,7 @@ export default function Header({ onAuthOpen }) {
         <div className="flex items-center justify-between h-20 gap-3">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center group flex-shrink-0 relative -ml-2 md:-ml-5 lg:-ml-8" aria-label="Ana Sayfa">
+          <Link to="/" className="flex items-center group flex-shrink-0 relative -ml-2 md:-ml-5 lg:-ml-8 mr-4 md:mr-16 lg:mr-24" aria-label="Ana Sayfa">
             <div className="relative">
               <img 
                 src="/mahorapeaklogov2.png" 
