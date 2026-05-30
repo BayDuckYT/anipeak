@@ -29,8 +29,18 @@ export async function processAndUploadImage(imageUrl, isCover, seriesTitle, chap
             timeout: 30000
         });
 
-        // HD Kalite: 92% WebP (Orijinal keskinliği korur, boyutu optimize eder)
+        // HD Kalite + Görüntü İyileştirme (AI-siz Premium Kalite)
         const finalBuffer = await sharp(buffer)
+            // Renkleri %15 canlandır (saturation) ve kontrastı hafif artır
+            .modulate({
+                saturation: 1.15
+            })
+            // Çizgileri ve kenarları belirginleştir (Unsharp Mask)
+            .sharpen({
+                sigma: 1.2,      // Keskinlik yarıçapı
+                m1: 0.5,         // Düz alanlarda gürültüyü engelle
+                m2: 1.5          // Kenarlardaki keskinliği artır
+            })
             .webp({ quality: 92, effort: 6 }) 
             .toBuffer();
 
