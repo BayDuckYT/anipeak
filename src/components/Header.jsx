@@ -117,12 +117,12 @@ export default function Header({ onAuthOpen }) {
         <div className="flex items-center justify-between h-20 gap-3">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center group flex-shrink-0 relative" aria-label="Ana Sayfa">
+          <Link to="/" className="flex items-center group flex-shrink-0 relative -ml-2 md:-ml-5 lg:-ml-8" aria-label="Ana Sayfa">
             <div className="relative">
               <img 
                 src="/mahorapeaklogov2.png" 
                 alt="MahoraPeak Logo" 
-                className="h-16 md:h-20 w-auto object-contain scale-110 md:scale-125 origin-left drop-shadow-[0_0_15px_rgba(139,92,246,0.3)] group-hover:drop-shadow-[0_0_25px_rgba(139,92,246,0.6)] transition-all duration-300" 
+                className="h-16 md:h-20 w-auto object-contain scale-110 md:scale-[1.35] md:translate-y-2 origin-left drop-shadow-[0_0_15px_rgba(139,92,246,0.3)] group-hover:drop-shadow-[0_0_25px_rgba(139,92,246,0.6)] transition-all duration-300" 
                 style={{ 
                   filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))' 
                 }} 
