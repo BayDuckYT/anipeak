@@ -50,6 +50,7 @@ export default function ListDetail() {
   const [isPrivate, setIsPrivate] = useState(false);
   
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItemData, setEditingItemData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
 
@@ -228,6 +229,29 @@ export default function ListDetail() {
       setListItems(prev => prev.map(i => i.id === itemId ? { ...i, read_chapters: newVal } : i));
     } catch (err) {
       console.error("Increment error:", err);
+    }
+  };
+
+  const handleSaveItemEdit = async () => {
+    if (!editingItemData) return;
+    try {
+      const { error } = await supabase
+        .from('custom_list_items')
+        .update({ 
+           status: editingItemData.status, 
+           read_chapters: editingItemData.read_chapters,
+           user_score: editingItemData.user_score
+        })
+        .eq('id', editingItemData.id);
+        
+      if (error) throw error;
+      
+      setListItems(prev => prev.map(i => i.id === editingItemData.id ? { ...i, ...editingItemData } : i));
+      setEditingItemData(null);
+      showToast('Seri bilgileri güncellendi!');
+    } catch (err) {
+      console.error("Update error:", err);
+      showToast('Güncelleme hatası!');
     }
   };
 
@@ -514,13 +538,15 @@ export default function ListDetail() {
 
                            {/* Score */}
                            <td className="px-4 py-4 border-y border-white/5 text-center">
-                              <div className="flex flex-col items-center gap-1">
+                              <div className="flex flex-col items-center gap-1 cursor-pointer" onClick={() => isOwner && setEditingItemData(item)}>
                                  <div className="flex items-center gap-1.5 text-amber-500">
                                     <Star size={14} fill="currentColor" />
                                     <span className="text-sm font-black text-white">{s.rating || '0.0'}</span>
                                  </div>
-                                 {item.user_score > 0 && (
-                                   <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest bg-card-navy/50 px-2 py-0.5 rounded-md border border-white/5">SİZ: {item.user_score}/10</span>
+                                 {item.user_score > 0 ? (
+                                   <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20">SİZ: {item.user_score}/10</span>
+                                 ) : (
+                                   <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-md border border-white/5 hover:text-white transition-all">Puan Ver</span>
                                  )}
                               </div>
                            </td>
@@ -537,7 +563,7 @@ export default function ListDetail() {
                            {/* Progress */}
                            <td className="px-4 py-4 border-y border-white/5">
                               <div className="flex flex-col items-center gap-2">
-                                 <div className="flex items-center gap-4">
+                                 <div className="flex items-center gap-4 cursor-pointer" onClick={() => isOwner && setEditingItemData(item)}>
                                     <div className="flex flex-col items-center">
                                        <span className="text-sm font-black text-white tracking-tighter">{item.read_chapters || 0}</span>
                                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Bölüm</span>
@@ -550,9 +576,9 @@ export default function ListDetail() {
                                  </div>
                                  {isOwner && (
                                    <button 
-                                     onClick={() => handleIncrementProgress(item.id, item.read_chapters)}
-                                     aria-label="Bölüm artır"
-                                     className="w-10 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20"
+                                     onClick={() => setEditingItemData(item)}
+                                     aria-label="Düzenle"
+                                     className="w-10 h-6 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-lg"
                                    >
                                       <Plus size={14} />
                                    </button>
@@ -562,15 +588,21 @@ export default function ListDetail() {
 
                            {/* Status */}
                            <td className="px-4 py-4 border-y border-white/5 text-center">
-                              <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                              <button 
+                                onClick={() => isOwner && setEditingItemData(item)}
+                                className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-colors ${
                                 item.status === 'Okuyor' 
-                                ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' 
+                                ? 'bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20' 
                                 : item.status === 'Tamamladı' 
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                : 'bg-zinc-800/50 border-white/5 text-zinc-500'
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
+                                : item.status === 'Planlıyor'
+                                ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'
+                                : item.status === 'Bıraktı'
+                                ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20'
+                                : 'bg-zinc-800/50 border-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'
                               }`}>
                                  {item.status || 'Okuyor'}
-                              </span>
+                              </button>
                            </td>
 
                            {/* Actions */}
@@ -657,6 +689,84 @@ export default function ListDetail() {
                         </div>
                      </button>
                    ))}
+                </div>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>,
+      document.body
+      )}
+
+      {/* Edit Item Modal */}
+      {createPortal(
+        <AnimatePresence>
+        {editingItemData && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+             <motion.div 
+               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+               onClick={() => setEditingItemData(null)}
+               className="absolute inset-0 bg-black/80 backdrop-blur-md" 
+             />
+             <motion.div 
+               initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+               className="relative w-full max-w-md bg-card-navy border border-white/10 rounded-[2.5rem] p-8 shadow-[0_0_80px_rgba(0,0,0,1)]"
+             >
+                <div className="flex items-center justify-between mb-8">
+                   <h4 className="text-xl font-black text-white uppercase tracking-tighter">İlerleme Düzenle</h4>
+                   <button onClick={() => setEditingItemData(null)} aria-label="Kapat" className="p-2 text-zinc-500 hover:text-white transition-all"><X /></button>
+                </div>
+
+                <div className="space-y-6">
+                   {/* Durum */}
+                   <div>
+                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Okuma Durumu</label>
+                      <select 
+                        value={editingItemData.status || 'Okuyor'}
+                        onChange={(e) => setEditingItemData({...editingItemData, status: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:border-indigo-500 outline-none transition-all appearance-none"
+                      >
+                         <option value="Okuyor">Okuyor</option>
+                         <option value="Tamamladı">Tamamladı</option>
+                         <option value="Planlıyor">Planlıyor</option>
+                         <option value="Bıraktı">Bıraktı</option>
+                      </select>
+                   </div>
+
+                   {/* İlerleme */}
+                   <div>
+                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Okunan Bölüm</label>
+                      <div className="flex items-center gap-4">
+                         <input 
+                           type="number" 
+                           min="0"
+                           value={editingItemData.read_chapters || 0}
+                           onChange={(e) => setEditingItemData({...editingItemData, read_chapters: parseInt(e.target.value) || 0})}
+                           className="flex-1 bg-black/40 border border-white/10 rounded-2xl py-3 px-4 text-lg font-black text-white focus:border-indigo-500 outline-none transition-all text-center"
+                         />
+                         <div className="flex flex-col gap-2">
+                           <button onClick={() => setEditingItemData({...editingItemData, read_chapters: (editingItemData.read_chapters || 0) + 1})} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all border border-white/5"><Plus size={16} /></button>
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* Puan */}
+                   <div>
+                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Puanınız (1-10)</label>
+                      <input 
+                        type="number" 
+                        min="0" max="10" step="0.5"
+                        value={editingItemData.user_score || 0}
+                        onChange={(e) => setEditingItemData({...editingItemData, user_score: parseFloat(e.target.value) || 0})}
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-4 text-lg font-black text-amber-500 focus:border-amber-500 outline-none transition-all text-center"
+                      />
+                   </div>
+
+                   <button 
+                     onClick={handleSaveItemEdit}
+                     className="w-full py-4 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-indigo-600/30 mt-4"
+                   >
+                      Kaydet
+                   </button>
                 </div>
              </motion.div>
           </div>
