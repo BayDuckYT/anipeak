@@ -51,6 +51,7 @@ export default function ListDetail() {
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItemData, setEditingItemData] = useState(null);
+  const [maxChapters, setMaxChapters] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
 
@@ -130,6 +131,31 @@ export default function ListDetail() {
   useEffect(() => {
     fetchListData();
   }, [fetchListData]);
+
+  useEffect(() => {
+    if (editingItemData) {
+      setMaxChapters(null);
+      const fetchMaxChapter = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('chapters')
+            .select('number')
+            .eq('series_id', editingItemData.series_id)
+            .order('number', { ascending: false })
+            .limit(1);
+            
+          if (!error && data && data.length > 0) {
+            setMaxChapters(data[0].number);
+          } else {
+            setMaxChapters(0);
+          }
+        } catch (err) {
+          setMaxChapters(0);
+        }
+      };
+      fetchMaxChapter();
+    }
+  }, [editingItemData]);
 
   // Dinamik İstatistik Motoru (Derin Veri)
   const stats = useMemo(() => {
@@ -734,17 +760,39 @@ export default function ListDetail() {
 
                    {/* İlerleme */}
                    <div>
-                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Okunan Bölüm</label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Okunan Bölüm</label>
+                        {maxChapters !== null ? (
+                          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">MAX: {maxChapters || '?'}</span>
+                        ) : (
+                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Yükleniyor...</span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-4">
                          <input 
                            type="number" 
                            min="0"
+                           max={maxChapters || 1000000}
                            value={editingItemData.read_chapters || 0}
-                           onChange={(e) => setEditingItemData({...editingItemData, read_chapters: parseInt(e.target.value) || 0})}
+                           onChange={(e) => {
+                             let val = parseInt(e.target.value) || 0;
+                             if (val < 0) val = 0;
+                             if (maxChapters !== null && val > maxChapters && maxChapters > 0) val = maxChapters;
+                             setEditingItemData({...editingItemData, read_chapters: val});
+                           }}
                            className="flex-1 bg-black/40 border border-white/10 rounded-2xl py-3 px-4 text-lg font-black text-white focus:border-indigo-500 outline-none transition-all text-center"
                          />
                          <div className="flex flex-col gap-2">
-                           <button onClick={() => setEditingItemData({...editingItemData, read_chapters: (editingItemData.read_chapters || 0) + 1})} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all border border-white/5"><Plus size={16} /></button>
+                           <button 
+                             onClick={() => {
+                               let val = (editingItemData.read_chapters || 0) + 1;
+                               if (maxChapters !== null && val > maxChapters && maxChapters > 0) val = maxChapters;
+                               setEditingItemData({...editingItemData, read_chapters: val});
+                             }} 
+                             className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all border border-white/5"
+                           >
+                             <Plus size={16} />
+                           </button>
                          </div>
                       </div>
                    </div>
@@ -756,7 +804,12 @@ export default function ListDetail() {
                         type="number" 
                         min="0" max="10" step="0.5"
                         value={editingItemData.user_score || 0}
-                        onChange={(e) => setEditingItemData({...editingItemData, user_score: parseFloat(e.target.value) || 0})}
+                        onChange={(e) => {
+                          let val = parseFloat(e.target.value) || 0;
+                          if (val > 10) val = 10;
+                          if (val < 0) val = 0;
+                          setEditingItemData({...editingItemData, user_score: val});
+                        }}
                         className="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-4 text-lg font-black text-amber-500 focus:border-amber-500 outline-none transition-all text-center"
                       />
                    </div>
