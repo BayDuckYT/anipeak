@@ -20,7 +20,8 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 export async function translateAndTypesetManga(imageBuffer) {
   try {
     // 1. OCR: Metni ve Konumları Al
-    const worker = await createWorker('eng');
+    // Tesseract: İngilizce, Japonca, Korece ve Çince (Basitleştirilmiş) dillerini aynı anda okur
+    const worker = await createWorker('eng+jpn+kor+chi_sim');
     const { data: { blocks } } = await worker.recognize(imageBuffer);
     await worker.terminate();
 
