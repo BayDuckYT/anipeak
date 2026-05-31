@@ -678,11 +678,21 @@ export function AuthProvider({ children }) {
   const upgradeToElite = useCallback(async (planId) => {
     if (!user?.id) return false;
     try {
+      // Determine Aura Bonus based on plan
+      let auraBonus = 0;
+      if (planId === 'pro') auraBonus = 25000;
+      else if (planId === 'shadow') auraBonus = 50000;
+      else if (planId === 'ruler') auraBonus = 250000;
+      else if (planId === 'aethe') auraBonus = 1000000;
+
+      const newAura = (user.aura || 0) + auraBonus;
+
       const { error } = await supabase
         .from('profiles')
         .update({ 
           is_elite: true,
-          active_plan_id: planId 
+          active_plan_id: planId,
+          aura: newAura
         })
         .eq('id', user.id);
         
@@ -693,7 +703,7 @@ export function AuthProvider({ children }) {
       
       setUser(prev => {
         const info = getLevelInfo(prev.xp, true);
-        const next = { ...prev, ...info, is_elite: true, active_plan_id: planId };
+        const next = { ...prev, ...info, is_elite: true, active_plan_id: planId, aura: newAura };
         localStorage.setItem('mahorapeak_user_cache', JSON.stringify(next));
         return next;
       });

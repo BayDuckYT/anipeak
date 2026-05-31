@@ -9,6 +9,22 @@
  * - mythic (Gizemli)      : 750K - 1M Aura → En özel profil efektleri
  */
 
+import effectsDataRaw from './effects.json';
+import nameplatesDataRaw from './nameplates.json';
+
+const PLAN_LIMITS = {
+  pro: { nameplates: 5, decorations: 10, name_effects: 0, profile_effects: 0 },
+  shadow: { nameplates: 15, decorations: 30, name_effects: 10, profile_effects: 10 },
+  ruler: { nameplates: 30, decorations: 100, name_effects: 25, profile_effects: 25 },
+  aethe: { nameplates: 9999, decorations: 9999, name_effects: 9999, profile_effects: 9999 }
+};
+
+const CATEGORY_INDEXES = {};
+effectsDataRaw.forEach(e => {
+  if (!CATEGORY_INDEXES[e.category]) CATEGORY_INDEXES[e.category] = [];
+  CATEGORY_INDEXES[e.category].push(e.id);
+});
+
 export const RARITY_CONFIG = {
   common: {
     label: 'Yaygın',
@@ -257,12 +273,45 @@ export const RARITY_FILTERS = [
 export function canUseEffect(effectId, user) {
   if (!user) return false;
   
-  // Admin/Elite/Editör/Tester rolleri her şeyi kullanabilir
+  // Admin/Editör rolleri her şeyi kullanabilir
   const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'];
   if (premiumRoles.includes(user.role)) return true;
-  if (user.is_elite) return true;
 
   // Satın alınmış mı kontrol et
   const unlocked = user.unlocked_effects || [];
-  return unlocked.includes(effectId);
+  if (unlocked.includes(effectId)) return true;
+
+  // Abonelik tier limitlerini kontrol et
+  if (user.active_plan_id && PLAN_LIMITS[user.active_plan_id]) {
+    const limits = PLAN_LIMITS[user.active_plan_id];
+    
+    // Eğer isim plakasıysa
+    if (effectId.startsWith('nameplate_')) {
+      const filename = effectId.replace('nameplate_', '');
+      const index = nameplatesDataRaw.indexOf(filename);
+      if (index !== -1 && index < limits.nameplates) return true;
+    } else {
+      // Diğer efektler
+      const effect = effectsDataRaw.find(e => e.id === effectId);
+      if (effect && CATEGORY_INDEXES[effect.category]) {
+        const index = CATEGORY_INDEXES[effect.category].indexOf(effectId);
+        if (index !== -1) {
+          let limit = 0;
+          if (effect.category === 'decorations' || effect.category === 'avatar_decorations') {
+            limit = limits.decorations;
+          } else if (effect.category === 'name_effects') {
+            limit = limits.name_effects;
+          } else if (effect.category === 'profile_effects') {
+            limit = limits.profile_effects;
+          } else if (effect.category === 'flags') {
+            limit = 9999; // Bayraklar elite kullanıcılara ücretsiz
+          }
+          
+          if (index < limit) return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
