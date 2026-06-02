@@ -21,17 +21,17 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash', 'moderation'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash', 'moderation'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
     badge: 'bg-gradient-to-br from-blue-600 to-cyan-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'schedule', 'suggestions', 'trash'],
+    access: ['dashboard', 'content', 'chapterEditor', 'add', 'schedule', 'suggestions', 'trash', 'moderation'],
   },
   'Editör': {
     color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
