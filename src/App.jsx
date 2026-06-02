@@ -235,7 +235,7 @@ function MaintenanceScreen({ onAuthOpen }) {
 
 function AppContent() {
   const { maintenanceMode } = useApp();
-  const { user, loading, isAdmin, isTester } = useAuth();
+  const { user, loading, isAdmin, isTester, isMod } = useAuth();
   const location = useLocation();
 
   const handleAuthEvent = (mode) => {
@@ -260,7 +260,7 @@ function AppContent() {
   // ── DevTools & Right-Click Security (Anti-Inspect) ──────────────────
   useEffect(() => {
     // SADECE YETKİLİLER (Admin, Editor, Tester) İNCELEME YAPABİLİR
-    if (isAdmin || isTester) return;
+    if (isAdmin || isTester || isMod) return;
 
     const handleContextMenu = (e) => {
       e.preventDefault();
@@ -292,14 +292,14 @@ function AppContent() {
       window.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isAdmin, isTester]);
+  }, [isAdmin, isTester, isMod]);
   
   // Global loading kaldırıldı, çünkü Home sayfası anında yüklenmeli. PrivateRoute'lar kendi loading state'ini yönetiyor.
 
   // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
   const isResetPage = location.pathname === '/reset-password';
   const isAuthPage = location.pathname === '/auth';
-  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isResetPage && !isAuthPage;
+  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isMod && !isResetPage && !isAuthPage;
 
   return (
     <>
