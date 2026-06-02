@@ -273,9 +273,8 @@ export const RARITY_FILTERS = [
 export function canUseEffect(effectId, user) {
   if (!user) return false;
   
-  // Admin/Editör rolleri her şeyi kullanabilir
-  const premiumRoles = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'];
-  if (premiumRoles.includes(user.role)) return true;
+  // Sadece Baş Admin her şeyi kullanabilir
+  if (user.role === 'Baş Admin') return true;
 
   // Satın alınmış mı kontrol et
   const unlocked = user.unlocked_effects || [];
