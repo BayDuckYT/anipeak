@@ -46,9 +46,9 @@ const AuraMarket = lazy(() => import('./pages/AuraMarket.jsx'));
 
 // Role-based Route Protection
 function AdminRoute({ children }) {
-  const { isEditor, loading } = useAuth();
+  const { isEditor, isMod, loading } = useAuth();
   if (loading) return <Loader />;
-  return isEditor ? children : <Navigate to="/" />;
+  return (isEditor || isMod) ? children : <Navigate to="/" />;
 }
 
 function PrivateRoute({ children }) {
