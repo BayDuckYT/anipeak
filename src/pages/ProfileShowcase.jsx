@@ -996,6 +996,13 @@ export default function ProfileShowcase() {
                           <span>{displayUser.fullLabel}</span>
                        </span>
                     </div>
+                    {displayUser.role === 'Moderatör' && (
+                      <div className="inline-flex px-4 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 backdrop-blur-md shadow-[0_0_10px_rgba(249,115,22,0.2)]">
+                        <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1 text-orange-400">
+                           <span className="text-[12px] drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]">🛡️</span> MODERATÖR
+                        </span>
+                      </div>
+                    )}
 
                     {displayUser.active_plan_id && (
                        <div className={`inline-flex px-4 py-1.5 rounded-xl bg-black/40 border backdrop-blur-md shadow-lg ${
@@ -1255,6 +1262,13 @@ export default function ProfileShowcase() {
                              <span>{displayUser.rank}</span>
                           </span>
                        </div>
+                       {displayUser.role === 'Moderatör' && (
+                         <div className="px-4 py-1.5 rounded-full backdrop-blur-md border bg-orange-500/10 border-orange-500/30 shadow-[0_0_20px_rgba(249,115,22,0.2)]">
+                            <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 text-orange-400">
+                               <span className="text-[14px] drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">🛡️</span> MODERATÖR
+                            </span>
+                         </div>
+                       )}
                        {displayUser.is_elite && (
                           <div className={`px-3 py-1.5 rounded-full border flex items-center gap-2 ${
                             displayUser.active_plan_id === 'aethe' ? 'bg-rose-500/20 border-rose-500/40 shadow-[0_0_15px_rgba(225,29,72,0.3)]' :
