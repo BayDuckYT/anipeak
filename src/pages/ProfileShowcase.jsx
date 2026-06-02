@@ -956,7 +956,7 @@ export default function ProfileShowcase() {
                       </div>
                     )}
                     <h1 
-                      className={`text-4xl font-black text-white uppercase tracking-tighter leading-none z-10 flex flex-row items-center gap-2 flex-nowrap whitespace-nowrap ${!(displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none') ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}
+                      className={`text-4xl font-black text-white tracking-tighter leading-none z-10 flex flex-row items-center gap-2 flex-nowrap whitespace-nowrap ${!(displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none') ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}
                     >
                       <div className="flex flex-row items-center gap-1 shrink-0">
                         {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && !displayUser.is_elite && (
