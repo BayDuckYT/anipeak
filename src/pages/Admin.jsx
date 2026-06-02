@@ -1374,7 +1374,8 @@ function PageManagement({ showToast }) {
               </div>
             </motion.div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
