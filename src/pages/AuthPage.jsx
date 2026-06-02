@@ -433,7 +433,7 @@ export default function AuthPage() {
                     </button>
                   ) : (
                     <p className="text-[10px] text-slate-500 px-1 leading-relaxed">
-                      Kayıt olarak <a href="#" className="text-purple-400 hover:underline">Kullanım Şartları</a> ve <a href="#" className="text-purple-400 hover:underline">Gizlilik Politikası</a>'nı kabul etmiş sayılırsınız.
+                      Kayıt olarak <a href="/kullanim-sartlari" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">Kullanım Şartları</a> ve <a href="/gizlilik-politikasi" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">Gizlilik Politikası</a>'nı kabul etmiş sayılırsınız.
                     </p>
                   )}
                 </div>
