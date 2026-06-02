@@ -134,7 +134,7 @@ export function AuthProvider({ children }) {
       }
       
       // Adminler otomatik olarak Elite sayılır
-      const is_elite = data?.is_elite || isSystemOwner || ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(userRole);
+      const is_elite = data?.is_elite || isSystemOwner || ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester', 'Moderatör'].includes(userRole);
 
       const merged = {
         ...authUser,
@@ -157,6 +157,8 @@ export function AuthProvider({ children }) {
         badges:          data?.badges || [],
         active_decoration: data?.active_decoration || 'none',
         is_elite,
+        muted_until: data?.muted_until || null,
+        isMuted: data?.muted_until ? new Date(data.muted_until) > new Date() : false,
         active_plan_id:  data?.active_plan_id || null,
         discord_id:      data?.discord_id || null,
         discord_sync_code: data?.discord_sync_code || null,
@@ -738,7 +740,7 @@ export function AuthProvider({ children }) {
 
   const isOwner  = hasRole(['Baş Admin']);
   const isAdmin  = hasRole(['Baş Admin', 'Yönetici']);
-  const isMod    = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı']);
+  const isMod    = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Moderatör']);
   const isEditor = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör']);
   const isTester = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester']);
   const isPremium = hasRole(['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe']);

@@ -63,6 +63,11 @@ export const ADMIN_ROLES = {
     badge: 'bg-gradient-to-br from-rose-500 to-pink-800',
     access: [],
   },
+  'Moderatör': {
+    color: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+    badge: 'bg-gradient-to-br from-orange-600 to-amber-800',
+    access: ['moderation'],
+  },
 };
 
 const ALL_NAV = [
@@ -81,6 +86,7 @@ const ALL_NAV = [
   { id: 'promoCodes', label: 'Promo Kodları', icon: CreditCard },
   { id: 'settings', label: 'Genel Ayarlar', icon: Settings },
   { id: 'trash', label: 'Çöp Kutusu', icon: Trash2 },
+  { id: 'moderation', label: 'Moderasyon', icon: ShieldAlert },
 ];
 
 // ImgBB Key Pool (Mühürlendi!)
@@ -1442,6 +1448,85 @@ function InboxPanel({ showToast }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: Moderation Panel
+// ─────────────────────────────────────────────────────────────────────────────
+function ModerationPanel({ showToast }) {
+  const [search, setSearch] = useState('');
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const searchUsers = async (e) => {
+    e.preventDefault();
+    if (!search.trim()) return;
+    setLoading(true);
+    const { data, error } = await supabase.from('profiles').select('*').ilike('username', `%${search}%`).limit(10);
+    if (!error && data) setUsers(data);
+    setLoading(false);
+  };
+
+  const handleMute = async (id, days) => {
+    const date = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+    await supabase.from('profiles').update({ muted_until: date, mute_reason: 'Moderatör tarafından susturuldu' }).eq('id', id);
+    showToast('Kullanıcı başarıyla susturuldu', 'success');
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, muted_until: date } : u));
+  };
+
+  const handleUnmute = async (id) => {
+    await supabase.from('profiles').update({ muted_until: null, mute_reason: null }).eq('id', id);
+    showToast('Susturma kaldırıldı', 'success');
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, muted_until: null } : u));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-black text-white flex items-center gap-2">
+          <ShieldAlert size={24} className="text-orange-400" /> Moderasyon Paneli
+        </h2>
+      </div>
+      <div className="glass border border-white/8 rounded-2xl p-6">
+        <form onSubmit={searchUsers} className="flex gap-4 mb-6">
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Kullanıcı ara (Kullanıcı adı)..." className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 outline-none" />
+          <button type="submit" disabled={loading} className="px-6 py-3 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition flex items-center gap-2">
+            <Search size={18} /> Ara
+          </button>
+        </form>
+        <div className="space-y-4">
+          {users.map(u => {
+            const isMuted = u.muted_until && new Date(u.muted_until) > new Date();
+            return (
+              <div key={u.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white">{u.username}</span>
+                    <span className="text-[10px] text-slate-400 px-2 py-0.5 rounded-full border border-white/10">{u.role || 'Kullanıcı'}</span>
+                  </div>
+                  {isMuted ? (
+                    <p className="text-[10px] text-red-400 font-bold mt-1 uppercase tracking-widest">Susturulmuş (Bitiş: {new Date(u.muted_until).toLocaleString('tr-TR')})</p>
+                  ) : (
+                    <p className="text-[10px] text-emerald-400 font-bold mt-1 uppercase tracking-widest">Temiz</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {!isMuted ? (
+                    <>
+                      <button onClick={() => handleMute(u.id, 1)} className="px-3 py-1.5 bg-orange-500/20 text-orange-400 hover:bg-orange-500/40 rounded-lg text-xs font-bold transition">1 Gün Sustur</button>
+                      <button onClick={() => handleMute(u.id, 7)} className="px-3 py-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded-lg text-xs font-bold transition">7 Gün Sustur</button>
+                    </>
+                  ) : (
+                    <button onClick={() => handleUnmute(u.id)} className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/40 rounded-lg text-xs font-bold transition">Susturmayı Kaldır</button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Sub-component: Error Decoder Panel
 // ─────────────────────────────────────────────────────────────────────────────
 function ErrorDecoderPanel() {
@@ -1805,7 +1890,7 @@ export default function Admin() {
   const allowedNavs = ALL_NAV.filter(n => roleConfig.access.includes(n.id));
 
   // Safe tab switch if current nav is no longer accessible
-  const safeActiveNav = roleConfig.access.includes(activeNav) ? activeNav : 'dashboard';
+  const safeActiveNav = roleConfig.access.includes(activeNav) ? activeNav : (roleConfig.access.length > 0 ? roleConfig.access[0] : 'dashboard');
 
   // ── Metrics ──────────────────────────────────────────────────────────
   const totalChapters = Object.values(chapters).reduce((a, c) => a + c.length, 0);
@@ -2130,6 +2215,7 @@ export default function Admin() {
         {safeActiveNav === 'schedule' && <ScheduleManager showToast={showToast} />}
         {safeActiveNav === 'suggestions' && <SuggestionsPanel />}
         {safeActiveNav === 'promoCodes' && <PromoCodesPanel showToast={showToast} />}
+        {safeActiveNav === 'moderation' && <ModerationPanel showToast={showToast} />}
 
         {/* Universe Settings */}
         {safeActiveNav === 'settings' && (

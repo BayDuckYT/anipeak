@@ -190,6 +190,21 @@ export default function CommentSystem({ seriesId, chapterNum }) {
     }
   };
 
+  const handleMuteUser = async (targetUserId, targetUsername) => {
+    if (!window.confirm(`${targetUsername} kullanıcısını 24 saat susturmak istediğinize emin misiniz?`)) return;
+    try {
+      const { error } = await supabase.from('profiles').update({
+        muted_until: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        mute_reason: 'Moderatör tarafından yorum kuralları ihlali sebebiyle susturuldu.'
+      }).eq('id', targetUserId);
+      if (error) throw error;
+      alert(`${targetUsername} başarıyla 24 saat susturuldu.`);
+      await supabase.from('notifications').insert([{ user_id: targetUserId, from_user_id: user.id, from_username: user.username, type: 'system', message: `Yorum kurallarını ihlal ettiğiniz için 24 saat susturuldunuz.` }]).catch(() => {});
+    } catch (err) {
+      alert('Susturma başarısız: ' + err.message);
+    }
+  };
+
   // ─── DERIVED DATA ─────────────────────────────────
   const topLevel = comments.filter(c => !c.parent_id);
   const repliesOf = {};
@@ -286,11 +301,18 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                   <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{new Date(comment.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                 </div>
               </div>
-              {(isOwner || user?.role === 'Baş Admin' || user?.role === 'Yönetici') && (
-                <button onClick={() => handleDelete(comment.id)} className="p-2 text-slate-400 hover:text-red-500 rounded-xl transition-all opacity-0 group-hover:opacity-100">
-                  <Trash2 size={13} />
-                </button>
-              )}
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                {(!isOwner && ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Moderatör'].includes(user?.role) && !['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Moderatör'].includes(prof?.role)) && (
+                  <button onClick={() => handleMuteUser(comment.user_id, prof?.username || comment.username)} title="Sustur (24 Saat)" className="p-2 text-slate-400 hover:text-orange-500 rounded-xl transition-all">
+                    <AlertTriangle size={13} />
+                  </button>
+                )}
+                {(isOwner || ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Moderatör'].includes(user?.role)) && (
+                  <button onClick={() => handleDelete(comment.id)} title="Yorumu Sil" className="p-2 text-slate-400 hover:text-red-500 rounded-xl transition-all">
+                    <Trash2 size={13} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Text */}
@@ -389,28 +411,36 @@ export default function CommentSystem({ seriesId, chapterNum }) {
 
       {/* Input */}
       {user ? (
-        <form onSubmit={handleSubmit} className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/50 to-blue-600/50 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
-          <div className="relative glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 space-y-5">
-            <div className="flex gap-5 items-start">
-              <div className="shrink-0">
-                <AnimeAvatar src={user.avatar_url} effect={user.active_mix?.avatar ? effectsData.find(e => e.id === user.active_mix.avatar) : null} size="w-12 h-12" />
-              </div>
-              <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Düşüncelerini paylaş... (@kullanıcı ile etiketle)" className="flex-1 bg-white/5 border border-white/5 rounded-2xl p-4 text-white text-sm font-medium focus:outline-none focus:border-purple-500/50 min-h-[100px] transition-all resize-none" />
-            </div>
-            <div className="flex items-center justify-between pt-3 border-t border-white/5">
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setIsSpoiler(!isSpoiler)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isSpoiler ? 'bg-red-500 text-white' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}>
-                  <AlertTriangle size={13} /> {isSpoiler ? 'SPOILER AKTİF' : 'SPOILER'}
-                </button>
-                <span className="text-slate-400 text-[9px] font-bold flex items-center gap-1"><AtSign size={12} />etiketle</span>
-              </div>
-              <button type="submit" disabled={submitting || !text.trim()} className="flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-40">
-                {submitting ? <Loader2 size={14} className="animate-spin" /> : <><Send size={13} /> GÖNDER</>}
-              </button>
-            </div>
+        user.isMuted ? (
+          <div className="glass p-10 rounded-[2.5rem] text-center border border-red-500/20 bg-red-500/5">
+            <AlertTriangle size={48} className="mx-auto mb-4 text-red-500 animate-pulse" />
+            <h3 className="text-red-400 font-black text-xl uppercase tracking-widest mb-2">Yorum Yapma Engeli</h3>
+            <p className="text-slate-400 text-sm font-medium">Hesabınız geçici olarak susturulmuştur. Lütfen kurallara dikkat edin.</p>
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/50 to-blue-600/50 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
+            <div className="relative glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 space-y-5">
+              <div className="flex gap-5 items-start">
+                <div className="shrink-0">
+                  <AnimeAvatar src={user.avatar_url} effect={user.active_mix?.avatar ? effectsData.find(e => e.id === user.active_mix.avatar) : null} size="w-12 h-12" />
+                </div>
+                <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Düşüncelerini paylaş... (@kullanıcı ile etiketle)" className="flex-1 bg-white/5 border border-white/5 rounded-2xl p-4 text-white text-sm font-medium focus:outline-none focus:border-purple-500/50 min-h-[100px] transition-all resize-none" />
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => setIsSpoiler(!isSpoiler)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isSpoiler ? 'bg-red-500 text-white' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}>
+                    <AlertTriangle size={13} /> {isSpoiler ? 'SPOILER AKTİF' : 'SPOILER'}
+                  </button>
+                  <span className="text-slate-400 text-[9px] font-bold flex items-center gap-1"><AtSign size={12} />etiketle</span>
+                </div>
+                <button type="submit" disabled={submitting || !text.trim()} className="flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-40">
+                  {submitting ? <Loader2 size={14} className="animate-spin" /> : <><Send size={13} /> GÖNDER</>}
+                </button>
+              </div>
+            </div>
+          </form>
+        )
       ) : (
         <div className="glass p-10 rounded-[2.5rem] text-center border border-dashed border-white/10">
           <p className="text-slate-500 text-sm font-black uppercase tracking-widest">Tartışmaya katılmak için giriş yap.</p>
