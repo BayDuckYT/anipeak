@@ -1310,10 +1310,16 @@ function PageManagement({ showToast }) {
     }
 
     try {
+      const payload = {
+        slug: editingPage.slug,
+        title: editingPage.title,
+        content: editingPage.content
+      };
+
       // id varsa id üzerinden, yoksa slug üzerinden güncelle
       const { error } = await supabase
         .from('pages')
-        .upsert(editingPage, { onConflict: 'slug' });
+        .upsert(payload, { onConflict: 'slug' });
 
       if (error) throw error;
 
