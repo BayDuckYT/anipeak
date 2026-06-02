@@ -1005,7 +1005,7 @@ function UsersPanel({ showToast }) {
           />
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 custom-scrollbar">
-          {['All', 'Kullanıcı', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe', 'Editör', 'Yönetici'].map(role => (
+          {['All', 'Kullanıcı', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe', 'Tester', 'Editör', 'Moderatör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(role => (
             <button
               key={role}
               onClick={() => setFilterRole(role)}
@@ -1151,7 +1151,7 @@ function UsersPanel({ showToast }) {
                     <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1">Sistem Rolü</label>
                     <select value={editingUser.role || 'Kullanıcı'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))}
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner">
-                      {['Kullanıcı', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe', 'Tester', 'Editör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
+                      {['Kullanıcı', 'Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe', 'Tester', 'Editör', 'Moderatör', 'Admin Yardımcısı', 'Yönetici', 'Baş Admin'].map(r => (
                         <option key={r} value={r} className="bg-[#0a0a14]">{r}</option>
                       ))}
                     </select>

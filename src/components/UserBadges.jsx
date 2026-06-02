@@ -12,7 +12,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
   const role = userData.role;
   const rank = userData.rank;
   const isElite = userData.is_elite || (rank && rank.includes('Elite'));
-  const isStaff = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(role);
+  const isStaff = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester', 'Moderatör'].includes(role);
   const planId = userData.active_plan_id;
   const houseId = userData.house_id;
 
@@ -84,6 +84,18 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
             STAFF / YETKİLİ
           </div>
         </motion.button>
+      )}
+
+      {role === 'Moderatör' && (
+        <motion.div
+          whileHover={{ scale: 1.2 }}
+          className="relative group cursor-pointer flex items-center justify-center p-0.5 outline-none"
+        >
+          <span className="text-[12px] drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]">🛡️</span>
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card-navy text-white text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border border-orange-500/50 z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom">
+            MODERATÖR
+          </div>
+        </motion.div>
       )}
 
       {houseId && (

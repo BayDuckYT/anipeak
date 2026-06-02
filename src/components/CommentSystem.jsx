@@ -291,6 +291,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                   <UserBadges user={prof || comment} showCrown={true} iconSize={isReply ? 12 : 14} />
                   <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest ${s.badge}`}>
                     {['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(prof?.role) ? `${prof?.role} | ${prof?.rank || 'Çaylak'}` :
+                     (prof?.role === 'Moderatör') ? `🛡️ Moderatör | ${prof?.rank || 'Çaylak'}` :
                      (prof?.active_plan_id === 'aethe') ? `Aethe ${prof?.rank || 'Çaylak'}` :
                      (prof?.is_elite) ? `Elite ${prof?.rank || 'Çaylak'}` :
                      prof?.rank || 'Çaylak'}
