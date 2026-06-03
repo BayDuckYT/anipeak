@@ -1627,6 +1627,7 @@ function PromoCodesPanel({ showToast }) {
     value: 'pro', // elite package ID or aura amount
     max_uses: 1,
     custom_code: '',
+    duration: 'unlimited', // 'unlimited', '1h', '24h', '5d', '30d'
     // Discount-specific fields
     discount_type: 'fixed', // 'fixed' | 'percent'
     discount_value: '',
@@ -1686,12 +1687,24 @@ function PromoCodesPanel({ showToast }) {
         codeStr = prefix + randomStr;
       }
 
+      // Calculate expires_at
+      let expires_at = null;
+      if (formData.duration !== 'unlimited') {
+        const now = new Date();
+        if (formData.duration === '1h') now.setHours(now.getHours() + 1);
+        else if (formData.duration === '24h') now.setHours(now.getHours() + 24);
+        else if (formData.duration === '5d') now.setDate(now.getDate() + 5);
+        else if (formData.duration === '30d') now.setDate(now.getDate() + 30);
+        expires_at = now.toISOString();
+      }
+
       // Build insert payload
       const payload = {
         code: codeStr,
         type: formData.type,
         value: formData.type === 'discount' ? formData.discount_value.toString() : formData.value.toString(),
         max_uses: parseInt(formData.max_uses),
+        expires_at: expires_at,
         created_by: user.id
       };
 
@@ -1705,7 +1718,13 @@ function PromoCodesPanel({ showToast }) {
 
       const { error } = await supabase.from('promo_codes').insert(payload);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23514' && error.message.includes('promo_codes_type_check')) {
+            throw new Error("Veritabanı 'discount' tipini desteklemiyor. Lütfen patch_discount_coupons.sql dosyasını Supabase'de çalıştırın.");
+        }
+        throw error;
+      }
+      
       showToast("Kod başarıyla oluşturuldu!", "success");
       setFormData(prev => ({ ...prev, custom_code: '' }));
       fetchCodes();
@@ -1750,8 +1769,8 @@ function PromoCodesPanel({ showToast }) {
         </h2>
         
         <form onSubmit={handleGenerate} className="space-y-6">
-          {/* Row 1: Kod Tipi + Özel İsim + Kullanım Limiti */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Row 1: Kod Tipi + Özel İsim + Kullanım Limiti + Süre */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kod Tipi</label>
               <select 
@@ -1777,7 +1796,7 @@ function PromoCodesPanel({ showToast }) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kullanım Limiti</label>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kullanım Limiti (Kişi)</label>
               <input 
                 type="number" 
                 className={inputCls}
@@ -1785,6 +1804,21 @@ function PromoCodesPanel({ showToast }) {
                 onChange={(e) => setFormData({ ...formData, max_uses: parseInt(e.target.value) || 1 })}
                 min="1"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Süre Sınırı</label>
+              <select 
+                className={inputCls}
+                value={formData.duration}
+                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+              >
+                <option value="unlimited">Süresiz</option>
+                <option value="1h">1 Saat</option>
+                <option value="24h">24 Saat</option>
+                <option value="5d">5 Gün</option>
+                <option value="30d">30 Gün</option>
+              </select>
             </div>
           </div>
 
@@ -1904,9 +1938,24 @@ function PromoCodesPanel({ showToast }) {
                 </tr>
               </thead>
               <tbody className="text-sm font-medium text-slate-300">
-                {codes.map(c => (
+                {codes.map(c => {
+                  let isExpired = false;
+                  if (c.expires_at) {
+                    isExpired = new Date(c.expires_at) < new Date();
+                  }
+                  const isFullyUsed = c.used_count >= c.max_uses;
+                  const isActive = c.is_active && !isExpired && !isFullyUsed;
+
+                  return (
                   <tr key={c.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="p-4 font-mono text-indigo-400 font-bold">{c.code}</td>
+                    <td className="p-4">
+                      <div className="font-mono text-indigo-400 font-bold">{c.code}</div>
+                      {c.expires_at && (
+                        <div className={`text-[10px] mt-1 ${isExpired ? 'text-rose-400' : 'text-slate-500'}`}>
+                          Bitiş: {new Date(c.expires_at).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
+                        </div>
+                      )}
+                    </td>
                     <td className="p-4">
                       <span className={`uppercase text-xs font-black px-2 py-1 rounded-md ${
                         c.type === 'discount' ? 'text-amber-400 bg-amber-500/10' : 
@@ -1919,10 +1968,12 @@ function PromoCodesPanel({ showToast }) {
                     <td className="p-4">{renderDiscountBadge(c)}</td>
                     <td className="p-4">{c.used_count} / {c.max_uses}</td>
                     <td className="p-4">
-                      {c.is_active && c.used_count < c.max_uses ? (
+                      {isActive ? (
                         <span className="text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md text-xs">Aktif</span>
                       ) : (
-                        <span className="text-rose-400 bg-rose-500/10 px-2 py-1 rounded-md text-xs">Pasif/Doldu</span>
+                        <span className="text-rose-400 bg-rose-500/10 px-2 py-1 rounded-md text-xs">
+                          {!c.is_active ? 'Pasif' : isExpired ? 'Süresi Doldu' : 'Tükendi'}
+                        </span>
                       )}
                     </td>
                     <td className="p-4 flex gap-2">
@@ -1945,7 +1996,7 @@ function PromoCodesPanel({ showToast }) {
                       </button>
                     </td>
                   </tr>
-                ))}
+                )})}
                 {codes.length === 0 && (
                   <tr>
                     <td colSpan="6" className="p-8 text-center text-slate-500">Henüz kod oluşturulmadı.</td>

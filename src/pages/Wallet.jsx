@@ -75,6 +75,7 @@ export default function Wallet() {
         .single();
         
       if (error || !codeData) throw new Error("Kod geçersiz veya bulunamadı.");
+      if (codeData.expires_at && new Date(codeData.expires_at) < new Date()) throw new Error("Bu kodun süresi dolmuş.");
       if (codeData.used_count >= codeData.max_uses) throw new Error("Bu kodun kullanım limiti dolmuş.");
       if (codeData.type !== 'aura') throw new Error("Bu kod Aura puanı için geçerli değil.");
       
@@ -364,6 +365,7 @@ export default function Wallet() {
                             .eq('is_active', true)
                             .single();
                           if (error || !dc) throw new Error("Geçersiz veya bulunamayan kod.");
+                          if (dc.expires_at && new Date(dc.expires_at) < new Date()) throw new Error("Bu kodun süresi dolmuş.");
                           if (dc.used_count >= dc.max_uses) throw new Error("Bu kodun kullanım limiti dolmuş.");
                           if (dc.applies_to !== 'all' && dc.applies_to !== 'aura') throw new Error("Bu kod Aura paketleri için geçerli değil.");
                           if (dc.min_amount > 0 && selectedPackage.price < dc.min_amount) throw new Error(`Bu kod minimum ${dc.min_amount} TL tutarındaki siparişlerde geçerlidir.`);
