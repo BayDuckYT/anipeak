@@ -21,22 +21,30 @@ function ReaderImage({ src, alt, idx, chapter }) {
   const [error, setError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [imgSrc, setImgSrc] = useState(src);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     setImgSrc(src);
     setError(false);
     setRetryCount(0);
+    setRetrying(false);
   }, [src]);
 
   const handleError = () => {
-    if (retryCount < 2) {
-      // Try again with a cache buster
-      const separator = src.includes('?') ? '&' : '?';
-      const buster = `cb=${Date.now()}_${idx}`;
-      setImgSrc(`${src}${separator}${buster}`);
-      setRetryCount(prev => prev + 1);
-      setError(false);
+    if (retryCount < 4) {
+      // Exponential backoff: 500ms, 1s, 2s, 4s
+      const delay = Math.min(500 * Math.pow(2, retryCount), 4000);
+      setRetrying(true);
+      setTimeout(() => {
+        const separator = src.includes('?') ? '&' : '?';
+        const buster = `cb=${Date.now()}_${idx}_r${retryCount}`;
+        setImgSrc(`${src}${separator}${buster}`);
+        setRetryCount(prev => prev + 1);
+        setRetrying(false);
+        setError(false);
+      }, delay);
     } else {
+      setRetrying(false);
       setError(true);
     }
   };
@@ -48,18 +56,27 @@ function ReaderImage({ src, alt, idx, chapter }) {
           <Sun size={48} className="text-red-500/50 animate-pulse" />
           <Bug size={20} className="absolute -bottom-1 -right-1 text-red-400" />
         </div>
-        <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-1">Bağlantı Kesildi</p>
-        <p className="text-slate-400 text-[10px] mb-6 font-mono">Index: {idx + 1} | Bağlantı Zayıf</p>
-        <button 
-          onClick={() => {
-            setError(false);
-            setRetryCount(0);
-            setImgSrc(`${src}${src.includes('?') ? '&' : '?' }retry=${Date.now()}`);
-          }}
-          className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 hover:border-purple-500/50 transition-all uppercase tracking-widest"
-        >
-          Resmi Yeniden Yükle
-        </button>
+        <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-1">Görsel Yüklenemedi</p>
+        <p className="text-slate-400 text-[10px] mb-2 font-mono">Sayfa {idx + 1} | 4 deneme başarısız</p>
+        <p className="text-slate-500 text-[9px] mb-6 max-w-xs leading-relaxed">Sunucu geçici olarak yanıt vermiyor olabilir. İnternetini kontrol edip tekrar dene.</p>
+        <div className="flex flex-col gap-2 w-full max-w-xs">
+          <button 
+            onClick={() => {
+              setError(false);
+              setRetryCount(0);
+              setImgSrc(`${src}${src.includes('?') ? '&' : '?' }retry=${Date.now()}`);
+            }}
+            className="px-6 py-2.5 bg-purple-600/20 border border-purple-500/30 rounded-xl text-[10px] font-black text-purple-300 hover:bg-purple-600/30 hover:border-purple-500/50 transition-all uppercase tracking-widest"
+          >
+            Resmi Yeniden Yükle
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-slate-400 hover:bg-white/10 transition-all uppercase tracking-widest"
+          >
+            Tüm Sayfayı Yenile
+          </button>
+        </div>
       </div>
     );
   }
@@ -78,7 +95,7 @@ function ReaderImage({ src, alt, idx, chapter }) {
         onDragStart={(e) => e.preventDefault()}
         style={{ display: 'block', minHeight: '300px' }}
       />
-      {/* Loading Placeholder (Skeleton) - More visible */}
+      {/* Loading Placeholder (Skeleton) */}
       <div className="absolute inset-0 bg-white/[0.03] -z-10 animate-pulse flex items-center justify-center">
          <BookOpen size={24} className="text-white/5" />
       </div>

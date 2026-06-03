@@ -1623,10 +1623,15 @@ function PromoCodesPanel({ showToast }) {
   const [codes, setCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    type: 'elite', // 'elite' | 'aura'
-    value: 'pro', // default elite package ID
+    type: 'elite', // 'elite' | 'aura' | 'discount'
+    value: 'pro', // elite package ID or aura amount
     max_uses: 1,
-    custom_code: ''
+    custom_code: '',
+    // Discount-specific fields
+    discount_type: 'fixed', // 'fixed' | 'percent'
+    discount_value: '',
+    min_amount: 0,
+    applies_to: 'all' // 'all' | 'elite' | 'aura'
   });
   const [generating, setGenerating] = useState(false);
 
@@ -1643,6 +1648,16 @@ function PromoCodesPanel({ showToast }) {
 
   useEffect(() => { fetchCodes(); }, [fetchCodes]);
 
+  const handleTypeChange = (newType) => {
+    if (newType === 'elite') {
+      setFormData(prev => ({ ...prev, type: newType, value: 'pro' }));
+    } else if (newType === 'aura') {
+      setFormData(prev => ({ ...prev, type: newType, value: '250000' }));
+    } else if (newType === 'discount') {
+      setFormData(prev => ({ ...prev, type: newType, value: '', discount_type: 'fixed', discount_value: '', min_amount: 0, applies_to: 'all' }));
+    }
+  };
+
   const handleGenerate = async (e) => {
     e.preventDefault();
     setGenerating(true);
@@ -1650,8 +1665,19 @@ function PromoCodesPanel({ showToast }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Oturum bulunamadı");
 
-      // Generate random code or use custom code
-      const prefix = formData.type === 'elite' ? 'PP-' : 'AU-';
+      // Validate discount fields
+      if (formData.type === 'discount') {
+        if (!formData.discount_value || parseFloat(formData.discount_value) <= 0) {
+          throw new Error("İndirim değeri geçerli bir sayı olmalıdır.");
+        }
+        if (formData.discount_type === 'percent' && parseFloat(formData.discount_value) > 100) {
+          throw new Error("Yüzdelik indirim 100'den fazla olamaz.");
+        }
+      }
+
+      // Generate code string
+      const prefixMap = { elite: 'PP-', aura: 'AU-', discount: 'DC-' };
+      const prefix = prefixMap[formData.type] || 'XX-';
       let codeStr = '';
       if (formData.custom_code && formData.custom_code.trim() !== '') {
         codeStr = formData.custom_code.trim().toUpperCase();
@@ -1660,17 +1686,28 @@ function PromoCodesPanel({ showToast }) {
         codeStr = prefix + randomStr;
       }
 
-      const { error } = await supabase.from('promo_codes').insert({
+      // Build insert payload
+      const payload = {
         code: codeStr,
         type: formData.type,
-        value: formData.value.toString(),
+        value: formData.type === 'discount' ? formData.discount_value.toString() : formData.value.toString(),
         max_uses: parseInt(formData.max_uses),
         created_by: user.id
-      });
+      };
+
+      // Add discount-specific fields
+      if (formData.type === 'discount') {
+        payload.discount_type = formData.discount_type;
+        payload.discount_value = parseFloat(formData.discount_value);
+        payload.min_amount = parseFloat(formData.min_amount) || 0;
+        payload.applies_to = formData.applies_to;
+      }
+
+      const { error } = await supabase.from('promo_codes').insert(payload);
 
       if (error) throw error;
       showToast("Kod başarıyla oluşturuldu!", "success");
-      setFormData(prev => ({ ...prev, custom_code: '' })); // clear custom code
+      setFormData(prev => ({ ...prev, custom_code: '' }));
       fetchCodes();
     } catch (err) {
       console.error(err);
@@ -1688,6 +1725,22 @@ function PromoCodesPanel({ showToast }) {
     }
   };
 
+  // Helper to display discount info in table
+  const renderDiscountBadge = (c) => {
+    if (c.type !== 'discount') return c.value;
+    const discType = c.discount_type === 'percent' ? '%' : ' TL';
+    const minTxt = c.min_amount > 0 ? ` (Min: ${c.min_amount} TL)` : '';
+    const targetTxt = c.applies_to === 'elite' ? ' [Elite]' : c.applies_to === 'aura' ? ' [Aura]' : ' [Tümü]';
+    return (
+      <span className="flex flex-col gap-0.5">
+        <span className="text-amber-400 font-bold">{c.discount_value}{discType} İndirim</span>
+        <span className="text-[9px] text-slate-500">{minTxt}{targetTxt}</span>
+      </span>
+    );
+  };
+
+  const inputCls = "w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all";
+
   return (
     <div className="space-y-8 animate-fade-in pb-20">
       <div className="glass-strong border border-white/5 rounded-2xl p-6">
@@ -1696,71 +1749,135 @@ function PromoCodesPanel({ showToast }) {
           YENİ PROMO KODU OLUŞTUR
         </h2>
         
-        <form onSubmit={handleGenerate} className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kod Tipi</label>
-            <select 
-              className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value, value: e.target.value === 'elite' ? 'pro' : '250000' })}
-            >
-              <option value="elite">Elite Paket Kodu</option>
-              <option value="aura">Aura Puanı Kodu</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Özel İsim (İsteğe Bağlı)</label>
-            <input 
-              type="text" 
-              className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
-              value={formData.custom_code}
-              onChange={(e) => setFormData({ ...formData, custom_code: e.target.value })}
-              placeholder="Örn: MAHORA"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Değer / Paket</label>
-            {formData.type === 'elite' ? (
+        <form onSubmit={handleGenerate} className="space-y-6">
+          {/* Row 1: Kod Tipi + Özel İsim + Kullanım Limiti */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kod Tipi</label>
               <select 
-                className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
-                value={formData.value}
-                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                className={inputCls}
+                value={formData.type}
+                onChange={(e) => handleTypeChange(e.target.value)}
               >
-                <option value="pro">Pro Paket</option>
-                <option value="shadow">Hükümdar Gölgesi</option>
-                <option value="ruler">Hükümdar</option>
-                <option value="aethe">Aethe</option>
+                <option value="elite">Elite Paket Kodu</option>
+                <option value="aura">Aura Puanı Kodu</option>
+                <option value="discount">İndirim Kuponu</option>
               </select>
-            ) : (
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Özel İsim (İsteğe Bağlı)</label>
+              <input 
+                type="text" 
+                className={inputCls}
+                value={formData.custom_code}
+                onChange={(e) => setFormData({ ...formData, custom_code: e.target.value })}
+                placeholder={formData.type === 'discount' ? 'Örn: SEPETTE150' : 'Örn: MAHORA'}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kullanım Limiti</label>
               <input 
                 type="number" 
-                className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
-                value={formData.value}
-                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                placeholder="Örn: 250000"
-                min="100"
+                className={inputCls}
+                value={formData.max_uses}
+                onChange={(e) => setFormData({ ...formData, max_uses: parseInt(e.target.value) || 1 })}
+                min="1"
               />
-            )}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kullanım Limiti</label>
-            <input 
-              type="number" 
-              className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
-              value={formData.max_uses}
-              onChange={(e) => setFormData({ ...formData, max_uses: parseInt(e.target.value) || 1 })}
-              min="1"
-            />
-          </div>
+          {/* Row 2: Type-specific fields */}
+          {formData.type === 'discount' ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-5 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-amber-400 uppercase tracking-wider">İndirim Türü</label>
+                <select 
+                  className={inputCls}
+                  value={formData.discount_type}
+                  onChange={(e) => setFormData({ ...formData, discount_type: e.target.value })}
+                >
+                  <option value="fixed">Sabit (TL)</option>
+                  <option value="percent">Yüzdelik (%)</option>
+                </select>
+              </div>
 
-          <div className="flex items-end">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                  İndirim Değeri {formData.discount_type === 'percent' ? '(%)' : '(TL)'}
+                </label>
+                <input 
+                  type="number" 
+                  className={inputCls}
+                  value={formData.discount_value}
+                  onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
+                  placeholder={formData.discount_type === 'percent' ? 'Örn: 20' : 'Örn: 150'}
+                  min="1"
+                  max={formData.discount_type === 'percent' ? '100' : undefined}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-amber-400 uppercase tracking-wider">Min. Tutar (TL)</label>
+                <input 
+                  type="number" 
+                  className={inputCls}
+                  value={formData.min_amount}
+                  onChange={(e) => setFormData({ ...formData, min_amount: e.target.value })}
+                  placeholder="Örn: 300"
+                  min="0"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-amber-400 uppercase tracking-wider">Geçerli Hedef</label>
+                <select 
+                  className={inputCls}
+                  value={formData.applies_to}
+                  onChange={(e) => setFormData({ ...formData, applies_to: e.target.value })}
+                >
+                  <option value="all">Tümü (Elite + Aura)</option>
+                  <option value="elite">Sadece Elite Paketleri</option>
+                  <option value="aura">Sadece Aura Paketleri</option>
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Değer / Paket</label>
+                {formData.type === 'elite' ? (
+                  <select 
+                    className={inputCls}
+                    value={formData.value}
+                    onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                  >
+                    <option value="pro">Pro Paket</option>
+                    <option value="shadow">Hükümdar Gölgesi</option>
+                    <option value="ruler">Hükümdar</option>
+                    <option value="aethe">Aethe</option>
+                  </select>
+                ) : (
+                  <input 
+                    type="number" 
+                    className={inputCls}
+                    value={formData.value}
+                    onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                    placeholder="Örn: 250000"
+                    min="100"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Submit */}
+          <div className="flex justify-end">
             <button 
               type="submit" 
               disabled={generating}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors disabled:opacity-50"
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors disabled:opacity-50"
             >
               {generating ? 'ÜRETİLİYOR...' : 'KOD ÜRET'}
             </button>
@@ -1790,8 +1907,16 @@ function PromoCodesPanel({ showToast }) {
                 {codes.map(c => (
                   <tr key={c.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                     <td className="p-4 font-mono text-indigo-400 font-bold">{c.code}</td>
-                    <td className="p-4 uppercase">{c.type}</td>
-                    <td className="p-4">{c.value}</td>
+                    <td className="p-4">
+                      <span className={`uppercase text-xs font-black px-2 py-1 rounded-md ${
+                        c.type === 'discount' ? 'text-amber-400 bg-amber-500/10' : 
+                        c.type === 'elite' ? 'text-purple-400 bg-purple-500/10' : 
+                        'text-pink-400 bg-pink-500/10'
+                      }`}>
+                        {c.type === 'discount' ? 'İNDİRİM' : c.type}
+                      </span>
+                    </td>
+                    <td className="p-4">{renderDiscountBadge(c)}</td>
                     <td className="p-4">{c.used_count} / {c.max_uses}</td>
                     <td className="p-4">
                       {c.is_active && c.used_count < c.max_uses ? (

@@ -145,6 +145,12 @@ export default function EliteUpgrade() {
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoMsg, setPromoMsg] = useState(null);
 
+  // İndirim Kuponu State'leri (Modal içi)
+  const [discountCode, setDiscountCode] = useState('');
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountData, setDiscountData] = useState(null);
+  const [discountMsg, setDiscountMsg] = useState(null);
+
   // Modal Scroll Kilidi
   useEffect(() => {
     if (selectedPlan) document.body.style.overflow = 'hidden';
@@ -583,7 +589,7 @@ export default function EliteUpgrade() {
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6"
           >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setSelectedPlan(null)} />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => { setSelectedPlan(null); setDiscountCode(''); setDiscountData(null); setDiscountMsg(null); }} />
             
             {/* Modal Content */}
             <motion.div
@@ -600,7 +606,7 @@ export default function EliteUpgrade() {
                 <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
                 
                 <button 
-                  onClick={() => setSelectedPlan(null)} 
+                  onClick={() => { setSelectedPlan(null); setDiscountCode(''); setDiscountData(null); setDiscountMsg(null); }} 
                   className="absolute top-5 right-5 p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                 >
                   <X size={20} />
@@ -648,14 +654,90 @@ export default function EliteUpgrade() {
                 </div>
               </div>
 
+              {/* ── İNDİRİM KODU ALANI ── */}
+              <div className="px-8 py-4">
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Tag size={12} /> İndirim Kodun Var Mı?
+                  </p>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text"
+                      value={discountCode}
+                      onChange={(e) => setDiscountCode(e.target.value)}
+                      placeholder="Örn: SEPETTE150"
+                      className="flex-grow bg-[#070511] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm font-mono uppercase focus:border-amber-500/50 outline-none transition-all"
+                    />
+                    <button 
+                      onClick={async () => {
+                        if (!discountCode.trim()) return;
+                        setDiscountLoading(true);
+                        setDiscountMsg(null);
+                        try {
+                          const { data: dc, error } = await supabase
+                            .from('promo_codes')
+                            .select('*')
+                            .eq('code', discountCode.trim().toUpperCase())
+                            .eq('type', 'discount')
+                            .eq('is_active', true)
+                            .single();
+                          if (error || !dc) throw new Error("Geçersiz veya bulunamayan kod.");
+                          if (dc.used_count >= dc.max_uses) throw new Error("Bu kodun kullanım limiti dolmuş.");
+                          if (dc.applies_to !== 'all' && dc.applies_to !== 'elite') throw new Error("Bu kod Elite paketleri için geçerli değil.");
+                          if (dc.min_amount > 0 && selectedPlan.basePrice < dc.min_amount) throw new Error(`Bu kod minimum ${dc.min_amount} TL tutarındaki siparişlerde geçerlidir.`);
+                          
+                          setDiscountData(dc);
+                          setDiscountMsg({ type: 'success', text: 'İndirim kodu uygulandı!' });
+                        } catch (err) {
+                          setDiscountData(null);
+                          setDiscountMsg({ type: 'error', text: err.message });
+                        } finally {
+                          setDiscountLoading(false);
+                        }
+                      }}
+                      disabled={discountLoading}
+                      className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-colors disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {discountLoading ? '...' : 'Uygula'}
+                    </button>
+                  </div>
+                  {discountMsg && (
+                    <div className={`mt-3 p-2.5 rounded-lg text-xs font-bold flex items-center gap-2 ${discountMsg.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                      {discountMsg.type === 'success' ? <Check size={14} /> : <AlertTriangle size={14} />}
+                      {discountMsg.text}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Summary & Purchase */}
               <div className="px-8 pb-8 pt-4">
                 {/* Total Display */}
                 <div className="flex items-center justify-between mb-6 px-2">
                   <span className="text-sm font-bold text-slate-400">Toplam Tutar</span>
                   <div className="text-right">
-                    <span className="text-3xl font-black text-white">{selectedPlan.basePrice}</span>
-                    <span className="text-lg font-bold text-slate-400 ml-1.5">TL</span>
+                    {discountData ? (
+                      <div className="flex flex-col items-end">
+                        <span className="text-sm text-slate-500 line-through">{selectedPlan.basePrice} TL</span>
+                        <div>
+                          <span className="text-3xl font-black text-emerald-400">
+                            {discountData.discount_type === 'percent' 
+                              ? Math.max(0, Math.round(selectedPlan.basePrice * (1 - discountData.discount_value / 100)))
+                              : Math.max(0, selectedPlan.basePrice - discountData.discount_value)
+                            }
+                          </span>
+                          <span className="text-lg font-bold text-slate-400 ml-1.5">TL</span>
+                        </div>
+                        <span className="text-[10px] text-amber-400 font-bold">
+                          {discountData.discount_type === 'percent' ? `%${discountData.discount_value} indirim uygulandı` : `${discountData.discount_value} TL indirim uygulandı`}
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-3xl font-black text-white">{selectedPlan.basePrice}</span>
+                        <span className="text-lg font-bold text-slate-400 ml-1.5">TL</span>
+                      </>
+                    )}
                   </div>
                 </div>
 

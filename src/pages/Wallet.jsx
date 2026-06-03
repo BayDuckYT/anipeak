@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet as WalletIcon, Sparkles, ShieldCheck, Zap, ArrowRight, CreditCard, Clock, History, ShoppingCart } from 'lucide-react';
+import { Wallet as WalletIcon, Sparkles, ShieldCheck, Zap, ArrowRight, CreditCard, Clock, History, ShoppingCart, Tag, AlertTriangle, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSEO } from '../hooks/useSEO';
 import { supabase } from '../lib/supabaseClient';
@@ -27,6 +27,12 @@ export default function Wallet() {
   const [promoCode, setPromoCode] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoMsg, setPromoMsg] = useState(null);
+
+  // İndirim Kuponu State'leri (Modal içi)
+  const [discountCode, setDiscountCode] = useState('');
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountData, setDiscountData] = useState(null);
+  const [discountMsg, setDiscountMsg] = useState(null);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -286,7 +292,7 @@ export default function Wallet() {
         <AnimatePresence>
           {isModalOpen && selectedPackage && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setIsModalOpen(false); setDiscountCode(''); setDiscountData(null); setDiscountMsg(null); }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
             
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} 
@@ -296,7 +302,7 @@ export default function Wallet() {
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 blur-[50px] -translate-y-1/2 translate-x-1/2" />
               
-              <div className="text-center space-y-4 relative z-10">
+              <div className="text-center space-y-4 relative z-10 p-8">
                 <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg shadow-pink-500/30">
                   <CreditCard size={32} className="text-white" />
                 </div>
@@ -312,8 +318,77 @@ export default function Wallet() {
                   </div>
                   <div className="flex justify-between items-center text-xl font-black text-white">
                     <span>Tutar:</span>
-                    <span className="text-pink-400">{selectedPackage.price} TL</span>
+                    {discountData ? (
+                      <div className="flex flex-col items-end">
+                        <span className="text-sm text-slate-500 line-through">{selectedPackage.price} TL</span>
+                        <span className="text-pink-400">
+                          {discountData.discount_type === 'percent' 
+                            ? Math.max(0, Math.round(selectedPackage.price * (1 - discountData.discount_value / 100)))
+                            : Math.max(0, selectedPackage.price - discountData.discount_value)
+                          } TL
+                        </span>
+                        <span className="text-[9px] text-amber-400 font-bold mt-1">
+                          {discountData.discount_type === 'percent' ? `%${discountData.discount_value} indirim` : `${discountData.discount_value} TL indirim`}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-pink-400">{selectedPackage.price} TL</span>
+                    )}
                   </div>
+                </div>
+
+                {/* ── İNDİRİM KODU ALANI ── */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-left">
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Tag size={12} /> İndirim Kodun Var Mı?
+                  </p>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text"
+                      value={discountCode}
+                      onChange={(e) => setDiscountCode(e.target.value)}
+                      placeholder="Örn: SEPETTE150"
+                      className="flex-grow bg-[#070511] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm font-mono uppercase focus:border-amber-500/50 outline-none transition-all"
+                    />
+                    <button 
+                      onClick={async () => {
+                        if (!discountCode.trim()) return;
+                        setDiscountLoading(true);
+                        setDiscountMsg(null);
+                        try {
+                          const { data: dc, error } = await supabase
+                            .from('promo_codes')
+                            .select('*')
+                            .eq('code', discountCode.trim().toUpperCase())
+                            .eq('type', 'discount')
+                            .eq('is_active', true)
+                            .single();
+                          if (error || !dc) throw new Error("Geçersiz veya bulunamayan kod.");
+                          if (dc.used_count >= dc.max_uses) throw new Error("Bu kodun kullanım limiti dolmuş.");
+                          if (dc.applies_to !== 'all' && dc.applies_to !== 'aura') throw new Error("Bu kod Aura paketleri için geçerli değil.");
+                          if (dc.min_amount > 0 && selectedPackage.price < dc.min_amount) throw new Error(`Bu kod minimum ${dc.min_amount} TL tutarındaki siparişlerde geçerlidir.`);
+                          
+                          setDiscountData(dc);
+                          setDiscountMsg({ type: 'success', text: 'İndirim kodu uygulandı!' });
+                        } catch (err) {
+                          setDiscountData(null);
+                          setDiscountMsg({ type: 'error', text: err.message });
+                        } finally {
+                          setDiscountLoading(false);
+                        }
+                      }}
+                      disabled={discountLoading}
+                      className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-colors disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {discountLoading ? '...' : 'Uygula'}
+                    </button>
+                  </div>
+                  {discountMsg && (
+                    <div className={`mt-3 p-2.5 rounded-lg text-xs font-bold flex items-center gap-2 ${discountMsg.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                      {discountMsg.type === 'success' ? <Check size={14} /> : <AlertTriangle size={14} />}
+                      {discountMsg.text}
+                    </div>
+                  )}
                 </div>
 
                 {/* Hediye Et Checkbox */}
@@ -330,7 +405,7 @@ export default function Wallet() {
                 </div>
 
                 <div className="flex gap-4">
-                  <button onClick={() => setIsModalOpen(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-slate-300 font-bold hover:bg-white/10 transition-all border border-white/10">
+                  <button onClick={() => { setIsModalOpen(false); setDiscountCode(''); setDiscountData(null); setDiscountMsg(null); }} className="flex-1 py-4 rounded-xl bg-white/5 text-slate-300 font-bold hover:bg-white/10 transition-all border border-white/10">
                     İptal
                   </button>
                   <a href="https://discord.gg/mahorapeak" target="_blank" rel="noopener noreferrer" className="flex-[2] py-4 rounded-xl bg-[#5865F2] text-white font-black hover:bg-[#4752C4] transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(88,101,242,0.3)]">
