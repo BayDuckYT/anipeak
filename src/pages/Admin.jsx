@@ -1625,7 +1625,8 @@ function PromoCodesPanel({ showToast }) {
   const [formData, setFormData] = useState({
     type: 'elite', // 'elite' | 'aura'
     value: 'pro', // default elite package ID
-    max_uses: 1
+    max_uses: 1,
+    custom_code: ''
   });
   const [generating, setGenerating] = useState(false);
 
@@ -1649,10 +1650,15 @@ function PromoCodesPanel({ showToast }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Oturum bulunamadı");
 
-      // Generate random code
+      // Generate random code or use custom code
       const prefix = formData.type === 'elite' ? 'PP-' : 'AU-';
-      const randomStr = Math.random().toString(36).substring(2, 10).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
-      const codeStr = prefix + randomStr;
+      let codeStr = '';
+      if (formData.custom_code && formData.custom_code.trim() !== '') {
+        codeStr = formData.custom_code.trim().toUpperCase();
+      } else {
+        const randomStr = Math.random().toString(36).substring(2, 10).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
+        codeStr = prefix + randomStr;
+      }
 
       const { error } = await supabase.from('promo_codes').insert({
         code: codeStr,
@@ -1664,6 +1670,7 @@ function PromoCodesPanel({ showToast }) {
 
       if (error) throw error;
       showToast("Kod başarıyla oluşturuldu!", "success");
+      setFormData(prev => ({ ...prev, custom_code: '' })); // clear custom code
       fetchCodes();
     } catch (err) {
       console.error(err);
@@ -1689,7 +1696,7 @@ function PromoCodesPanel({ showToast }) {
           YENİ PROMO KODU OLUŞTUR
         </h2>
         
-        <form onSubmit={handleGenerate} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <form onSubmit={handleGenerate} className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kod Tipi</label>
             <select 
@@ -1700,6 +1707,17 @@ function PromoCodesPanel({ showToast }) {
               <option value="elite">Elite Paket Kodu</option>
               <option value="aura">Aura Puanı Kodu</option>
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Özel İsim (İsteğe Bağlı)</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#0a0815] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none transition-all"
+              value={formData.custom_code}
+              onChange={(e) => setFormData({ ...formData, custom_code: e.target.value })}
+              placeholder="Örn: MAHORA"
+            />
           </div>
 
           <div className="space-y-2">
