@@ -163,7 +163,7 @@ function MaintenanceScreen({ onAuthOpen }) {
             </svg>
           </a>
           
-          <a href="https://instagram.com/mahorapeak" target="_blank" rel="noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#130E26]/90 backdrop-blur-md border border-[#6D28D9]/50 text-white hover:bg-[#130E26] hover:border-[#6D28D9] transition-all">
+          <a href="https://instagram.com/mahorapeakoffical" target="_blank" rel="noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#130E26]/90 backdrop-blur-md border border-[#6D28D9]/50 text-white hover:bg-[#130E26] hover:border-[#6D28D9] transition-all">
             <Instagram size={20} />
           </a>
         </div>

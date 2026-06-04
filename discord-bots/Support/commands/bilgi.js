@@ -88,7 +88,7 @@ export default {
             '🌐 **Web Sitesi:** [mahorapeak.com.tr](https://mahorapeak.com.tr)\n' +
             '💬 **Discord:** [discord.gg/mahorapeak](https://discord.gg/mahorapeak)\n' +
             '🐦 **Twitter/X:** [@mahorapeak](https://x.com/mahorapeak)\n' +
-            '📸 **Instagram:** [@mahorapeak](https://instagram.com/mahorapeak)'
+            '📸 **Instagram:** [@mahorapeakoffical](https://instagram.com/mahorapeakoffical)'
           )
           .setColor(COLORS.PURPLE);
         await interaction.reply({ embeds: [embed] });
