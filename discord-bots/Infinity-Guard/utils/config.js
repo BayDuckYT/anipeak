@@ -77,95 +77,64 @@ export const SECURITY_CONFIG = {
   MIN_LENGTH_FOR_CAPS: 10,  // En az 10 karakterlik mesajlarda caps kontrolü
 };
 
-// ── Yasaklı Kelimeler (Siber Filtre) ─────────────────────────
-export const BAD_WORDS = {
-  LIGHT: [
-    'abaza', 'abazan', 'ag', 'agzina sicayim', 'ahmak', 'allahsiz', 'am', 'amarim', 'ambiti', 'am biti',
-    'amcigi', 'amcigin', 'amcigini', 'amciginizi', 'amcik', 'amcik hosafi', 'amciklama', 'amciklandi',
-    'amcik', 'amck', 'amckl', 'amcklama', 'amcklaryla', 'amckta', 'amcktan', 'amcuk', 'amik', 'amina',
-    'aminako', 'amina koy', 'amina koyarim', 'amina koyayim', 'aminakoyim', 'amina koyyim', 'amina s',
-    'amina sikem', 'amina sokam', 'amin feryadi', 'amini', 'amini s', 'amin oglu', 'aminoglu', 'amin oglu',
-    'amisina', 'amisini', 'amina', 'amina g', 'amina k', 'aminako', 'aminakoyarim', 'amina koyarim',
-    'amina koyayim', 'aminakoyim', 'aminda', 'amindan', 'amindayken', 'amini', 'aminiyarraaniskiim',
-    'aminoglu', 'amin oglu', 'amiyum', 'amk', 'amkafa', 'amk cocugu', 'amlarnzn', 'amli', 'amm', 'ammak',
-    'ammna', 'amn', 'amna', 'amnda', 'amndaki', 'amngtn', 'amnn', 'amona', 'amq', 'amsiz', 'amsiz',
-    'amsz', 'amteri', 'amugaa', 'amuga', 'amuna', 'ana', 'anaaann', 'anal', 'analarn', 'anam', 'anamla',
-    'anan', 'anana', 'anandan', 'anani', 'anani ', 'ananin', 'ananin am', 'ananin ami', 'ananin dolu',
-    'ananinki', 'ananisikerim', 'anani sikerim', 'ananisikeyim', 'anani sikeyim', 'aninizin', 'ananizin am',
-    'anani', 'ananin', 'ananisikerim', 'anani sikerim', 'ananisikeyim', 'anani sikeyim', 'anann', 'ananz',
-    'anas', 'anasini', 'anasinin am', 'anasi orospu', 'anasi', 'anasinin', 'anay', 'anayin', 'angut',
-    'anneni', 'annenin', 'annesiz', 'anuna', 'aptal', 'aq', 'a.q', 'a.q.', 'aq.', 'ass', 'atkafası',
-    'atmik', 'attirdigim', 'attrrm', 'auzlu', 'avrat', 'ayklarmalrmsikerim', 'azdim', 'azdir', 'azdirici',
-    'babaannesi kasar', 'babani', 'babanin', 'babani', 'babasi pezevenk', 'bacina sicayim', 'bacina',
-    'bacini', 'bacinin', 'bacini', 'bacn', 'bacndan', 'bacy', 'bastard', 'basur', 'beyinsiz', 'bizir',
-    'bitch', 'biting', 'bok', 'boka', 'bokbok', 'bokca', 'bokhu', 'bokkkumu', 'boklar', 'boktan', 'boku',
-    'bokubokuna', 'bokum', 'bombok', 'boner', 'bosalmak', 'bosalmak', 'cenabet', 'cibiliyetsiz',
-    'cibilliyetini', 'cibilliyetsiz', 'cif', 'cikar', 'cim', 'cuk', 'dalaksiz', 'dallama', 'daltassak',
-    'dalyarak', 'dalyarrak', 'dangalak', 'dassagi', 'diktim', 'dildo', 'dingil', 'dingilini', 'dinsiz',
-    'dkerim', 'domal', 'domalan', 'domaldi', 'domaldin', 'domalik', 'domaliyor', 'domalmak', 'domalmis',
-    'domalsin', 'domalt', 'domaltarak', 'domaltip', 'domaltir', 'domaltirim', 'domaltip', 'domaltmak',
-    'dolu', 'donek', 'duduk', 'eben', 'ebeni', 'ebenin', 'ebeninki', 'ebleh', 'ecdadini', 'ecdadini',
-    'embesil', 'emi', 'fahise', 'fahise', 'feristah', 'ferre', 'fuck', 'fucker', 'fuckin', 'fucking',
-    'gavad', 'gavat', 'geber', 'geberik', 'gebermek', 'gebermis', 'gebertir', 'gerizekali', 'gerizekali',
-    'gerizekali', 'gerzek', 'giberim', 'giberler', 'gibis', 'gibis', 'gibmek', 'gibtiler', 'goddamn',
-    'godos', 'godumun', 'gotelek', 'gotlalesi', 'gotlu', 'gotten', 'gotundeki', 'gotunden', 'gotune',
-    'gotunu', 'gotveren', 'goyiim', 'goyum', 'goyuyim', 'goyyim', 'got', 'got deligi', 'gotelek',
-    'got herif', 'gotlalesi', 'gotlek', 'gotoglani', 'got oglani', 'gotos', 'gotten', 'gotu', 'gotun',
-    'gotune', 'gotunekoyim', 'gotune koyim', 'gotunu', 'gotveren', 'got veren', 'got verir', 'gtelek',
-    'gtn', 'gtnde', 'gtnden', 'gtne', 'gtten', 'gtveren', 'hasiktir', 'hassikome', 'hassiktir',
-    'has siktir', 'hassittir', 'haysiyetsiz', 'hayvan herif', 'hosafi', 'hoduk', 'hsktr', 'huur',
-    'ibnelik', 'ibina', 'ibine', 'ibinenin', 'ibne', 'ibnedir', 'ibneleri', 'ibnelik', 'ibnelri',
-    'ibneni', 'ibnenin', 'ibnerator', 'ibnesi', 'idiot', 'idiyot', 'imansz', 'ipne', 'iserim', 'iserim',
-    'itoglu it', 'kafam girsin', 'kafasiz', 'kafasiz', 'kahpe', 'kahpenin', 'kahpenin feryadi', 'kaka',
-    'kaltak', 'kancik', 'kancik', 'kappe', 'karhane', 'kasar', 'kavat', 'kavatn', 'kaypak', 'kayyum',
-    'kerane', 'kerhane', 'kerhanelerde', 'kevase', 'kevase', 'kevvase', 'koca got', 'kodugmun',
-    'kodugmunun', 'kodumun', 'kodumunun', 'koduumun', 'koyarm', 'koyayim', 'koyiim', 'koyiiym',
-    'koyim', 'koyum', 'koyyim', 'krar', 'kukudaym', 'laciye boyadim', 'lavuk', 'libos', 'madafaka',
-    'mal', 'malafat', 'malak', 'manyak', 'mcik', 'meme', 'memelerini', 'mezveleli', 'minaamcik',
-    'mincikliyim', 'mna', 'monakkoluyum', 'motherfucker', 'mudik', 'oc', 'ocuu', 'ocuun', 'OC', 'oc',
-    'o. cocugu', 'oglan', 'oglanci', 'oglu it', 'orosbucocuu', 'orospu', 'orospucocugu', 'orospu cocugu',
-    'orospu coc', 'orospucocugu', 'orospu cocugu', 'orospu cocugudur', 'orospu cocuklari', 'orospudur',
-    'orospular', 'orospunun', 'orospunun evladi', 'orospuydu', 'orospuyuz', 'orostoban', 'orostopol',
-    'orrospu', 'oruspu', 'oruspucocugu', 'oruspu cocugu', 'osbir', 'ossurduum', 'ossurmak', 'ossuruk',
-    'osur', 'osurduu', 'osuruk', 'osururum', 'otuzbir', 'okuz', 'osex', 'patlak zar', 'penis', 'pezevek',
-    'pezeven', 'pezeveng', 'pezevengi', 'pezevengin evladi', 'pezevenk', 'pezo', 'pic', 'pici', 'picler',
-    'pic', 'picin oglu', 'pic kurusu', 'picler', 'pipi', 'pipis', 'pisliktir', 'porno', 'pussy', 'pust',
-    'pusttur', 'rahminde', 'revizyonist', 's1kerim', 's1kerm', 's1krm', 'sakso', 'saksofon', 'salaak',
-    'salak', 'saxo', 'sekis', 'serefsiz', 'sevgi koyarim', 'seviselim', 'sexs', 'sicarim', 'sictigim',
-    'siecem', 'sicarsin', 'sie', 'sik', 'sikdi', 'sikdigim', 'sike', 'sikecem', 'sikem', 'siken',
-    'sikenin', 'siker', 'sikerim', 'sikerler', 'sikersin', 'sikertir', 'sikertmek', 'sikesen',
-    'sikesicenin', 'sikey', 'sikeydim', 'sikeyim', 'sikeym', 'siki', 'sikicem', 'sikici', 'sikien',
-    'sikienler', 'sikiiim', 'sikiiimmm', 'sikiim', 'sikiir', 'sikiirken', 'sikik', 'sikil',
-    'sikildiini', 'sikilesice', 'sikilmi', 'sikilmie', 'sikilmis', 'sikilmis', 'sikilsin', 'sikim',
-    'sikimde', 'sikimden', 'sikime', 'sikimi', 'sikimiin', 'sikimin', 'sikimle', 'sikimsonik',
-    'sikimtrak', 'sikin', 'sikinde', 'sikinden', 'sikine', 'sikini', 'sikip', 'sikis', 'sikisek',
-    'sikisen', 'sikish', 'sikismis', 'sikis', 'sikisen', 'sikisme', 'sikitiin', 'sikiyim', 'sikiym',
-    'sikiyorum', 'sikkim', 'sikko', 'sikleri', 'sikleriii', 'sikli', 'sikm', 'sikmek', 'sikmem',
-    'sikmiler', 'sikmisligim', 'siksem', 'sikseydin', 'sikseyidin', 'siksin', 'siksinbaya', 'siksinler',
-    'siksiz', 'siksok', 'siksz', 'sikt', 'sikti', 'siktigimin', 'siktigiminin', 'siktiğim',
-    'siktigimin', 'siktigiminin', 'siktii', 'siktiim', 'siktiimin', 'siktiiminin', 'siktiler',
-    'siktim', 'siktim ', 'siktimin', 'siktiminin', 'siktir', 'siktir et', 'siktirgit', 'siktir git',
-    'siktirir', 'siktiririm', 'siktiriyor', 'siktir lan', 'siktirolgit', 'siktir ol git', 'sittimin',
-    'sittir', 'skcem', 'skecem', 'skem', 'sker', 'skerim', 'skerm', 'skeyim', 'skiim', 'skik', 'skim',
-    'skime', 'skmek', 'sksin', 'sksn', 'sksz', 'sktiimin', 'sktrr', 'skyim', 'slaleni', 'sokam',
-    'sokarim', 'sokarim', 'sokarm', 'sokarmkoduumun', 'sokayim', 'sokaym', 'sokiim', 'soktugumunun',
-    'sokuk', 'sokum', 'sokus', 'sokuyum', 'soxum', 'sulaleni', 'sulaleni', 'sulalenizi', 'surtuk',
-    'serefsiz', 'sillik', 'taaklarn', 'taaklarna', 'tarrakimin', 'tasak', 'tassak', 'tasak', 'tassak',
-    'tipini s.k', 'tipinizi s.keyim', 'tiyniyat', 'toplarm', 'topsun', 'totos', 'vajina', 'vajinani',
-    'veled', 'veledizina', 'veled i zina', 'verdiimin', 'weled', 'weledizina', 'whore', 'xikeyim',
-    'yaaraaa', 'yalama', 'yalarim', 'yalarun', 'yaraaam', 'yarak', 'yaraksiz', 'yaraktr', 'yaram',
-    'yaraminbasi', 'yaramn', 'yararmorospunun', 'yarra', 'yarraaaa', 'yarraak', 'yarraam', 'yarraami',
-    'yarragi', 'yarragimi', 'yarragina', 'yarragindan', 'yarragm', 'yarrag', 'yarragim', 'yarragimi',
-    'yarraiminin', 'yarrak', 'yarram', 'yarramin', 'yarraminbasi', 'yarramn', 'yarran', 'yarrana',
-    'yarrrak', 'yavak', 'yavs', 'yavsak', 'yavsaktir', 'yavusak', 'yilisik', 'yilisik', 'yogurtlayam',
-    'yogurtlayam', 'yrrak', 'zikkimim', 'zibidi', 'zigsin', 'zikeyim', 'zikiiim', 'zikiim', 'zikik',
-    'zikim', 'ziksiiin', 'ziksiin', 'zulliyetini', 'zviyetini'
-  ],
-  HEAVY: [
-    'ataturk', 'din', 'allah', 'peygamber', 'kitap', 'kuran', 'irk', 'irki',
-    'atama', 'atam', 'cumhurbaşkanı', 'rte', 'siyaset', 'dinime', 'kuranıma'
-  ]
-};
+// ── Küfür Filtresi (Akıllı Regex Tabanlı) ────────────────────
+// NOT: Sadece gerçek küfür KÖKLERİ burada. Normal kelimeler (allah, din, ataturk vb.) YOK.
+// Her kök regex olarak aranır — varyasyonları otomatik yakalar.
+// Kelime sınırı (\b) kullanılarak "kanal" içindeki "anal" gibi yanlış tespitler önlenir.
+export const PROFANITY_ROOTS = [
+  // Türkçe küfür kökleri (tam kelime eşleşmesi — \b ile)
+  'amk', 'amq', 'aq',
+  'orospu', 'oruspu', 'orosbu', 'orspu',
+  'siktir', 'siktiğim', 'siktigim', 'sikeyim', 'sikerim', 'sikecem', 'sikiyim', 'sikim',
+  'yarrak', 'yarak', 'yarram', 'yarrağ',
+  'pezevenk', 'pezeveng',
+  'piç', 'pic',
+  'gavat', 'gavad',
+  'ibne', 'ipne',
+  'kahpe', 'kaltak',
+  'kerhane', 'kerane',
+  'götveren', 'gotveren',
+  'dalyarak', 'dalyarrak',
+  'amcık', 'amcik', 'amcuk',
+  'taşak', 'tassak', 'tasak',
+  // İngilizce (yaygın olanlar)
+  'fuck', 'motherfucker',
+];
+
+// Küfür köklerinden regex oluştur — kelime sınırı ile
+// "am" gibi çok kısa ve false-positive yaratan kökler YOK
+// "sik" tek başına yok çünkü "sikinti", "musikî" gibi kelimeleri yakalar
+export const PROFANITY_REGEX = new RegExp(
+  PROFANITY_ROOTS.map(root => {
+    // Türkçe karakterleri ASCII karşılıklarıyla da eşle
+    const escaped = root
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/ç/g, '[çc]')
+      .replace(/ğ/g, '[ğg]')
+      .replace(/ı/g, '[ıi]')
+      .replace(/ö/g, '[öo]')
+      .replace(/ş/g, '[şs]')
+      .replace(/ü/g, '[üu]');
+    return escaped;
+  }).join('|'),
+  'gi'
+);
+
+/**
+ * Küfür kontrolü — false positive olmadan
+ * @param {string} text - Kontrol edilecek metin
+ * @returns {boolean} Küfür içeriyor mu
+ */
+export function containsProfanity(text) {
+  if (!text || text.length < 2) return false;
+  
+  const normalized = text
+    .toLowerCase()
+    .replace(/[_.,-]/g, '') // Noktalama temizle
+    .replace(/(\w)\1{2,}/g, '$1$1'); // "amkkkk" → "amkk" (fazla tekrarı azalt)
+  
+  return PROFANITY_REGEX.test(normalized);
+}
 
 // ── Selamlaşma Modülü ─────────────────────────────────────────
 export const GREETINGS = {

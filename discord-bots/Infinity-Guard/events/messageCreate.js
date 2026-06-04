@@ -1,5 +1,5 @@
 import { PermissionFlagsBits, EmbedBuilder } from 'discord.js';
-import { WHITELIST_DOMAINS, SPAM_CONFIG, SECURITY_CONFIG, BAD_WORDS, GREETINGS, PUNISHMENT_CONFIG, COLORS, STRICT_LINK_CHANNELS } from '../utils/config.js';
+import { WHITELIST_DOMAINS, SPAM_CONFIG, SECURITY_CONFIG, GREETINGS, PUNISHMENT_CONFIG, COLORS, STRICT_LINK_CHANNELS, containsProfanity } from '../utils/config.js';
 import { antiSpamEmbed, antiLinkEmbed, securityAlertEmbed, baseEmbed } from '../utils/embeds.js';
 import { sendLog } from '../utils/logger.js';
 import { trackAndCheck, resetUser } from '../utils/antiSpam.js';
@@ -26,30 +26,20 @@ export default {
     const settings = getSettings();
     const chanSettings = settings.channels[message.channel.id] || settings.global;
 
-    const isStaff = message.member?.permissions?.has(PermissionFlagsBits.ManageMessages);
-    
     const content = message.content;
     const lowerContent = content.toLowerCase().trim();
 
     // ══════════════════════════════════════════════════════════
-    //  0. AKILLI SELAMLAŞMA MODÜLÜ (Staff olmasa da çalışır)
+    //  0. AKILLI SELAMLAŞMA MODÜLÜ
     // ══════════════════════════════════════════════════════════
     if (GREETINGS.INPUTS.includes(lowerContent)) {
       const response = GREETINGS.OUTPUTS[Math.floor(Math.random() * GREETINGS.OUTPUTS.length)];
       return message.reply(response);
     }
 
-    // GS Kontrolü (Sunucu Sahibi Bypass için)
+    // GS Kontrolü (Sunucu Sahibi Bypass)
     const isOwner = message.author.id === message.guild.ownerId;
-    
-    // Filtre Bypass Mantığı:
-    // Sadece Sunucu Sahibi (GS) filtrelerden muaftır.
-    // Diğer tüm yetkililer ve üyeler filtreye tabidir.
     if (isOwner) return;
-
-    // Diğer filtreler için (Link, Spam vs.) hala Staff kontrolü yapabiliriz 
-    // ama kullanıcı "her türlü küfür engellencek rütbesi ne olursa olsun gs hariç" dediği için
-    // küfür filtresinden önce GS kontrolü yapıyoruz.
 
     // ══════════════════════════════════════════════════════════
     //  1. ANTI-LINK FİLTRESİ
@@ -79,37 +69,13 @@ export default {
     }
 
     // ══════════════════════════════════════════════════════════
-    //  2. KÜFÜR / ARGO FİLTRESİ (DİNAMİK & DERECELİ)
+    //  2. KÜFÜR FİLTRESİ (TEMİZ REGEX TABANLI)
+    //  Artık devasa kelime listesi YOK — sadece kök küfürler
+    //  "allah", "din", "ataturk" gibi kelimeler engellenMEZ
     // ══════════════════════════════════════════════════════════
     if (chanSettings.badWords) {
-      // Metni normalize et (boşlukları, noktaları temizle, tekrarlayan harfleri teke indir)
-      const normalizedContent = lowerContent
-        .replace(/[^a-z0-9ğüşıöç]/gi, '') // Sadece harf ve rakam kalsın
-        .replace(/\s+/g, '') // Boşlukları temizle
-        .replace(/(.)\1+/g, '$1') // Tekrarlayan harfleri teke indir (amkkkk -> amk)
-        .replace(/0/g, 'o').replace(/1/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a').replace(/5/g, 's').replace(/7/g, 't').replace(/8/g, 'b').replace(/@/g, 'a').replace(/v/g, 'u').replace(/w/g, 'v');
-
-      // Önce AĞIR küfürleri kontrol et (Doğrudan ceza)
-      const hasHeavyBadWord = BAD_WORDS.HEAVY.some(word => {
-        return normalizedContent.includes(word.toLowerCase());
-      });
-
-      if (hasHeavyBadWord) {
-        const timeoutDuration = Math.floor(Math.random() * (PUNISHMENT_CONFIG.HEAVY_TIMEOUT_MAX_MS - PUNISHMENT_CONFIG.HEAVY_TIMEOUT_MIN_MS + 1)) + PUNISHMENT_CONFIG.HEAVY_TIMEOUT_MIN_MS;
-        const hours = Math.floor(timeoutDuration / (60 * 60 * 1000));
-        
-        await handleHeavyViolation(message, 'Ağır Küfür / Kutsal Değerlere Saldırı', hours);
-        return;
-      }
-
-      // Sonra HAFİF küfürleri kontrol et (Uyarı sistemi)
-      const hasLightBadWord = BAD_WORDS.LIGHT.some(word => {
-        // Tam eşleşme veya kelime içinde geçme kontrolü
-        return normalizedContent.includes(word.toLowerCase());
-      });
-
-      if (hasLightBadWord) {
-        await handleLightViolation(message, 'Yasaklı Kelime / Küfür');
+      if (containsProfanity(content)) {
+        await handleProfanityViolation(message);
         return;
       }
     }
@@ -138,39 +104,13 @@ export default {
     }
 
     // ══════════════════════════════════════════════════════════
-    //  6. GÖRSEL ZEKA (OCR) TARAMASI
-    // ══════════════════════════════════════════════════════════
-    if (message.attachments.size > 0) {
-      const image = message.attachments.find(a => a.contentType?.startsWith('image/'));
-      if (image) {
-        try {
-          const Tesseract = (await import('tesseract.js')).default;
-          const { data: { text } } = await Tesseract.recognize(image.url, 'tur+eng');
-          const lowerText = text.toLowerCase();
-
-          const hasViolation = 
-            BAD_WORDS.LIGHT.some(word => lowerText.includes(word.toLowerCase())) ||
-            BAD_WORDS.HEAVY.some(word => lowerText.includes(word.toLowerCase())) ||
-            INVITE_REGEX.test(lowerText) ||
-            ["scam", "crypto", "free nitro", "dolandırıcılık"].some(w => lowerText.includes(w));
-
-          if (hasViolation) {
-            return await handleViolation(message, 'Resim Üzerinde Yasaklı İçerik (OCR)', securityAlertEmbed(message.author, 'Resim üzerinde yasaklı kelime veya link tespit edildi!'));
-          }
-        } catch (ocrErr) {
-          console.error('[Infinity-Guard] OCR Hatası:', ocrErr.message);
-        }
-      }
-    }
-
-    // ══════════════════════════════════════════════════════════
     //  5. ANTI-SPAM MOTORU
     // ══════════════════════════════════════════════════════════
     if (chanSettings.antiSpam) {
       const isSpamming = trackAndCheck(message.author.id);
       if (isSpamming) {
         try {
-          await message.member.timeout(SPAM_CONFIG.TIMEOUT_DURATION_MS, 'Infinity Guard — Otomatik spam tespiti');
+          await message.member.timeout(SPAM_CONFIG.TIMEOUT_DURATION_MS, 'MahoraPeak Guard — Otomatik spam tespiti');
           resetUser(message.author.id);
           const embed = antiSpamEmbed(message.author);
           await message.channel.send({ embeds: [embed] });
@@ -200,9 +140,10 @@ async function handleViolation(message, reason, embed) {
 }
 
 /**
- * Hafif Küfür / Uyarı Sistemi
+ * Küfür İhlali — 3 uyarı sonrası 10dk timeout
+ * Artık HEAVY/LIGHT ayrımı yok, tek sistem.
  */
-async function handleLightViolation(message, reason) {
+async function handleProfanityViolation(message) {
   const userId = message.author.id;
   let count = (userWarnings.get(userId) || 0) + 1;
   userWarnings.set(userId, count);
@@ -217,46 +158,21 @@ async function handleLightViolation(message, reason) {
 
       const embed = baseEmbed(COLORS.DANGER)
         .setTitle('🤐 OTOMATİK SUSTURMA')
-        .setDescription(`${message.author}, küfür/uyarı limitini aştığın için **1 saat** boyunca susturuldun.`)
+        .setDescription(`${message.author}, küfür limitini aştığın için **10 dakika** boyunca susturuldun.`)
         .addFields({ name: '📊 Uyarı Sayısı', value: `\`${count} / ${PUNISHMENT_CONFIG.MAX_WARNINGS}\`` });
 
       await message.channel.send({ embeds: [embed] });
       await sendLog(message.guild, embed);
     } catch (err) {
-      console.error('[Infinity-Guard] Light violation timeout hatası:', err.message);
+      console.error('[Infinity-Guard] Küfür timeout hatası:', err.message);
     }
   } else {
     // Sadece uyar
-    const embed = securityAlertEmbed(message.author, reason)
+    const embed = securityAlertEmbed(message.author, 'Küfür / Uygunsuz İfade')
       .addFields({ name: '⚠️ Uyarı Durumu', value: `\`${count} / ${PUNISHMENT_CONFIG.MAX_WARNINGS}\`` });
     
     const warningMsg = await message.channel.send({ content: `${message.author}`, embeds: [embed] });
     setTimeout(() => warningMsg.delete().catch(() => {}), 6000);
     await sendLog(message.guild, embed);
-  }
-}
-
-/**
- * Ağır Küfür / Doğrudan Ceza
- */
-async function handleHeavyViolation(message, reason, hours) {
-  await message.delete().catch(() => {});
-
-  try {
-    const durationMs = hours * 60 * 60 * 1000;
-    await message.member.timeout(durationMs, reason);
-
-    const embed = baseEmbed(COLORS.DANGER)
-      .setTitle('🔥 AĞIR İHLAL — ANINDA CEZA')
-      .setDescription(
-        `${message.author}, sunucu kurallarını ağır şekilde ihlal ettiğin için **${hours} saat** susturuldun.\n` +
-        `**Sebep:** \`${reason}\``
-      )
-      .setFooter({ text: 'Sıfır Tolerans Politikası Aktif' });
-
-    await message.channel.send({ embeds: [embed] });
-    await sendLog(message.guild, embed);
-  } catch (err) {
-    console.error('[Infinity-Guard] Heavy violation timeout hatası:', err.message);
   }
 }
