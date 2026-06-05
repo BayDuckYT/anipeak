@@ -1024,18 +1024,18 @@ export default function ProfileShowcase() {
                        </div>
                     )}
 
-                    {displayUser.house_id && (
+                    {displayUser.faction && (
                        <div className={`inline-flex px-4 py-1.5 rounded-xl bg-black/40 border backdrop-blur-md shadow-lg ${
-                          displayUser.house_id === 'dragon' ? 'border-red-500/30 text-red-500' :
-                          displayUser.house_id === 'fox' ? 'border-purple-500/30 text-purple-400' :
-                          displayUser.house_id === 'wolf' ? 'border-blue-500/30 text-blue-400' :
-                          'border-orange-500/30 text-orange-400'
+                          displayUser.faction === 'dragon' ? 'border-red-500/30 text-red-500' :
+                          displayUser.faction === 'fox' ? 'border-purple-500/30 text-purple-400' :
+                          displayUser.faction === 'wolf' ? 'border-blue-500/30 text-blue-400' :
+                          'border-amber-500/30 text-amber-500'
                        }`}>
                           <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 drop-shadow-md">
                              <Shield size={12} className="shrink-0" />
-                             {displayUser.house_id === 'dragon' ? 'KIZIL EJDER' :
-                              displayUser.house_id === 'fox' ? 'GÜMÜŞ KITSUNE' :
-                              displayUser.house_id === 'wolf' ? 'BUZ KURT' :
+                             {displayUser.faction === 'dragon' ? 'KIZIL EJDER' :
+                              displayUser.faction === 'fox' ? 'GÜMÜŞ KITSUNE' :
+                              displayUser.faction === 'wolf' ? 'BUZ KURT' :
                               'ALTIN ANKA'}
                           </span>
                        </div>

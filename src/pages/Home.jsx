@@ -91,7 +91,7 @@ function GlassCard({ item, type = 'trending', rank, chapters }) {
 export default function Home({ onAuthOpen }) {
   const trendRef = useRef(null);
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, readingHistory } = useAuth();
   const { sortedSeries, announcements, chapters, getChapters } = useApp();
 
   useSEO({
@@ -298,6 +298,59 @@ export default function Home({ onAuthOpen }) {
           
           <div className="flex-1 min-w-0 space-y-12 sm:space-y-16">
             
+            {/* 1.5. KALDIĞIN YERDEN DEVAM ET (Continue Reading) */}
+            <AnimatePresence>
+              {user && readingHistory && readingHistory.length > 0 && (
+                <motion.section 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-8"
+                >
+                  <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-wider flex items-center gap-2 mb-4">
+                    <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
+                      <Compass size={16} className="text-blue-400" />
+                    </div>
+                    Kaldığın Yerden Devam Et
+                  </h2>
+                  <VirtualHScroll 
+                    items={readingHistory.slice(0, 5).map(rh => {
+                      const s = validSeries.find(s => String(s.id) === rh.manhwaId);
+                      return s ? { ...s, lastReadChapter: rh.lastChapter } : null;
+                    }).filter(Boolean)} 
+                    itemWidth={200} 
+                    gap={16} 
+                    className="netflix-row-container"
+                    renderItem={(item) => (
+                      <Link key={`history-${item.id}`} to={`/manga/${item.slug}/bolum-${item.lastReadChapter}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" title={`${item.title} - Bölüm ${item.lastReadChapter} okumaya devam et`}>
+                        <article className="relative rounded-md overflow-hidden bg-[#141414] border border-white/10 transition-all duration-300 shadow-xl group-hover:border-blue-500/50">
+                          <div className="relative aspect-[2/3] overflow-hidden bg-[#070511]">
+                            <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/40 to-transparent opacity-80" />
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                              <div className="w-12 h-12 rounded-full bg-blue-600/90 backdrop-blur flex items-center justify-center text-white shadow-[0_0_15px_rgba(37,99,235,0.8)] transform scale-75 group-hover:scale-100 transition-all duration-300">
+                                <Play size={20} className="ml-1" />
+                              </div>
+                            </div>
+                            <div className="absolute inset-x-0 bottom-0 p-3 flex flex-col gap-1 z-10">
+                              <h3 className="text-white text-xs font-black truncate shadow-black drop-shadow-md">{item.title}</h3>
+                              <div className="flex items-center justify-between">
+                                <span className="text-blue-400 font-bold text-[10px] bg-blue-500/20 px-1.5 py-0.5 rounded backdrop-blur">Bölüm {item.lastReadChapter}</span>
+                              </div>
+                            </div>
+                            {/* Progress bar mock (could be real if we track pages) */}
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 z-20">
+                              <div className="h-full bg-blue-500 w-[70%]" />
+                            </div>
+                          </div>
+                        </article>
+                      </Link>
+                    )} 
+                  />
+                </motion.section>
+              )}
+            </AnimatePresence>
+
             {/* 2. TREND SERİLER (Yatay Scroll) */}
             <motion.section 
               ref={trendRef} id="trendler"

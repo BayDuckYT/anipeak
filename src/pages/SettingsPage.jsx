@@ -692,6 +692,54 @@ export default function SettingsPage() {
                       />
                     </div>
 
+                    {/* Faction Selection Section */}
+                    <div className="pt-8 border-t border-white/5 space-y-6">
+                      <div>
+                        <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                          <Swords size={24} className="text-purple-400" /> Fraksiyon (Hane)
+                        </h3>
+                        <p className="text-xs text-zinc-400 mt-2 font-medium tracking-wide">
+                          Ait olduğun fraksiyonu seç. Seçtiğin hane profilde gösterilecektir.
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {HOUSES.map((house) => {
+                          const isSelected = user?.faction === house.id;
+                          return (
+                            <button
+                              key={house.id}
+                              onClick={() => handleSave({ faction: house.id })}
+                              className={`relative p-6 rounded-[2rem] border transition-all duration-300 text-left group overflow-hidden ${
+                                isSelected 
+                                ? \`bg-[#13111C] \${house.border} \${house.shadow}\` 
+                                : 'bg-black/40 border-white/5 hover:border-white/20'
+                              }`}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" />
+                              <div className="flex items-center gap-5 relative z-10">
+                                <div className={\`w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors \${
+                                  isSelected 
+                                  ? \`bg-gradient-to-br \${house.color} border-white/20 text-white\`
+                                  : \`bg-white/5 border-white/10 text-zinc-500 group-hover:text-white\`
+                                }\`}>
+                                  <house.icon size={24} />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-black text-white uppercase tracking-widest">{house.name}</h4>
+                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">{house.desc}</p>
+                                </div>
+                                {isSelected && (
+                                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
+                                    <Check size={16} className="text-white" />
+                                  </div>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
 
                   </div>
                 )}

@@ -163,6 +163,7 @@ export function AuthProvider({ children }) {
         discord_id:      data?.discord_id || null,
         discord_sync_code: data?.discord_sync_code || null,
         discord_sync_code_expires: data?.discord_sync_code_expires || null,
+        faction:         data?.faction || null,
         used_promo_codes: data?.used_promo_codes || [],
         wallet_history: data?.wallet_history || [],
       };
@@ -170,6 +171,19 @@ export function AuthProvider({ children }) {
       setUser(merged);
       localStorage.setItem('mahorapeak_user_cache', JSON.stringify(merged));
       localStorage.setItem('mahorapeak_last_user_id', authUser.id);
+      
+      // Fetch reading history silently
+      supabase.from('reading_history').select('*').eq('user_id', authUser.id).order('updated_at', { ascending: false }).then(({ data: histData, error: histError }) => {
+        if (!histError && histData) {
+          const formattedHist = histData.map(h => ({
+            manhwaId: String(h.series_id),
+            lastChapter: h.last_read_chapter,
+            updatedAt: new Date(h.updated_at).getTime()
+          }));
+          setReadingHistory(formattedHist);
+        }
+      });
+      
       return merged;
     } catch (err) {
       // Sessiz hata yönetimi - Kullanıcıyı rahatsız etmeden fallback'e geç

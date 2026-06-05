@@ -1,0 +1,6 @@
+{
+  "translator": {
+    "translator": "custom_openai",
+    "target_lang": "TRK"
+  }
+}
