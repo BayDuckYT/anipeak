@@ -712,17 +712,17 @@ export default function SettingsPage() {
                               onClick={() => handleSave({ faction: house.id })}
                               className={`relative p-6 rounded-[2rem] border transition-all duration-300 text-left group overflow-hidden ${
                                 isSelected 
-                                ? \`bg-[#13111C] \${house.border} \${house.shadow}\` 
+                                ? "bg-[#13111C] " + house.border + " " + house.shadow
                                 : 'bg-black/40 border-white/5 hover:border-white/20'
                               }`}
                             >
                               <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" />
                               <div className="flex items-center gap-5 relative z-10">
-                                <div className={\`w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors \${
+                                <div className={"w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors " + (
                                   isSelected 
-                                  ? \`bg-gradient-to-br \${house.color} border-white/20 text-white\`
-                                  : \`bg-white/5 border-white/10 text-zinc-500 group-hover:text-white\`
-                                }\`}>
+                                  ? "bg-gradient-to-br " + house.color + " border-white/20 text-white"
+                                  : "bg-white/5 border-white/10 text-zinc-500 group-hover:text-white"
+                                )}>
                                   <house.icon size={24} />
                                 </div>
                                 <div>
