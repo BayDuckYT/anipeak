@@ -319,7 +319,15 @@ async function main() {
     const browser = await puppeteer.launch({
       headless: 'new',
       protocolTimeout: 240000,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      args: [
+        '--no-sandbox', 
+        '--disable-setuid-sandbox', 
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--mute-audio',
+        '--disable-extensions'
+      ]
     });
 
     // Katalog taraması için geçici sayfa

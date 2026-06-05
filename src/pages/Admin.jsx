@@ -1719,8 +1719,8 @@ function PromoCodesPanel({ showToast }) {
       const { error } = await supabase.from('promo_codes').insert(payload);
 
       if (error) {
-        if (error.code === '23514' && error.message.includes('promo_codes_type_check')) {
-            throw new Error("Veritabanı 'discount' tipini desteklemiyor. Lütfen patch_discount_coupons.sql dosyasını Supabase'de çalıştırın.");
+        if (error.code === '23514' || (error.message && error.message.toLowerCase().includes('column'))) {
+            throw new Error("Veritabanı 'discount' tipini desteklemiyor veya eksik sütunlar var. Lütfen 'patch_discount_coupons.sql' dosyasını Supabase SQL Editor'da çalıştırın.");
         }
         throw error;
       }
@@ -1729,8 +1729,8 @@ function PromoCodesPanel({ showToast }) {
       setFormData(prev => ({ ...prev, custom_code: '' }));
       fetchCodes();
     } catch (err) {
-      console.error(err);
-      showToast("Hata: " + err.message, "error");
+      console.error("Generate Promo Code Error:", err);
+      showToast("Hata: " + (err.message || "Bilinmeyen bir hata oluştu."), "error");
     } finally {
       setGenerating(false);
     }
