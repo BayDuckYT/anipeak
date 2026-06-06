@@ -63,8 +63,8 @@ export default {
           .setTitle(`✨ ${user.tag} — Aura Bakiyesi`)
           .setThumbnail(user.displayAvatarURL({ dynamic: true }))
           .addFields(
-            { name: '🌟 Aura', value: \`\\\`\${(profile.aura || 0).toLocaleString()}\\\`\`, inline: true },
-            { name: '📊 Seviye', value: \`\\\`\${profile.level || 1}\\\`\`, inline: true },
+            { name: '🌟 Aura', value: `\`${(profile.aura || 0).toLocaleString()}\``, inline: true },
+            { name: '📊 Seviye', value: `\`${profile.level || 1}\``, inline: true },
           )
           .setColor(COLORS.PURPLE)
           .setFooter({ text: 'MahoraPeak Aura Sistemi' });
@@ -81,7 +81,7 @@ export default {
           const remaining = 86400000 - (now - lastClaim);
           const hours = Math.floor(remaining / 3600000);
           const mins = Math.floor((remaining % 3600000) / 60000);
-          return interaction.editReply({ content: \`⏰ Günlük ödülünü zaten aldın! Kalan: **\${hours}s \${mins}dk**\` });
+          return interaction.editReply({ content: `⏰ Günlük ödülünü zaten aldın! Kalan: **${hours}s ${mins}dk**` });
         }
 
         const { data: profile } = await supabase.from('profiles').select('id, aura, level, is_elite').eq('discord_id', userId).single();
@@ -98,10 +98,10 @@ export default {
         const embed = new EmbedBuilder()
           .setTitle('🎁 GÜNLÜK AURA ALINDI!')
           .setDescription(
-            \`**+\${totalReward} Aura** kazandın!\\n\\n\` +
-            \`• Temel: \\\`\${baseReward}\\\` aura\\n\` +
-            \`• Seviye Bonusu: \\\`+\${levelBonus}\\\` aura\\n\\n\` +
-            \`🌟 Yeni Bakiye: \\\`\${newAura.toLocaleString()}\\\`\`
+            `**+${totalReward} Aura** kazandın!\\n\\n` +
+            `• Temel: \`${baseReward}\` aura\\n` +
+            `• Seviye Bonusu: \`+${levelBonus}\` aura\\n\\n` +
+            `🌟 Yeni Bakiye: \`${newAura.toLocaleString()}\``
           )
           .setColor(COLORS.PURPLE)
           .setTimestamp();
@@ -120,14 +120,14 @@ export default {
 
         if (!senderProfile || !receiverProfile) return interaction.editReply({ content: '❌ Her iki hesap da siteye bağlı olmalı.' });
 
-        if ((senderProfile?.aura || 0) < amount) return interaction.editReply({ content: \`❌ Yeterli Auran yok. Bakiye: \\\`\${senderProfile?.aura || 0}\\\`\` });
+        if ((senderProfile?.aura || 0) < amount) return interaction.editReply({ content: `❌ Yeterli Auran yok. Bakiye: \`${senderProfile?.aura || 0}\`` });
 
         await supabase.from('profiles').update({ aura: (senderProfile.aura || 0) - amount }).eq('id', senderProfile.id);
         await supabase.from('profiles').update({ aura: (receiverProfile?.aura || 0) + amount }).eq('id', receiverProfile.id);
 
         const embed = new EmbedBuilder()
           .setTitle('✨ TRANSFER BAŞARILI')
-          .setDescription(\`\${interaction.user} → \${target}\\n**Miktar:** \\\`\${amount.toLocaleString()}\\\` Aura\`)
+          .setDescription(`${interaction.user} → ${target}\\n**Miktar:** \`${amount.toLocaleString()}\` Aura`)
           .setColor(COLORS.GREEN);
         await interaction.editReply({ embeds: [embed] });
         break;
@@ -143,7 +143,7 @@ export default {
         const newAura = (profile?.aura || 0) + amount;
         await supabase.from('profiles').update({ aura: newAura }).eq('id', profile.id);
 
-        await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ Aura Eklendi').setDescription(\`\${user.tag}: +\\\`\${amount}\\\` → \\\`\${newAura}\\\`\`).setColor(COLORS.GOLD)] });
+        await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ Aura Eklendi').setDescription(`${user.tag}: +\`${amount}\` → \`${newAura}\``).setColor(COLORS.GOLD)] });
         break;
       }
 
@@ -157,7 +157,7 @@ export default {
         const newAura = Math.max((profile?.aura || 0) - amount, 0);
         await supabase.from('profiles').update({ aura: newAura }).eq('id', profile.id);
 
-        await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('⬇️ Aura Çıkarıldı').setDescription(\`\${user.tag}: -\\\`\${amount}\\\` → \\\`\${newAura}\\\`\`).setColor(COLORS.RED)] });
+        await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('⬇️ Aura Çıkarıldı').setDescription(`${user.tag}: -\`${amount}\` → \`${newAura}\``).setColor(COLORS.RED)] });
         break;
       }
 
@@ -167,8 +167,8 @@ export default {
 
         const medals = ['🥇', '🥈', '🥉'];
         const list = data.map((p, i) => {
-          const prefix = i < 3 ? medals[i] : \`**\${i + 1}.**\`;
-          return \`\${prefix} **\${p.username || 'Anonim'}** — \\\`\${(p.aura || 0).toLocaleString()}\\\` Aura\`;
+          const prefix = i < 3 ? medals[i] : `**${i + 1}.**`;
+          return `${prefix} **${p.username || 'Anonim'}** — \`${(p.aura || 0).toLocaleString()}\` Aura`;
         }).join('\\n');
 
         const embed = new EmbedBuilder()
