@@ -21,7 +21,7 @@ export default function Header({ onAuthOpen }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const { user, logout, notifications, markAllRead, unreadCount, calculateTitle, isAdmin } = useAuth();
+  const { user, logout, notifications, markAllRead, unreadCount, calculateTitle, isEditor, isMod } = useAuth();
   const { series, plans } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
@@ -232,7 +232,7 @@ export default function Header({ onAuthOpen }) {
             </div>
 
             {/* Admin */}
-            {isAdmin && (
+            {(isEditor || isMod) && (
               <Link to="/admin" className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all" aria-label="Yönetim panelini aç">
                 <Shield size={16} /> <span className="hidden xl:inline">Yönetim Paneli</span>
               </Link>
@@ -522,7 +522,7 @@ export default function Header({ onAuthOpen }) {
               <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-h-[44px]"><Compass size={16} /> Keşfet</Link>
 
               <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all min-h-[44px]"><Crown size={16} /> Premium</Link>
-              {isAdmin && <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Shield size={16} /> Yönetim Paneli</Link>}
+              {(isEditor || isMod) && <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Shield size={16} /> Yönetim Paneli</Link>}
               <Link to="/achievements" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Award size={16} /> Başarımlar</Link>
               <Link 
                 to="/takvim"
