@@ -236,6 +236,10 @@ export default function Home({ onAuthOpen }) {
                   <img 
                     src={getOptimizedImage(activeHero.cover, 400)} 
                     alt={activeHero.title} 
+                    width={400}
+                    height={600}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full aspect-[2/3] object-cover"
                   />
                 </div>
@@ -325,7 +329,7 @@ export default function Home({ onAuthOpen }) {
                       <Link key={`history-${item.id}`} to={`/manga/${item.slug}/bolum-${item.lastReadChapter}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" title={`${item.title} - Bölüm ${item.lastReadChapter} okumaya devam et`}>
                         <article className="relative rounded-md overflow-hidden bg-[#141414] border border-white/10 transition-all duration-300 shadow-xl group-hover:border-blue-500/50">
                           <div className="relative aspect-[2/3] overflow-hidden bg-[#070511]">
-                            <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
+                            <img src={getOptimizedImage(item.cover, 300)} alt={item.title} className="w-full h-full object-cover opacity-70 transition-opacity duration-300 group-hover:opacity-100" width={200} height={300} loading="lazy" decoding="async" />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/40 to-transparent opacity-80" />
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                               <div className="w-12 h-12 rounded-full bg-blue-600/90 backdrop-blur flex items-center justify-center text-white shadow-[0_0_15px_rgba(37,99,235,0.8)] transform scale-75 group-hover:scale-100 transition-all duration-300">

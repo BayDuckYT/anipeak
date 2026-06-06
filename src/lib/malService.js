@@ -11,7 +11,7 @@ const BASE_URL = 'https://api.jikan.moe/v4';
  * @param {string} type - 'animelist' or 'mangalist'
  */
 export async function fetchMALList(username, type = 'mangalist') {
-  if (!username || username.toLowerCase() === 'mahorapeak') return [];
+  if (!username || ['mahorapeak', 'anipeak'].includes(username.toLowerCase())) return [];
   
   try {
     const response = await fetch(`${BASE_URL}/users/${username}/${type}`);
@@ -33,7 +33,7 @@ export async function fetchMALList(username, type = 'mangalist') {
  * Fetch basic user profile info from MAL
  */
 export async function fetchMALProfile(username) {
-  if (!username || username.toLowerCase() === 'mahorapeak') return null;
+  if (!username || ['mahorapeak', 'anipeak'].includes(username.toLowerCase())) return null;
   
   try {
     const response = await fetch(`${BASE_URL}/users/${username}/full`);
