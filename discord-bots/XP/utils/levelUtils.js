@@ -9,37 +9,37 @@ export function getLevelInfo(xp) {
 
   if (val < 500) {
     level = Math.floor(val / 50) + 1;
-    rank = 'Çaylak Okur';
+    rank = 'Manga Çırağı';
     xpInLevel = val % 50;
     xpForNext = 50;
   } else if (val < 2000) {
     level = 11 + Math.floor((val - 500) / 100);
-    rank = 'Manga Gezgini';
+    rank = 'Manga Yolcusu';
     xpInLevel = (val - 500) % 100;
     xpForNext = 100;
   } else if (val < 5000) {
     level = 26 + Math.floor((val - 2000) / 200);
-    rank = 'Üstün Savaşçı';
+    rank = 'Manga Savaşçısı';
     xpInLevel = (val - 2000) % 200;
     xpForNext = 200;
   } else if (val < 10000) {
     level = 41 + Math.floor((val - 5000) / 333);
-    rank = 'Elit Avcı';
+    rank = 'Manga Koruması';
     xpInLevel = (val - 5000) % 333;
     xpForNext = 333;
   } else if (val < 25000) {
     level = 56 + Math.floor((val - 10000) / 1000);
-    rank = 'Lonca Üyesi';
+    rank = 'Manga Koleksiyoncusu';
     xpInLevel = (val - 10000) % 1000;
     xpForNext = 1000;
   } else if (val < 50000) {
     level = 71 + Math.floor((val - 25000) / 1666);
-    rank = 'Üstün Baskıncı';
+    rank = 'Manga Ustası';
     xpInLevel = (val - 25000) % 1666;
     xpForNext = 1666;
   } else if (val < 100000) {
     level = 86 + Math.floor((val - 50000) / 3333);
-    rank = 'Ulusal Seviye Avcı';
+    rank = 'Manga Efsanesi';
     xpInLevel = (val - 50000) % 3333;
     xpForNext = 3333;
   } else {
@@ -115,13 +115,13 @@ export async function syncUserToDiscord(client, dataOrId, xpIfProvided) {
 
     // ── 2. RÜTBE ROL OPERASYONU (Site İle Aynı - XP Bazlı) ────────────
     const rankRoles = {
-      'Çaylak Okur': process.env.ROLE_CAYLAK_OKUR,
-      'Manga Gezgini': process.env.ROLE_MANGA_GEZGINI,
-      'Üstün Savaşçı': process.env.ROLE_USTUN_SAVASCI,
-      'Elit Avcı': process.env.ROLE_ELIT_AVCI,
-      'Lonca Üyesi': process.env.ROLE_LONCA_UYESI,
-      'Üstün Baskıncı': process.env.ROLE_USTUN_BASKINCI,
-      'Ulusal Seviye Avcı': process.env.ROLE_ULUSAL_AVCI,
+      'Manga Çırağı': process.env.ROLE_CAYLAK_OKUR,
+      'Manga Yolcusu': process.env.ROLE_MANGA_GEZGINI,
+      'Manga Savaşçısı': process.env.ROLE_USTUN_SAVASCI,
+      'Manga Koruması': process.env.ROLE_ELIT_AVCI,
+      'Manga Koleksiyoncusu': process.env.ROLE_LONCA_UYESI,
+      'Manga Ustası': process.env.ROLE_USTUN_BASKINCI,
+      'Manga Efsanesi': process.env.ROLE_ULUSAL_AVCI,
       'Manga Hükümdarı': process.env.ROLE_MANGA_HUKUMDARI
     };
 

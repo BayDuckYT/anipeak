@@ -425,7 +425,7 @@ export default function ProfileShowcase() {
     };
   }, [profileData?.id, supabase]);
 
-  const rawUser = (isOwnProfile ? (profileData || currentUser) : profileData) || {
+  const rawUser = (isOwnProfile ? currentUser : profileData) || {
     username: username,
     role: 'Üye',
     bio: 'Profil yükleniyor...',
