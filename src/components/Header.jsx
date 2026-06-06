@@ -120,8 +120,10 @@ export default function Header({ onAuthOpen }) {
           <Link to="/" className="flex items-center group flex-shrink-0 relative -ml-2 md:-ml-5 lg:-ml-8 mr-4 md:mr-16 lg:mr-24" aria-label="Ana Sayfa">
             <div className="relative">
               <img 
-                src="/mahorapeaklogov2.png" 
+                src="https://wsrv.nl/?url=https://mahorapeak.com.tr/mahorapeaklogov2.png&w=240&output=webp&q=80" 
                 alt="MahoraPeak Logo" 
+                width="120"
+                height="80"
                 className="h-16 md:h-20 w-auto object-contain scale-110 md:scale-[1.35] md:translate-y-2 origin-left drop-shadow-[0_0_15px_rgba(139,92,246,0.3)] group-hover:drop-shadow-[0_0_25px_rgba(139,92,246,0.6)] transition-all duration-300" 
                 style={{ 
                   filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))' 

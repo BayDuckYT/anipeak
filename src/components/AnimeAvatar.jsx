@@ -152,9 +152,13 @@ export default function AnimeAvatar({
       rawSrc.includes('/avatar-efekts/') ||
       rawSrc.includes('/decorations/');
 
-    // [PERFORMANS] Yerel dosyaları proxy'ye (wsrv.nl) gönderme; çünkü proxy şerit yapısını bozabiliyor.
-    // Cloudflare zaten bunları kendi CDN'inde otomatik olarak WebP yapıp sıkıştıracaktır.
-    const optimizedSrc = rawSrc;
+    // [PERFORMANS] Efektleri ve çerçeveleri CDN üzerinden WebP formatında küçülterek yükle
+    let optimizedSrc = rawSrc;
+    if (rawSrc.startsWith('/')) {
+      optimizedSrc = `https://wsrv.nl/?url=https://mahorapeak.com.tr${rawSrc}&output=webp&q=80`;
+    } else if (!rawSrc.includes('wsrv.nl')) {
+      optimizedSrc = `https://wsrv.nl/?url=${encodeURIComponent(rawSrc)}&output=webp&q=80`;
+    }
     
     return (
       <AutoSpritesheet 

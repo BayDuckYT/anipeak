@@ -15,21 +15,21 @@ export function getOptimizedImage(url, width = 300) {
     return url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=85');
   }
   
-  if (url.startsWith('/') || url.startsWith('data:')) {
+  // URL'yi absolute yap
+  let absoluteUrl = url;
+  if (url.startsWith('/')) {
+    absoluteUrl = `https://mahorapeak.com.tr${url}`;
+  } else if (url.startsWith('data:')) {
     return url;
   }
 
-  // Supabase avatars bucket'ındaki dosyaları proxy'den geçirme (GIF animasyonu bozulur)
-  // Supabase zaten kendi CDN'ini kullanıyor, ekstra optimizasyona gerek yok
-  if (url.includes('/storage/v1/object/public/avatars/')) {
-    return url;
+  // GIF ve Avatarlar için animasyon destekli WebP (n=-1)
+  const isGif = absoluteUrl.toLowerCase().includes('.gif') || absoluteUrl.includes('/avatars/');
+  if (isGif) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&n=-1&q=75`;
   }
 
-  // GIF'leri bozmamak için direkt orijinal url'yi döndürüyoruz
-  const isGif = url.toLowerCase().includes('.gif');
-  if (isGif) return url;
-
-  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${targetWidth}&output=webp&q=85`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&q=80`;
 }
 
 // Sadece tek bir kare (animasyonsuz) halini getiren fonksiyon
