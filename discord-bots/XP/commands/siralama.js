@@ -73,10 +73,8 @@ export default {
       }
 
       case 'ben': {
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', interaction.user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesabın bağlı değil.' });
-
-        const { data: profile } = await supabase.from('profiles').select('username, level, xp').eq('id', link.profile_id).single();
+        const { data: profile } = await supabase.from('profiles').select('username, level, xp').eq('discord_id', interaction.user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesabın bağlı değil.' });
         if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı.' });
 
         // Sıra hesapla

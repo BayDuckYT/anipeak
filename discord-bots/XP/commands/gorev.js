@@ -35,15 +35,15 @@ export default {
     const supabase = client.supabase;
     if (!supabase) return interaction.editReply({ content: '❌ Veritabanı bağlantısı yok.' });
 
-    const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', interaction.user.id).single();
-    if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+    const { data: profile } = await supabase.from('profiles').select('id, aura').eq('discord_id', interaction.user.id).single();
+    if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
     switch (sub) {
       case 'liste': {
         // İlerlemeleri DB'den simüle ediyoruz
         const embed = new EmbedBuilder()
           .setTitle('📜 GÖREV LİSTESİ')
-          .setDescription('Görevleri tamamlayarak extra Coin ve XP kazanabilirsin!')
+          .setDescription('Görevleri tamamlayarak extra Aura ve XP kazanabilirsin!')
           .setColor(COLORS.PURPLE);
 
         const daily = QUESTS.filter(q => q.type === 'daily');
@@ -54,7 +54,7 @@ export default {
           const progress = Math.floor(Math.random() * (q.requirement + 1));
           const isDone = progress >= q.requirement;
           const icon = isDone ? '✅' : '⏳';
-          return `${icon} **${q.title}** (\`${q.id}\`)\n└ *${q.desc}*\n└ İlerleme: \`${progress}/${q.requirement}\` | Ödül: 🪙 \`${q.reward}\``;
+          return `${icon} **${q.title}** (\`${q.id}\`)\n└ *${q.desc}*\n└ İlerleme: \`${progress}/${q.requirement}\` | Ödül: 🌟 \`${q.reward}\``;
         };
 
         embed.addFields(
@@ -74,14 +74,13 @@ export default {
 
         // Burada DB kontrolü yapılmalı (Görev gerçekten bitti mi ve daha önce alındı mı)
         // Şimdilik ödülü direkt veriyoruz
-        const { data: profile } = await supabase.from('profiles').select('coins').eq('id', link.profile_id).single();
-        const newCoins = (profile?.coins || 0) + quest.reward;
+        const newAura = (profile?.aura || 0) + quest.reward;
 
-        await supabase.from('profiles').update({ coins: newCoins }).eq('id', link.profile_id);
+        await supabase.from('profiles').update({ aura: newAura }).eq('id', profile.id);
 
         const embed = new EmbedBuilder()
           .setTitle('🎉 GÖREV TAMAMLANDI!')
-          .setDescription(`**${quest.title}** görevini tamamladın ve **${quest.reward} Coin** kazandın!\n\n💰 Yeni Bakiye: \`${newCoins.toLocaleString()}\``)
+          .setDescription(`**${quest.title}** görevini tamamladın ve **${quest.reward} Aura** kazandın!\n\n🌟 Yeni Bakiye: \`${newAura.toLocaleString()}\``)
           .setColor(COLORS.GOLD);
         
         await interaction.editReply({ embeds: [embed] });

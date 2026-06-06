@@ -36,11 +36,8 @@ export default {
     switch (sub) {
       case 'goster': {
         const user = interaction.options.getUser('kullanıcı') || interaction.user;
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: `❌ ${user.tag} hesabı bağlı değil.` });
-
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', link.profile_id).single();
-        if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı.' });
+        const { data: profile } = await supabase.from('profiles').select('*').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı veya hesap bağlı değil.' });
 
         const nextLevelXP = Math.floor(100 * Math.pow((profile.level || 1) + 1, 1.5));
         const progress = Math.round(((profile.xp || 0) / nextLevelXP) * 100);
@@ -53,7 +50,7 @@ export default {
           .addFields(
             { name: '📊 Seviye', value: `\`${profile.level || 1}\``, inline: true },
             { name: '✨ XP', value: `\`${(profile.xp || 0).toLocaleString()}\``, inline: true },
-            { name: '🪙 Coin', value: `\`${(profile.coins || 0).toLocaleString()}\``, inline: true },
+            { name: '🌟 Aura', value: `${(profile.aura || 0).toLocaleString()}`, inline: true },
             { name: '📚 Okunan Bölüm', value: `\`${profile.chapters_read || 0}\``, inline: true },
             { name: '📈 İlerleme', value: `${bar} \`${progress}%\`` },
           )
@@ -66,21 +63,18 @@ export default {
 
       case 'bio': {
         const bioText = interaction.options.getString('metin').substring(0, 200);
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', interaction.user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesabın bağlı değil.' });
+        const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', interaction.user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesabın bağlı değil.' });
 
-        await supabase.from('profiles').update({ bio: bioText }).eq('id', link.profile_id);
+        await supabase.from('profiles').update({ bio: bioText }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ Biyografi Güncellendi').setDescription(`\`${bioText}\``).setColor(COLORS.GREEN)] });
         break;
       }
 
       case 'rozet': {
         const user = interaction.options.getUser('kullanıcı') || interaction.user;
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
-
-        const { data: profile } = await supabase.from('profiles').select('level, xp, chapters_read, created_at').eq('id', link.profile_id).single();
-        if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı.' });
+        const { data: profile } = await supabase.from('profiles').select('level, xp, chapters_read, created_at').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı veya hesap bağlı değil.' });
 
         // Dinamik rozet hesaplama
         const badges = [];

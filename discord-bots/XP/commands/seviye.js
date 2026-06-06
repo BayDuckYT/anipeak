@@ -55,11 +55,8 @@ export default {
     switch (sub) {
       case 'goster': {
         const user = interaction.options.getUser('kullanıcı') || interaction.user;
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: `❌ ${user.tag} hesabı bağlı değil.` });
-
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', link.profile_id).single();
-        if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı.' });
+        const { data: profile } = await supabase.from('profiles').select('*').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı veya hesap bağlı değil.' });
 
         const level = profile.level || 1;
         const xp = profile.xp || 0;
@@ -89,10 +86,10 @@ export default {
         }
         const user = interaction.options.getUser('kullanıcı');
         const level = interaction.options.getInteger('seviye');
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+        const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        await supabase.from('profiles').update({ level, xp: calculateXPForLevel(level) }).eq('id', link.profile_id);
+        await supabase.from('profiles').update({ level, xp: calculateXPForLevel(level) }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ Seviye Ayarlandı').setDescription(`${user.tag} → Seviye **${level}**`).setColor(COLORS.GREEN)] });
         break;
       }
@@ -101,12 +98,11 @@ export default {
         if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
         const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+        const { data: profile } = await supabase.from('profiles').select('id, level').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        const { data: profile } = await supabase.from('profiles').select('level').eq('id', link.profile_id).single();
         const newLevel = Math.min((profile?.level || 1) + amount, 100);
-        await supabase.from('profiles').update({ level: newLevel }).eq('id', link.profile_id);
+        await supabase.from('profiles').update({ level: newLevel }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ Seviye Eklendi').setDescription(`${user.tag}: +${amount} → Seviye **${newLevel}**`).setColor(COLORS.GREEN)] });
         break;
       }
@@ -114,10 +110,10 @@ export default {
       case 'sifirla': {
         if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
         const user = interaction.options.getUser('kullanıcı');
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+        const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        await supabase.from('profiles').update({ level: 1, xp: 0 }).eq('id', link.profile_id);
+        await supabase.from('profiles').update({ level: 1, xp: 0 }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('🔄 Seviye Sıfırlandı').setDescription(`${user.tag} → Seviye **1** (XP: 0)`).setColor(COLORS.RED)] });
         break;
       }
@@ -126,12 +122,11 @@ export default {
         if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
         const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+        const { data: profile } = await supabase.from('profiles').select('id, xp').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        const { data: profile } = await supabase.from('profiles').select('xp').eq('id', link.profile_id).single();
         const newXP = (profile?.xp || 0) + amount;
-        await supabase.from('profiles').update({ xp: newXP }).eq('id', link.profile_id);
+        await supabase.from('profiles').update({ xp: newXP }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ XP Eklendi').setDescription(`${user.tag}: +\`${amount}\` XP → Toplam \`${newXP}\``).setColor(COLORS.GOLD)] });
         break;
       }
@@ -140,12 +135,11 @@ export default {
         if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
         const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+        const { data: profile } = await supabase.from('profiles').select('id, xp').eq('discord_id', user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        const { data: profile } = await supabase.from('profiles').select('xp').eq('id', link.profile_id).single();
         const newXP = Math.max((profile?.xp || 0) - amount, 0);
-        await supabase.from('profiles').update({ xp: newXP }).eq('id', link.profile_id);
+        await supabase.from('profiles').update({ xp: newXP }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('⬇️ XP Çıkarıldı').setDescription(`${user.tag}: -\`${amount}\` XP → Toplam \`${newXP}\``).setColor(COLORS.RED)] });
         break;
       }

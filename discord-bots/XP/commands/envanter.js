@@ -27,12 +27,12 @@ export default {
     const supabase = client.supabase;
     if (!supabase) return interaction.editReply({ content: '❌ Veritabanı bağlantısı yok.' });
 
-    const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', interaction.user.id).single();
-    if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+    const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', interaction.user.id).single();
+    if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
     switch (sub) {
       case 'goster': {
-        const { data: inventory } = await supabase.from('inventory').select('*').eq('profile_id', link.profile_id);
+        const { data: inventory } = await supabase.from('inventory').select('*').eq('profile_id', profile.id);
 
         if (!inventory || inventory.length === 0) {
           return interaction.editReply({ content: '🎒 Envanterin tamamen boş. `/mağaza` üzerinden eşya satın alabilirsin.' });
@@ -54,7 +54,7 @@ export default {
         const invId = interaction.options.getInteger('id');
 
         // Check if user owns the item
-        const { data: item } = await supabase.from('inventory').select('*').eq('id', invId).eq('profile_id', link.profile_id).single();
+        const { data: item } = await supabase.from('inventory').select('*').eq('id', invId).eq('profile_id', profile.id).single();
 
         if (!item) {
           return interaction.editReply({ content: '❌ Envanterinde böyle bir eşya bulunamadı.' });

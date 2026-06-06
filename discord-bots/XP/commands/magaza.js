@@ -1,5 +1,5 @@
 // ============================================================
-//  /mağaza — Coin Mağazası
+//  /mağaza — Aura Mağazası
 // ============================================================
 
 import { SlashCommandBuilder, MessageFlags, EmbedBuilder } from 'discord.js';
@@ -18,7 +18,7 @@ const STORE_ITEMS = [
 export default {
   data: new SlashCommandBuilder()
     .setName('mağaza')
-    .setDescription('🛒 Coin Mağazası')
+    .setDescription('🛒 Aura Mağazası')
     .addSubcommand(sub =>
       sub.setName('liste')
         .setDescription('Mağazadaki eşyaları listeler.')
@@ -27,7 +27,7 @@ export default {
       sub.setName('satın-al')
         .setDescription('Mağazadan eşya satın alır.')
         .addStringOption(opt => opt.setName('eşya').setDescription('Satın alınacak eşya').setRequired(true)
-          .addChoices(...STORE_ITEMS.map(i => ({ name: `${i.name} — ${i.price} Coin`, value: i.id })))
+          .addChoices(...STORE_ITEMS.map(i => ({ name: `${i.name} — ${i.price} Aura`, value: i.id })))
         )
     ),
 
@@ -41,12 +41,12 @@ export default {
     switch (sub) {
       case 'liste': {
         const list = STORE_ITEMS.map((item, index) => {
-          return `**${index + 1}. ${item.name}**\n🪙 Fiyat: \`${item.price.toLocaleString()}\` Coin\n📝 ${item.desc}\n`;
+          return `**${index + 1}. ${item.name}**\n🌟 Fiyat: \`${item.price.toLocaleString()}\` Aura\n📝 ${item.desc}\n`;
         }).join('\n');
 
         const embed = new EmbedBuilder()
           .setTitle('🛒 MAHORAPEAK MAĞAZASI')
-          .setDescription(`Biriken coinlerinle harika eşyalar ve özellikler satın al!\n\n${list}`)
+          .setDescription(`Biriken auralarınla harika eşyalar ve özellikler satın al!\n\n${list}`)
           .setColor(COLORS.GOLD)
           .setFooter({ text: 'Satın almak için: /mağaza satın-al' });
         
@@ -58,24 +58,23 @@ export default {
         const itemId = interaction.options.getString('eşya');
         const item = STORE_ITEMS.find(i => i.id === itemId);
 
-        const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', interaction.user.id).single();
-        if (!link) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
+        const { data: profile } = await supabase.from('profiles').select('id, aura').eq('discord_id', interaction.user.id).single();
+        if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        const { data: profile } = await supabase.from('profiles').select('coins').eq('id', link.profile_id).single();
-        if (!profile || profile.coins < item.price) {
-          return interaction.editReply({ content: `❌ Yeterli coinin yok! Bakiyen: \`${profile?.coins || 0}\`, Gerekli: \`${item.price}\`` });
+        if ((profile.aura || 0) < item.price) {
+          return interaction.editReply({ content: `❌ Yeterli auran yok! Bakiyen: \`${profile.aura || 0}\`, Gerekli: \`${item.price}\`` });
         }
 
         // Parayı kes
-        const newCoins = profile.coins - item.price;
-        await supabase.from('profiles').update({ coins: newCoins }).eq('id', link.profile_id);
+        const newAura = (profile.aura || 0) - item.price;
+        await supabase.from('profiles').update({ aura: newAura }).eq('id', profile.id);
 
         // Envantere ekle
-        await supabase.from('inventory').insert([{ profile_id: link.profile_id, item_id: item.id, item_name: item.name, item_type: item.type }]);
+        await supabase.from('inventory').insert([{ profile_id: profile.id, item_id: item.id, item_name: item.name, item_type: item.type }]);
 
         const embed = new EmbedBuilder()
           .setTitle('🛍️ SATIN ALMA BAŞARILI!')
-          .setDescription(`Başarıyla **${item.name}** satın aldın!\n\nKalan Bakiye: \`${newCoins.toLocaleString()}\` Coin`)
+          .setDescription(`Başarıyla **${item.name}** satın aldın!\n\nKalan Bakiye: \`${newAura.toLocaleString()}\` Aura`)
           .setColor(COLORS.GREEN)
           .setFooter({ text: 'Eşyalarını görmek için /envanter yazabilirsin.' });
         
@@ -84,7 +83,7 @@ export default {
         // Admin kanalına log gönder
         const logChannel = interaction.guild.channels.cache.find(c => c.name.includes('shop-log') || c.name.includes('market-log'));
         if (logChannel) {
-          logChannel.send(`🛒 ${interaction.user} kullanıcısı mağazadan **${item.name}** satın aldı. (${item.price} Coin)`);
+          logChannel.send(`🛒 ${interaction.user} kullanıcısı mağazadan **${item.name}** satın aldı. (${item.price} Aura)`);
         }
         break;
       }

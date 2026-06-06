@@ -38,10 +38,10 @@ export default {
 
     const discordId = interaction.user.id;
     // Find profile
-    const { data: link } = await supabase.from('discord_links').select('profile_id').eq('discord_id', discordId).single();
-    if (!link) return interaction.editReply({ content: '❌ Abonelik sistemi için Discord hesabınızı siteye bağlamanız gerekmektedir.' });
+    const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', discordId).single();
+    if (!profile) return interaction.editReply({ content: '❌ Abonelik sistemi için Discord hesabınızı siteye bağlamanız gerekmektedir.' });
 
-    const profileId = link.profile_id;
+    const profileId = profile.id;
 
     switch (sub) {
       case 'ol': {
