@@ -21,12 +21,13 @@ export default function Header({ onAuthOpen }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const { user, logout, notifications, markAllRead, unreadCount, calculateTitle, isEditor, isMod } = useAuth();
+  const { user, logout, notifications, markAllRead, unreadCount, calculateTitle, isAdmin } = useAuth();
   const { series, plans } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const profileRef = useRef(null);
   const notifRef = useRef(null);
+  const searchRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -41,6 +42,7 @@ export default function Header({ onAuthOpen }) {
     const handler = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
       if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -164,60 +166,73 @@ export default function Header({ onAuthOpen }) {
           </nav>
 
 
-          {/* Search bar (inline) */}
-          <div className="hidden md:flex flex-1 max-w-xs relative">
-            <div className="relative w-full">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Manhwa ara..."
-                aria-label="Manhwa arama"
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_8px_rgba(168,85,247,0.3)] transition-all"
-              />
-            </div>
-            {/* Search results */}
-            <AnimatePresence>
-              {searchResults.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="absolute top-full mt-2 left-0 right-0 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
-                >
-                  {searchResults?.map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => handleSelect(m.slug)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
-                    >
-                      <img 
-                        src={getOptimizedImage(m?.cover, 100)} 
-                        alt={m?.title || 'Seri kapağı'} 
-                        onError={handleImageError}
-                        width={32}
-                        height={40}
-                        decoding="async"
-                        className="w-8 h-10 rounded-lg object-cover flex-shrink-0" 
-                      />
-                      <div className="min-w-0">
-                        <p className="text-white text-xs font-semibold truncate">{m?.title}</p>
-                        <p className="text-slate-400 text-[10px] truncate">
-                          {Array.isArray(m?.genre) ? m.genre.join(', ') : m?.genre || 'Genel'}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            {/* Search Toggle Icon */}
+            <div className="hidden md:flex relative" ref={searchRef}>
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
+                aria-label="Arama"
+              >
+                <Search size={18} />
+              </button>
+
+              <AnimatePresence>
+                {searchOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    className="absolute top-full right-0 mt-2 w-72 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl p-2"
+                  >
+                    <div className="relative mb-2">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input
+                        type="text"
+                        autoFocus
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Manhwa ara..."
+                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all"
+                      />
+                    </div>
+                    
+                    {/* Search results */}
+                    {searchResults.length > 0 && (
+                      <div className="max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                        {searchResults?.map((m) => (
+                          <button
+                            key={m.id}
+                            onClick={() => handleSelect(m.slug)}
+                            className="w-full flex items-center gap-3 px-2 py-2 hover:bg-white/5 rounded-xl transition-colors text-left"
+                          >
+                            <img 
+                              src={getOptimizedImage(m?.cover, 100)} 
+                              alt={m?.title || 'Seri kapağı'} 
+                              onError={handleImageError}
+                              width={32}
+                              height={40}
+                              decoding="async"
+                              className="w-8 h-10 rounded-lg object-cover flex-shrink-0" 
+                            />
+                            <div className="min-w-0">
+                              <p className="text-white text-xs font-semibold truncate">{m?.title}</p>
+                              <p className="text-slate-400 text-[10px] truncate">
+                                {Array.isArray(m?.genre) ? m.genre.join(', ') : m?.genre || 'Genel'}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Admin */}
-            {(isEditor || isMod) && (
+            {isAdmin && (
               <Link to="/admin" className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all" aria-label="Yönetim panelini aç">
                 <Shield size={16} /> <span className="hidden xl:inline">Yönetim Paneli</span>
               </Link>
@@ -507,7 +522,7 @@ export default function Header({ onAuthOpen }) {
               <Link to="/" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-400 hover:bg-purple-500/10 transition-all min-h-[44px]"><Compass size={16} /> Keşfet</Link>
 
               <Link to="/elite-upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all min-h-[44px]"><Crown size={16} /> Premium</Link>
-              {(isEditor || isMod) && <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Shield size={16} /> Yönetim Paneli</Link>}
+              {isAdmin && <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Shield size={16} /> Yönetim Paneli</Link>}
               <Link to="/achievements" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all min-h-[44px]"><Award size={16} /> Başarımlar</Link>
               <Link 
                 to="/takvim"
