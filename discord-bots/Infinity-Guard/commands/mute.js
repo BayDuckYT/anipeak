@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS } from '../utils/config.js';
 import { baseEmbed } from '../utils/embeds.js';
 import { sendLog } from '../utils/logger.js';
@@ -25,7 +26,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('mute')
     .setDescription('🤐 Susturma yönetim komutları')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    
     .addSubcommand(sub =>
       sub.setName('sustur')
         .setDescription('Kullanıcıyı susturur (timeout).')
@@ -55,6 +56,8 @@ export default {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'MOD')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     switch (sub) {
       case 'sustur': {

@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 
 const COLORS = { BLUE: 0x00BFFF, GREEN: 0x00FF88, RED: 0xFF003C, PURPLE: 0x8A2BE2, GOLD: 0xFFD700 };
 
@@ -81,9 +82,7 @@ export default {
       }
 
       case 'set': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-          return interaction.editReply({ content: '❌ Admin yetkisi gerekli.' });
-        }
+        if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Admin yetkisi gerekli.' }); }
         const user = interaction.options.getUser('kullanıcı');
         const level = interaction.options.getInteger('seviye');
         const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', user.id).single();
@@ -95,8 +94,7 @@ export default {
       }
 
       case 'ekle': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
-        const user = interaction.options.getUser('kullanıcı');
+        if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
         const { data: profile } = await supabase.from('profiles').select('id, level').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
@@ -108,8 +106,7 @@ export default {
       }
 
       case 'sifirla': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
-        const user = interaction.options.getUser('kullanıcı');
+        if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
         const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
@@ -119,8 +116,7 @@ export default {
       }
 
       case 'xp-ekle': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
-        const user = interaction.options.getUser('kullanıcı');
+        if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
         const { data: profile } = await supabase.from('profiles').select('id, xp').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
@@ -132,8 +128,7 @@ export default {
       }
 
       case 'xp-cikar': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Yetki yok.' });
-        const user = interaction.options.getUser('kullanıcı');
+        if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
         const { data: profile } = await supabase.from('profiles').select('id, xp').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });

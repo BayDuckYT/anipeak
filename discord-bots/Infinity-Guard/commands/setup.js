@@ -11,16 +11,19 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js';
 import { baseEmbed } from '../utils/embeds.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS, LOG_CHANNEL_NAME } from '../utils/config.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('guard-setup')
     .setDescription('🛡️ Infinity Guard log kanalını ve ayarları yapılandırır.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    ,
 
   async execute(interaction) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'BYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     const guild = interaction.guild;
 

@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS } from '../utils/config.js';
 import { baseEmbed } from '../utils/embeds.js';
 
@@ -112,9 +113,7 @@ export default {
       }
 
       case 'nick': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageNicknames)) {
-          return interaction.editReply({ content: '❌ Bu komutu kullanmak için **Takma Adları Yönet** yetkiniz olmalı.' });
-        }
+        if (!hasPermission(interaction.member, 'MOD')) { return interaction.editReply({ content: '❌ Bu komutu kullanmak için **Takma Adları Yönet** yetkiniz olmalı.' }); }
         const target = interaction.options.getMember('kullanıcı');
         const newNick = interaction.options.getString('isim');
         if (!target) return interaction.editReply({ content: '❌ Kullanıcı bulunamadı.' });
@@ -127,9 +126,7 @@ export default {
       }
 
       case 'nick-sifirla': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageNicknames)) {
-          return interaction.editReply({ content: '❌ Yetkiniz yok.' });
-        }
+        if (!hasPermission(interaction.member, 'MOD')) { return interaction.editReply({ content: '❌ Yetkiniz yok.' }); }
         const target = interaction.options.getMember('kullanıcı');
         if (!target) return interaction.editReply({ content: '❌ Kullanıcı bulunamadı.' });
 

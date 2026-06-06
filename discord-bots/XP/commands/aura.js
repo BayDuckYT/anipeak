@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 
 const COLORS = { BLUE: 0x00BFFF, GREEN: 0x00FF88, RED: 0xFF003C, GOLD: 0xFFD700, PURPLE: 0x8A2BE2 };
 
@@ -133,8 +134,7 @@ export default {
       }
 
       case 'aura-ekle': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Admin yetki gerekli.' });
-        const user = interaction.options.getUser('kullanıcı');
+        if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Admin yetki gerekli.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
 
         const { data: profile } = await supabase.from('profiles').select('id, aura').eq('discord_id', user.id).single();
@@ -148,8 +148,7 @@ export default {
       }
 
       case 'aura-cikar': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return interaction.editReply({ content: '❌ Admin yetki gerekli.' });
-        const user = interaction.options.getUser('kullanıcı');
+        if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Admin yetki gerekli.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
 
         const { data: profile } = await supabase.from('profiles').select('id, aura').eq('discord_id', user.id).single();

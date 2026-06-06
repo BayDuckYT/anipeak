@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, ChannelType } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS } from '../utils/config.js';
 import { baseEmbed } from '../utils/embeds.js';
 import { sendLog } from '../utils/logger.js';
@@ -11,7 +12,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('lock')
     .setDescription('🔒 Kanal kilitleme komutları')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
+    
     .addSubcommand(sub =>
       sub.setName('kilitle')
         .setDescription('Mevcut kanalı kilitler.')
@@ -40,6 +41,8 @@ export default {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'AYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     switch (sub) {
       case 'kilitle': {

@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS } from '../utils/config.js';
 import { baseEmbed } from '../utils/embeds.js';
 
@@ -13,7 +14,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('poll')
     .setDescription('📊 Anket sistemi')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+    
     .addSubcommand(sub =>
       sub.setName('olustur')
         .setDescription('Yeni anket oluşturur.')
@@ -34,6 +35,8 @@ export default {
     ),
 
   async execute(interaction, client) {
+    if (!hasPermission(interaction.member, 'UYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
     const sub = interaction.options.getSubcommand();
 
     switch (sub) {

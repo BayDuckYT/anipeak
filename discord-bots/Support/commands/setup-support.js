@@ -1,13 +1,16 @@
 import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { supportHubEmbed } from '../utils/embeds.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('setup-support')
     .setDescription('🎫 Kalıcı destek merkezini kurar.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    ,
 
   async execute(interaction) {
+    if (!hasPermission(interaction.member, 'BYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
     const embed = supportHubEmbed();
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()

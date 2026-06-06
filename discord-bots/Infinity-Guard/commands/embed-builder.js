@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS } from '../utils/config.js';
 import { baseEmbed } from '../utils/embeds.js';
 
@@ -10,7 +11,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('embed')
     .setDescription('📝 Embed mesaj oluşturucu')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+    
     .addSubcommand(sub =>
       sub.setName('olustur')
         .setDescription('Özel embed mesaj oluşturur.')
@@ -40,6 +41,8 @@ export default {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'MOD')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     switch (sub) {
       case 'olustur': {

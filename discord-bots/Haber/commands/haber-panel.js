@@ -1,13 +1,16 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { haberPanelEmbed } from '../utils/embeds.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('haber-panel')
     .setDescription('Haber Yönetim Merkezi (Sadece Yetkililer).')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
+    ,
 
   async execute(interaction) {
+    if (!hasPermission(interaction.member, 'MOD')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
     const buttonRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId('news:create')

@@ -10,15 +10,18 @@ import {
   ButtonStyle
 } from 'discord.js';
 import { COLORS, MAHORAPEAK } from '../utils/config.js';
+import { hasPermission } from '../utils/permissions.js';
 import { getSettings } from '../utils/settingsManager.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('guard-settings')
     .setDescription('🛡️ Gelişmiş koruma ayarlarını yönetir.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    ,
 
   async execute(interaction) {
+    if (!hasPermission(interaction.member, 'BYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
     // Sadece Sunucu Sahibi (GS) kontrolü
     if (interaction.user.id !== interaction.guild.ownerId) {
       return interaction.reply({ 

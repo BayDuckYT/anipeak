@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 
 const COLORS = { BLUE: 0x00BFFF, PINK: 0xFF10F0, GREEN: 0x00FF88, RED: 0xFF003C, PURPLE: 0x8A2BE2 };
 
@@ -10,7 +11,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('duyuru')
     .setDescription('📢 Duyuru yönetim komutları')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+    
     .addSubcommand(sub =>
       sub.setName('yayinla')
         .setDescription('Yeni duyuru yayınlar.')
@@ -53,6 +54,8 @@ export default {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'MOD')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     switch (sub) {
       case 'yayinla': {

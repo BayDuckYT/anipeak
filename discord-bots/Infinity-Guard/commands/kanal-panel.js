@@ -1,13 +1,16 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, MessageFlags } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { channelPanelEmbed } from '../utils/embeds.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('kanal-panel')
     .setDescription('Nükleer kanal yönetim panelini açar.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
+    ,
 
   async execute(interaction) {
+    if (!hasPermission(interaction.member, 'UYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
     // 1. Satır: Temel Butonlar
     const buttonRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder()

@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 
 const COLORS = { BLUE: 0x00BFFF, GREEN: 0x00FF88, RED: 0xFF003C };
 
@@ -73,9 +74,7 @@ export default {
       }
 
       case 'ekle': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageMessages)) {
-          return interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', flags: [MessageFlags.Ephemeral] });
-        }
+        if (!hasPermission(interaction.member, 'MOD')) { return interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', flags: [MessageFlags.Ephemeral] }); }
         const key = interaction.options.getString('anahtar').toLowerCase();
         const soru = interaction.options.getString('soru');
         const cevap = interaction.options.getString('cevap');
@@ -86,9 +85,7 @@ export default {
       }
 
       case 'sil': {
-        if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageMessages)) {
-          return interaction.reply({ content: '❌ Yetkiniz yok.', flags: [MessageFlags.Ephemeral] });
-        }
+        if (!hasPermission(interaction.member, 'MOD')) { return interaction.reply({ content: '❌ Yetkiniz yok.', flags: [MessageFlags.Ephemeral] }); }
         const key = interaction.options.getString('anahtar').toLowerCase();
         if (faqs.delete(key)) {
           await interaction.reply({ content: `✅ "${key}" SSS'i silindi.`, flags: [MessageFlags.Ephemeral] });

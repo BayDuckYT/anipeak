@@ -9,6 +9,7 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 import { COLORS } from '../utils/config.js';
+import { hasPermission } from '../utils/permissions.js';
 import { baseEmbed } from '../utils/embeds.js';
 import { sendLog } from '../utils/logger.js';
 
@@ -16,7 +17,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('ban')
     .setDescription('🔨 Ban yönetim komutları')
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+    
     .addSubcommand(sub =>
       sub.setName('ekle')
         .setDescription('Kullanıcıyı sunucudan yasaklar.')
@@ -57,6 +58,8 @@ export default {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'UYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     switch (sub) {
       case 'ekle': return await banAdd(interaction);

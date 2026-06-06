@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS } from '../utils/config.js';
 import { baseEmbed } from '../utils/embeds.js';
 import { sendLog } from '../utils/logger.js';
@@ -11,7 +12,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('purge')
     .setDescription('🧹 Gelişmiş toplu mesaj silme')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+    
     .addSubcommand(sub =>
       sub.setName('miktar')
         .setDescription('Belirtilen sayıda mesaj siler.')
@@ -54,6 +55,8 @@ export default {
     const sub = interaction.options.getSubcommand();
     const count = interaction.options.getInteger('sayı');
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'MOD')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     try {
       const messages = await interaction.channel.messages.fetch({ limit: count });

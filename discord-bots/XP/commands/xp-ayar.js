@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 
 const COLORS = { BLUE: 0x00BFFF, GREEN: 0x00FF88, RED: 0xFF003C, PURPLE: 0x8A2BE2 };
 
@@ -31,7 +32,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('xp-ayar')
     .setDescription('⚙️ XP sistemi ayarları')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    
     .addSubcommand(sub =>
       sub.setName('durum')
         .setDescription('Mevcut XP ayarlarını gösterir.')
@@ -89,6 +90,8 @@ export default {
     const sub = interaction.options.getSubcommand();
     const settings = getGuildSettings(interaction.guild.id);
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'BYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     switch (sub) {
       case 'durum': {

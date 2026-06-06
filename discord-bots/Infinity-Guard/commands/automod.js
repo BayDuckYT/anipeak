@@ -3,6 +3,7 @@
 // ============================================================
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { hasPermission } from '../utils/permissions.js';
 import { COLORS } from '../utils/config.js';
 import { baseEmbed } from '../utils/embeds.js';
 import { getSettings, saveSettings } from '../utils/settingsManager.js';
@@ -11,7 +12,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('automod')
     .setDescription('🤖 Otomatik moderasyon ayarları')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    
     .addSubcommand(sub =>
       sub.setName('durum')
         .setDescription('Mevcut automod ayarlarını gösterir.')
@@ -50,6 +51,8 @@ export default {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'BYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     const settings = getSettings();
 

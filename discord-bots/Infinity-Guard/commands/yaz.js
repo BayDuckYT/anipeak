@@ -11,7 +11,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('yaz')
     .setDescription('Sunucuya özel embedli mesaj gönderir.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    ,
 
   async execute(interaction) {
     const modal = new ModalBuilder()

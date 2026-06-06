@@ -16,16 +16,19 @@ import {
   MessageFlags
 } from 'discord.js';
 import { modPanelEmbed, reasonSelectEmbed } from '../utils/embeds.js';
+import { hasPermission } from '../utils/permissions.js';
 import { MOD_REASONS } from '../utils/config.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('modpanel')
     .setDescription('🛡️ Yönetim Panelini açar.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
+    ,
 
   async execute(interaction) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!hasPermission(interaction.member, 'AYK')) return interaction.editReply ? await interaction.editReply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.' }).catch(()=>null) : await interaction.reply({ content: '❌ Bu komutu kullanmak için yetkiniz yok.', ephemeral: true });
+
 
     // ── Ana Panel Embed ──────────────────────────────────────
     const embed = modPanelEmbed(interaction.guild);
