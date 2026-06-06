@@ -33,12 +33,8 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-        <span>© 2026 MahoraPeak Production. Tüm hakları saklıdır.</span>
-        <span className="text-emerald-300 font-black animate-pulse">
-          🛡️ SİBER GÜVENLİK: ANİPEAK İNFİNİTY-GUARD
-        </span>
-        <span>Altyapı: MahoraPeak Core v3.0</span>
+      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-center gap-4 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+        <span>© 2026 MahoraPeak Tüm hakları saklıdır.</span>
       </div>
     </footer>
   );

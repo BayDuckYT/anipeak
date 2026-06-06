@@ -98,10 +98,7 @@ export default function Header({ onAuthOpen }) {
   };
 
   const handlePremiumClick = (e) => {
-    if (user?.is_elite) {
-      e.preventDefault();
-      alert('Premium üyeliğiniz zaten aktif! Sınırsız gücün tadını çıkarın. 🔥');
-    }
+    // Sadece /elite-upgrade sayfasına yönlendirmesi için e.preventDefault ve alert kaldırıldı.
   };
 
   return (
