@@ -963,7 +963,7 @@ export default function ProfileShowcase() {
                           <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" />
                         )}
                         {['Baş Admin', 'Kurucu'].includes(displayUser.role) || displayUser.username === 'MAHORA' || displayUser.username === 'MAHORAPEAK' ? (
-                           <div className="flex items-center justify-center shrink-0 w-8 h-8 md:w-10 md:h-10">
+                           <div className="flex items-center justify-center shrink-0 w-14 h-14 md:w-20 md:h-20 mr-2">
                               <img src="/basadminicon.png" alt="Kurucu" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(220,38,38,0.9)] mix-blend-screen" />
                            </div>
                         ) : displayUser.is_elite ? (
