@@ -990,7 +990,7 @@ export default function ProfileShowcase() {
                           {displayUser.is_elite && (
                              displayUser.active_plan_id === 'aethe' ? (
                                  <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shrink-0 mr-1">
-                                    <img src="/aetheiconv2.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
+                                    <img src={aetheIconV2} alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                                  </div>
                              ) :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
@@ -1141,7 +1141,7 @@ export default function ProfileShowcase() {
                         {displayUser.active_plan_id === 'aethe' ? (
                            <>
                               <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shrink-0 mr-1">
-                                 <img src="/aetheiconv2.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
+                                 <img src={aetheIconV2} alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                               </div>
                               Efsanevi Aethe
                            </>
@@ -1196,7 +1196,7 @@ export default function ProfileShowcase() {
                              }`} title={`${visit.profiles?.username || 'Gizemli Seçkin'}`}>
                                 {visit.visitor_plan === 'aethe' ? (
                                   <div className="w-full h-full p-2 flex items-center justify-center animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]">
-                                     <img src="/aetheiconv2.png" alt="Aethe" className="object-contain w-full h-full" />
+                                     <img src={aetheIconV2} alt="Aethe" className="object-contain w-full h-full" />
                                   </div>
                                 ) : (
                                   <Crown size={18} className="text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]" />
@@ -1256,7 +1256,7 @@ export default function ProfileShowcase() {
                              {displayUser.is_elite && (
                                 displayUser.active_plan_id === 'aethe' ? (
                                    <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shrink-0 mr-1">
-                                      <img src="/aetheiconv2.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
+                                      <img src={aetheIconV2} alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                                    </div>
                                 ) :
                                 displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="inline" /> :
@@ -1282,7 +1282,7 @@ export default function ProfileShowcase() {
                           }`}>
                             {displayUser.active_plan_id === 'aethe' ? (
                                <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shrink-0 mr-1">
-                                  <img src="/aetheiconv2.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
+                                  <img src={aetheIconV2} alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                                </div>
                             ) :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="text-purple-400 animate-pulse" /> :

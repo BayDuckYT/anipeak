@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Crown, Gem, Ghost, Trophy, Sparkles, Shield } from 'lucide-react';
+import aetheIconV2 from '../assets/aetheiconv2.png';
+import { useNavigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 export default function UserBadges({ user, showCrown = false, showGem = true, className = '', iconSize = 12 }) {
@@ -26,7 +28,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
   const getPremiumIcon = () => {
     if (userData?.username === 'MAHORAPEAK' || planId === 'aethe') return (
        <div className="flex items-center justify-center shrink-0 w-12 h-12 md:w-16 md:h-16">
-          <img src="/aetheiconv2.png" alt="Aethe" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse" />
+          <img src={aetheIconV2} alt="Aethe" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse" />
        </div>
     );
     if (planId === 'shadow') return (
