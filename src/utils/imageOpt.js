@@ -26,10 +26,10 @@ export function getOptimizedImage(url, width = 300) {
   // GIF ve Avatarlar için animasyon destekli WebP (n=-1)
   const isGif = absoluteUrl.toLowerCase().includes('.gif') || absoluteUrl.includes('/avatars/');
   if (isGif) {
-    return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&n=-1&q=75`;
+    return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&n=-1&q=70`;
   }
 
-  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&q=80`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&q=75`;
 }
 
 // Sadece tek bir kare (animasyonsuz) halini getiren fonksiyon

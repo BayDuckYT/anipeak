@@ -262,6 +262,7 @@ export default function Home({ onAuthOpen }) {
                   className="w-full h-full object-cover object-top opacity-70 lg:opacity-80"
                   fetchpriority={currentHeroIndex === 0 ? "high" : "auto"}
                   loading={currentHeroIndex === 0 ? "eager" : "lazy"}
+                  decoding="async"
                 />
               </div>
               
@@ -285,7 +286,7 @@ export default function Home({ onAuthOpen }) {
                 {/* Sol Taraf - Poster (Netflix stili ama poster görünümlü) */}
                 <div className="hidden md:block flex-shrink-0 w-48 lg:w-64 shadow-[0_20px_50px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden border border-white/10 group relative">
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                    <Link to={`/manga/${activeHero.slug}/bolum-${heroChapterCount > 0 ? 1 : ''}`} className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center hover:scale-110 transition-transform">
+                    <Link to={`/manga/${activeHero.slug}/bolum-${heroChapterCount > 0 ? 1 : ''}`} aria-label={`${activeHero.title} ilk bölümü oku`} className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center hover:scale-110 transition-transform">
                       <BookOpen size={24} className="text-white" />
                     </Link>
                   </div>
@@ -340,14 +341,16 @@ export default function Home({ onAuthOpen }) {
             {/* Hero Indicator Dots + Thumbnail Strip */}
             <div className="absolute bottom-8 left-4 sm:left-12 lg:left-24 z-30 flex items-end gap-6">
               {/* Dots */}
-              <div className="hero-dots">
+              <div className="hero-dots flex items-center gap-2">
                 {heroItems.slice(0, 8).map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentHeroIndex(idx)}
-                    className={`hero-dot ${currentHeroIndex === idx ? 'active' : ''}`}
+                    className={`relative w-10 h-10 flex items-center justify-center group`}
                     aria-label={`Slayt ${idx + 1}`}
-                  />
+                  >
+                    <span className={`w-3 h-3 rounded-full transition-all duration-300 ${currentHeroIndex === idx ? 'bg-purple-500 scale-125' : 'bg-white/40 group-hover:bg-white/70'}`} />
+                  </button>
                 ))}
               </div>
             </div>
