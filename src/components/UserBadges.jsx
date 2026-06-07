@@ -71,7 +71,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
         </motion.button>
       )}
 
-      {role === 'Baş Admin' && (
+      {(role === 'Baş Admin' || role === 'Kurucu' || userData?.username === 'MAHORAPEAK' || userData?.username === 'MAHORA') && (
         <motion.div
           whileHover={{ scale: 1.2 }}
           className="relative group cursor-pointer flex items-center justify-center p-0.5 outline-none"
@@ -85,7 +85,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
         </motion.div>
       )}
 
-      {showGem && isStaff && role !== 'Baş Admin' && !isElite && (
+      {showGem && isStaff && role !== 'Baş Admin' && role !== 'Kurucu' && !isElite && (
         <motion.button
           onClick={handleClick}
           whileHover={{ scale: 1.2 }}

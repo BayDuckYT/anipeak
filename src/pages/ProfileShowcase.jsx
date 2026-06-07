@@ -962,14 +962,18 @@ export default function ProfileShowcase() {
                         {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && !displayUser.is_elite && (
                           <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" />
                         )}
-                        {displayUser.is_elite && (
+                        {['Baş Admin', 'Kurucu'].includes(displayUser.role) || displayUser.username === 'MAHORA' || displayUser.username === 'MAHORAPEAK' ? (
+                           <div className="flex items-center justify-center shrink-0 w-8 h-8 md:w-10 md:h-10">
+                              <img src="/başadminicon.png" alt="Kurucu" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(220,38,38,0.9)] mix-blend-screen" />
+                           </div>
+                        ) : displayUser.is_elite ? (
                           <>
                             {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={28} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0" /> :
                              displayUser.active_plan_id === 'pro' ? <Trophy size={28} className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" /> :
                              <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />}
                           </>
-                        )}
+                        ) : null}
                       </div>
                       <span
                         className={displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none' ? 'name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]'}
