@@ -133,6 +133,7 @@ export default function AllSeries() {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [maxChapters, setMaxChapters] = useState('');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const validSeries = useMemo(() => series.filter(s => !s.is_deleted), [series]);
 
@@ -366,6 +367,19 @@ export default function AllSeries() {
               </button>
             </div>
 
+            {/* Desktop filter button */}
+            <button 
+              onClick={() => setFilterOpen(!filterOpen)}
+              className="hidden lg:flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-500 transition-all relative shadow-lg shadow-purple-600/20"
+            >
+              <SlidersHorizontal size={16} /> Gelişmiş Filtre
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-[#070511]">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
             {/* Mobile filter button */}
             <button 
               onClick={() => setMobileFilterOpen(true)}
@@ -381,14 +395,21 @@ export default function AllSeries() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* ══════ LEFT SIDEBAR — KATEGORİLER (Desktop) ══════ */}
-          <aside className="hidden lg:block w-[320px] xl:w-[380px] flex-shrink-0">
-            <div className="sticky top-28">
+        {/* Accordion Filter Panel (Desktop) */}
+        <AnimatePresence>
+          {filterOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="hidden lg:block overflow-hidden mb-8 origin-top"
+            >
               <FilterContent />
-            </div>
-          </aside>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* ══════ CENTER — SONUÇLAR ══════ */}
           <div className="flex-1 min-w-0">
             
@@ -437,7 +458,7 @@ export default function AllSeries() {
 
             {/* Grid / List Render */}
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
                 <AnimatePresence mode="popLayout">
                   {filtered.map((item, i) => (
                     <motion.div key={item.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.2 }}>

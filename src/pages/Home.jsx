@@ -350,25 +350,6 @@ export default function Home({ onAuthOpen }) {
                   />
                 ))}
               </div>
-
-              {/* Thumbnail Strip (Desktop) */}
-              <div className="hidden lg:flex items-end gap-2">
-                {heroItems.slice(0, 6).map((item, idx) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setCurrentHeroIndex(idx)}
-                    className={`hero-thumb ${currentHeroIndex === idx ? 'active' : ''}`}
-                    aria-label={item.title}
-                  >
-                    <img 
-                      src={getOptimizedImage(item.cover, 100)} 
-                      alt={item.title}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Carousel Okları (Desktop) */}
