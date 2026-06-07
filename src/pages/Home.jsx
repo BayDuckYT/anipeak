@@ -479,49 +479,7 @@ export default function Home({ onAuthOpen }) {
               )}
             </AnimatePresence>
 
-            {/* 1.6. BU HAFTA EN ÇOK OKUNANLAR (Yuvarlak Avatar Strip) */}
-            <motion.section
-              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
-              variants={fadeInUp}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
-                  <div className="p-1.5 bg-pink-500/10 rounded-md border border-pink-500/20">
-                    <Heart size={16} className="text-pink-400" />
-                  </div>
-                  Bu Hafta Popüler
-                </h2>
-                <Link to="/popular" className="text-xs font-black tracking-widest uppercase text-slate-400 hover:text-white transition-colors flex items-center gap-1 group">
-                  Tümü <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-              <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-4 px-1">
-                {weeklyTop.map((item, i) => (
-                  <Link key={item.id} to={`/manga/${item.slug}`} className="weekly-avatar group" style={{ animationDelay: `${i * 0.08}s` }} title={item.title}>
-                    <img 
-                      src={getOptimizedImage(item.cover, 100)} 
-                      alt={item.title}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className={`weekly-rank ${
-                      i === 0 ? 'bg-amber-500' : 
-                      i === 1 ? 'bg-slate-400' : 
-                      i === 2 ? 'bg-orange-500' : 
-                      'bg-zinc-700'
-                    }`}>
-                      {i + 1}
-                    </div>
-                    {/* Hover tooltip */}
-                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none whitespace-nowrap">
-                      <span className="px-2 py-1 bg-black/90 text-white text-[9px] font-bold rounded-md border border-white/10">{item.title}</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </motion.section>
-
-            {/* 2. TREND SERİLER (Yatay Scroll) */}
+            {/* 2. BU HAFTA POPÜLER (Eski Trend Seriler) */}
             <motion.section 
               ref={trendRef} id="trendler"
               initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
@@ -532,7 +490,7 @@ export default function Home({ onAuthOpen }) {
                   <div className="p-2 bg-orange-500/10 rounded-lg border border-orange-500/20">
                     <Flame size={20} className="text-orange-500" />
                   </div>
-                  Trend Seriler
+                  Bu Hafta Popüler
                 </h2>
                 <Link to="/all-series" className="text-xs font-black tracking-widest uppercase text-slate-400 hover:text-white transition-colors flex items-center gap-1 group">
                   Tümünü Gör <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -549,53 +507,6 @@ export default function Home({ onAuthOpen }) {
                 )} 
               />
             </motion.section>
-
-            {/* 2.5 EDİTÖRÜN SEÇTİKLERİ */}
-            {editorPicks.length > 0 && (
-              <LazySection minHeight="280px">
-                <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeInUp}>
-                  <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-3">
-                      <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                        <Award size={20} className="text-purple-400" />
-                      </div>
-                      Editörün Seçtikleri
-                    </h2>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {editorPicks.slice(0, 3).map((item, i) => {
-                      const chCount = getChapters(item.id).length;
-                      return (
-                        <Link key={item.id} to={`/manga/${item.slug}`} className="editor-pick-card group">
-                          <div className="relative h-48 sm:h-56">
-                            <img 
-                              src={getOptimizedImage(item.hero_bg || item.cover, 600)} 
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                              loading="lazy"
-                              decoding="async"
-                            />
-                            <div className="pick-overlay" />
-                            <div className="absolute inset-0 z-10 p-5 flex flex-col justify-end">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="px-2 py-0.5 bg-purple-500/30 border border-purple-500/40 rounded-md text-purple-300 text-[9px] font-black uppercase">Editör Seçimi</span>
-                              </div>
-                              <h3 className="text-white text-lg font-black mb-1 drop-shadow-lg line-clamp-1">{item.title}</h3>
-                              <p className="text-slate-300 text-xs line-clamp-2 mb-3 drop-shadow-md">{item.description || 'Bu seriyi kaçırmayın!'}</p>
-                              <div className="flex items-center gap-3 text-[10px] font-bold">
-                                <span className="flex items-center gap-1 text-emerald-400"><Star size={10} className="fill-emerald-400" /> {item.rating}</span>
-                                <span className="flex items-center gap-1 text-slate-400"><BookOpen size={10} /> {chCount} Bölüm</span>
-                                <span className="flex items-center gap-1 text-slate-400"><Eye size={10} /> {(item.reads_num || 0).toLocaleString('tr-TR')}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </motion.section>
-              </LazySection>
-            )}
 
             {/* 3. EN POPÜLERLER KÜRSÜSÜ (Elite Podium) */}
             <LazySection minHeight="400px">

@@ -108,8 +108,8 @@ export default function Header({ onAuthOpen }) {
       initial={{ y: -80 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'header-solid-dark border-b border-white/5 shadow-2xl' : 'bg-transparent bg-gradient-to-b from-black/80 to-transparent'
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
+        scrolled ? 'header-solid-dark border-b border-white/5 shadow-2xl backdrop-blur-lg bg-[#0a0a0f]/95' : 'bg-transparent bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-[2px]'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
