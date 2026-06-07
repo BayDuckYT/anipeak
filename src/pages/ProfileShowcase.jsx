@@ -70,7 +70,7 @@ import { usePerformance } from '../context/PerformanceContext';
 import { fetchMALList } from '../lib/malService';
 import { useSEO } from '../hooks/useSEO';
 
-// Profil Kırpma Yardımcısı
+// Profil KÄ±rpma YardÄ±mcÄ±sÄ±
 const getCroppedImg = async (imageSrc, pixelCrop) => {
   const image = new Image();
   image.setAttribute('crossOrigin', 'anonymous');
@@ -92,9 +92,9 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
 };
 
 /**
- * ProfileEffectSpritesheet — Otomatik kare sayısı tespiti.
- * Discord tarzı spritesheet'ler yatay şeritlerdir: width / height = kare sayısı.
- * Resmin gerçek piksel boyutlarını ölçüp doğru steps() değerini hesaplar.
+ * ProfileEffectSpritesheet â€” Otomatik kare sayÄ±sÄ± tespiti.
+ * Discord tarzÄ± spritesheet'ler yatay ÅŸeritlerdir: width / height = kare sayÄ±sÄ±.
+ * Resmin gerÃ§ek piksel boyutlarÄ±nÄ± Ã¶lÃ§Ã¼p doÄŸru steps() deÄŸerini hesaplar.
  */
 function ProfileEffectSpritesheet({ url }) {
   const [frameData, setFrameData] = useState({ count: null, direction: 'h' });
@@ -154,7 +154,7 @@ export default function ProfileShowcase() {
 
   useSEO({
     title: `${username} - Profil`,
-    description: `${username} kullanıcısının MahoraPeak profil sayfası.`,
+    description: `${username} kullanÄ±cÄ±sÄ±nÄ±n MahoraPeak profil sayfasÄ±.`,
     url: `https://mahorapeak.com.tr/profil/${username}`
   });
   
@@ -165,7 +165,7 @@ export default function ProfileShowcase() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [hoveredEffectId, setHoveredEffectId] = useState(null);
   const [visibleDecorationCount, setVisibleDecorationCount] = useState(20);
-  const [decorationCategory, setDecorationCategory] = useState('Tümü');
+  const [decorationCategory, setDecorationCategory] = useState('TÃ¼mÃ¼');
   const [activeDecoration, setActiveDecoration] = useState(isOwnProfile ? (currentUser?.active_decoration || 'none') : 'none');
   const [userLinks, setUserLinks] = useState(isOwnProfile ? (currentUser?.links || []) : []);
   const [profileData, setProfileData] = useState(null);
@@ -219,15 +219,15 @@ export default function ProfileShowcase() {
             setUserLinks(data.links || []);
           }
           
-          // Profil İzi Kaydetme (Sadece Elite kullanıcılar başkalarının profillerine iz bırakabilir)
+          // Profil Ä°zi Kaydetme (Sadece Elite kullanÄ±cÄ±lar baÅŸkalarÄ±nÄ±n profillerine iz bÄ±rakabilir)
           if (currentUser && currentUser.id !== data.id && (currentUser.active_plan_id === 'aethe' || currentUser.active_plan_id === 'ruler')) {
              try {
-                // Saniyede 1 kereden fazla spam olmaması için upsert veya on conflict
+                // Saniyede 1 kereden fazla spam olmamasÄ± iÃ§in upsert veya on conflict
                 await supabase.from('profile_visits').insert({
                    profile_id: data.id,
                    visitor_id: currentUser.id,
                    visitor_plan: currentUser.active_plan_id
-                }).select().single(); // Unique constraint ihlali olursa fail olur ama sorun değil, try-catch içinde.
+                }).select().single(); // Unique constraint ihlali olursa fail olur ama sorun deÄŸil, try-catch iÃ§inde.
              } catch(e) {}
           }
         }
@@ -264,7 +264,7 @@ export default function ProfileShowcase() {
   const [recentVisits, setRecentVisits] = useState([]);
   const fetchRecentVisits = async (userId) => {
     try {
-      // Sadece son 5 benzersiz ziyaretçiyi al
+      // Sadece son 5 benzersiz ziyaretÃ§iyi al
       const { data } = await supabase
         .from('profile_visits')
         .select('visitor_id, visitor_plan, visited_at, profiles:visitor_id(username, avatar_url)')
@@ -273,7 +273,7 @@ export default function ProfileShowcase() {
         .limit(20);
         
       if (data) {
-         // Aynı kişiden birden fazla iz varsa sadece en yenisini göster
+         // AynÄ± kiÅŸiden birden fazla iz varsa sadece en yenisini gÃ¶ster
          const unique = [];
          const seen = new Set();
          for(let v of data) {
@@ -296,7 +296,7 @@ export default function ProfileShowcase() {
     const { count: cCount } = await supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', userId);
     setCommentsCount(cCount || 0);
 
-    // favorites tablosu mevcut olmadığı için 404 hatasını önlemek adına sorgu kaldırıldı
+    // favorites tablosu mevcut olmadÄ±ÄŸÄ± iÃ§in 404 hatasÄ±nÄ± Ã¶nlemek adÄ±na sorgu kaldÄ±rÄ±ldÄ±
     setFavoritesCount(0);
   };
 
@@ -323,7 +323,7 @@ export default function ProfileShowcase() {
     setCustomLists(clData || []);
 
     // 3. Achievements
-    // Eğer kendi profiliyse arka planda eksik başarımları mühürle
+    // EÄŸer kendi profiliyse arka planda eksik baÅŸarÄ±mlarÄ± mÃ¼hÃ¼rle
     if (currentUser?.id === userId) {
       const { syncAllAchievements } = await import('../lib/achievementService');
       await syncAllAchievements(userId);
@@ -347,7 +347,7 @@ export default function ProfileShowcase() {
           setMalList(mangaData || []);
         }
       } catch (err) {
-        setMalError('MAL listesi alınamadı.');
+        setMalError('MAL listesi alÄ±namadÄ±.');
       } finally {
         setMalLoading(false);
       }
@@ -373,7 +373,7 @@ export default function ProfileShowcase() {
         .single();
       
       if (error) {
-        console.log("Supabase Kayıt Hatası [custom_lists]:", error);
+        console.log("Supabase KayÄ±t HatasÄ± [custom_lists]:", error);
         throw error;
       }
       
@@ -383,18 +383,18 @@ export default function ProfileShowcase() {
       setNewListDesc('');
       setNewListIsPublic(true);
       
-      // Anında ışınlanıyoruz uşağım!
+      // AnÄ±nda Ä±ÅŸÄ±nlanÄ±yoruz uÅŸaÄŸÄ±m!
       navigate(`/${currentUser.username}/liste/${data.id}`);
     } catch (err) {
       console.error("Create list error:", err);
-      showToast("Liste oluşturulamadı! Lütfen tekrar dene.");
+      showToast("Liste oluÅŸturulamadÄ±! LÃ¼tfen tekrar dene.");
     } finally {
       setIsListCreating(false);
     }
   };
 
   const handleDeleteList = async (listId) => {
-    if (!confirm('Bu listeyi silmek istediğine emin misin?')) return;
+    if (!confirm('Bu listeyi silmek istediÄŸine emin misin?')) return;
     try {
       await supabase.from('custom_lists').delete().eq('id', listId);
       setCustomLists(prev => prev.filter(l => l.id !== listId));
@@ -415,7 +415,7 @@ export default function ProfileShowcase() {
         schema: 'public', 
         table: 'follows' 
       }, (payload) => {
-        // Eğer bu profili ilgilendiren bir takip değişikliği varsa sayıları tazele
+        // EÄŸer bu profili ilgilendiren bir takip deÄŸiÅŸikliÄŸi varsa sayÄ±larÄ± tazele
         fetchCounts(profileData.id);
       })
       .subscribe();
@@ -427,8 +427,8 @@ export default function ProfileShowcase() {
 
   const rawUser = (isOwnProfile ? currentUser : profileData) || {
     username: username,
-    role: 'Üye',
-    bio: 'Profil yükleniyor...',
+    role: 'Ãœye',
+    bio: 'Profil yÃ¼kleniyor...',
     avatar_url: null,
     xp: 0,
     joinDate: '...',
@@ -497,7 +497,7 @@ export default function ProfileShowcase() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Mevcut kodun süresini kontrol et
+  // Mevcut kodun sÃ¼resini kontrol et
   useEffect(() => {
     if (currentUser?.discord_sync_code && currentUser?.discord_sync_code_expires) {
       const expiry = new Date(currentUser.discord_sync_code_expires).getTime();
@@ -534,14 +534,14 @@ export default function ProfileShowcase() {
       setVerifCode(code);
       setTimeLeft(300); // 5 minutes
     } catch (err) {
-      console.error('[Verification] Kod üretme hatası:', err);
+      console.error('[Verification] Kod Ã¼retme hatasÄ±:', err);
     } finally {
       setIsGenerating(false);
     }
   };
 
   const disconnectDiscord = async () => {
-    if (!confirm('Discord bağlantısını kesmek istediğine emin misin?')) return;
+    if (!confirm('Discord baÄŸlantÄ±sÄ±nÄ± kesmek istediÄŸine emin misin?')) return;
     try {
       await updateProfile({ 
         discord_id: null, 
@@ -588,7 +588,7 @@ export default function ProfileShowcase() {
       if (malLink && malLink.value) {
         fetchSocialData(currentUser.id, malLink.value);
       }
-      showToast('Profiliniz Güncellendi');
+      showToast('Profiliniz GÃ¼ncellendi');
     } catch (err) {
       console.error('Links save error:', err);
     }
@@ -678,16 +678,16 @@ export default function ProfileShowcase() {
 
   // Navigation Tabs
   const tabs = isOwnProfile ? [
-    { id: 'okunanlar', label: 'Okuduklarım', icon: History },
+    { id: 'okunanlar', label: 'OkuduklarÄ±m', icon: History },
     { id: 'listeler', label: 'Listeler', icon: BookOpen },
     { id: 'mal', label: 'MAL Listem', icon: Tv },
-    { id: 'basarimlar', label: 'Başarımlar', icon: Award },
+    { id: 'basarimlar', label: 'BaÅŸarÄ±mlar', icon: Award },
     { id: 'settings', label: 'Ayarlar', icon: SettingsIcon, link: '/settings' },
   ] : [
-    { id: 'okunanlar', label: 'Okudukları', icon: History },
+    { id: 'okunanlar', label: 'OkuduklarÄ±', icon: History },
     { id: 'listeler', label: 'Listeler', icon: BookOpen },
     { id: 'mal', label: 'MAL Listesi', icon: Tv },
-    { id: 'basarimlar', label: 'Başarımlar', icon: Award },
+    { id: 'basarimlar', label: 'BaÅŸarÄ±mlar', icon: Award },
   ];
 
   // Helper for History
@@ -715,18 +715,18 @@ export default function ProfileShowcase() {
   };
 
   const decorationEffectsData = useMemo(() => effectsData, []);
-  const categories = useMemo(() => ['Tümü', ...new Set(decorationEffectsData.map(d => d.category))], [decorationEffectsData]);
+  const categories = useMemo(() => ['TÃ¼mÃ¼', ...new Set(decorationEffectsData.map(d => d.category))], [decorationEffectsData]);
 
   const filteredDecorations = useMemo(() => {
     let result = [];
-    if (decorationCategory === 'Tümü') result = decorationEffectsData;
+    if (decorationCategory === 'TÃ¼mÃ¼') result = decorationEffectsData;
     else if (decorationCategory === 'Auralar') result = decorationEffectsData.filter(d => d.category === 'profile_effects');
-    else if (decorationCategory === 'Avatar Çerçeveleri') result = decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
-    else if (decorationCategory === 'Plaketler') result = nameplatesData.map((n, i) => ({ id: `nameplate_${n}`, label: `İsim Plakası ${i + 1}`, url: n, category: 'nameplates' }));
-    else if (decorationCategory === 'İsim Efektleri') result = decorationEffectsData.filter(d => d.category === 'name_effects');
+    else if (decorationCategory === 'Avatar Ã‡erÃ§eveleri') result = decorationEffectsData.filter(d => d.category === 'avatar_decorations' || d.category === 'decorations');
+    else if (decorationCategory === 'Plaketler') result = nameplatesData.map((n, i) => ({ id: `nameplate_${n}`, label: `Ä°sim PlakasÄ± ${i + 1}`, url: n, category: 'nameplates' }));
+    else if (decorationCategory === 'Ä°sim Efektleri') result = decorationEffectsData.filter(d => d.category === 'name_effects');
     else result = decorationEffectsData.filter(d => d.category === decorationCategory);
 
-    // Satın alınanlar (kilidi açık olanlar) üstte çıksın
+    // SatÄ±n alÄ±nanlar (kilidi aÃ§Ä±k olanlar) Ã¼stte Ã§Ä±ksÄ±n
     return [...result].sort((a, b) => {
       const aUnlocked = canUseEffect(a.id, currentUser);
       const bUnlocked = canUseEffect(b.id, currentUser);
@@ -762,13 +762,13 @@ export default function ProfileShowcase() {
   };
 
   if (loadingProfile) {
-    return <Loader fullScreen={false} text="Profil Yükleniyor..." />;
+    return <Loader fullScreen={false} text="Profil YÃ¼kleniyor..." />;
   }
 
   return (
     <div className="min-h-screen text-zinc-100 font-sans selection:bg-purple-500/30 pt-24 pb-12 bg-[#020203]">
       
-      {/* ── MODALS ── */}
+      {/* â”€â”€ MODALS â”€â”€ */}
       {createPortal(
         <AnimatePresence>
           {showLinksModal && (
@@ -790,17 +790,17 @@ export default function ProfileShowcase() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCreateListModal(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
               <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-lg bg-[#0a0a0f] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
                  <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                    <h3 className="text-lg font-black text-white tracking-widest flex items-center gap-2"><BookOpen size={20} className="text-blue-500"/> YENİ LİSTE OLUŞTUR</h3>
+                    <h3 className="text-lg font-black text-white tracking-widest flex items-center gap-2"><BookOpen size={20} className="text-blue-500"/> YENÄ° LÄ°STE OLUÅTUR</h3>
                     <button onClick={() => setShowCreateListModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"><X size={16}/></button>
                  </div>
                  <form onSubmit={handleCreateList} className="p-6 space-y-6">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">LİSTE ADI (ZORUNLU)</label>
-                       <input type="text" value={newListName} onChange={(e) => setNewListName(e.target.value)} placeholder="Örn: Okunacak Şaheserler" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-colors" required />
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">LÄ°STE ADI (ZORUNLU)</label>
+                       <input type="text" value={newListName} onChange={(e) => setNewListName(e.target.value)} placeholder="Ã–rn: Okunacak Åaheserler" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-colors" required />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">AÇIKLAMA (OPSİYONEL)</label>
-                       <textarea value={newListDesc} onChange={(e) => setNewListDesc(e.target.value)} placeholder="Bu liste ne hakkında?" rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-colors resize-none" />
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">AÃ‡IKLAMA (OPSÄ°YONEL)</label>
+                       <textarea value={newListDesc} onChange={(e) => setNewListDesc(e.target.value)} placeholder="Bu liste ne hakkÄ±nda?" rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-colors resize-none" />
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
                        <div className="flex items-center gap-3">
@@ -808,8 +808,8 @@ export default function ProfileShowcase() {
                              {newListIsPublic ? <Eye size={20} /> : <EyeOff size={20} />}
                           </div>
                           <div>
-                             <h4 className="text-sm font-bold text-white">{newListIsPublic ? 'Herkese Açık' : 'Gizli Liste'}</h4>
-                             <p className="text-[10px] text-zinc-400">{newListIsPublic ? 'Bu listeyi profilinde herkes görebilir' : 'Sadece sen görebilirsin'}</p>
+                             <h4 className="text-sm font-bold text-white">{newListIsPublic ? 'Herkese AÃ§Ä±k' : 'Gizli Liste'}</h4>
+                             <p className="text-[10px] text-zinc-400">{newListIsPublic ? 'Bu listeyi profilinde herkes gÃ¶rebilir' : 'Sadece sen gÃ¶rebilirsin'}</p>
                           </div>
                        </div>
                        <button type="button" onClick={() => setNewListIsPublic(!newListIsPublic)} className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${newListIsPublic ? 'bg-green-500' : 'bg-zinc-700'}`}>
@@ -818,7 +818,7 @@ export default function ProfileShowcase() {
                     </div>
                     <div className="pt-2">
                        <button type="submit" disabled={isListCreating || !newListName.trim()} className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] flex items-center justify-center gap-2">
-                          {isListCreating ? <Loader className="w-4 h-4" /> : <><Plus size={16} /> OLUŞTUR</>}
+                          {isListCreating ? <Loader className="w-4 h-4" /> : <><Plus size={16} /> OLUÅTUR</>}
                        </button>
                     </div>
                  </form>
@@ -839,7 +839,7 @@ export default function ProfileShowcase() {
               setMixState={setMixState} 
               onSave={(newMix) => {
                 updateProfile({ active_mix: newMix });
-                showToast('Profiliniz Güncellendi');
+                showToast('Profiliniz GÃ¼ncellendi');
               }} 
               currentUser={currentUser}
             />
@@ -862,7 +862,7 @@ export default function ProfileShowcase() {
             </div>
             <div>
               <p className="text-xs font-black uppercase tracking-widest text-white">{toast}</p>
-              <p className="text-[10px] text-emerald-400/80 font-medium">Değişiklikler başarıyla kaydedildi.</p>
+              <p className="text-[10px] text-emerald-400/80 font-medium">DeÄŸiÅŸiklikler baÅŸarÄ±yla kaydedildi.</p>
             </div>
           </motion.div>
         )}
@@ -877,9 +877,9 @@ export default function ProfileShowcase() {
                   <button aria-label="Premium penceresini kapat" onClick={() => setShowPremiumModal(false)} className="p-3 rounded-2xl bg-[#0a0815] border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"><X size={20} /></button>
                 </div>
                 <div className="text-center mb-12">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÜYELİK</div>
-                  <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">Sınırsız Güce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Eriş</span></h2>
-                  <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tüm kilitli özel efektlere ve dekorasyonlara anında eriş.</p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 font-black text-[10px] uppercase tracking-widest mb-6"><Crown size={14} /> ELITE ÃœYELÄ°K</div>
+                  <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">SÄ±nÄ±rsÄ±z GÃ¼ce <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">EriÅŸ</span></h2>
+                  <p className="text-zinc-400 max-w-xl mx-auto">Premium olarak tÃ¼m kilitli Ã¶zel efektlere ve dekorasyonlara anÄ±nda eriÅŸ.</p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-12">
                   {ELITE_BUNDLES.slice(0, 5).map(bundle => (
@@ -891,8 +891,8 @@ export default function ProfileShowcase() {
                   ))}
                 </div>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-400 hover:text-white transition-all">Şimdilik Kalsın</button>
-                  <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ŞİMDİ YÜKSELT <ArrowRight size={16} /></button>
+                  <button onClick={() => setShowPremiumModal(false)} className="px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-zinc-400 hover:text-white transition-all">Åimdilik KalsÄ±n</button>
+                  <button onClick={() => navigate('/elite-upgrade')} className="px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 hover:scale-105 hover:shadow-amber-500/40 transition-all flex items-center gap-2">ÅÄ°MDÄ° YÃœKSELT <ArrowRight size={16} /></button>
                 </div>
               </motion.div>
             </div>
@@ -903,7 +903,7 @@ export default function ProfileShowcase() {
 
                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start max-w-[1700px] mx-auto px-4 sm:px-6">
           
-          {/* ── LEFT SIDEBAR (SCREENSHOT 1 STYLE) ── */}
+          {/* â”€â”€ LEFT SIDEBAR (SCREENSHOT 1 STYLE) â”€â”€ */}
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
             <div className="bg-[#070511]/80 border border-white/20 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative backdrop-blur-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
                {/* Background Effect */}
@@ -959,16 +959,16 @@ export default function ProfileShowcase() {
                       className={`text-4xl font-black text-white tracking-tighter leading-none z-10 flex flex-row items-center gap-2 flex-nowrap whitespace-nowrap ${!(displayUser.active_mix?.nametag && displayUser.active_mix.nametag !== 'none') ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}
                     >
                       <div className="flex flex-row items-center gap-1 shrink-0">
-                        {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(displayUser.role) && !displayUser.is_elite && (
+                        {['BaÅŸ Admin', 'YÃ¶netici', 'Admin YardÄ±mcÄ±sÄ±', 'EditÃ¶r', 'Tester'].includes(displayUser.role) && !displayUser.is_elite && (
                           <Gem size={28} className="text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" />
                         )}
-                        {['Baş Admin', 'Kurucu'].includes(displayUser.role) || displayUser.username === 'MAHORA' || displayUser.username === 'MAHORAPEAK' ? (
+                        {['BaÅŸ Admin', 'Kurucu'].includes(displayUser.role) || displayUser.username === 'MAHORA' || displayUser.username === 'MAHORAPEAK' ? (
                            <div className="flex items-center justify-center shrink-0 w-10 h-10 md:w-14 md:h-14 mr-1">
                               <img src="/basadminicon.png" alt="Kurucu" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(220,38,38,0.9)] mix-blend-screen" />
                            </div>
                         ) : displayUser.is_elite ? (
                           <>
-                            {displayUser.active_plan_id === 'aethe' ? <img src="/aetheicon.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
+                            {displayUser.active_plan_id === 'shadow' ? <Ghost size={28} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0" /> :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={28} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0" /> :
                              displayUser.active_plan_id === 'pro' ? <Trophy size={28} className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" /> :
                              <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />}
@@ -989,8 +989,8 @@ export default function ProfileShowcase() {
                        <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]'}`}>
                           {displayUser.is_elite && (
                              displayUser.active_plan_id === 'aethe' ? (
-                                 <div className="w-4 h-4 flex items-center justify-center shrink-0 mr-1 mb-0.5">
-                                    <img src="/aetheicon.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                  <div className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shrink-0 mr-1">
+                                    <img src="/aetheicon.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                                  </div>
                              ) :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
@@ -1000,10 +1000,10 @@ export default function ProfileShowcase() {
                           <span>{displayUser.fullLabel}</span>
                        </span>
                     </div>
-                    {displayUser.role === 'Moderatör' && (
+                    {displayUser.role === 'ModeratÃ¶r' && (
                       <div className="inline-flex px-4 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 backdrop-blur-md shadow-[0_0_10px_rgba(249,115,22,0.2)]">
                         <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1 text-orange-400">
-                           <span className="text-[12px] drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]">🛡️</span> MODERATÖR
+                           <span className="text-[12px] drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]">ğŸ›¡ï¸</span> MODERATÃ–R
                         </span>
                       </div>
                     )}
@@ -1020,10 +1020,10 @@ export default function ProfileShowcase() {
                               displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="shrink-0" /> :
                               displayUser.active_plan_id === 'pro' ? <Trophy size={12} className="shrink-0" /> :
                               <Crown size={12} className="shrink-0" />}
-                             {displayUser.active_plan_id === 'aethe' ? 'EFSANEVİ AETHE MÜHRÜ' :
-                              displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ' :
+                             {displayUser.active_plan_id === 'aethe' ? 'EFSANEVÄ° AETHE MÃœHRÃœ' :
+                              displayUser.active_plan_id === 'shadow' ? 'HÃœKÃœMDAR GÃ–LGESÄ°' :
                               displayUser.active_plan_id === 'pro' ? 'MAHORAPEAK PRO' :
-                              'HÜKÜMDAR'}
+                              'HÃœKÃœMDAR'}
                           </span>
                        </div>
                     )}
@@ -1038,7 +1038,7 @@ export default function ProfileShowcase() {
                           <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 drop-shadow-md">
                              <Shield size={12} className="shrink-0" />
                              {displayUser.faction === 'dragon' ? 'KIZIL EJDER' :
-                              displayUser.faction === 'fox' ? 'GÜMÜŞ KITSUNE' :
+                              displayUser.faction === 'fox' ? 'GÃœMÃœÅ KITSUNE' :
                               displayUser.faction === 'wolf' ? 'BUZ KURT' :
                               'ALTIN ANKA'}
                           </span>
@@ -1050,8 +1050,8 @@ export default function ProfileShowcase() {
                   
                   <div className="flex justify-between items-end px-2">
                      <div className="text-left">
-                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">İSTATİSTİKLER</div>
-                        <div className="text-2xl font-black text-white uppercase tracking-tighter drop-shadow-md">VERİLER</div>
+                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Ä°STATÄ°STÄ°KLER</div>
+                        <div className="text-2xl font-black text-white uppercase tracking-tighter drop-shadow-md">VERÄ°LER</div>
                      </div>
                      <div className="text-right">
                         <div className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">TOPLAM XP</div>
@@ -1069,7 +1069,7 @@ export default function ProfileShowcase() {
                               <div className="p-2 rounded-xl bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)]">
                                  <Shield size={14} />
                               </div>
-                              <span className="text-[10px] font-black text-white uppercase tracking-widest drop-shadow-md">Discord Bağlantısı</span>
+                              <span className="text-[10px] font-black text-white uppercase tracking-widest drop-shadow-md">Discord BaÄŸlantÄ±sÄ±</span>
                            </div>
                            <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,1)] animate-pulse" />
                         </div>
@@ -1078,7 +1078,7 @@ export default function ProfileShowcase() {
                               onClick={disconnectDiscord}
                               className="w-full py-2 bg-black/40 hover:bg-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest rounded-xl border border-red-500/30 hover:border-red-500/50 transition-all shadow-inner"
                            >
-                              BAĞLANTIYI KES
+                              BAÄLANTIYI KES
                            </button>
                         )}
                      </div>
@@ -1092,13 +1092,13 @@ export default function ProfileShowcase() {
                               </div>
                               <div className="flex items-center justify-center gap-2">
                                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
-                                 <p className="text-[9px] font-bold text-amber-400 uppercase">Geçerlilik: {formatTime(timeLeft)}</p>
+                                 <p className="text-[9px] font-bold text-amber-400 uppercase">GeÃ§erlilik: {formatTime(timeLeft)}</p>
                               </div>
                               <button 
                                  onClick={generateDiscordCode}
                                  className="text-[9px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors drop-shadow-md"
                               >
-                                 YENİ KOD AL
+                                 YENÄ° KOD AL
                               </button>
                            </div>
                         ) : (
@@ -1108,7 +1108,7 @@ export default function ProfileShowcase() {
                               className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(79,70,229,0.4)] flex items-center justify-center gap-2"
                            >
                               <Shield size={14} />
-                              {isGenerating ? 'YÜKLENİYOR...' : 'DİSCORD HESABINI BAĞLA'}
+                              {isGenerating ? 'YÃœKLENÄ°YOR...' : 'DÄ°SCORD HESABINI BAÄLA'}
                            </button>
                         )}
                      </div>
@@ -1118,20 +1118,20 @@ export default function ProfileShowcase() {
                            <div className="p-2 rounded-xl bg-white/5 text-zinc-500">
                               <MessageSquare size={14} />
                            </div>
-                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Bağlantı Yok</span>
+                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">BaÄŸlantÄ± Yok</span>
                         </div>
                      </div>
                   )}
                </div>
 
                <p className="text-zinc-300 text-[11px] font-medium leading-relaxed mt-6 mb-8 text-center italic drop-shadow-md">
-                 "{displayUser.bio || 'Henüz bir biyografi eklenmemiş.'}"
+                 "{displayUser.bio || 'HenÃ¼z bir biyografi eklenmemiÅŸ.'}"
                </p>
 
                <div className="w-full space-y-3">
                   {isOwnProfile ? (
                     <>
-                      <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-white/5 border border-white/20 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-md shadow-lg">PROFİLİ DÜZENLE</button>
+                      <button onClick={() => navigate('/settings')} className="w-full py-4 rounded-2xl bg-white/5 border border-white/20 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-md shadow-lg">PROFÄ°LÄ° DÃœZENLE</button>
                       <button onClick={() => navigate('/elite-upgrade')} className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-2 border hover:scale-[1.02] active:scale-[0.98] ${
                         displayUser.active_plan_id === 'aethe' ? 'bg-gradient-to-r from-rose-600 to-pink-500 shadow-rose-500/50 border-rose-400 text-white' :
                         displayUser.active_plan_id === 'shadow' ? 'bg-gradient-to-r from-purple-600 to-indigo-500 shadow-purple-500/50 border-purple-400 text-white' :
@@ -1140,30 +1140,30 @@ export default function ProfileShowcase() {
                       }`}>
                         {displayUser.active_plan_id === 'aethe' ? (
                            <>
-                              <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                 <img src="/aetheicon.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                              <div className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shrink-0 mr-1">
+                                 <img src="/aetheicon.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                               </div>
                               Efsanevi Aethe
                            </>
                         ) :
-                         displayUser.active_plan_id === 'shadow' ? <><Ghost size={14} /> Hükümdar Gölgesi</> :
-                         displayUser.active_plan_id === 'pro' ? <><Trophy size={14} /> Pro Üye</> :
+                         displayUser.active_plan_id === 'shadow' ? <><Ghost size={14} /> HÃ¼kÃ¼mdar GÃ¶lgesi</> :
+                         displayUser.active_plan_id === 'pro' ? <><Trophy size={14} /> Pro Ãœye</> :
                          <><Crown size={14} /> PREMIUM</>}
                       </button>
                     </>
                   ) : (
                     <div className="flex gap-2">
                       <button onClick={handleFollow} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md ${isFollowing ? 'bg-black/60 border border-white/10 text-zinc-400 hover:bg-black/80' : 'bg-blue-600 border border-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:bg-blue-500'}`}>
-                        {isFollowing ? 'TAKİPTEN ÇIK' : 'TAKİP ET'}
+                        {isFollowing ? 'TAKÄ°PTEN Ã‡IK' : 'TAKÄ°P ET'}
                       </button>
-                      <button aria-label="Mesaj gönder" onClick={handleStartChat} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-all backdrop-blur-md"><MessageSquare size={16} /></button>
+                      <button aria-label="Mesaj gÃ¶nder" onClick={handleStartChat} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-all backdrop-blur-md"><MessageSquare size={16} /></button>
                     </div>
                   )}
                </div>
 
                <div className="w-full mt-10 pt-8 border-t border-white/10 space-y-8">
                   <div className="space-y-4">
-                     <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">BAĞLANTILAR</div>
+                     <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">BAÄLANTILAR</div>
                      <div className="space-y-2">
                         {userLinks.map((link, idx) => (
                            <a key={idx} href={getPlatformUrl(link)} target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/10 hover:border-blue-400/50 hover:bg-black/60 transition-all group backdrop-blur-sm shadow-inner">
@@ -1185,15 +1185,15 @@ export default function ProfileShowcase() {
                   {recentVisits.length > 0 && (
                     <div className="space-y-4">
                        <div className="flex justify-between items-center">
-                          <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">PROFİL İZLERİ</div>
-                          <div className="text-[9px] font-black text-zinc-300 bg-white/10 px-2 py-0.5 rounded-md">{recentVisits.length} Seçkin İz</div>
+                          <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">PROFÄ°L Ä°ZLERÄ°</div>
+                          <div className="text-[9px] font-black text-zinc-300 bg-white/10 px-2 py-0.5 rounded-md">{recentVisits.length} SeÃ§kin Ä°z</div>
                        </div>
                        <div className="flex flex-wrap gap-2">
                           {recentVisits.map((visit, i) => (
                              <div key={i} className={`w-10 h-10 rounded-xl bg-black/60 border hover:scale-110 transition-all flex items-center justify-center shadow-lg relative group ${
                                 visit.visitor_plan === 'aethe' ? 'border-rose-500/50 shadow-[0_0_15px_rgba(225,29,72,0.4)]' :
                                 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
-                             }`} title={`${visit.profiles?.username || 'Gizemli Seçkin'}`}>
+                             }`} title={`${visit.profiles?.username || 'Gizemli SeÃ§kin'}`}>
                                 {visit.visitor_plan === 'aethe' ? (
                                   <div className="w-full h-full p-2 flex items-center justify-center animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]">
                                      <img src="/aetheicon.png" alt="Aethe" className="object-contain w-full h-full" />
@@ -1217,7 +1217,7 @@ export default function ProfileShowcase() {
 
                   <div className="space-y-4">
                      <div className="flex justify-between items-center">
-                        <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">BAŞARIMLAR</div>
+                        <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">BAÅARIMLAR</div>
                         <div className="text-[9px] font-black text-zinc-300 bg-white/10 px-2 py-0.5 rounded-md">{userAchievements.length}/100</div>
                      </div>
                      <div className="flex flex-wrap gap-2">
@@ -1232,7 +1232,7 @@ export default function ProfileShowcase() {
             </div>
           </aside>
 
-          {/* ── MAIN CONTENT AREA (ELITE REDESIGN) ── */}
+          {/* â”€â”€ MAIN CONTENT AREA (ELITE REDESIGN) â”€â”€ */}
           <main className="flex-1 min-w-0 flex flex-col w-full relative space-y-6 sm:space-y-8">
             
             {/* NEW PREMIUM BANNER */}
@@ -1240,7 +1240,7 @@ export default function ProfileShowcase() {
                <div className="absolute inset-0 z-0">
                   <img 
                     src={displayUser.appearance_settings?.custom_banner_url || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop"} 
-                    alt="Profil arkaplanı"
+                    alt="Profil arkaplanÄ±"
                     loading="eager"
                     className="w-full h-full object-cover opacity-60" 
                   />
@@ -1255,8 +1255,8 @@ export default function ProfileShowcase() {
                           <span className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${displayUser.rankStyle === 'elite-gold-glow' ? 'text-amber-300' : 'text-white'}`}>
                              {displayUser.is_elite && (
                                 displayUser.active_plan_id === 'aethe' ? (
-                                   <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                      <img src="/aetheicon.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                   <div className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shrink-0 mr-1">
+                                      <img src="/aetheicon.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                                    </div>
                                 ) :
                                 displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="inline" /> :
@@ -1266,10 +1266,10 @@ export default function ProfileShowcase() {
                              <span>{displayUser.rank}</span>
                           </span>
                        </div>
-                       {displayUser.role === 'Moderatör' && (
+                       {displayUser.role === 'ModeratÃ¶r' && (
                          <div className="px-4 py-1.5 rounded-full backdrop-blur-md border bg-orange-500/10 border-orange-500/30 shadow-[0_0_20px_rgba(249,115,22,0.2)]">
                             <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 text-orange-400">
-                               <span className="text-[14px] drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">🛡️</span> MODERATÖR
+                               <span className="text-[14px] drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">ğŸ›¡ï¸</span> MODERATÃ–R
                             </span>
                          </div>
                        )}
@@ -1281,8 +1281,8 @@ export default function ProfileShowcase() {
                             'bg-amber-500/20 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
                           }`}>
                             {displayUser.active_plan_id === 'aethe' ? (
-                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                  <img src="/aetheicon.png" alt="Aethe" className="animate-pulse object-contain max-w-none drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]" style={{ width: 80, height: 80 }} />
+                               <div className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shrink-0 mr-1">
+                                  <img src="/aetheicon.png" alt="Aethe" className="object-contain w-full h-full drop-shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
                                </div>
                             ) :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="text-purple-400 animate-pulse" /> :
@@ -1294,10 +1294,10 @@ export default function ProfileShowcase() {
                               displayUser.active_plan_id === 'pro' ? 'text-cyan-300' :
                               'text-amber-300'
                             }`}>
-                              {displayUser.active_plan_id === 'pro' ? 'PRO AKTİF' :
-                               displayUser.active_plan_id === 'shadow' ? 'HÜKÜMDAR GÖLGESİ AKTİF' :
-                               displayUser.active_plan_id === 'ruler' ? 'HÜKÜMDAR AKTİF' :
-                               displayUser.active_plan_id === 'aethe' ? 'AETHE MÜHRÜ AKTİF' : 'PREMIUM AKTİF'}
+                              {displayUser.active_plan_id === 'pro' ? 'PRO AKTÄ°F' :
+                               displayUser.active_plan_id === 'shadow' ? 'HÃœKÃœMDAR GÃ–LGESÄ° AKTÄ°F' :
+                               displayUser.active_plan_id === 'ruler' ? 'HÃœKÃœMDAR AKTÄ°F' :
+                               displayUser.active_plan_id === 'aethe' ? 'AETHE MÃœHRÃœ AKTÄ°F' : 'PREMIUM AKTÄ°F'}
                             </span>
                           </div>
                        )}
@@ -1306,9 +1306,9 @@ export default function ProfileShowcase() {
 
                   <div className="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto pb-2 sm:pb-0">
                      {[
-                        { label: 'SERİ', value: readHistory.length, icon: BookOpen },
-                        { label: 'FAVORİ', value: favoritesCount, icon: Star },
-                        { label: 'TAKİPÇİ', value: followersCount, icon: UserPlus },
+                        { label: 'SERÄ°', value: readHistory.length, icon: BookOpen },
+                        { label: 'FAVORÄ°', value: favoritesCount, icon: Star },
+                        { label: 'TAKÄ°PÃ‡Ä°', value: followersCount, icon: UserPlus },
                      ].map((stat, i) => (
                         <div key={i} className="flex flex-col items-center justify-center p-3 sm:px-6 sm:py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md min-w-[80px] sm:min-w-[100px] shrink-0">
                            <span className="block text-xl sm:text-2xl font-black text-white tracking-tighter drop-shadow-md leading-none mb-1">{stat.value}</span>
@@ -1345,7 +1345,7 @@ export default function ProfileShowcase() {
                   onClick={() => setIsDrawerOpen(true)}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(124,58,237,0.4)] hover:shadow-[0_0_30px_rgba(124,58,237,0.6)] transition-all border border-purple-400/50"
                 >
-                  <Palette size={14} /> GÖRÜNÜMÜ ÖZELLEŞTİR
+                  <Palette size={14} /> GÃ–RÃœNÃœMÃœ Ã–ZELLEÅTÄ°R
                 </button>
               )}
             </div>
@@ -1367,7 +1367,7 @@ export default function ProfileShowcase() {
                               <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-2 drop-shadow-md">
                                 <History size={24} className="text-purple-400" /> SON OKUNANLAR
                               </h3>
-                              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Kaldığın yerden devam et</p>
+                              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">KaldÄ±ÄŸÄ±n yerden devam et</p>
                            </div>
                         </div>
 
@@ -1385,7 +1385,7 @@ export default function ProfileShowcase() {
                                    </div>
                                    <div className="flex-1 p-5 flex flex-col justify-center relative z-10 -ml-4 bg-gradient-to-r from-zinc-900/90 to-zinc-900">
                                       <h4 className="text-sm sm:text-base font-black text-white uppercase tracking-tighter mb-1 line-clamp-2 drop-shadow-md group-hover:text-purple-300 transition-colors">{h.series?.title}</h4>
-                                      <p className="text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4">BÖLÜM {h.last_read_chapter}</p>
+                                      <p className="text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4">BÃ–LÃœM {h.last_read_chapter}</p>
                                       <div className="mt-auto">
                                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[9px] font-black text-zinc-300 uppercase tracking-widest group-hover:bg-purple-500/20 group-hover:text-purple-300 group-hover:border-purple-500/40 transition-all">
                                             <Play size={10} /> OKU
@@ -1398,7 +1398,7 @@ export default function ProfileShowcase() {
                         ) : (
                            <div className="w-full py-20 flex flex-col items-center justify-center rounded-[3rem] bg-white/5 border border-dashed border-white/10 backdrop-blur-md">
                               <History size={48} className="text-zinc-600 mb-4" />
-                              <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">Henüz bir seri okunmamış.</p>
+                              <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">HenÃ¼z bir seri okunmamÄ±ÅŸ.</p>
                            </div>
                         )}
                      </div>
@@ -1409,7 +1409,7 @@ export default function ProfileShowcase() {
                         <div className="flex justify-between items-end">
                             <div>
                               <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-2 drop-shadow-md">
-                                <BookOpen size={24} className="text-blue-400" /> ÖZEL LİSTELER
+                                <BookOpen size={24} className="text-blue-400" /> Ã–ZEL LÄ°STELER
                               </h3>
                            </div>
                            {isOwnProfile && (
@@ -1417,7 +1417,7 @@ export default function ProfileShowcase() {
                                onClick={() => setShowCreateListModal(true)}
                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
                              >
-                               <Plus size={16} /> YENİ LİSTE
+                               <Plus size={16} /> YENÄ° LÄ°STE
                              </button>
                            )}
                         </div>
@@ -1439,7 +1439,7 @@ export default function ProfileShowcase() {
                                    <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8 flex items-end justify-between">
                                       <div>
                                          <h4 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-1 drop-shadow-md">{list.name}</h4>
-                                         <span className="inline-block px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-[9px] font-black text-blue-300 uppercase tracking-widest">{list.custom_list_items?.length || 0} SERİ</span>
+                                         <span className="inline-block px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-[9px] font-black text-blue-300 uppercase tracking-widest">{list.custom_list_items?.length || 0} SERÄ°</span>
                                       </div>
                                       <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md group-hover:bg-blue-600 transition-colors">
                                          <ChevronRight size={18} />
@@ -1451,7 +1451,7 @@ export default function ProfileShowcase() {
                         ) : (
                            <div className="w-full py-20 flex flex-col items-center justify-center rounded-[3rem] bg-white/5 border border-dashed border-white/10 backdrop-blur-md">
                               <BookOpen size={48} className="text-zinc-600 mb-4" />
-                              <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">Henüz bir özel liste oluşturulmamış.</p>
+                              <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">HenÃ¼z bir Ã¶zel liste oluÅŸturulmamÄ±ÅŸ.</p>
                            </div>
                         )}
                      </div>
@@ -1475,7 +1475,7 @@ export default function ProfileShowcase() {
                                   <img src={getOptimizedImage(item.node?.main_picture?.medium, 400)} loading="lazy" className="w-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" />
                                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
                                   <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 text-[9px] font-black text-yellow-400">
-                                     {item.list_status?.score > 0 ? `★ ${item.list_status.score}` : 'PUANSIZ'}
+                                     {item.list_status?.score > 0 ? `â˜… ${item.list_status.score}` : 'PUANSIZ'}
                                   </div>
                                   <div className="absolute bottom-0 inset-x-0 p-4">
                                      <h4 className="text-[10px] sm:text-xs font-black text-white uppercase tracking-tighter drop-shadow-md mb-2">{item.node?.title}</h4>
@@ -1489,7 +1489,7 @@ export default function ProfileShowcase() {
                            ) : (
                              <div className="col-span-full py-20 flex flex-col items-center justify-center rounded-[3rem] bg-white/5 border border-dashed border-white/10 backdrop-blur-md">
                                 <Tv size={48} className="text-zinc-600 mb-4" />
-                                <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">Liste bulunamadı.</p>
+                                <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">Liste bulunamadÄ±.</p>
                              </div>
                            )}
                         </div>
@@ -1501,7 +1501,7 @@ export default function ProfileShowcase() {
                         <div className="flex justify-between items-end">
                            <div>
                               <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-2 drop-shadow-md">
-                                <Award size={24} className="text-amber-400" /> BAŞARIMLAR
+                                <Award size={24} className="text-amber-400" /> BAÅARIMLAR
                               </h3>
                            </div>
                            <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-zinc-300">
@@ -1557,8 +1557,8 @@ export default function ProfileShowcase() {
              >
                 <div className="sticky top-0 z-20 bg-[#070511]/90 backdrop-blur-xl border-b border-white/10 p-6 sm:p-8 flex items-center justify-between">
                    <div>
-                      <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-2"><Palette size={20} className="text-purple-400" /> ÖZELLEŞTİRME</h3>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Profil Görünümünü Ayarla</p>
+                      <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-2"><Palette size={20} className="text-purple-400" /> Ã–ZELLEÅTÄ°RME</h3>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Profil GÃ¶rÃ¼nÃ¼mÃ¼nÃ¼ Ayarla</p>
                    </div>
                    <button onClick={() => setIsDrawerOpen(false)} className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-all"><X size={20} /></button>
                 </div>
@@ -1566,7 +1566,7 @@ export default function ProfileShowcase() {
                 <div className="p-6 sm:p-8 space-y-10 flex-1 overflow-y-auto no-scrollbar">
                    {/* Drawer Category Selector */}
                    <div className="flex flex-wrap gap-2 pb-2">
-                      {['Tümü', 'Auralar', 'Avatar Çerçeveleri', 'Plaketler', 'İsim Efektleri'].map((f) => (
+                      {['TÃ¼mÃ¼', 'Auralar', 'Avatar Ã‡erÃ§eveleri', 'Plaketler', 'Ä°sim Efektleri'].map((f) => (
                         <button 
                           key={f} 
                           onClick={() => { setDecorationCategory(f); setVisibleDecorationCount(20); }}
@@ -1580,8 +1580,8 @@ export default function ProfileShowcase() {
                    {/* Aura Rengi Slider */}
                    <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-blue-400" /> AURA RENGİ</div>
-                        <span className="text-[10px] font-black text-zinc-400">{mixState.hue || 0}°</span>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-blue-400" /> AURA RENGÄ°</div>
+                        <span className="text-[10px] font-black text-zinc-400">{mixState.hue || 0}Â°</span>
                       </div>
                       <input 
                         type="range" min="0" max="360" value={mixState.hue || 0}
@@ -1594,11 +1594,11 @@ export default function ProfileShowcase() {
                       />
                    </div>
 
-                   {/* İsim Plakası Rengi Slider */}
+                   {/* Ä°sim PlakasÄ± Rengi Slider */}
                    <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-amber-400" /> İSİM PLAKASI RENGİ</div>
-                        <span className="text-[10px] font-black text-zinc-400">{mixState.nameplateHue || 0}°</span>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-amber-400" /> Ä°SÄ°M PLAKASI RENGÄ°</div>
+                        <span className="text-[10px] font-black text-zinc-400">{mixState.nameplateHue || 0}Â°</span>
                       </div>
                       <input 
                         type="range" min="0" max="360" value={mixState.nameplateHue || 0}
@@ -1611,11 +1611,11 @@ export default function ProfileShowcase() {
                       />
                    </div>
 
-                   {/* İsim Efekti Rengi Slider */}
+                   {/* Ä°sim Efekti Rengi Slider */}
                    <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-pink-400" /> İSİM EFEKTİ RENGİ</div>
-                        <span className="text-[10px] font-black text-zinc-400">{mixState.nametagHue || 0}°</span>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-pink-400" /> Ä°SÄ°M EFEKTÄ° RENGÄ°</div>
+                        <span className="text-[10px] font-black text-zinc-400">{mixState.nametagHue || 0}Â°</span>
                       </div>
                       <input 
                         type="range" min="0" max="360" value={mixState.nametagHue || 0}
@@ -1629,10 +1629,10 @@ export default function ProfileShowcase() {
                    </div>
 
                    {/* Yorum Kutusu Rengi */}
-                   {(['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(currentUser?.role) || currentUser?.active_plan_id === 'aethe') && (
+                   {(['BaÅŸ Admin', 'YÃ¶netici', 'Admin YardÄ±mcÄ±sÄ±'].includes(currentUser?.role) || currentUser?.active_plan_id === 'aethe') && (
                      <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                         <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-purple-400" /> YORUM KUTUSU RENGİ</div>
+                          <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest"><Paintbrush size={14} className="text-purple-400" /> YORUM KUTUSU RENGÄ°</div>
                         </div>
                         <div className="flex items-center gap-4 mt-2">
                            <button 
@@ -1642,10 +1642,10 @@ export default function ProfileShowcase() {
                              }}
                              className={`px-4 py-2 rounded-xl border transition-all text-[9px] font-bold uppercase ${(!mixState.commentColor || mixState.commentColor === 'none') ? 'bg-purple-600 border-transparent text-white' : 'bg-black/40 border-white/10 text-zinc-400'}`}
                            >
-                              Varsayılan
+                              VarsayÄ±lan
                            </button>
                            <div className="flex items-center gap-3">
-                              <label className="text-[9px] font-bold text-zinc-400 uppercase">Özel Renk:</label>
+                              <label className="text-[9px] font-bold text-zinc-400 uppercase">Ã–zel Renk:</label>
                               <input 
                                  type="color" 
                                  value={mixState.commentColor && mixState.commentColor !== 'none' ? mixState.commentColor : '#000000'}
@@ -1738,7 +1738,7 @@ export default function ProfileShowcase() {
                         <div className="col-span-2 flex flex-col items-center justify-center py-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10">
                           <Palette size={32} className="text-zinc-600 mb-3" />
                           <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Efektiniz Yok</p>
-                          <p className="text-[8px] text-zinc-600 mb-4">Aura Market'ten efekt satın alabilirsiniz.</p>
+                          <p className="text-[8px] text-zinc-600 mb-4">Aura Market'ten efekt satÄ±n alabilirsiniz.</p>
                           <button
                             onClick={() => { navigate('/market'); setIsDrawerOpen(false); }}
                             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[9px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all flex items-center gap-1.5"
@@ -1753,7 +1753,7 @@ export default function ProfileShowcase() {
                          onClick={() => setVisibleDecorationCount(v => v + 20)}
                          className="mt-6 px-6 py-2 rounded-full bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-white/10 hover:border-white/20 transition-all"
                        >
-                         Daha Fazla Göster ({filteredDecorations.length - visibleDecorationCount})
+                         Daha Fazla GÃ¶ster ({filteredDecorations.length - visibleDecorationCount})
                        </button>
                      )}
                    </div>
@@ -1821,31 +1821,31 @@ function ConnectedAccountsModal({ isOpen, onClose, onSave, initialLinks }) {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h3 className="text-2xl font-black text-white uppercase tracking-tight">SOSYAL MEDYA</h3>
-            <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Hesaplarını bağla</p>
+            <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">HesaplarÄ±nÄ± baÄŸla</p>
           </div>
-          <button aria-label="Bağlantı penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-card-navy text-zinc-400 hover:text-white transition-all border border-white/5"><X size={24} /></button>
+          <button aria-label="BaÄŸlantÄ± penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-card-navy text-zinc-400 hover:text-white transition-all border border-white/5"><X size={24} /></button>
         </div>
 
         <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-2 mb-10">
-          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-card-navy border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni Bağlantı Ekle</button>
+          <button onClick={addRow} className="w-full py-5 rounded-[2.5rem] bg-card-navy border border-dashed border-white/10 text-[10px] font-black uppercase text-zinc-400 hover:text-white hover:border-zinc-700 transition-all flex items-center justify-center gap-3"><Plus size={16} /> Yeni BaÄŸlantÄ± Ekle</button>
           {links.map((link, idx) => (
             <div key={idx} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center group p-4 rounded-[2rem] bg-card-navy/50 border border-white/5">
               <div className="relative w-full sm:w-44 shrink-0">
                 <select value={link.platform} onChange={(e) => updateRow(idx, 'platform', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-black text-zinc-300 appearance-none focus:border-purple-500 transition-all cursor-pointer">
-                  <option value="">Platform Seç</option>
+                  <option value="">Platform SeÃ§</option>
                   {platforms.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                 </select>
               </div>
               <div className="relative flex-1 w-full">
-                <input type="text" placeholder={link.type === 'username' ? "Kullanıcı Adı" : "URL Adresi"} value={link.value} onChange={(e) => updateRow(idx, 'value', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all outline-none" />
+                <input type="text" placeholder={link.type === 'username' ? "KullanÄ±cÄ± AdÄ±" : "URL Adresi"} value={link.value} onChange={(e) => updateRow(idx, 'value', e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-4 px-6 text-xs font-bold text-zinc-100 focus:border-purple-500 transition-all outline-none" />
               </div>
-              <button aria-label="Bağlantıyı sil" onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
+              <button aria-label="BaÄŸlantÄ±yÄ± sil" onClick={() => removeRow(idx)} className="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"><Minus size={20} /></button>
             </div>
           ))}
         </div>
 
         <div className="flex gap-4">
-          <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-card-navy text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">İPTAL</button>
+          <button onClick={onClose} className="flex-1 py-5 rounded-[2.5rem] bg-card-navy text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">Ä°PTAL</button>
           <button onClick={() => { onSave(links.filter(l => l.platform && l.value)); onClose(); }} className="flex-[2] py-5 rounded-[2.5rem] bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">KAYDET <Sparkles size={18} /></button>
         </div>
       </motion.div>
@@ -1904,10 +1904,10 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
       >
         <div className="p-10 border-b border-white/5 flex items-center justify-between">
            <div>
-              <h3 className="text-2xl font-black text-white uppercase tracking-tight">GÖRÜNÜM</h3>
-              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini düzenle</p>
+              <h3 className="text-2xl font-black text-white uppercase tracking-tight">GÃ–RÃœNÃœM</h3>
+              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Efektlerini dÃ¼zenle</p>
            </div>
-           <button aria-label="Profil düzenleme penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-card-navy text-zinc-400 hover:text-white transition-all"><X size={24} /></button>
+           <button aria-label="Profil dÃ¼zenleme penceresini kapat" onClick={onClose} className="p-4 rounded-full bg-card-navy text-zinc-400 hover:text-white transition-all"><X size={24} /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
@@ -1918,7 +1918,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
                    onClick={() => setMixState(prev => ({ ...prev, profile_effect: 'none' }))}
                    className={`p-4 rounded-2xl border transition-all ${mixState.profile_effect === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                  >
-                    HİÇ BİRİ
+                    HÄ°Ã‡ BÄ°RÄ°
                  </button>
                  {parts.aura.map(eff => (
                    <button 
@@ -1932,9 +1932,9 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
               </div>
            </div>
 
-            {(['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(currentUser?.role) || currentUser?.active_plan_id === 'aethe') && (
+            {(['BaÅŸ Admin', 'YÃ¶netici', 'Admin YardÄ±mcÄ±sÄ±'].includes(currentUser?.role) || currentUser?.active_plan_id === 'aethe') && (
                <div className="space-y-6">
-                  <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">YORUM KUTUSU RENGİ</h4>
+                  <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">YORUM KUTUSU RENGÄ°</h4>
                   <div className="flex items-center gap-4">
                      <button 
                        onClick={() => setMixState(prev => ({ ...prev, commentColor: 'none' }))}
@@ -1943,7 +1943,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
                         VARSAYILAN
                      </button>
                      <div className="flex items-center gap-3">
-                        <label className="text-[10px] font-bold text-zinc-400 uppercase">ÖZEL RENK SEÇ:</label>
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Ã–ZEL RENK SEÃ‡:</label>
                         <input 
                            type="color" 
                            value={mixState.commentColor && mixState.commentColor !== 'none' ? mixState.commentColor : '#000000'}
@@ -1956,13 +1956,13 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
             )}
 
            <div className="space-y-6">
-              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">AVATAR ÇERÇEVESİ</h4>
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">AVATAR Ã‡ERÃ‡EVESÄ°</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, avatar: 'none' }))}
                    className={`p-4 rounded-2xl border transition-all ${mixState.avatar === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                  >
-                    HİÇ BİRİ
+                    HÄ°Ã‡ BÄ°RÄ°
                  </button>
                  {parts.avatar.map(eff => (
                    <button 
@@ -1977,13 +1977,13 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
            </div>
 
            <div className="space-y-6">
-              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">İSİM EFEKTİ</h4>
+              <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Ä°SÄ°M EFEKTÄ°</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  <button 
                    onClick={() => setMixState(prev => ({ ...prev, nametag: 'none' }))}
                    className={`p-4 rounded-2xl border transition-all ${mixState.nametag === 'none' ? 'bg-purple-600 border-transparent text-white' : 'bg-card-navy border-white/5 text-zinc-400'}`}
                  >
-                    HİÇ BİRİ
+                    HÄ°Ã‡ BÄ°RÄ°
                  </button>
                  {parts.nametag.map(eff => (
                    <button 
@@ -2000,7 +2000,7 @@ function EliteMixModal({ isOpen, onClose, mixState, setMixState, onSave, current
          </div>
 
         <div className="p-10 bg-card-navy/50 border-t border-white/5 flex gap-4">
-           <button onClick={onClose} className="flex-1 py-5 rounded-2xl bg-zinc-800 text-zinc-400 text-xs font-black uppercase">İPTAL</button>
+           <button onClick={onClose} className="flex-1 py-5 rounded-2xl bg-zinc-800 text-zinc-400 text-xs font-black uppercase">Ä°PTAL</button>
            <button 
              onClick={() => { onSave(mixState); onClose(); }}
              className="flex-[2] py-5 rounded-2xl bg-purple-600 text-white text-xs font-black uppercase shadow-xl shadow-purple-600/30"
