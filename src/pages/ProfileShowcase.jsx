@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import aetheIconV2 from '../assets/aetheiconv2.png';
 import { 
   Zap, 
   BookOpen, 
