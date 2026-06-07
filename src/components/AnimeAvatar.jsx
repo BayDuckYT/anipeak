@@ -152,11 +152,9 @@ export default function AnimeAvatar({
       rawSrc.includes('/avatar-efekts/') ||
       rawSrc.includes('/decorations/');
 
-    // [PERFORMANS] Efektleri ve çerçeveleri CDN üzerinden WebP formatında küçülterek yükle
     let optimizedSrc = rawSrc;
-    if (rawSrc.startsWith('/')) {
-      optimizedSrc = `https://wsrv.nl/?url=https://mahorapeak.com.tr${rawSrc}&output=webp&q=80`;
-    } else if (!rawSrc.includes('wsrv.nl')) {
+    // Yerel efekt dosyaları zaten optimize edilmiştir, wsrv.nl ile statik hale gelmemeleri ve hızlı yüklenmeleri için doğrudan kullanıyoruz.
+    if (!rawSrc.startsWith('/') && !rawSrc.includes('wsrv.nl')) {
       optimizedSrc = `https://wsrv.nl/?url=${encodeURIComponent(rawSrc)}&output=webp&q=80`;
     }
     

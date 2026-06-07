@@ -908,19 +908,20 @@ export default function ProfileShowcase() {
           <aside className="w-full lg:w-[320px] shrink-0 space-y-6">
             <div className="bg-[#070511]/80 border border-white/20 rounded-[2.5rem] overflow-hidden p-6 sm:p-8 flex flex-col items-center relative backdrop-blur-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
                {/* Background Effect */}
-                 <div className="absolute inset-0 z-[-1] opacity-100">
-                   {effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url && (
-                     <img 
-                       src={getOptimizedImage(effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url, 400)} 
-                       className="w-full h-full object-cover mix-blend-screen" 
-                       width={320} height={500}
-                       loading="eager" fetchpriority="high" decoding="async"
-                       style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
-                       alt="Profile Effect"
-                     />
-                   )}
-                   <div className="absolute inset-0 bg-gradient-to-b from-[#070511]/40 via-[#070511]/80 to-[#070511]" />
-                 </div>
+                   <div className="absolute inset-0 z-[-1] opacity-100 overflow-hidden rounded-[2.5rem]">
+                     {effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url && (
+                       <img 
+                         src={effectsData.find(e => e.id === displayUser.active_mix.profile_effect)?.url} 
+                         className="w-full h-full object-cover mix-blend-screen" 
+                         width={320} height={500}
+                         loading="eager" fetchpriority="high" decoding="async"
+                         style={{ filter: `hue-rotate(${displayUser.active_mix?.hue || 0}deg)` }}
+                         alt="Profile Effect"
+                       />
+                     )}
+                     <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none mix-blend-screen" />
+                     <div className="absolute inset-0 bg-gradient-to-b from-[#070511]/40 via-[#070511]/80 to-[#070511]" />
+                   </div>
 
                <div className="relative mb-8">
                   <div className="w-40 h-40 relative">
