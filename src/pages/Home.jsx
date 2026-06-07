@@ -303,6 +303,12 @@ export default function Home({ onAuthOpen }) {
 
                 {/* Sağ Taraf - Metin ve Butonlar */}
                 <div className="flex flex-col w-full lg:w-[60%]">
+                  {/* Badge */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/30 flex items-center gap-1.5 w-fit">
+                      <Crown size={14} className="text-amber-300 drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]" /> Editörün Seçimi
+                    </span>
+                  </div>
                   {/* Title */}
                   <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1] mb-6 drop-shadow-2xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
                     {activeHero.title}
@@ -339,7 +345,7 @@ export default function Home({ onAuthOpen }) {
             </AnimatePresence>
 
             {/* Hero Indicator Dots + Thumbnail Strip */}
-            <div className="absolute bottom-8 right-4 sm:right-12 lg:right-24 z-30 flex items-end gap-6">
+            <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-10 lg:right-10 z-30 flex items-end gap-6">
               {/* Dots */}
               <div className="hero-dots flex items-center gap-2">
                 {heroItems.slice(0, 8).map((_, idx) => (
