@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Crown, Gem, Ghost, Trophy, Sparkles, Shield } from 'lucide-react';
 import aetheIconV2 from '../assets/aetheiconv2.png';
 import { useNavigate } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 
 export default function UserBadges({ user, showCrown = false, showGem = true, className = '', iconSize = 12 }) {
   const navigate = useNavigate();
