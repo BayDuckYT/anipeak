@@ -968,7 +968,7 @@ export default function ProfileShowcase() {
                            </div>
                         ) : displayUser.is_elite ? (
                           <>
-                            {displayUser.active_plan_id === 'aethe' ? <img src="/aethe.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
+                            {displayUser.active_plan_id === 'aethe' ? <img src="/aetheicon.png" alt="Aethe" className="animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.8)] shrink-0 object-contain" style={{ width: 36, height: 36 }} /> :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={28} className="text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] shrink-0" /> :
                              displayUser.active_plan_id === 'pro' ? <Trophy size={28} className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] shrink-0" /> :
                              <Crown size={28} className="text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] shrink-0" />}
@@ -990,7 +990,7 @@ export default function ProfileShowcase() {
                           {displayUser.is_elite && (
                              displayUser.active_plan_id === 'aethe' ? (
                                  <div className="w-4 h-4 flex items-center justify-center shrink-0 mr-1 mb-0.5">
-                                    <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                    <img src="/aetheicon.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
                                  </div>
                              ) :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={10} className="inline mr-1 mb-0.5" /> :
@@ -1141,7 +1141,7 @@ export default function ProfileShowcase() {
                         {displayUser.active_plan_id === 'aethe' ? (
                            <>
                               <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                 <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                 <img src="/aetheicon.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
                               </div>
                               Efsanevi Aethe
                            </>
@@ -1196,7 +1196,7 @@ export default function ProfileShowcase() {
                              }`} title={`${visit.profiles?.username || 'Gizemli Seçkin'}`}>
                                 {visit.visitor_plan === 'aethe' ? (
                                   <div className="w-full h-full p-2 flex items-center justify-center animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]">
-                                     <img src="/aethe.png" alt="Aethe" className="object-contain w-full h-full" />
+                                     <img src="/aetheicon.png" alt="Aethe" className="object-contain w-full h-full" />
                                   </div>
                                 ) : (
                                   <Crown size={18} className="text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]" />
@@ -1256,7 +1256,7 @@ export default function ProfileShowcase() {
                              {displayUser.is_elite && (
                                 displayUser.active_plan_id === 'aethe' ? (
                                    <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                      <img src="/aethe.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
+                                      <img src="/aetheicon.png" alt="Aethe" className="object-contain max-w-none" style={{ width: 80, height: 80 }} />
                                    </div>
                                 ) :
                                 displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="inline" /> :
@@ -1282,7 +1282,7 @@ export default function ProfileShowcase() {
                           }`}>
                             {displayUser.active_plan_id === 'aethe' ? (
                                <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                                  <img src="/aethe.png" alt="Aethe" className="animate-pulse object-contain max-w-none drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]" style={{ width: 80, height: 80 }} />
+                                  <img src="/aetheicon.png" alt="Aethe" className="animate-pulse object-contain max-w-none drop-shadow-[0_0_8px_rgba(244,63,94,0.9)]" style={{ width: 80, height: 80 }} />
                                </div>
                             ) :
                              displayUser.active_plan_id === 'shadow' ? <Ghost size={12} className="text-purple-400 animate-pulse" /> :

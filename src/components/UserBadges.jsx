@@ -26,7 +26,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
   const getPremiumIcon = () => {
     if (userData?.username === 'MAHORAPEAK' || planId === 'aethe') return (
        <div className="flex items-center justify-center shrink-0" style={{ width: iconSize, height: iconSize }}>
-          <img src="/badges/aethe.png" alt="Aethe" style={{ width: 80, height: 80, maxWidth: 'none', objectFit: 'contain' }} className="drop-shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse" />
+          <img src="/aetheicon.png" alt="Aethe" style={{ width: 80, height: 80, maxWidth: 'none', objectFit: 'contain' }} className="drop-shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse" />
        </div>
     );
     if (planId === 'shadow') return (
