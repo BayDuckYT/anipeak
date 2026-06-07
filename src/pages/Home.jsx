@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, BookOpen, ChevronRight, Flame, Play, Plus, Info,
-  TrendingUp, Crown, Bell, Compass, Search, Zap, Trophy, Sparkles
+  TrendingUp, Crown, Bell, Compass, Search, Zap, Trophy, Sparkles,
+  Eye, Clock, Heart, Award, Users, Library, BookMarked
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext.jsx';
@@ -29,10 +30,31 @@ const staggerContainer = {
   }
 };
 
+// ── Time Ago Helper ──
+function timeAgo(dateStr) {
+  if (!dateStr || dateStr === '1970-01-01') return '';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return 'Az önce';
+  if (diff < 3600) return `${Math.floor(diff / 60)} dk önce`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} gün önce`;
+  return `${Math.floor(diff / 604800)} hafta önce`;
+}
+
+// ── Deterministic daily seed (changes every 24h) ──
+function getDailySeed() {
+  const d = new Date();
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
+
 // ── Ultra-Premium Netflix Style Card ──
-function GlassCard({ item, type = 'trending', rank, chapters }) {
+function GlassCard({ item, type = 'trending', rank, chapters, showTimeAgo }) {
   const isTrending = type === 'trending';
   const chapterData = chapters ? (chapters[String(item.id)]?.[0]?.number || '?') : '?';
+  const latestChapterDate = chapters ? chapters[String(item.id)]?.[0]?.created_at : null;
+  const isNew = latestChapterDate && (Date.now() - new Date(latestChapterDate).getTime()) < 86400000 * 2; // 2 gün
 
   return (
     <Link to={`/manga/${item.slug}`} className="group block w-[160px] sm:w-[200px] flex-shrink-0 netflix-card" aria-label={`${item.title} okumaya başla`}>
@@ -71,6 +93,13 @@ function GlassCard({ item, type = 'trending', rank, chapters }) {
             <span className="text-white text-[10px] font-bold">{item.rating}</span>
           </div>
 
+          {/* YENİ badge */}
+          {isNew && (
+            <div className="absolute top-2 left-2 z-20">
+              <span className="new-badge">YENİ</span>
+            </div>
+          )}
+
           {/* Hover Details overlaying the image */}
           <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-1 z-10">
             <h3 className="text-white text-sm font-black truncate shadow-black drop-shadow-md">{item.title}</h3>
@@ -78,6 +107,12 @@ function GlassCard({ item, type = 'trending', rank, chapters }) {
               <span className="text-emerald-400 drop-shadow-md">{chapterData} Bölüm</span>
               <span className="text-slate-300 drop-shadow-md truncate">{Array.isArray(item.genre) ? item.genre[0] : item.genre || 'Aksiyon'}</span>
             </div>
+            {showTimeAgo && latestChapterDate && (
+              <div className="flex items-center gap-1 text-[9px] text-slate-400 mt-0.5">
+                <Clock size={8} />
+                <span>{timeAgo(latestChapterDate)}</span>
+              </div>
+            )}
           </div>
         </div>
       </article>
@@ -86,13 +121,13 @@ function GlassCard({ item, type = 'trending', rank, chapters }) {
 }
 
 // ════════════════════════════════════════════════════════════════════════
-// MAIN HOME COMPONENT - "GÜZELLİK ABİDESİ" VERSİYON
+// MAIN HOME COMPONENT - "GÜZELLİK ABİDESİ" VERSİYON V2
 // ════════════════════════════════════════════════════════════════════════
 export default function Home({ onAuthOpen }) {
   const trendRef = useRef(null);
   const location = useLocation();
   const { user, readingHistory } = useAuth();
-  const { sortedSeries, announcements, chapters, getChapters } = useApp();
+  const { sortedSeries, announcements, chapters, getChapters, series } = useApp();
 
   useSEO({
     title: 'Ana Sayfa',
@@ -119,6 +154,20 @@ export default function Home({ onAuthOpen }) {
   // Trend Seriler artık EN ÇOK OKUNAN (reads_num) serileri gösteriyor.
   const trendingSeries = useMemo(() => [...validSeries].sort((a, b) => (b.reads_num || 0) - (a.reads_num || 0)).slice(0, 15), [validSeries]);
 
+  // Haftalık en çok okunanlar (top 10)
+  const weeklyTop = useMemo(() => [...validSeries].sort((a, b) => (b.reads_num || 0) - (a.reads_num || 0)).slice(0, 10), [validSeries]);
+
+  // Editörün Seçtikleri (is_trending flag'i olanlar)
+  const editorPicks = useMemo(() => validSeries.filter(s => s.is_trending).slice(0, 6), [validSeries]);
+
+  // Günün Keşfi (daily seed ile deterministik)
+  const dailyDiscovery = useMemo(() => {
+    if (validSeries.length === 0) return null;
+    const seed = getDailySeed();
+    const idx = seed % validSeries.length;
+    return validSeries[idx];
+  }, [validSeries]);
+
   const [activeType, setActiveType] = useState('TÜMÜ');
 
   const newChapterSeries = useMemo(() => {
@@ -132,7 +181,7 @@ export default function Home({ onAuthOpen }) {
     return list
       .map(s => ({ ...s, ts: chapters[String(s.id)]?.[0]?.created_at || '1970-01-01' }))
       .sort((a, b) => b.ts.localeCompare(a.ts))
-      .slice(0, 12);
+      .slice(0, 18);
   }, [validSeries, chapters, activeType]);
   
   const mostPopular = useMemo(() => {
@@ -142,6 +191,13 @@ export default function Home({ onAuthOpen }) {
       return (b.reads_num || 0) - (a.reads_num || 0);
     }).slice(0, 10);
   }, [validSeries]);
+
+  // Quick Stats
+  const totalChapters = useMemo(() => {
+    let count = 0;
+    Object.values(chapters).forEach(arr => { count += arr.length; });
+    return count;
+  }, [chapters]);
 
   // 3. Hero Carousel Logic
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
@@ -254,10 +310,15 @@ export default function Home({ onAuthOpen }) {
                   <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm sm:text-base font-bold text-slate-300 mb-6 uppercase tracking-wider drop-shadow-md">
                     <span className="text-emerald-400">{activeHero.rating} Puan</span>
                     <span>{heroChapterCount} Bölüm</span>
-                    <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">
-                      {Array.isArray(activeHero.genre) ? activeHero.genre[0] : activeHero.genre || 'AKSİYON'}
-                    </span>
-                    <span className="px-2 py-0.5 border border-slate-500 text-slate-300 rounded-sm text-xs">HD</span>
+                    {Array.isArray(activeHero.genre) ? activeHero.genre.slice(0, 3).map((g, i) => (
+                      <span key={i} className="px-2.5 py-1 border border-purple-500/30 text-purple-300 bg-purple-500/10 rounded-lg text-xs font-black">
+                        {g}
+                      </span>
+                    )) : (
+                      <span className="px-2.5 py-1 border border-slate-500 text-slate-300 rounded-lg text-xs font-black">
+                        {activeHero.genre || 'AKSİYON'}
+                      </span>
+                    )}
                   </div>
 
                   <p className="text-slate-200 text-base sm:text-lg leading-relaxed mb-10 line-clamp-3 lg:line-clamp-4 font-medium drop-shadow-md max-w-2xl">
@@ -276,7 +337,41 @@ export default function Home({ onAuthOpen }) {
               </motion.div>
             </AnimatePresence>
 
-            {/* Carousel Okları (Desktop) - Netflix usually hides them or puts them on edges */}
+            {/* Hero Indicator Dots + Thumbnail Strip */}
+            <div className="absolute bottom-8 left-4 sm:left-12 lg:left-24 z-30 flex items-end gap-6">
+              {/* Dots */}
+              <div className="hero-dots">
+                {heroItems.slice(0, 8).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentHeroIndex(idx)}
+                    className={`hero-dot ${currentHeroIndex === idx ? 'active' : ''}`}
+                    aria-label={`Slayt ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+              {/* Thumbnail Strip (Desktop) */}
+              <div className="hidden lg:flex items-end gap-2">
+                {heroItems.slice(0, 6).map((item, idx) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentHeroIndex(idx)}
+                    className={`hero-thumb ${currentHeroIndex === idx ? 'active' : ''}`}
+                    aria-label={item.title}
+                  >
+                    <img 
+                      src={getOptimizedImage(item.cover, 100)} 
+                      alt={item.title}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Carousel Okları (Desktop) */}
             <button 
               onClick={() => setCurrentHeroIndex(prev => (prev - 1 + heroItems.length) % heroItems.length)}
               className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-16 h-full items-center justify-center text-white/50 hover:text-white transition-all z-20"
@@ -294,6 +389,35 @@ export default function Home({ onAuthOpen }) {
           </div>
         </section>
       )}
+
+      {/* ── QUICK STATS BAR ── */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+        className="stats-bar"
+      >
+        <div className="stat-item" style={{ animationDelay: '0.1s' }}>
+          <Library size={16} className="text-purple-400" />
+          <span className="stat-number">{validSeries.length}+</span>
+          <span className="stat-label">Seri</span>
+        </div>
+        <div className="stat-item" style={{ animationDelay: '0.3s' }}>
+          <BookOpen size={16} className="text-blue-400" />
+          <span className="stat-number">{totalChapters > 0 ? `${Math.floor(totalChapters / 100) * 100}+` : '...'}</span>
+          <span className="stat-label">Bölüm</span>
+        </div>
+        <div className="stat-item" style={{ animationDelay: '0.5s' }}>
+          <Flame size={16} className="text-orange-400" />
+          <span className="stat-number">{trendingSeries.length > 0 ? Math.max(...trendingSeries.map(s => s.reads_num || 0)).toLocaleString('tr-TR') : '...'}</span>
+          <span className="stat-label">Okunma</span>
+        </div>
+        <div className="stat-item hidden sm:flex" style={{ animationDelay: '0.7s' }}>
+          <Star size={16} className="text-amber-400" />
+          <span className="stat-number">{mostPopular[0]?.rating || '...'}</span>
+          <span className="stat-label">En Yüksek Puan</span>
+        </div>
+      </motion.div>
 
 
       {/* ── İÇERİK BÖLÜMÜ (Netflix Rows) ── */}
@@ -355,6 +479,48 @@ export default function Home({ onAuthOpen }) {
               )}
             </AnimatePresence>
 
+            {/* 1.6. BU HAFTA EN ÇOK OKUNANLAR (Yuvarlak Avatar Strip) */}
+            <motion.section
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
+              variants={fadeInUp}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+                  <div className="p-1.5 bg-pink-500/10 rounded-md border border-pink-500/20">
+                    <Heart size={16} className="text-pink-400" />
+                  </div>
+                  Bu Hafta Popüler
+                </h2>
+                <Link to="/popular" className="text-xs font-black tracking-widest uppercase text-slate-400 hover:text-white transition-colors flex items-center gap-1 group">
+                  Tümü <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+              <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-4 px-1">
+                {weeklyTop.map((item, i) => (
+                  <Link key={item.id} to={`/manga/${item.slug}`} className="weekly-avatar group" style={{ animationDelay: `${i * 0.08}s` }} title={item.title}>
+                    <img 
+                      src={getOptimizedImage(item.cover, 100)} 
+                      alt={item.title}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div className={`weekly-rank ${
+                      i === 0 ? 'bg-amber-500' : 
+                      i === 1 ? 'bg-slate-400' : 
+                      i === 2 ? 'bg-orange-500' : 
+                      'bg-zinc-700'
+                    }`}>
+                      {i + 1}
+                    </div>
+                    {/* Hover tooltip */}
+                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none whitespace-nowrap">
+                      <span className="px-2 py-1 bg-black/90 text-white text-[9px] font-bold rounded-md border border-white/10">{item.title}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.section>
+
             {/* 2. TREND SERİLER (Yatay Scroll) */}
             <motion.section 
               ref={trendRef} id="trendler"
@@ -384,6 +550,53 @@ export default function Home({ onAuthOpen }) {
               />
             </motion.section>
 
+            {/* 2.5 EDİTÖRÜN SEÇTİKLERİ */}
+            {editorPicks.length > 0 && (
+              <LazySection minHeight="280px">
+                <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeInUp}>
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                      <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                        <Award size={20} className="text-purple-400" />
+                      </div>
+                      Editörün Seçtikleri
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {editorPicks.slice(0, 3).map((item, i) => {
+                      const chCount = getChapters(item.id).length;
+                      return (
+                        <Link key={item.id} to={`/manga/${item.slug}`} className="editor-pick-card group">
+                          <div className="relative h-48 sm:h-56">
+                            <img 
+                              src={getOptimizedImage(item.hero_bg || item.cover, 600)} 
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                            <div className="pick-overlay" />
+                            <div className="absolute inset-0 z-10 p-5 flex flex-col justify-end">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-2 py-0.5 bg-purple-500/30 border border-purple-500/40 rounded-md text-purple-300 text-[9px] font-black uppercase">Editör Seçimi</span>
+                              </div>
+                              <h3 className="text-white text-lg font-black mb-1 drop-shadow-lg line-clamp-1">{item.title}</h3>
+                              <p className="text-slate-300 text-xs line-clamp-2 mb-3 drop-shadow-md">{item.description || 'Bu seriyi kaçırmayın!'}</p>
+                              <div className="flex items-center gap-3 text-[10px] font-bold">
+                                <span className="flex items-center gap-1 text-emerald-400"><Star size={10} className="fill-emerald-400" /> {item.rating}</span>
+                                <span className="flex items-center gap-1 text-slate-400"><BookOpen size={10} /> {chCount} Bölüm</span>
+                                <span className="flex items-center gap-1 text-slate-400"><Eye size={10} /> {(item.reads_num || 0).toLocaleString('tr-TR')}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </motion.section>
+              </LazySection>
+            )}
+
             {/* 3. EN POPÜLERLER KÜRSÜSÜ (Elite Podium) */}
             <LazySection minHeight="400px">
               <motion.section id="populerler" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeInUp}>
@@ -400,6 +613,64 @@ export default function Home({ onAuthOpen }) {
                 </Suspense>
               </motion.section>
             </LazySection>
+
+            {/* 3.5 GÜNÜN KEŞFİ (Daily Discovery Spotlight) */}
+            {dailyDiscovery && (
+              <LazySection minHeight="200px">
+                <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeInUp}>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                      <div className="p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
+                        <Sparkles size={20} className="text-cyan-400" />
+                      </div>
+                      Günün Keşfi
+                    </h2>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Her gün yeni bir öneri</span>
+                  </div>
+                  <Link to={`/manga/${dailyDiscovery.slug}`} className="daily-spotlight block group">
+                    <div className="relative h-48 sm:h-64 overflow-hidden">
+                      <img 
+                        src={getOptimizedImage(dailyDiscovery.hero_bg || dailyDiscovery.cover, 800)} 
+                        alt={dailyDiscovery.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/70 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-transparent to-transparent" />
+                      <div className="absolute inset-0 p-6 sm:p-10 flex items-center z-10">
+                        <div className="flex items-center gap-6 sm:gap-8">
+                          <div className="hidden sm:block w-28 h-40 rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.2)] flex-shrink-0">
+                            <img src={getOptimizedImage(dailyDiscovery.cover, 200)} alt={dailyDiscovery.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                          </div>
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="px-2.5 py-1 bg-cyan-500/20 border border-cyan-500/30 rounded-lg text-cyan-300 text-[10px] font-black uppercase flex items-center gap-1">
+                                <Sparkles size={10} /> Günün Keşfi
+                              </span>
+                              <span className="flex items-center gap-1 text-amber-400 text-xs font-bold">
+                                <Star size={12} className="fill-amber-400" /> {dailyDiscovery.rating}
+                              </span>
+                            </div>
+                            <h3 className="text-white text-2xl sm:text-4xl font-black mb-2 drop-shadow-lg">{dailyDiscovery.title}</h3>
+                            <p className="text-slate-300 text-sm line-clamp-2 max-w-lg mb-4">{dailyDiscovery.description || 'Bu seriyi henüz keşfetmediysen, tam zamanı!'}</p>
+                            <div className="flex items-center gap-3">
+                              <span className="px-4 py-2 bg-white text-black text-xs font-bold rounded-md flex items-center gap-2 group-hover:bg-white/80 transition-colors">
+                                <BookOpen size={14} /> Keşfet
+                              </span>
+                              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                                <span className="flex items-center gap-1"><BookOpen size={10} /> {getChapters(dailyDiscovery.id).length} Bölüm</span>
+                                <span className="flex items-center gap-1"><Eye size={10} /> {(dailyDiscovery.reads_num || 0).toLocaleString('tr-TR')}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.section>
+              </LazySection>
+            )}
 
             {/* 4. YENİ EKLENEN BÖLÜMLER */}
             <LazySection minHeight="240px">
@@ -429,7 +700,7 @@ export default function Home({ onAuthOpen }) {
                   gap={16} 
                   className="netflix-row-container"
                   renderItem={(item) => (
-                    <GlassCard key={item.id} item={item} type="new" chapters={chapters} />
+                    <GlassCard key={item.id} item={item} type="new" chapters={chapters} showTimeAgo={true} />
                   )} 
                 />
               </motion.section>
