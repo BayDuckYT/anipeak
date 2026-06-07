@@ -15,6 +15,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
   const isStaff = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester', 'Moderatör'].includes(role);
   const planId = userData.active_plan_id;
   const houseId = userData.house_id;
+  const isHeadAdmin = role === 'Baş Admin' || role === 'Kurucu' || userData?.username === 'MAHORAPEAK' || userData?.username === 'MAHORA';
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -56,7 +57,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
 
   return (
     <div className={`inline-flex items-center gap-1.5 ${className}`}>
-      {showCrown && isElite && (
+      {showCrown && isElite && !isHeadAdmin && (
         <motion.button
           onClick={handleClick}
           whileHover={{ scale: 1.2 }}
@@ -71,7 +72,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
         </motion.button>
       )}
 
-      {(role === 'Baş Admin' || role === 'Kurucu' || userData?.username === 'MAHORAPEAK' || userData?.username === 'MAHORA') && (
+      {isHeadAdmin && (
         <motion.div
           whileHover={{ scale: 1.2 }}
           className="relative group cursor-pointer flex items-center justify-center p-0.5 outline-none"
