@@ -339,14 +339,14 @@ export default function Home({ onAuthOpen }) {
             </AnimatePresence>
 
             {/* Hero Indicator Dots + Thumbnail Strip */}
-            <div className="absolute bottom-8 left-4 sm:left-12 lg:left-24 z-30 flex items-end gap-6">
+            <div className="absolute bottom-8 right-4 sm:right-12 lg:right-24 z-30 flex items-end gap-6">
               {/* Dots */}
               <div className="hero-dots flex items-center gap-2">
                 {heroItems.slice(0, 8).map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentHeroIndex(idx)}
-                    className={`relative w-10 h-10 flex items-center justify-center group`}
+                    className={`relative w-10 h-10 flex items-center justify-center group outline-none focus:outline-none`}
                     aria-label={`Slayt ${idx + 1}`}
                   >
                     <span className={`w-3 h-3 rounded-full transition-all duration-300 ${currentHeroIndex === idx ? 'bg-purple-500 scale-125' : 'bg-white/40 group-hover:bg-white/70'}`} />
