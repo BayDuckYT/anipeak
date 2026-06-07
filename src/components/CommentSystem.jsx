@@ -283,13 +283,13 @@ export default function CommentSystem({ seriesId, chapterNum }) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span 
                     onClick={() => navigate(`/profil/${prof?.username || comment.username}`)} 
-                    className={`font-black ${isReply ? 'text-xs' : 'text-sm'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
+                    className={`font-black ${isReply ? 'text-sm' : 'text-lg md:text-xl'} italic tracking-tight uppercase truncate cursor-pointer hover:underline ${s.name} ${mix.nametag && mix.nametag !== 'none' ? 'name-effect-text' : ''}`}
                     style={mix.nametag && mix.nametag !== 'none' ? { backgroundImage: `url(${effectsData.find(e => e.id === mix.nametag)?.url})`, filter: `hue-rotate(${mix.hue || 0}deg)` } : {}}
                   >
                     {prof?.username || comment.username || 'Gezgin'}
                   </span>
-                  <UserBadges user={prof || comment} showCrown={true} iconSize={isReply ? 12 : 14} />
-                  <div className={`px-2 py-0.5 rounded-lg border text-[7px] font-black uppercase tracking-widest ${s.badge}`}>
+                  <UserBadges user={prof || comment} showCrown={true} iconSize={isReply ? 14 : 20} />
+                  <div className={`px-3 py-1 rounded-xl border text-[9px] md:text-[10px] font-black uppercase tracking-widest ${s.badge}`}>
                     {['Baş Admin', 'Yönetici', 'Admin Yardımcısı'].includes(prof?.role) ? `${prof?.role} | ${prof?.rank || 'Çaylak'}` :
                      (prof?.role === 'Moderatör') ? `🛡️ Moderatör | ${prof?.rank || 'Çaylak'}` :
                      (prof?.active_plan_id === 'aethe') ? `Aethe ${prof?.rank || 'Çaylak'}` :

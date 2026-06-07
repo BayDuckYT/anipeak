@@ -77,7 +77,7 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
           whileHover={{ scale: 1.2 }}
           className="relative group cursor-pointer flex items-center justify-center p-0.5 outline-none"
         >
-          <div className="flex items-center justify-center shrink-0 w-6 h-6 md:w-8 md:h-8">
+          <div className="flex items-center justify-center shrink-0 w-10 h-10 md:w-12 md:h-12">
              <img src="/basadminicon.png" alt="Baş Admin" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(220,38,38,0.8)] mix-blend-screen" />
           </div>
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card-navy text-white text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border border-red-500/50 z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom">
