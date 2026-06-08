@@ -207,11 +207,18 @@ export default function ProfileShowcase() {
     async function fetchProfile() {
       setLoadingProfile(true);
       try {
-        const { data, error } = await supabase
+        const profilePromise = supabase
           .from('profiles')
           .select('*')
-          .eq('username', username)
-          .single();
+          .ilike('username', username)
+          .limit(1)
+          .maybeSingle();
+          
+        const timeoutPromise = new Promise((resolve) => 
+          setTimeout(() => resolve({ error: { message: 'Timeout', code: 'TIMEOUT' } }), 5000)
+        );
+
+        const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
           
         if (!error && data) {
           setProfileData(data);
@@ -219,36 +226,8 @@ export default function ProfileShowcase() {
             setActiveDecoration(data.active_decoration || 'none');
             setUserLinks(data.links || []);
           }
-          
-          // Profil İzi Kaydetme (Sadece Elite kullanıcılar başkalarının profillerine iz bırakabilir)
-          if (currentUser && currentUser.id !== data.id && (currentUser.active_plan_id === 'aethe' || currentUser.active_plan_id === 'ruler')) {
-             try {
-                // Saniyede 1 kereden fazla spam olmaması için upsert veya on conflict
-                await supabase.from('profile_visits').insert({
-                   profile_id: data.id,
-                   visitor_id: currentUser.id,
-                   visitor_plan: currentUser.active_plan_id
-                }).select().single(); // Unique constraint ihlali olursa fail olur ama sorun değil, try-catch içinde.
-             } catch(e) {}
-          }
-        }
-        
-        // Check if following
-        if (currentUser && currentUser.id !== data.id) {
-          const { data: followData, error: followErr } = await supabase
-            .from('follows')
-            .select('*')
-            .eq('follower_id', currentUser.id)
-            .eq('following_id', data.id)
-            .maybeSingle();
-            
-          if (!followErr) {
-            setIsFollowing(!!followData);
-          }
-        }
 
-        // Fetch Real Stats (Follows, Comments, Favorites)
-        if (data.id) {
+          // Fetch Real Stats (Follows, Comments, Favorites)
           fetchCounts(data.id);
           fetchSocialData(data.id, data.mal_username);
           fetchRecentVisits(data.id);
@@ -260,7 +239,39 @@ export default function ProfileShowcase() {
       }
     }
     fetchProfile();
-  }, [username, supabase, currentUser?.id]); 
+  }, [username, supabase]); 
+
+  // Kullanıcıya özel işlemleri (takip, ziyaret) ayrı bir effect ile yap
+  useEffect(() => {
+    if (!profileData?.id || !currentUser?.id) return;
+    if (currentUser.id === profileData.id) return;
+
+    async function fetchUserSpecificData() {
+      // Check if following
+      const { data: followData, error: followErr } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('follower_id', currentUser.id)
+        .eq('following_id', profileData.id)
+        .maybeSingle();
+        
+      if (!followErr) {
+        setIsFollowing(!!followData);
+      }
+
+      // Ziyaret Kaydı
+      if (currentUser.active_plan_id === 'aethe' || currentUser.active_plan_id === 'ruler') {
+         try {
+            await supabase.from('profile_visits').insert({
+               profile_id: profileData.id,
+               visitor_id: currentUser.id,
+               visitor_plan: currentUser.active_plan_id
+            }).select().single();
+         } catch(e) {}
+      }
+    }
+    fetchUserSpecificData();
+  }, [profileData?.id, currentUser?.id, currentUser?.active_plan_id, supabase]);
 
   const [recentVisits, setRecentVisits] = useState([]);
   const fetchRecentVisits = async (userId) => {
