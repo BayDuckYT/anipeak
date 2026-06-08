@@ -24,8 +24,8 @@ dotenv.config({ path: '/root/mahorapeak/scraper/.env' });
 // ────────────────────────────────────────────────────────────
 const CONFIG = {
   BASE_URL: 'https://mangaokutr.co',
-  CHAPTER_CONCURRENCY: 20,   // 🔥 TITAN MAX HIZ: Aynı anda 20 bölüm
-  PAGE_DOWNLOAD_LIMIT: 40,   
+  CHAPTER_CONCURRENCY: 5,   // 🔥 TITAN MAX HIZ: Aynı anda 5 bölüm (VPS çökmemesi için düşürüldü)
+  PAGE_DOWNLOAD_LIMIT: 20,  
 };
 
 // İşlemci çekirdeklerini %100 kullanması için sharp'a tam yetki veriyoruz
