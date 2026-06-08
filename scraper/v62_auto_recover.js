@@ -427,6 +427,7 @@ async function main() {
 
   const browser = await puppeteer.launch({
     headless: 'new',
+    protocolTimeout: 1200000,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--no-zygote']
   });
 

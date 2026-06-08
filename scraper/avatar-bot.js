@@ -291,7 +291,8 @@ async function main() {
   // ── PUPPETEER BAŞLAT ──
   console.log('[MOTOR] >> Puppeteer başlatılıyor...');
   const browser = await puppeteer.launch({
-    headless: 'new',
+    headless: "new",
+    protocolTimeout: 1200000,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
