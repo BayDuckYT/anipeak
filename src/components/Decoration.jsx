@@ -46,7 +46,9 @@ export default function Decoration({ effect, size = 160 }) {
           muted 
           playsInline
           className="w-full h-full object-cover mix-blend-screen opacity-90"
-        />
+        >
+          <track kind="captions" srcLang="tr" label="Efekt" />
+        </video>
       </div>
     );
   }

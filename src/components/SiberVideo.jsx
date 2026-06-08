@@ -80,6 +80,8 @@ export default function SiberVideo({ src, className = '', ...props }) {
       autoPlay
       preload="auto"
       {...props}
-    />
+    >
+      <track kind="captions" srcLang="tr" label="Efekt" />
+    </video>
   );
 }

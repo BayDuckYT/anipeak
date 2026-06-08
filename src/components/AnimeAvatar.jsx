@@ -141,7 +141,9 @@ export default function AnimeAvatar({
           preload="none"
           style={effectStyle}
           className="max-w-none opacity-90 mix-blend-screen"
-        />
+        >
+          <track kind="captions" srcLang="tr" label="Efekt" />
+        </video>
       );
     }
 

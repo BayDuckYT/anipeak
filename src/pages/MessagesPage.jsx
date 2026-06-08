@@ -80,7 +80,9 @@ const AnimeNameplate = ({ username, role, mix }) => {
               src={`/nameplates/${nameplateFile}`} 
               autoPlay muted loop playsInline 
               className="absolute inset-0 w-full h-full object-cover z-0"
-            />
+            >
+              <track kind="captions" srcLang="tr" label="Efekt" />
+            </video>
             <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] z-[1]" />
           </div>
         )}

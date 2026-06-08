@@ -83,7 +83,9 @@ function EffectCard({ item, isOwned, onBuy, user }) {
             src={item.url}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
             muted loop playsInline
-          />
+          >
+            <track kind="captions" srcLang="tr" label="Efekt" />
+          </video>
         ) : isNameEffect ? (
           <div className="flex items-center justify-center w-full h-full p-4 bg-gradient-to-br from-black to-zinc-900">
             <span
@@ -229,7 +231,9 @@ function PurchaseModal({ item, isOpen, onClose, onConfirm, userAura, isPurchasin
               {/* Item preview */}
               <div className="w-full aspect-[2/1] rounded-2xl bg-black/40 border border-white/5 overflow-hidden mb-6 flex items-center justify-center">
                 {item.category === 'nameplates' ? (
-                  <video src={item.url} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                  <video src={item.url} className="w-full h-full object-cover" muted loop autoPlay playsInline>
+                    <track kind="captions" srcLang="tr" label="Efekt" />
+                  </video>
                 ) : item.category === 'name_effects' ? (
                   <span
                     className="text-2xl font-black uppercase name-effect-text"

@@ -97,6 +97,7 @@ export default function LiveChatPanel({ isOpen, onClose }) {
                         className="w-full h-full object-cover mix-blend-screen mix-blend-lighten opacity-30 group-hover:opacity-50 transition-opacity duration-500" 
                       >
                         <source src={`/nameplates/${nameplateId}`} type="video/webm" />
+                        <track kind="captions" srcLang="tr" label="Efekt" />
                       </video>
                       <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/20 to-transparent" />
                     </div>

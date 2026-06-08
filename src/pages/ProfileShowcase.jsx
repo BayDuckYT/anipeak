@@ -1707,7 +1707,9 @@ export default function ProfileShowcase() {
                           >
                              <div className={`${isNameplate ? 'aspect-[3/1]' : isNameEffect ? 'aspect-[3/1]' : 'aspect-square'} relative flex items-center justify-center overflow-hidden rounded-xl bg-black border border-white/5 mb-3`}>
                                {isNameplate ? (
-                                 <video src={`/nameplates/${effect.url}`} className="w-full h-full object-cover" style={{ filter: `hue-rotate(${mixState.nameplateHue || 0}deg)` }} muted loop playsInline />
+                                 <video src={`/nameplates/${effect.url}`} className="w-full h-full object-cover" style={{ filter: `hue-rotate(${mixState.nameplateHue || 0}deg)` }} muted loop playsInline>
+                                   <track kind="captions" srcLang="tr" label="Efekt" />
+                                 </video>
                                ) : isNameEffect ? (
                                  <div className="flex items-center justify-center w-full h-full p-2">
                                    <span className="text-[10px] font-black uppercase tracking-tighter name-effect-text drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ backgroundImage: `url(${effect.url})`, filter: `hue-rotate(${mixState.nametagHue || 0}deg)` }}>KULLANICI</span>

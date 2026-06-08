@@ -12,7 +12,7 @@ export function getOptimizedImage(url, width = 300) {
   // Eğer url zaten optimize edilmiş bir servis ise
   if (url.includes('wsrv.nl')) {
     // Veritabanında w=300 olarak kaydedilmiş olabilir, onu istenen genişlikle değiştir
-    return url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=85');
+    return url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=70');
   }
   
   // URL'yi absolute yap
@@ -23,13 +23,13 @@ export function getOptimizedImage(url, width = 300) {
     return url;
   }
 
-  // GIF ve Avatarlar için animasyon destekli WebP (n=-1)
+  // GIF ve Avatarlar için animasyon destekli (n=-1)
   const isGif = absoluteUrl.toLowerCase().includes('.gif') || absoluteUrl.includes('/avatars/');
   if (isGif) {
-    return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&n=-1&q=70`;
+    return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&af=1&n=-1&q=60`;
   }
 
-  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&q=75`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&af=1&q=65`;
 }
 
 // Sadece tek bir kare (animasyonsuz) halini getiren fonksiyon
@@ -40,7 +40,7 @@ export function getStaticImage(url, width = 300) {
   const targetWidth = Math.round(width * 1.5);
 
   if (url.includes('wsrv.nl')) {
-    let staticUrl = url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=85');
+    let staticUrl = url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=75');
     if (!staticUrl.includes('&n=')) {
       staticUrl += '&n=1&page=5';
     }
@@ -55,7 +55,7 @@ export function getStaticImage(url, width = 300) {
   }
 
   // n=1 (sadece 1 kare) ve page=5 (5. kareyi al ki fade-in efekti boş çıkmasın)
-  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&output=webp&q=85&n=1&page=5`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&af=1&q=75&n=1&page=5`;
 }
 
 // Resim yüklenemezse gösterilecek güvenli (çökmeyen) siyah/mor yer tutucu

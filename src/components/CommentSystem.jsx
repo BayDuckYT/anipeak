@@ -248,6 +248,7 @@ export default function CommentSystem({ seriesId, chapterNum }) {
           <div className="absolute top-[12px] bottom-[12px] left-[8px] right-[8px] z-0 pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700 overflow-hidden" style={{ borderRadius: '1.5rem', clipPath: 'inset(0 round 1.5rem)' }}>
             <video autoPlay muted loop playsInline className="w-full h-full object-cover mix-blend-screen mix-blend-lighten" style={{ filter: `hue-rotate(${mix.hue || 0}deg)`, objectPosition: 'right center' }}>
               <source src={`/nameplates/${mix.nameplate}`} type="video/webm" />
+              <track kind="captions" srcLang="tr" label="Efekt" />
             </video>
           </div>
         )}
