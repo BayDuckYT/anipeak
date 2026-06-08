@@ -17,7 +17,11 @@ process.setMaxListeners(0);
 EventEmitter.defaultMaxListeners = 0;
 https.globalAgent.setMaxListeners(0);
 
-dotenv.config({ path: '/root/mahorapeak/scraper/.env' });
+let envPath = path.resolve('.env');
+if (!fs.existsSync(envPath)) {
+  envPath = '/root/anipeak/scraper/.env';
+}
+dotenv.config({ path: envPath });
 
 // ────────────────────────────────────────────────────────────
 // ⚙️ KONFİGÜRASYON (R2 & HD EDITION)
@@ -33,14 +37,14 @@ sharp.concurrency();
 
 const s3Client = new S3Client({
   region: 'auto',
-  endpoint: `https://5ea1dc1a085c04db3ae5f70b4e945b44.r2.cloudflarestorage.com`,
+  endpoint: process.env.R2_ENDPOINT || `https://5ea1dc1a085c04db3ae5f70b4e945b44.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: 'cf18c4a293cab8223922055c0b79b96b',
-    secretAccessKey: 'e1f013e37f508f08345149a362119145ea0f532bde793d3df30c727daa4b6960',
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '878089dbad138f06987f8b96e82b614a',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '0dad9a38d0e5e85b73d159ead76dda8b280e7ade875f9cac7162c5c7a388f0ae',
   },
 });
 
-const R2_BUCKET = (process.env.R2_BUCKET || 'mahorapeakimage').trim();
+const R2_BUCKET = (process.env.R2_BUCKET_NAME || process.env.R2_BUCKET || 'anipeakimage').trim();
 const R2_PUBLIC_URL = 'https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev';
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
