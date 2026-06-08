@@ -215,7 +215,7 @@ export default function ProfileShowcase() {
           .maybeSingle();
           
         const timeoutPromise = new Promise((resolve) => 
-          setTimeout(() => resolve({ error: { message: 'Timeout', code: 'TIMEOUT' } }), 5000)
+          setTimeout(() => resolve({ error: { message: 'Timeout', code: 'TIMEOUT' } }), 1000)
         );
 
         const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
