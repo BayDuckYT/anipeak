@@ -306,9 +306,12 @@ async function main() {
   console.log('\x1b[35m%s\x1b[0m', '║   Toplu Liste Tarama · Akıllı Algılama · Limit Kırıcı    ║');
   console.log('\x1b[35m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
 
-  let urlPath = path.resolve('scraper', 'url.txt');
+  let urlPath = path.resolve('url.txt');
   if (!fs.existsSync(urlPath)) {
-    urlPath = '/root/mahorapeak/scraper/url.txt'; // VDS Fallback
+    urlPath = '/root/anipeak/scraper/url.txt'; // VDS Fallback
+  }
+  if (!fs.existsSync(urlPath)) {
+    urlPath = '/root/mahorapeak/scraper/url.txt'; // Old VDS Fallback
   }
 
   if (fs.existsSync(urlPath)) {
