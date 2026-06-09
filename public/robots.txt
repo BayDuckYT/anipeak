@@ -1,29 +1,20 @@
-# ════════════════════════════════════════════════════════════════
-# MahoraPeak — Siber Kale Robots Configuration
-# ════════════════════════════════════════════════════════════════
-
 User-agent: *
 Allow: /
 Allow: /manhwa/
 Allow: /profil/
 
-# Sitemap
 Sitemap: https://mahorapeak.com.tr/sitemap.xml
 
-# Gecikme
 Crawl-delay: 1
 
-# ── Google ──
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 1
 
-# ── Bing ──
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 2
 
-# ── Kötü Botları Engelle ──
 User-agent: SemrushBot
 Disallow: /
 

@@ -139,7 +139,7 @@ function MaintenanceScreen({ onAuthOpen }) {
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img 
-            src="/mahorapeaklogov2.png" 
+            src="/mahorapeaklogov2.webp" 
             alt="MahoraPeak Logo" 
             className="h-32 md:h-40 w-auto object-contain" 
             style={{ 
