@@ -140,17 +140,29 @@ export const OracleCard = ({ manga, matchScore, prophecy, idx = 0 }) => {
 /**
  * Soul Profile Metric Component
  */
-export const MetricBox = ({ icon: Icon, label, value, subtext, color = "cyan" }) => (
-  <div className={`p-4 rounded-xl bg-[#16162a]/60 border border-${color}-500/20 backdrop-blur-md`}>
-    <div className="flex items-center gap-3 mb-3">
-      <div className={`p-2 rounded-lg bg-${color}-500/10`}>
-        <Icon className={`w-5 h-5 text-${color}-400`} />
+const colorStyles = {
+  cyan: { border: 'border-cyan-500/20', bg: 'bg-cyan-500/10', text: 'text-cyan-400' },
+  purple: { border: 'border-purple-500/20', bg: 'bg-purple-500/10', text: 'text-purple-400' },
+  pink: { border: 'border-pink-500/20', bg: 'bg-pink-500/10', text: 'text-pink-400' },
+  indigo: { border: 'border-indigo-500/20', bg: 'bg-indigo-500/10', text: 'text-indigo-400' },
+  blue: { border: 'border-blue-500/20', bg: 'bg-blue-500/10', text: 'text-blue-400' },
+};
+
+export const MetricBox = ({ icon: Icon, label, value, subtext, color = "cyan" }) => {
+  const styles = colorStyles[color] || colorStyles.cyan;
+  
+  return (
+    <div className={`p-4 rounded-xl bg-[#16162a]/60 border ${styles.border} backdrop-blur-md`}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`p-2 rounded-lg ${styles.bg}`}>
+          <Icon className={`w-5 h-5 ${styles.text}`} />
+        </div>
+        <span className="text-xs font-mono uppercase tracking-widest text-gray-400">{label}</span>
       </div>
-      <span className="text-xs font-mono uppercase tracking-widest text-gray-400">{label}</span>
+      <div className="flex flex-col">
+        <span className={`text-2xl font-bold ${styles.text}`}>{value}</span>
+        <span className="text-[10px] text-gray-500 font-mono">{subtext}</span>
+      </div>
     </div>
-    <div className="flex flex-col">
-      <span className={`text-2xl font-bold text-${color}-400`}>{value}</span>
-      <span className="text-[10px] text-gray-500 font-mono">{subtext}</span>
-    </div>
-  </div>
-);
+  );
+};
