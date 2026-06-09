@@ -191,7 +191,7 @@ export default function OraclePage() {
             </div>
           </motion.div>
           
-          <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-6xl sm:text-8xl lg:text-9xl font-black text-white uppercase tracking-tighter drop-shadow-2xl mb-4 max-w-5xl leading-none" style={{ textShadow: '0 10px 30px rgba(0,0,0,0.8), 0 0 40px rgba(6,182,212,0.3)' }}>
+          <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-4xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight drop-shadow-2xl mb-4 max-w-4xl leading-tight" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
             {topMatch?.title || 'KADERİNİ SEÇ'}
           </motion.h1>
           
