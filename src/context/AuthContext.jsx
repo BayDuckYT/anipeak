@@ -238,54 +238,128 @@ export function AuthProvider({ children }) {
       .subscribe();
   }, []);
 
-  // ── Sync Database Announcements as Notifications ────────────────────
+  // ── Sync Database Announcements & Personal Notifications ────────────────────
   useEffect(() => {
     if (!user?.id) return;
     
-    const loadAnn = async () => {
-      const { data } = await supabase
-        .from('announcements')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
+    const loadNotifications = async () => {
+      const settings = user.notification_settings || { newChapter: true, replies: true, system: true };
       
-      const readIds = user.read_notifications || [];
-      if (data) syncNotifs(data, readIds);
+      let allNotifs = [];
+
+      // 1. Fetch Global Announcements (if system notifications enabled)
+      if (settings.system !== false) {
+        const { data: annData } = await supabase
+          .from('announcements')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(20);
+        
+        if (annData) {
+          const readIds = user.read_notifications || [];
+          const mappedAnn = annData.map(a => ({
+            id: `ann_${a.id}`,
+            originalId: a.id,
+            text: a.text,
+            type: a.type || 'system',
+            time: new Date(a.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
+            createdAt: new Date(a.created_at).getTime(),
+            read: readIds.includes(a.id),
+            isAnnouncement: true
+          }));
+          allNotifs = [...allNotifs, ...mappedAnn];
+        }
+      }
+
+      // 2. Fetch Personal Notifications
+      const { data: notifData } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(30);
+
+      if (notifData) {
+        const filteredNotifs = notifData.filter(n => {
+          if (n.type === 'system' && settings.system === false) return false;
+          if ((n.type === 'reply' || n.type === 'mention') && settings.replies === false) return false;
+          if (n.type === 'new_chapter' && settings.newChapter === false) return false;
+          return true;
+        });
+
+        const mappedNotifs = filteredNotifs.map(n => ({
+          id: `notif_${n.id}`,
+          originalId: n.id,
+          text: n.message || n.text || 'Yeni bildirim',
+          type: n.type || 'info',
+          time: new Date(n.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
+          createdAt: new Date(n.created_at).getTime(),
+          read: n.is_read,
+          isAnnouncement: false
+        }));
+        allNotifs = [...allNotifs, ...mappedNotifs];
+      }
+
+      // Sort combined
+      allNotifs.sort((a, b) => b.createdAt - a.createdAt);
+      const topNotifs = allNotifs.slice(0, 30);
+      
+      setNotifications(topNotifs);
+      updateUnread(topNotifs);
     };
 
-    loadAnn();
+    loadNotifications();
 
-    const channel = supabase
-      .channel('announcements-realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (payload) => {
-        setNotifications(prev => {
-          const fresh = mapToNotif(payload.new, (user.read_notifications || []).includes(payload.new.id));
-          const next = [fresh, ...prev].slice(0, 20);
-          updateUnread(next);
-          return next;
-        });
-      })
+    // Setup Realtime Channels
+    const channels = [];
+
+    const handleNewItem = (payload, isAnnouncement) => {
+      const settings = user.notification_settings || { newChapter: true, replies: true, system: true };
+      const item = payload.new;
+      
+      if (isAnnouncement && settings.system === false) return;
+      if (!isAnnouncement) {
+        if (item.type === 'system' && settings.system === false) return;
+        if ((item.type === 'reply' || item.type === 'mention') && settings.replies === false) return;
+        if (item.type === 'new_chapter' && settings.newChapter === false) return;
+      }
+
+      setNotifications(prev => {
+        const fresh = {
+          id: isAnnouncement ? `ann_${item.id}` : `notif_${item.id}`,
+          originalId: item.id,
+          text: isAnnouncement ? item.text : (item.message || item.text || 'Yeni bildirim'),
+          type: item.type || (isAnnouncement ? 'system' : 'info'),
+          time: new Date(item.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
+          createdAt: new Date(item.created_at).getTime(),
+          read: isAnnouncement ? (user.read_notifications || []).includes(item.id) : item.is_read,
+          isAnnouncement
+        };
+        const next = [fresh, ...prev].sort((a, b) => b.createdAt - a.createdAt).slice(0, 30);
+        updateUnread(next);
+        return next;
+      });
+    };
+
+    const annChannel = supabase
+      .channel('announcements-realtime-auth')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (p) => handleNewItem(p, true))
       .subscribe();
+    channels.push(annChannel);
 
-    return () => { supabase.removeChannel(channel); };
-  }, [user?.id, user?.read_notifications]);
+    const notifChannel = supabase
+      .channel(`notifications-${user.id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, (p) => handleNewItem(p, false))
+      .subscribe();
+    channels.push(notifChannel);
 
-  const mapToNotif = (ann, isRead) => ({
-    id:    ann.id,
-    text:  ann.text,
-    type:  ann.type || 'info',
-    time:  new Date(ann.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
-    read:  isRead
-  });
+    return () => {
+      channels.forEach(ch => supabase.removeChannel(ch));
+    };
+  }, [user?.id, user?.read_notifications, user?.notification_settings]);
 
   const updateUnread = (notifList) => {
     setUnreadCount(notifList.filter(n => !n.read).length);
-  };
-
-  const syncNotifs = (announcements, readIds) => {
-    const mapped = announcements.map(a => mapToNotif(a, readIds.includes(a.id)));
-    setNotifications(mapped);
-    updateUnread(mapped);
   };
 
   // ── Gamification Logic ──────────────────────────────────────────────
@@ -400,15 +474,35 @@ export function AuthProvider({ children }) {
 
   const markAllRead = useCallback(async () => {
     if (!user?.id) return;
-    const currentIds = notifications.map(n => n.id);
-    const uniqueIds = Array.from(new Set([...(user.read_notifications || []), ...currentIds]));
+    
+    const annIds = notifications.filter(n => n.isAnnouncement).map(n => n.originalId);
+    const uniqueIds = Array.from(new Set([...(user.read_notifications || []), ...annIds]));
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ read_notifications: uniqueIds })
-      .eq('id', user.id);
+    const promises = [];
+    if (annIds.length > 0) {
+      promises.push(
+        supabase.from('profiles').update({ read_notifications: uniqueIds }).eq('id', user.id)
+      );
+    }
 
-    if (error) console.error('[Notif] Okundu hatası:', error);
+    const hasUnreadPersonal = notifications.some(n => !n.isAnnouncement && !n.read);
+    if (hasUnreadPersonal) {
+      promises.push(
+        supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false)
+      );
+    }
+
+    if (promises.length > 0) {
+      const results = await Promise.allSettled(promises);
+      const errors = results.filter(r => r.status === 'rejected');
+      if (errors.length > 0) console.error('[Notif] Okundu hatası:', errors);
+      
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } else {
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    }
   }, [user, notifications]);
 
   // ── Authentication Boot & Listeners ──────────────────────────────────

@@ -36,8 +36,8 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
        </div>
     );
     if (planId === 'ruler') return (
-       <div className="flex items-center justify-center shrink-0" style={{ width: iconSize, height: iconSize }}>
-          <img src="/badges/ruler.png" alt="Ruler" style={{ width: 80, height: 80, maxWidth: 'none', objectFit: 'contain' }} className="drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+       <div className="flex items-center justify-center shrink-0 w-12 h-12 md:w-16 md:h-16">
+          <img src="/hükümdaricon.png" alt="Ruler" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-pulse" />
        </div>
     );
     if (planId === 'pro') return (
