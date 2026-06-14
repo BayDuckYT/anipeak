@@ -52,6 +52,24 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* --- MOBILE PERFORMANCE OPTIMIZATIONS (BALANCED) --- */
+.mobile-mode .backdrop-blur-3xl,
+.mobile-mode .backdrop-blur-2xl,
+.mobile-mode .backdrop-blur-xl {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* Throttle expensive animations on mobile by slowing them down or reducing their complexity */
+.mobile-mode .animate-pulse-glow,
+.mobile-mode [class*="avatar-effect-"] {
+  animation-duration: 4s !important;
+}
+
+.mobile-mode .aethe-blood-box {
+  animation-duration: 4s !important;
+}
+
 @layer utilities {
   .glass {
     background: rgba(255,255,255,0.04);

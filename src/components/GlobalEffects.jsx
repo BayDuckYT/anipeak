@@ -4,11 +4,11 @@ import { usePerformance } from '../context/PerformanceContext';
 
 export default function GlobalEffects() {
   const { user } = useAuth();
-  const { isLowPerformanceMode, isLowPowerMode } = usePerformance();
+  const { isLowPerformanceMode, isLowPowerMode, isMobile } = usePerformance();
   const canvasRef = useRef(null);
   const mouse = useRef({ x: 0, y: 0 });
 
-  const isLowEnd = isLowPerformanceMode || isLowPowerMode;
+  const isLowEnd = isLowPerformanceMode || isLowPowerMode || isMobile;
 
   // [THEME & ANIMATION CONTROL]
   useEffect(() => {
@@ -57,6 +57,7 @@ export default function GlobalEffects() {
 
     let mouseTicking = false;
     const handleMouseMove = (e) => {
+      if (isMobile) return; // Skip parallax calculations on mobile
       if (!mouseTicking) {
         requestAnimationFrame(() => {
           mouse.current.x = e.clientX;
@@ -96,9 +97,9 @@ export default function GlobalEffects() {
       }
 
       draw() {
-        // Parallax effect
-        const px = (mouse.current.x - width / 2) * this.parallaxFactor;
-        const py = (mouse.current.y - height / 2) * this.parallaxFactor;
+        // Parallax effect (disabled on mobile)
+        const px = isMobile ? 0 : (mouse.current.x - width / 2) * this.parallaxFactor;
+        const py = isMobile ? 0 : (mouse.current.y - height / 2) * this.parallaxFactor;
 
         ctx.beginPath();
         ctx.arc(this.x + px, this.y + py, this.radius, 0, Math.PI * 2);
@@ -119,12 +120,12 @@ export default function GlobalEffects() {
 
     function initParticles() {
       particles = [];
-      const isMobile = window.innerWidth < 768;
       // Lighthouse optimizasyonu: parçacık sayısı azaltıldı
-      let divisor = isMobile ? 40000 : 25000;
+      let divisor = isMobile ? 60000 : 25000;
       if (isLowEnd) divisor *= 2; 
 
-      const maxCount = isMobile ? (isLowEnd ? 15 : 25) : (isLowEnd ? 30 : 60);
+      // On mobile, keep absolute max of 10-15 particles to maintain performance
+      const maxCount = isMobile ? 12 : (isLowEnd ? 30 : 60);
       const count = Math.min(Math.floor((width * height) / divisor), maxCount);
       
       for (let i = 0; i < count; i++) {
@@ -133,7 +134,7 @@ export default function GlobalEffects() {
     }
 
     window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('mousemove', handleMouseMove);
+    if (!isMobile) window.addEventListener('mousemove', handleMouseMove);
     resizeCanvas();
 
     const drawGrid = () => {

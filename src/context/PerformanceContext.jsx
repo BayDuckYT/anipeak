@@ -5,7 +5,20 @@ const PerformanceContext = createContext();
 export function PerformanceProvider({ children }) {
   const [isLowPerformanceMode, setIsLowPerformanceMode] = useState(false);
   const [isLowPowerMode, setIsLowPowerMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [fps, setFps] = useState(60);
+
+  // Mobile Detection
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgentMatch = navigator.userAgent.match(/Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i);
+      const widthMatch = window.innerWidth <= 768;
+      setIsMobile(!!(userAgentMatch || widthMatch));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // FPS Tracker
   useEffect(() => {
@@ -85,9 +98,19 @@ export function PerformanceProvider({ children }) {
     };
   }, []);
 
+  // Set global body class for mobile mode to trigger CSS optimizations
+  useEffect(() => {
+    if (isMobile) {
+      document.body.classList.add('mobile-mode');
+    } else {
+      document.body.classList.remove('mobile-mode');
+    }
+  }, [isMobile]);
+
   const contextValue = {
     isLowPerformanceMode,
     isLowPowerMode,
+    isMobile,
     fps,
     // Provide a way to manually toggle if needed
     setIsLowPerformanceMode
