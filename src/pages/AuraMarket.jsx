@@ -665,6 +665,7 @@ export default function AuraMarket() {
             initial={{ opacity: 0, y: 50, scale: 0.8, filter: 'blur(10px)' }}
             animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
             exit={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+            transition={{ filter: { type: 'tween' } }}
             className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-4 px-8 py-4 backdrop-blur-2xl border rounded-[2rem] shadow-2xl ${
               toast.type === 'success'
                 ? 'bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.15)]'
