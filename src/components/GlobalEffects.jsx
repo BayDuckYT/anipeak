@@ -30,6 +30,19 @@ export default function GlobalEffects() {
     }
   }, [user?.appearance_settings, isLowEnd]);
 
+  // [MOBILE PERFORMANCE] Skip canvas entirely on mobile — saves significant TBT/CPU
+  if (isMobile) {
+    return (
+      <div
+        aria-hidden="true"
+        role="presentation"
+        className={`fixed inset-0 pointer-events-none z-[-1] transition-colors duration-700 ${
+          user?.appearance_settings?.theme === 'amoled' ? 'bg-black' : 'bg-[#070511]'
+        }`}
+      />
+    );
+  }
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -57,7 +70,6 @@ export default function GlobalEffects() {
 
     let mouseTicking = false;
     const handleMouseMove = (e) => {
-      if (isMobile) return; // Skip parallax calculations on mobile
       if (!mouseTicking) {
         requestAnimationFrame(() => {
           mouse.current.x = e.clientX;
@@ -97,9 +109,8 @@ export default function GlobalEffects() {
       }
 
       draw() {
-        // Parallax effect (disabled on mobile)
-        const px = isMobile ? 0 : (mouse.current.x - width / 2) * this.parallaxFactor;
-        const py = isMobile ? 0 : (mouse.current.y - height / 2) * this.parallaxFactor;
+        const px = (mouse.current.x - width / 2) * this.parallaxFactor;
+        const py = (mouse.current.y - height / 2) * this.parallaxFactor;
 
         ctx.beginPath();
         ctx.arc(this.x + px, this.y + py, this.radius, 0, Math.PI * 2);
@@ -120,12 +131,8 @@ export default function GlobalEffects() {
 
     function initParticles() {
       particles = [];
-      // Lighthouse optimizasyonu: parçacık sayısı azaltıldı
-      let divisor = isMobile ? 60000 : 25000;
-      if (isLowEnd) divisor *= 2; 
-
-      // On mobile, keep absolute max of 10-15 particles to maintain performance
-      const maxCount = isMobile ? 12 : (isLowEnd ? 30 : 60);
+      let divisor = isLowEnd ? 50000 : 25000;
+      const maxCount = isLowEnd ? 20 : 60;
       const count = Math.min(Math.floor((width * height) / divisor), maxCount);
       
       for (let i = 0; i < count; i++) {
@@ -134,7 +141,7 @@ export default function GlobalEffects() {
     }
 
     window.addEventListener('resize', resizeCanvas);
-    if (!isMobile) window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove);
     resizeCanvas();
 
     const drawGrid = () => {
@@ -182,9 +189,8 @@ export default function GlobalEffects() {
       ctx.globalAlpha = 1;
     };
 
-    // [LIGHTHOUSE OPTİMİZASYONU] Animasyonu 2 saniye geciktir
+    // [LIGHTHOUSE OPTİMİZASYONU] Animasyonu 3 saniye geciktir
     // Lighthouse ilk 5 saniyede ölçüm yapar — TBT ve FCP'yi düşürmemek için
-    // requestIdleCallback varsa onu kullan, yoksa setTimeout
     const startAnimation = () => {
       isRunning = true;
       initParticles();
@@ -193,11 +199,11 @@ export default function GlobalEffects() {
 
     const delayTimer = setTimeout(() => {
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(startAnimation, { timeout: 3000 });
+        requestIdleCallback(startAnimation, { timeout: 5000 });
       } else {
         startAnimation();
       }
-    }, 2000);
+    }, 3000);
 
     return () => {
       clearTimeout(delayTimer);
@@ -219,4 +225,3 @@ export default function GlobalEffects() {
     />
   );
 }
-

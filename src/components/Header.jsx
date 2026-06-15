@@ -123,6 +123,7 @@ export default function Header({ onAuthOpen }) {
                 alt="MahoraPeak Logo" 
                 width="120"
                 height="80"
+                loading="eager"
                 className="h-16 md:h-20 w-auto object-contain scale-110 md:scale-[1.35] md:translate-y-2 origin-left drop-shadow-[0_0_15px_rgba(139,92,246,0.3)] group-hover:drop-shadow-[0_0_25px_rgba(139,92,246,0.6)] transition-all duration-300" 
                 style={{ 
                   filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))' 
@@ -168,6 +169,16 @@ export default function Header({ onAuthOpen }) {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            {/* Hamburger Menu Toggle */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+              aria-label="Menüyü aç/kapat"
+              aria-expanded={mobileOpen}
+            >
+              <Menu size={20} />
+            </button>
+
             {/* Search Toggle Icon */}
             <div className="hidden md:flex relative" ref={searchRef}>
               <button

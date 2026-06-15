@@ -614,7 +614,7 @@ export default function Home({ onAuthOpen }) {
             >
               {/* Premium Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-[#130E26] to-blue-900 border border-purple-500/30 rounded-3xl" />
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 mix-blend-overlay pointer-events-none" />
+              <div className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)", backgroundSize: "4px 4px" }} />
               <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse-glow" />
               <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse-glow" style={{ animationDelay: '2s' }} />
 

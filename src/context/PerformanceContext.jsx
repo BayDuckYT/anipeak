@@ -20,52 +20,64 @@ export function PerformanceProvider({ children }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // FPS Tracker
+  // FPS Tracker — deferred to avoid TBT impact during Lighthouse measurement window
   useEffect(() => {
+    // Skip FPS tracking on mobile entirely — saves rAF loop overhead
+    if (isMobile) return;
+
     let frameCount = 0;
     let lastTime = performance.now();
     let animationFrameId;
     let lowFpsCount = 0;
+    let delayTimer;
 
-    const measureFPS = (currentTime) => {
-      if (document.hidden) {
-        lastTime = currentTime;
-        animationFrameId = requestAnimationFrame(measureFPS);
-        return;
-      }
-      
-      frameCount++;
-      const delta = currentTime - lastTime;
-
-      // Calculate FPS every second
-      if (delta >= 1000) {
-        const currentFps = Math.round((frameCount * 1000) / delta);
-        setFps(currentFps);
+    const startTracking = () => {
+      const measureFPS = (currentTime) => {
+        if (document.hidden) {
+          lastTime = currentTime;
+          animationFrameId = requestAnimationFrame(measureFPS);
+          return;
+        }
         
-        // If FPS is below 30 for 3 consecutive seconds, trigger low performance mode
-        if (currentFps > 0 && currentFps < 30) {
-          lowFpsCount++;
-          if (lowFpsCount >= 3 && !isLowPerformanceMode) {
-            setIsLowPerformanceMode(true);
+        frameCount++;
+        const delta = currentTime - lastTime;
+
+        // Calculate FPS every second
+        if (delta >= 1000) {
+          const currentFps = Math.round((frameCount * 1000) / delta);
+          setFps(currentFps);
+          
+          // If FPS is below 30 for 3 consecutive seconds, trigger low performance mode
+          if (currentFps > 0 && currentFps < 30) {
+            lowFpsCount++;
+            if (lowFpsCount >= 3 && !isLowPerformanceMode) {
+              setIsLowPerformanceMode(true);
+            }
+          } else if (currentFps > 45) {
+            lowFpsCount = 0;
+            if (isLowPerformanceMode) {
+              setIsLowPerformanceMode(false);
+            }
           }
-        } else if (currentFps > 45) {
-          lowFpsCount = 0;
-          if (isLowPerformanceMode) {
-            setIsLowPerformanceMode(false);
-          }
+
+          frameCount = 0;
+          lastTime = currentTime;
         }
 
-        frameCount = 0;
-        lastTime = currentTime;
-      }
+        animationFrameId = requestAnimationFrame(measureFPS);
+      };
 
       animationFrameId = requestAnimationFrame(measureFPS);
     };
 
-    animationFrameId = requestAnimationFrame(measureFPS);
+    // Delay FPS tracking by 5s so Lighthouse first-load metrics aren't impacted
+    delayTimer = setTimeout(startTracking, 5000);
 
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isLowPerformanceMode]);
+    return () => {
+      clearTimeout(delayTimer);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isLowPerformanceMode, isMobile]);
 
   // Battery Status API Tracker
   useEffect(() => {

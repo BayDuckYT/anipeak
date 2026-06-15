@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
 
   <!-- ══════ INFINITY-GUARD GÜVENLİK PROTOKOLÜ ══════ -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com; img-src 'self' data: blob: https://*.supabase.co https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev https://wsrv.nl https://placehold.co https://*.discordapp.com https://cdn.discordapp.com https://images.unsplash.com https://i.pinimg.com https://upload.wikimedia.org https://www.transparenttextures.com https://grainy-gradients.vercel.app; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com; img-src 'self' data: blob: https://*.supabase.co https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev https://wsrv.nl https://placehold.co https://*.discordapp.com https://cdn.discordapp.com https://images.unsplash.com https://i.pinimg.com https://upload.wikimedia.org https://www.transparenttextures.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.jikan.moe https://cloudflareinsights.com; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;" />
   <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -58,7 +58,16 @@
         "url": "https://mahorapeak.com.tr/",
         "name": "MahoraPeak",
         "alternateName": "Mahora Peak",
-        "description": "Premium Manhwa ve Webtoon okuma platformu. En popüler manga,manhwa,manhua ve webtoonları keşfet, oku ve eğlen."
+        "description": "Premium Manhwa ve Webtoon okuma platformu. En popüler manga,manhwa,manhua ve webtoonları keşfet, oku ve eğlen.",
+        "inLanguage": "tr-TR",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://mahorapeak.com.tr/all-series?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
       },
       {
         "@type": "Organization",
@@ -78,8 +87,6 @@
        PERFORMANS OPTİMİZASYONU: Render-Blocking'i önle
        ═══════════════════════════════════════════════════════ -->
 
-  <link rel="dns-prefetch" href="//wsrv.nl" />
-  <link rel="dns-prefetch" href="//pub-56389f4fc14f4af4b80a25136a28126e.r2.dev" />
   <link rel="dns-prefetch" href="//pub-56389f4fc14f4af4b80a25136a28126e.r2.dev" />
 
   <!-- Preconnect: kritik bağlantılar önce kurulsun -->
@@ -89,7 +96,9 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" /></noscript>
-  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" crossorigin="anonymous" /></noscript>
 
   <!-- 4. Kritik Satır İçi CSS (Critical CSS) — İlk ekran "beyaz flash" olmadan yüklensin -->
   <style>
@@ -106,29 +115,13 @@
 
   </style>
 
-  <!-- 5. Structured Data (JSON-LD) — Google'a platform hakkında zengin bilgi ver -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "MahoraPeak",
-      "url": "https://mahorapeak.com.tr/",
-      "description": "Ücretsiz ve reklamsız premium manga, manhwa ve webtoon okuma platformu",
-      "inLanguage": "tr-TR",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://mahorapeak.com.tr/all-series?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    }
-  </script>
+  <!-- Duplicate JSON-LD removed — SearchAction merged into primary @graph above -->
 
 </head>
 
 <body>
+  <!-- Skip-to-content: Accessibility (keyboard & screen reader navigation) -->
+  <a href="#main-content" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;" onfocus="this.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;padding:1rem;background:#a855f7;color:white;text-align:center;font-weight:900;font-size:1rem;width:auto;height:auto;overflow:visible;'">İçeriğe Atla</a>
 
   <!-- Yükleme ekranı (React başlamadan görünür — FCP hızlanır) -->
   <noscript>

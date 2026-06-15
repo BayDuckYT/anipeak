@@ -16,18 +16,18 @@ export default function Footer() {
 
         <div className="flex flex-wrap justify-center gap-10 text-sm">
           <div className="flex flex-col gap-4">
-            <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Platform</h4>
+            <h2 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Platform</h2>
             <Link to="/all-series" className="text-slate-300 hover:text-purple-300 transition-colors font-medium py-1" aria-label="Tüm manga serilerini görüntüle">Tüm Seriler</Link>
             <Link to="/#trendler" className="text-slate-300 hover:text-purple-300 transition-colors font-medium py-1" aria-label="Trend mangaları görüntüle">Trendler</Link>
           </div>
           <div className="flex flex-col gap-4">
-            <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Kurumsal</h4>
+            <h2 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Kurumsal</h2>
             <Link to="/gizlilik" className="text-slate-300 hover:text-purple-300 transition-colors font-medium">Gizlilik Politikası</Link>
             <Link to="/sartlar" className="text-slate-300 hover:text-purple-300 transition-colors font-medium">Kullanım Şartları</Link>
             <Link to="/iletisim" className="text-slate-300 hover:text-purple-300 transition-colors font-medium">İletişim</Link>
           </div>
           <div className="flex flex-col gap-4">
-            <h4 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Topluluk</h4>
+            <h2 className="text-white font-black text-xs uppercase tracking-widest drop-shadow-md">Topluluk</h2>
             <a href="https://discord.gg/mahorapeak" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-blue-400 transition-colors font-medium py-1" aria-label="MahoraPeak Discord sunucusuna katıl">Discord</a>
             <a href="https://www.instagram.com/mahorapeakoffical/" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-pink-400 transition-colors font-medium py-1" aria-label="MahoraPeak Instagram sayfasını ziyaret et">Instagram</a>
           </div>
