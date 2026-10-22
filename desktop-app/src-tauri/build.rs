@@ -2,6 +2,7 @@ fn main() {
     const APP_COMMANDS: &[&str] = &[
         "download_chapter",
         "check_for_updates",
+        "download_update",
         "install_update",
         "list_offline_chapters",
         "read_offline_chapter",

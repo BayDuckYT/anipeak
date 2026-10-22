@@ -1,6 +1,6 @@
 [package]
 name = "mahorapeak-desktop"
-version = "1.5.3"
+version = "1.5.4"
 description = "MahoraPeak Windows Desktop Reader"
 authors = ["MahoraPeak"]
 edition = "2021"

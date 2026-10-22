@@ -8,6 +8,7 @@ use std::{
     fs,
     io::Read,
     path::{Component, PathBuf},
+    sync::Mutex,
     time::Duration,
 };
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
@@ -18,6 +19,9 @@ const SITE: &str = "https://mahorapeak.com.tr";
 const R2_HOST: &str = "pub-56389f4fc14f4af4b80a25136a28126e.r2.dev";
 const MAX_PAGE_BYTES: usize = 25 * 1024 * 1024;
 const MAX_CHAPTER_BYTES: usize = 500 * 1024 * 1024;
+
+#[derive(Default)]
+struct PendingUpdate(Mutex<Option<(tauri_plugin_updater::Update, Vec<u8>)>>);
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -62,31 +66,47 @@ async fn check_for_updates(app: tauri::AppHandle) -> Result<Option<UpdateInfo>, 
 }
 
 #[tauri::command]
-async fn install_update(app: tauri::AppHandle, window: tauri::WebviewWindow) -> Result<(), String> {
+async fn download_update(
+    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
+    pending: tauri::State<'_, PendingUpdate>,
+) -> Result<String, String> {
     let updater = app.updater_builder().build().map_err(|e| e.to_string())?;
     let Some(update) = updater.check().await.map_err(|e| e.to_string())? else {
         return Err("Uygulama zaten güncel.".into());
     };
     let version = update.version.clone();
-    let mut downloaded = 0usize;
-    update
-        .download_and_install(
+    let mut downloaded = 0u64;
+    let bytes = update
+        .download(
             move |chunk, total| {
-                downloaded = downloaded.saturating_add(chunk);
+                downloaded = downloaded.saturating_add(chunk as u64);
                 let _ = window.emit(
                     "mahorapeak-update-progress",
-                    serde_json::json!({"chunk": downloaded, "total": total}),
+                    serde_json::json!({"chunk": downloaded, "total": total.unwrap_or(0)}),
                 );
             },
             || {},
         )
         .await
         .map_err(|e| e.to_string())?;
-    let _ = app.emit(
-        "mahorapeak-update-finished",
-        serde_json::json!({"version": version}),
-    );
-    Ok(())
+    *pending.0.lock().map_err(|_| "Güncelleme durumu okunamadı.".to_owned())? = Some((update, bytes));
+    let _ = app.emit("mahorapeak-update-downloaded", serde_json::json!({"version": version}));
+    Ok(version)
+}
+
+#[tauri::command]
+fn install_update(pending: tauri::State<'_, PendingUpdate>) -> Result<(), String> {
+    let (update, bytes) = pending
+        .0
+        .lock()
+        .map_err(|_| "Güncelleme durumu okunamadı.".to_owned())?
+        .take()
+        .ok_or_else(|| "Önce güncellemenin indirilmesi gerekiyor.".to_owned())?;
+    update
+        .restart_after_install(true)
+        .install(bytes)
+        .map_err(|e| e.to_string())
 }
 
 fn library_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -393,6 +413,7 @@ const SITE_SCRIPT: &str = include_str!("../inject.js");
 
 fn main() {
     let result = tauri::Builder::default()
+        .manage(PendingUpdate::default())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .register_uri_scheme_protocol("offline", |ctx, request| {
             offline_response(ctx.app_handle(), &request.uri().to_string())
@@ -400,6 +421,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             download_chapter,
             check_for_updates,
+            download_update,
             install_update,
             list_offline_chapters,
             read_offline_chapter,

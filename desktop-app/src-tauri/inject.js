@@ -77,7 +77,7 @@
     };
     const dialog=document.createElement('section');dialog.id='mahorapeak-update-dialog';dialog.hidden=true;
     dialog.dataset.state='checking';
-    dialog.innerHTML='<div class="card"><div class="update-mark" aria-hidden="true"></div><div class="eyebrow">MAHORAPEAK DESKTOP · GÜNCELLEME</div><h2 data-update-title>Güncellemeler kontrol ediliyor</h2><p data-update-copy>Yeni sürüm olup olmadığını kontrol ediyoruz…</p><progress data-update-progress hidden max="100" value="0"></progress><div class="actions"><button data-update-retry hidden>Yeniden dene</button><button data-update-install hidden>Güncellemeyi yükle</button><button data-update-close>Kapat</button></div></div>';
+    dialog.innerHTML='<div class="card"><div class="update-mark" aria-hidden="true"></div><div class="eyebrow">MAHORAPEAK DESKTOP · GÜNCELLEME</div><h2 data-update-title>Güncellemeler kontrol ediliyor</h2><p data-update-copy>Yeni sürüm olup olmadığını kontrol ediyoruz…</p><progress data-update-progress hidden max="100" value="0"></progress><div class="actions"><button data-update-retry hidden>Yeniden dene</button><button data-update-install hidden>Güncellemeyi indir</button><button data-update-close>Kapat</button></div></div>';
     document.documentElement.append(dialog);
     const updateTitle=dialog.querySelector('[data-update-title]'), updateCopy=dialog.querySelector('[data-update-copy]'), updateProgress=dialog.querySelector('[data-update-progress]'), installButton=dialog.querySelector('[data-update-install]');
     const retryButton=dialog.querySelector('[data-update-retry]'), closeButton=dialog.querySelector('[data-update-close]');
@@ -93,10 +93,19 @@
         dialog.dataset.state='available';
         updateTitle.textContent=`MahoraPeak ${update.version} hazır`;
         updateCopy.textContent=update.notes?`Yeni sürüm indirilmeye hazır.\n\n${update.notes}`:'Yeni özellikler ve iyileştirmeler seni bekliyor. Güncellemeyi şimdi indirip kurabilirsin.';
-        updateProgress.hidden=true;updateProgress.value=0;retryButton.hidden=true;installButton.hidden=false;installButton.disabled=false;closeButton.textContent='Daha sonra';dialog.hidden=false;
+        updateProgress.hidden=true;updateProgress.value=0;retryButton.hidden=true;installButton.hidden=false;installButton.disabled=false;installButton.textContent='Güncellemeyi indir';closeButton.textContent='Daha sonra';dialog.hidden=false;
+        let updateReady=false;
         installButton.onclick=async()=>{
-          installButton.disabled=true;updateTitle.textContent='Güncelleme indiriliyor';updateCopy.textContent='İndirme tamamlandığında kurulum otomatik olarak başlayacak.';updateProgress.hidden=false;updateProgress.removeAttribute('value');
-          try{await invoke?.('install_update')}catch{updateTitle.textContent='Güncelleme tamamlanamadı';updateCopy.textContent='Bağlantını kontrol edip daha sonra yeniden deneyebilirsin.';installButton.disabled=false}
+          installButton.disabled=true;
+          if(updateReady){
+            dialog.dataset.state='installing';updateTitle.textContent='Uygulama yeniden başlatılıyor';updateCopy.textContent='Güncelleme sessizce uygulanacak ve MahoraPeak yeniden açılacak.';
+            try{await invoke?.('install_update')}catch{updateTitle.textContent='Güncelleme başlatılamadı';updateCopy.textContent='Güncelleme hazır. Yeniden başlatıp tekrar deneyebilirsin.';installButton.textContent='Yeniden başlat ve güncelle';installButton.disabled=false}
+            return;
+          }
+          dialog.dataset.state='downloading';updateTitle.textContent='Güncelleme indiriliyor';updateCopy.textContent='Uygulama açık kalacak. İndirme bitince yeniden başlatma seçeneği çıkacak.';updateProgress.hidden=false;updateProgress.removeAttribute('value');
+          try{
+            const version=await invoke?.('download_update');updateReady=true;dialog.dataset.state='ready';updateTitle.textContent='Güncelleme hazır';updateCopy.textContent=`MahoraPeak ${version||update.version} indirildi. Uygulamayı yeniden başlatınca güncelleme uygulanacak.`;updateProgress.hidden=true;installButton.textContent='Yeniden başlat ve güncelle';installButton.disabled=false;closeButton.textContent='Daha sonra';
+          }catch{dialog.dataset.state='error';updateTitle.textContent='İndirme tamamlanamadı';updateCopy.textContent='Bağlantını kontrol edip yeniden deneyebilirsin.';updateProgress.hidden=true;installButton.textContent='Yeniden dene';installButton.disabled=false}
         };
       }catch(error){if(manual){dialog.dataset.state='error';updateTitle.textContent='Kontrol şu an yapılamadı';updateCopy.textContent='Güncelleme sunucusuna ulaşılamadı. İnternet bağlantını kontrol edip tekrar deneyebilirsin.';installButton.hidden=true;retryButton.hidden=false;closeButton.textContent='Kapat'}console.warn('MahoraPeak update check unavailable',error)}
       finally{updateCheckInFlight=false}
@@ -104,7 +113,7 @@
     closeButton.onclick=closeUpdateDialog;
     retryButton.onclick=()=>checkUpdates({manual:true});
     window.__TAURI__?.event?.listen?.('mahorapeak-update-progress',event=>{const data=event.payload||{};if(data.total){const value=Math.min(100,Math.round(data.chunk/data.total*100));updateProgress.value=value;updateCopy.textContent=`Güncelleme indiriliyor… ${value}%`}});
-    window.__TAURI__?.event?.listen?.('mahorapeak-update-finished',()=>{updateTitle.textContent='Kurulum başlıyor';updateCopy.textContent='Uygulama güncelleme için yeniden açılacak.'});
+    window.__TAURI__?.event?.listen?.('mahorapeak-update-downloaded',event=>{const version=event.payload?.version;if(version){dialog.dataset.state='ready';updateTitle.textContent='Güncelleme hazır';updateCopy.textContent=`MahoraPeak ${version} indirildi. Uygulamayı yeniden başlatınca güncelleme uygulanacak.`}});
     bar.addEventListener('click', async event => {
       const action = event.target.closest('button')?.dataset.action;
       if (!action) return;
