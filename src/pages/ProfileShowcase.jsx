@@ -1582,8 +1582,8 @@ export default function ProfileShowcase() {
                         <Trophy size={20} />
                      </div>
                      <div>
-                        <h3 className="text-white font-black text-lg tracking-tight">Kozmik Başarım Vitrini</h3>
-                        <p className="text-slate-400 text-xs">Kullanıcının kazandığı seçkin mühürler ve madalyalar</p>
+                        <h3 className="text-white font-black text-lg tracking-tight">Kazanılan Rozetler ve Başarımlar</h3>
+                        <p className="text-slate-400 text-xs">Profilde sergilenen seçkin başarımlar ve madalyalar</p>
                      </div>
                   </div>
                   <Link 

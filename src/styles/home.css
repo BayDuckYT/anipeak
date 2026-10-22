@@ -250,10 +250,47 @@
   pointer-events: none;
 }
 
+/* ── Ultra Performanslı İnteraktif Mikro Animasyonlar ── */
+.mp-interactive-card {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.mp-interactive-card:hover {
+  transform: translate3d(0, -6px, 0);
+}
+
+.mp-float-smooth {
+  animation: mp-float 4.5s ease-in-out infinite;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.mp-glow-card {
+  position: relative;
+  overflow: hidden;
+}
+.mp-glow-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.mp-glow-card:hover::before {
+  opacity: 1;
+}
+
 /* Reduced motion erişilebilirlik kuralı */
 @media (prefers-reduced-motion: reduce) {
-  .mp-kenburns, .mp-float, .mp-dot-progress, .mp-shine::after, .mp-glow-pulse, .mp-card, .mp-giant-card { 
+  .mp-kenburns, .mp-float, .mp-dot-progress, .mp-shine::after, .mp-glow-pulse, .mp-card, .mp-giant-card, .mp-interactive-card, .mp-float-smooth { 
     animation: none !important; 
     transition: none !important;
   }
 }
+

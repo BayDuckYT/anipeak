@@ -153,13 +153,13 @@ export default function Achievements() {
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-600/25 border border-violet-400/40 text-violet-200 text-xs font-black uppercase tracking-wider backdrop-blur-md mb-4">
                 <Trophy size={14} className="text-amber-400" />
-                Kozmik Sistem Mühürleri
+                Mahora Başarım Sistemi
               </div>
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none mb-4">
-                KOZMİK <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent">BAŞARIMLAR</span>
+                EFSANEVİ <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent">BAŞARIMLAR</span>
               </h1>
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Manga oku, yorum yap, serilerini tamamla ve her biri için özel olarak tasarlanmış benzersiz mühürleri kazan. Açılan her başarım profilinde parıldayan bir unvan olarak sergilenir!
+                Manga oku, bölümlere yorum yap, serilerini tamamla ve her biri için özel olarak tasarlanmış benzersiz rozetleri kazan. Açtığın her başarım profilinde parıldayan bir unvan olarak sergilenir!
               </p>
             </div>
 
