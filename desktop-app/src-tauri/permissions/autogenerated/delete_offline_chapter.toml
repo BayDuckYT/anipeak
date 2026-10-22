@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-delete-offline-chapter"
+description = "Enables the delete_offline_chapter command without any pre-configured scope."
+commands.allow = ["delete_offline_chapter"]
+
+[[permission]]
+identifier = "deny-delete-offline-chapter"
+description = "Denies the delete_offline_chapter command without any pre-configured scope."
+commands.deny = ["delete_offline_chapter"]

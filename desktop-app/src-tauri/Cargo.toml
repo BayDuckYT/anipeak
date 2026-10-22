@@ -1,0 +1,28 @@
+[package]
+name = "mahorapeak-desktop"
+version = "1.5.3"
+description = "MahoraPeak Windows Desktop Reader"
+authors = ["MahoraPeak"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-updater = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["native-tls", "stream"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs", "io-util"] }
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+http = "1"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+opt-level = 1
+codegen-units = 16

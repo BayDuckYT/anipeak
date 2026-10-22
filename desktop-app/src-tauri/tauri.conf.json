@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "MahoraPeak Desktop",
+  "version": "1.5.3",
+  "identifier": "com.mahorapeak.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "capabilities": ["desktop-local", "desktop-site"],
+      "csp": "default-src 'self' asset: http://asset.localhost; img-src 'self' asset: http://asset.localhost https://*.r2.dev https://mahorapeak.com.tr data: blob: offline: http://offline.localhost; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src 'self' ipc: http://ipc.localhost https://mahorapeak.com.tr https://*.supabase.co https://*.r2.dev offline: http://offline.localhost; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://mahorapeak.com.tr"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "createUpdaterArtifacts": true,
+    "targets": ["nsis"],
+    "category": "Entertainment",
+    "shortDescription": "MahoraPeak manga okuma uygulaması",
+    "longDescription": "MahoraPeak için Windows okuma uygulaması, bölüm indirme ve çevrimdışı kütüphane.",
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" },
+      "nsis": {
+        "displayLanguageSelector": false,
+        "languages": ["Turkish", "English"],
+        "installMode": "currentUser"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM1MjA3OEY5NTFERjMwMUIKUldRYk1OOVIrWGdnTlpwZlhUYklMRUZUNWpGQWZxRDcyTll5TzduMloydWNwaVVGdUxDWHoxVk4K",
+      "endpoints": ["https://github.com/BayDuckYT/anipeak/releases/latest/download/latest.json"],
+      "windows": { "installMode": "passive" }
+    }
+  }
+}

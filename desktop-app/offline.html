@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#090810" />
+  <title>İndirilenler · MahoraPeak</title>
+  <link rel="stylesheet" href="./offline.css" />
+  <link rel="stylesheet" href="./offline-frame.css" />
+  <link rel="stylesheet" href="./offline-series.css" />
+</head>
+<body>
+  <header class="topbar" data-tauri-drag-region>
+    <button class="nav-icon" id="back" aria-label="Geri">‹</button>
+    <button class="nav-icon" id="home" aria-label="Ana sayfa">⌂</button>
+    <a class="brand" href="#"><img src="./mahorapeaklogov2.webp" alt="MahoraPeak" /><i>DESKTOP</i></a>
+    <span class="bar-spacer"></span>
+    <span class="offline-pill"><span></span> Çevrimdışı kütüphane</span>
+    <div class="window-controls"><button data-window="minimize" aria-label="Küçült">—</button><button data-window="maximize" aria-label="Büyüt">□</button><button data-window="close" aria-label="Kapat">×</button></div>
+  </header>
+  <main class="page-shell">
+    <div id="page-heading" class="page-heading">
+      <div><p class="eyebrow">SANA ÖZEL KÜTÜPHANE</p><h1>İndirilen Bölümler</h1><p class="subtitle">Kaydettiğin bölümler internet olmadan da burada.</p></div>
+      <div class="storage-card"><span>Bu cihazda kullanılan alan</span><strong id="storage">Hesaplanıyor…</strong></div>
+    </div>
+    <div class="library-toolbar"><label class="library-search"><span>⌕</span><input id="series-search" type="search" placeholder="İndirdiğin serilerde ara…" autocomplete="off" /></label><span id="series-count" class="series-count">Kütüphane yükleniyor…</span></div>
+    <div id="notice" class="notice" hidden></div>
+    <section id="chapter-list" class="series-list" aria-live="polite"></section>
+    <section id="series-view" class="series-view" hidden>
+      <button id="series-back" class="series-back" type="button">← Kütüphaneye dön</button>
+      <div class="series-hero">
+        <div class="series-poster" aria-label="Seri kapağı"><span>MAHORAPEAK<br/>OFFLINE LIBRARY</span><strong id="series-monogram">M</strong><i></i></div>
+        <div class="series-hero-copy"><p class="eyebrow">ÇEVRİMDIŞI SERİ</p><h2 id="series-title"></h2><p id="series-summary" class="series-summary-copy"></p><div class="series-stats"><div><strong id="series-chapter-total">0</strong><span>İNDİRİLEN BÖLÜM</span></div><div><strong id="series-page-total">0</strong><span>SAYFA</span></div><div><strong id="series-size-total">0 B</strong><span>CİHAZDA</span></div></div><button id="series-resume" class="series-resume" type="button">Son indirilen bölümü oku&nbsp; →</button></div>
+      </div>
+      <div class="series-chapters-heading"><div><p class="eyebrow">SIRALI ARŞİV</p><h2>Bölümler</h2></div><span>Numara sırası ↑</span></div>
+      <div id="series-chapters" class="chapter-rows"></div>
+    </section>
+    <section id="empty-state" class="empty-state" hidden>
+      <div class="book-mark">▤</div><h2>Henüz indirdiğin bölüm yok</h2><p>Seri sayfasında bir bölüm açıp üst çubuktaki <b>Bu Bölümü İndir</b> düğmesine bas.</p>
+      <button id="browse" type="button">Serilere Göz At</button>
+    </section>
+  </main>
+  <section id="reader" class="reader" hidden>
+    <div class="reader-bar"><button id="close-reader" class="reader-back">← Kütüphaneye Dön</button><div><strong id="reader-series"></strong><span id="reader-chapter"></span></div><span id="reader-count"></span></div>
+    <div id="reader-pages" class="reader-pages"></div>
+  </section>
+  <script type="module" src="./offline.js"></script>
+</body>
+</html>

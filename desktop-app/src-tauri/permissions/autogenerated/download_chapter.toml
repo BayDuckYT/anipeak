@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-download-chapter"
+description = "Enables the download_chapter command without any pre-configured scope."
+commands.allow = ["download_chapter"]
+
+[[permission]]
+identifier = "deny-download-chapter"
+description = "Denies the download_chapter command without any pre-configured scope."
+commands.deny = ["download_chapter"]

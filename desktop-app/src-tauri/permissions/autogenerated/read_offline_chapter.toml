@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-read-offline-chapter"
+description = "Enables the read_offline_chapter command without any pre-configured scope."
+commands.allow = ["read_offline_chapter"]
+
+[[permission]]
+identifier = "deny-read-offline-chapter"
+description = "Denies the read_offline_chapter command without any pre-configured scope."
+commands.deny = ["read_offline_chapter"]

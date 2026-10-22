@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090810" />
+    <title>MahoraPeak Desktop</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="desktop-bar" data-tauri-drag-region>
+        <button class="brand" data-action="home" aria-label="MahoraPeak Desktop ana sayfası"><img src="/mahorapeaklogov2.webp" alt="" /><span>MahoraPeak</span><em>DESKTOP</em></button>
+        <div class="browser-controls"><button data-action="back">‹</button><button data-action="forward">›</button><button data-action="reload">↻</button></div>
+        <nav class="desktop-nav" aria-label="Uygulama menüsü">
+          <button class="nav-item active" data-action="home">Ana Sayfa</button>
+          <button class="nav-item" data-action="site">Seriler</button>
+          <button class="nav-item" data-action="library">Kütüphanem <b id="nav-count">0</b></button>
+        </nav>
+        <div class="bar-actions"><button class="icon-button" data-action="fullscreen" title="Tam ekran" aria-label="Tam ekran">⛶</button><button class="icon-button" data-action="library" title="İndirilenler" aria-label="İndirilenler">⇩</button><button class="open-web" data-action="site">Okumaya Başla <span>→</span></button></div>
+        <div class="window-controls"><button data-action="minimize" aria-label="Küçült">—</button><button data-action="maximize" aria-label="Büyüt">□</button><button class="close" data-action="close" aria-label="Kapat">×</button></div>
+      </header>
+      <main>
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow"><i></i> MAHORAPEAK DESKTOP</p>
+            <h1>Okuma alanın,<br /><strong>senin kurallarınla.</strong></h1>
+            <p class="hero-text">MahoraPeak içeriklerini Windows için hazırlanmış hızlı okuma, indirme ve çevrimdışı kütüphane deneyimiyle kullan.</p>
+            <div class="hero-actions"><button class="primary" data-action="site">Okumaya Başla <span>→</span></button><button class="secondary" data-action="library">⌑ Kütüphanem</button></div>
+          </div>
+          <aside class="download-card">
+            <div class="card-head"><span class="status-dot"></span><span>ÇEVRİMDIŞI ALAN</span><button data-action="library">Aç →</button></div>
+            <div class="download-icon">⇩</div><strong id="download-count">0 bölüm indirildi</strong><p id="download-storage">İnternetsiz okumaya hazır</p><div class="storage-track"><span id="storage-fill"></span></div>
+          </aside>
+        </section>
+        <section class="quick-section">
+          <div class="section-title"><div><p class="eyebrow">MASAÜSTÜ DENEYİMİ</p><h2>Uygulamaya özel araçlar</h2></div><button class="text-button" data-action="site">Web kütüphanesine git →</button></div>
+          <div class="feature-grid">
+            <article class="feature-card purple"><div class="feature-icon">⇩</div><h3>Çevrimdışı okuma</h3><p>Bölümleri cihaza kaydet, bağlantı olmadan okumaya devam et.</p><button data-action="library">İndirilenleri görüntüle</button></article>
+            <article class="feature-card blue"><div class="feature-icon">⌖</div><h3>Masaüstü kontrolü</h3><p>Tam ekran modunda dikkat dağıtmadan okumak için hazır.</p><button data-action="fullscreen">Tam ekranı aç</button></article>
+            <article class="feature-card gold"><div class="feature-icon">↗</div><h3>Canlı içerik</h3><p>Seriler ve bölümler MahoraPeak sitesinden güncel şekilde gelir.</p><button data-action="site">Serileri keşfet</button></article>
+          </div>
+        </section>
+      </main>
+      <footer><span>MahoraPeak Desktop</span><span>Uygulamaya özel kütüphane · v1.4.0</span></footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
