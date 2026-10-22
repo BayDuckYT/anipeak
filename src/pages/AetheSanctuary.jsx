@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { Loader2, Sparkles, MessageSquare, Shield, Trophy, Crown, Flame, Swords, ChevronRight, ChevronLeft } from 'lucide-react';
 import AnimeAvatar from '../components/AnimeAvatar';
 import UserBadges from '../components/UserBadges';
+import Loader from '../components/Loader';
 import effectsData from '../data/effects.json';
 
 const HOUSES = [
@@ -107,7 +108,7 @@ export default function AetheSanctuary() {
     }, 4000);
   };
 
-  if (loading || authLoading) return <div className="min-h-screen bg-[#070511] flex items-center justify-center"><Loader2 className="animate-spin text-purple-500" size={40} /></div>;
+  if (loading || authLoading) return <Loader fullScreen={true} text="Mabed Yükleniyor..." />;
 
   const isAethe = profile?.active_plan_id === 'aethe' || ['Baş Admin', 'Yönetici'].includes(profile?.role);
   if (!isAethe) {

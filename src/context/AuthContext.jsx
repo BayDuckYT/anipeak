@@ -681,6 +681,15 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const loginWithDiscord = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'discord',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) throw error;
+    return data;
+  };
+
   const resetPassword = async (identifier) => {
     try {
       let actualEmail = identifier;
@@ -860,6 +869,7 @@ export function AuthProvider({ children }) {
     logout,
     signup,
     loginWithGoogle,
+    loginWithDiscord,
     isOwner,
     isAdmin,
     isMod,

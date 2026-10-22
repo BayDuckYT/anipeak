@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { syncAllAchievements } from '../lib/achievementService';
 import { useSEO } from '../hooks/useSEO';
+import Loader from '../components/Loader';
 
 const CATEGORY_ICONS = {
   'Okuma': <Book size={20} />,
@@ -153,13 +154,7 @@ export default function Achievements() {
   const categoriesToDisplay = selectedCategory === 'Hepsi' ? uniqueCategories : [selectedCategory];
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#070511] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
-        </div>
-      </div>
-    );
+    return <Loader fullScreen={false} text="Başarımlar Yükleniyor..." />;
   }
 
   return (

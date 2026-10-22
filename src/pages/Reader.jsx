@@ -438,10 +438,7 @@ export default function Reader() {
       >
         <div className="flex flex-col">
           {loadingPages ? (
-            <div className="flex flex-col items-center justify-center py-40 gap-4">
-              <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-              <p className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] animate-pulse">Sayfalar Mühürleniyor...</p>
-            </div>
+            <Loader fullScreen={false} text="Sayfalar Mühürleniyor..." />
           ) : !chapterData || !chapterData.pages || chapterData.pages.length === 0 ? (
             <div className="py-40 text-center px-6">
               <Sun size={64} className="text-slate-800 mx-auto mb-6 opacity-20" />

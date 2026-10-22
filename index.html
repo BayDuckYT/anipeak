@@ -89,13 +89,15 @@
 
   <link rel="dns-prefetch" href="//pub-56389f4fc14f4af4b80a25136a28126e.r2.dev" />
 
-  <!-- Preconnect: kritik bağlantılar önce kurulsun -->
+  <!-- Preconnect: kritik bağlantılar önce kurulsun (Görsel ve Veri CDN'leri) -->
+  <link rel="preconnect" href="https://wsrv.nl" crossorigin />
+  <link rel="preconnect" href="https://pub-56389f4fc14f4af4b80a25136a28126e.r2.dev" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://yrcrgkdikkaeccikdzvw.supabase.co" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" /></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Poppins:wght@600&display=swap" crossorigin="anonymous" /></noscript>
   <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" crossorigin="anonymous" /></noscript>
@@ -134,36 +136,31 @@
   </noscript>
   <div id="root">
     <style>
-      .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; min-height: 100vh; background: #070511; }
-      .zap-wrapper { position: relative; width: 6rem; height: 6rem; display: flex; align-items: center; justify-content: center; }
-      .zap-ring { position: absolute; inset: 0; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 50%; animation: pulse-ring 2s infinite ease-out; }
-      .zap-ring:nth-child(2) { animation-delay: 0.6s; }
-      .zap-ring:nth-child(3) { animation-delay: 1.2s; }
-      @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.8); opacity: 0; } }
-      .zap-icon { color: #a855f7; position: relative; z-index: 10; animation: heartbeat 0.8s infinite ease-in-out; }
-      @keyframes heartbeat { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4)); } 50% { transform: scale(1.3); filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.8)); } }
-      .loading-text { color: white; font-family: system-ui, sans-serif; font-weight: 900; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5em; text-align: center; animation: text-pulse 1.6s infinite; }
-      @keyframes text-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-      .progress-line-container { width: 8rem; height: 1px; background: rgba(255, 255, 255, 0.05); position: relative; overflow: hidden; margin-top: 0.75rem; }
-      .progress-line { position: absolute; inset: 0; width: 50%; background: linear-gradient(to right, transparent, #a855f7, transparent); animation: progress-move 1.5s infinite linear; }
-      @keyframes progress-move { 0% { transform: translateX(-128px); } 100% { transform: translateX(128px); } }
+      .cinematic-loader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #06040e; z-index: 99999; overflow: hidden; }
+      .cinematic-aura { position: absolute; width: 550px; height: 550px; border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,0.25) 0%, rgba(139,92,246,0.3) 45%, transparent 70%); filter: blur(90px); pointer-events: none; animation: aura-pulse 3s infinite ease-in-out; }
+      @keyframes aura-pulse { 0%, 100% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.15); opacity: 1; } }
+      .cinematic-kanji { position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.035); letter-spacing: 0.3em; pointer-events: none; user-select: none; font-family: serif; }
+      .cinematic-logo-box { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; }
+      .cinematic-logo { height: 8.5rem; width: auto; object-fit: contain; filter: drop-shadow(0 0 35px rgba(220,38,38,0.7)); }
+      .cinematic-line { position: relative; width: 22rem; height: 2.5px; background: rgba(255,255,255,0.1); border-radius: 9999px; overflow: hidden; margin-top: 1.5rem; }
+      .cinematic-line-glow { position: absolute; inset: 0; background: linear-gradient(to right, transparent, rgba(239,68,68,0.95), transparent); }
+      .cinematic-laser { position: absolute; top: 0; bottom: 0; width: 6rem; background: linear-gradient(to right, transparent, #ffffff, transparent); animation: laser-sweep 1.4s infinite ease-in-out; }
+      @keyframes laser-sweep { 0% { transform: translateX(-160px); } 100% { transform: translateX(360px); } }
+      .cinematic-text { color: #cbd5e1; font-family: system-ui, -apple-system, sans-serif; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 0.38em; text-align: center; margin-top: 1rem; animation: text-fade 1.8s infinite ease-in-out; }
+      @keyframes text-fade { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+      .cinematic-sub { color: rgba(248,113,113,0.9); font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.45em; text-align: center; margin-top: 0.35rem; }
     </style>
-    <div class="loader-container">
-      <div class="zap-wrapper">
-        <div class="zap-ring"></div>
-        <div class="zap-ring"></div>
-        <div class="zap-ring"></div>
-        <div class="zap-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
+    <div class="cinematic-loader">
+      <div class="cinematic-aura"></div>
+      <div class="cinematic-kanji">頂点</div>
+      <div class="cinematic-logo-box">
+        <img class="cinematic-logo" src="https://wsrv.nl/?url=https://mahorapeak.com.tr/mahorapeaklogov2.png&w=600&output=webp&q=95" alt="MahoraPeak" />
+        <div class="cinematic-line">
+          <div class="cinematic-line-glow"></div>
+          <div class="cinematic-laser"></div>
         </div>
-      </div>
-      <div style="display:flex; flex-direction:column; align-items:center; gap:0.75rem;">
-        <span class="loading-text">SİSTEM BAŞLATILIYOR...</span>
-        <div class="progress-line-container">
-          <div class="progress-line"></div>
-        </div>
+        <p class="cinematic-text">MAHORAPEAK YÜKLENİYOR</p>
+        <p class="cinematic-sub">PREMIUM MANHWA &amp; ANIME</p>
       </div>
     </div>
   </div>

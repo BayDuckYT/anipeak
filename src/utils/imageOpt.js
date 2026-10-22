@@ -6,13 +6,14 @@
 export function getOptimizedImage(url, width = 300) {
   if (!url) return getFallbackImage();
   
-  // Retina (Yüksek çözünürlüklü) ekranlar için genişliği %50 artırıp kaliteyi yükseltiyoruz.
-  const targetWidth = Math.round(width * 1.5);
+  // Mobil/Masaüstü için akıllı hedef genişlik (Büyük görselleri gereksiz şişirmeyiz)
+  const targetWidth = width > 500 ? width : Math.round(width * 1.25);
 
-  // Eğer url zaten optimize edilmiş bir servis ise
+  // Eğer url zaten wsrv.nl ise
   if (url.includes('wsrv.nl')) {
-    // Veritabanında w=300 olarak kaydedilmiş olabilir, onu istenen genişlikle değiştir
-    return url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=70');
+    let optUrl = url.replace(/&w=\d+/, `&w=${targetWidth}`).replace(/\?w=\d+&/, `?w=${targetWidth}&`).replace(/&q=\d+/, '&q=75');
+    if (!optUrl.includes('output=webp')) optUrl += '&output=webp';
+    return optUrl;
   }
   
   // URL'yi absolute yap
@@ -26,10 +27,10 @@ export function getOptimizedImage(url, width = 300) {
   // GIF ve Avatarlar için animasyon destekli (n=-1)
   const isGif = absoluteUrl.toLowerCase().includes('.gif') || absoluteUrl.includes('/avatars/');
   if (isGif) {
-    return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&af=1&n=-1&q=60`;
+    return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&af=1&n=-1&q=65&output=webp`;
   }
 
-  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&af=1&q=65`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=${targetWidth}&af=1&q=75&output=webp`;
 }
 
 // Sadece tek bir kare (animasyonsuz) halini getiren fonksiyon

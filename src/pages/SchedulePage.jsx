@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { Star, Bell, BellRing, ChevronRight, ChevronLeft, Calendar } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
+import Loader from '../components/Loader';
 
 // Netflix Style Horizontal Slider
 function NetflixScheduleRow({ title, dateStr, items }) {
@@ -143,13 +144,7 @@ export default function SchedulePage() {
   const featuredToday = upcomingDays[0]?.items[0]; // Just use the first item of today as the featured hero
 
   if (loading) {
-    return (
-      <div className="min-h-screen pt-24 pb-20 flex items-center justify-center bg-[#070511]">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
-        </div>
-      </div>
-    );
+    return <Loader fullScreen={false} text="Yayın Takvimi Yükleniyor..." />;
   }
 
   return (

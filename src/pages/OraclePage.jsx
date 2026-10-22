@@ -53,10 +53,6 @@ export default function OraclePage() {
     url: 'https://mahorapeak.com.tr/oracle'
   });
 
-  if (!sortedSeries || sortedSeries.length === 0) {
-    return <Loader fullScreen={false} text="Sistem Başlatılıyor..." />;
-  }
-
   const { soulProfile, userStats } = useMemo(() => {
     let favCount = 0;
     let totalChaptersRead = 0;
@@ -151,6 +147,10 @@ export default function OraclePage() {
     const levelInfo = getLevelInfo(user.xp || 0, user.is_elite);
     return { value: levelInfo.rank, subtext: user.discord_id ? `Discord ile senkronize · Lv.${levelInfo.level}` : `Lv.${levelInfo.level} · Discord bağlantısı bekleniyor` };
   }, [user]);
+
+  if (!sortedSeries || sortedSeries.length === 0) {
+    return <Loader fullScreen={false} text="Oracle Kehanetleri Yükleniyor..." />;
+  }
 
   const topMatch = recommendedSeries[0];
   const row1 = recommendedSeries.slice(1, 10);

@@ -24,6 +24,16 @@ export default function CitadelCategory() {
     window.scrollTo(0, 0);
   }, []);
 
+  // --- MOCK DATA ---
+  const [posts, setPosts] = useState([
+    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Domain Expansion İncelemesi', content: 'Son bölümdeki dövüş animasyonları hakkında ne düşünüyorsunuz? Bence kusursuzdu.\n\n![Gojo](https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg)\n\n||Sıradaki bölümde işler karışacak||', replies: 142, views: 5000, avatar_url: 'https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg' },
+    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Manhwa Önerileri', content: 'Yeni başlayanlar için okunması gereken manhwa önerileri alabilir miyim?', replies: 12, views: 340, avatar_url: 'https://i.pinimg.com/736x/8b/63/05/8b630560a631d8e12177cd05ffb70e7a.jpg' },
+  ]);
+  const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostContent, setNewPostContent] = useState('');
+  const [expandedPostId, setExpandedPostId] = useState(null);
+  const textareaRef = useRef(null);
+
   // --- ELITE PROTECTION ---
   if (isEliteChamber && !user?.is_elite) {
     return (
@@ -60,15 +70,7 @@ export default function CitadelCategory() {
     );
   }
 
-  // --- MOCK DATA ---
-  const [posts, setPosts] = useState([
-    { id: 1, author: 'Gojo Satoru', isElite: true, title: 'Domain Expansion İncelemesi', content: 'Son bölümdeki dövüş animasyonları hakkında ne düşünüyorsunuz? Bence kusursuzdu.\n\n![Gojo](https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg)\n\n||Sıradaki bölümde işler karışacak||', replies: 142, views: 5000, avatar_url: 'https://i.pinimg.com/736x/8f/c9/b0/8fc9b08f4c1e4f4a39b4b04928e469e3.jpg' },
-    { id: 2, author: 'Yuji Itadori', isElite: false, title: 'Manhwa Önerileri', content: 'Yeni başlayanlar için okunması gereken manhwa önerileri alabilir miyim?', replies: 12, views: 340, avatar_url: 'https://i.pinimg.com/736x/8b/63/05/8b630560a631d8e12177cd05ffb70e7a.jpg' },
-  ]);
-  const [newPostTitle, setNewPostTitle] = useState('');
-  const [newPostContent, setNewPostContent] = useState('');
-  const [expandedPostId, setExpandedPostId] = useState(null);
-  const textareaRef = useRef(null);
+
 
   const insertTextAtCursor = (text) => {
     if (!textareaRef.current) {

@@ -23,11 +23,13 @@ export function AppProvider({ children }) {
     } catch { return []; }
   });
   const [chapters,        setChapters]        = useState(() => {
-    try { 
-      const cached = localStorage.getItem('mahorapeak_chapters_cache'); 
-      const parsed = cached ? JSON.parse(cached) : null;
-      return (parsed && typeof parsed === 'object') ? parsed : {};
-    } catch { return {}; }
+    try {
+      // Eski devasa 10MB önbelleği temizle (Mobile TBT kurtarma)
+      localStorage.removeItem('mahorapeak_chapters_cache');
+    } catch (err) {
+      void err;
+    }
+    return {};
   });
   const [announcements,   setAnnouncements]   = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
@@ -51,43 +53,28 @@ export function AppProvider({ children }) {
     }
   }, []);
 
+  // [PERFORMANS] Açılışta 11.000 bölümü döngüyle çekmek yerine en son 100 bölümü anında alıyoruz.
   const loadChapters = useCallback(async () => {
     try {
-      let allData = [];
-      let from = 0;
-      const step = 1000;
-      let keepFetching = true;
+      const { data, error } = await supabase
+        .from('chapters')
+        .select('id, series_id, number, title, is_premium, created_at')
+        .order('created_at', { ascending: false })
+        .limit(100);
 
-      while (keepFetching) {
-        const { data, error } = await supabase
-          .from('chapters')
-          .select('id, series_id, number, title, is_premium, created_at') // Optimize by selecting only needed fields for the list
-          .order('number', { ascending: false })
-          .range(from, from + step - 1);
+      if (error) throw error;
 
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          allData = [...allData, ...data];
-          if (data.length < step) keepFetching = false;
-          else from += step;
-        } else {
-          keepFetching = false;
-        }
-      }
-
-      if (allData.length > 0) {
-        const grouped = allData.reduce((acc, ch) => {
+      if (data && data.length > 0) {
+        const grouped = data.reduce((acc, ch) => {
           const key = String(ch.series_id);
           if (!acc[key]) acc[key] = [];
           acc[key].push(ch);
           return acc;
         }, {});
-        setChapters(grouped);
-        localStorage.setItem('mahorapeak_chapters_cache', JSON.stringify(grouped));
+        setChapters(prev => ({ ...prev, ...grouped }));
       }
     } catch (err) {
-      console.warn('[AppCtx] Bölüm yükleme başarısız, önbelleğe dönülüyor:', err.message);
+      console.warn('[AppCtx] Son bölümler yüklenirken uyarı:', err.message);
     }
   }, []);
 
@@ -196,7 +183,7 @@ export function AppProvider({ children }) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [loadSeries, loadChapters, loadAnnouncements, loadProfiles, loadMaintenance]);
+  }, [loadSeries, loadChapters, loadAnnouncements, loadProfiles, loadMaintenance, loadPlans]);
 
   // ── Maintenance ──────────────────────────────────────────────────────
   const toggleMaintenance = useCallback(async (enabled) => {
@@ -215,6 +202,26 @@ export function AppProvider({ children }) {
   const getChapters = useCallback((seriesId) =>
     chapters[String(seriesId)] || [],
   [chapters]);
+
+  // [PERFORMANS] İlgili serinin tüm bölümlerini sadece o seriye girildiğinde çeker
+  const loadSeriesChapters = useCallback(async (seriesId) => {
+    if (!seriesId) return [];
+    const key = String(seriesId);
+    if (chapters[key] && chapters[key].length > 1) {
+      return chapters[key];
+    }
+    const { data, error } = await supabase
+      .from('chapters')
+      .select('id, series_id, number, title, is_premium, created_at')
+      .eq('series_id', seriesId)
+      .order('number', { ascending: false });
+
+    if (!error && data) {
+      setChapters(prev => ({ ...prev, [key]: data }));
+      return data;
+    }
+    return chapters[key] || [];
+  }, [chapters]);
 
   const addChapter = useCallback(async (seriesId, { number, title, pages = [], isPremium = false }) => {
     const { data, error } = await supabase
@@ -437,6 +444,7 @@ export function AppProvider({ children }) {
     // Chapters
     chapters,
     getChapters,
+    loadSeriesChapters,
     addChapter,
     updateChapter,
     deleteChapter,

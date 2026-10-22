@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import DOMPurify from 'dompurify';
 import { ChevronRight, FileText, Activity } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
+import Loader from '../components/Loader';
 
 export default function StaticPage() {
   const { slug } = useParams();
@@ -28,11 +29,7 @@ export default function StaticPage() {
   }, [slug]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#070511] flex items-center justify-center">
-        <Activity className="text-purple-500 animate-spin" size={48} />
-      </div>
-    );
+    return <Loader fullScreen={false} text="Yükleniyor..." />;
   }
 
   if (!page) {

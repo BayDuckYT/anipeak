@@ -127,7 +127,7 @@ const HOUSES = [
 ];
 
 export default function SettingsPage() {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, updatePassword } = useAuth();
   const [activeTab, setActiveTab] = useState('hesap');
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -304,7 +304,6 @@ export default function SettingsPage() {
     if (passwords.next !== passwords.confirm) return alert('Şifreler eşleşmiyor!');
     setIsSaving(true);
     try {
-      const { updatePassword } = useAuth(); 
       await updatePassword(passwords.next);
       setShowToast(true);
       setPasswords({ current: '', next: '', confirm: '' });

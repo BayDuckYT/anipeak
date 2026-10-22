@@ -27,7 +27,7 @@ export default function ManhwaDetail({ onAuthOpen }) {
   const { slug }     = useParams();
   const navigate     = useNavigate();
   const { user, readingHistory } = useAuth();
-  const { sortedSeries, getChapters, loading: appLoading } = useApp();
+  const { sortedSeries, getChapters, loadSeriesChapters, loading: appLoading } = useApp();
 
   // Find series from AppContext (dynamic data)
   const manhwa = useMemo(
@@ -47,6 +47,12 @@ export default function ManhwaDetail({ onAuthOpen }) {
     () => getChapters(manhwa?.id),
     [getChapters, manhwa?.id]
   );
+
+  useEffect(() => {
+    if (manhwa?.id) {
+      loadSeriesChapters(manhwa.id);
+    }
+  }, [manhwa?.id, loadSeriesChapters]);
 
   const [bookmarked, setBookmarked]   = useState(false);
   const [liked, setLiked]             = useState(false);

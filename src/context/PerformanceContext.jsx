@@ -1,23 +1,58 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
 
 const PerformanceContext = createContext();
 
 export function PerformanceProvider({ children }) {
   const [isLowPerformanceMode, setIsLowPerformanceMode] = useState(false);
   const [isLowPowerMode, setIsLowPowerMode] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    // İlk render'da senkron olarak kontrol et (SSR uyumlu)
+    if (typeof window === 'undefined') return false;
+    const userAgentMatch = navigator.userAgent.match(/Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i);
+    const widthMatch = window.innerWidth <= 768;
+    return !!(userAgentMatch || widthMatch);
+  });
   const [fps, setFps] = useState(60);
+  const [connectionType, setConnectionType] = useState('4g');
 
-  // Mobile Detection
+  // Mobile Detection (debounced resize)
   useEffect(() => {
+    let resizeTimer;
     const checkMobile = () => {
-      const userAgentMatch = navigator.userAgent.match(/Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i);
-      const widthMatch = window.innerWidth <= 768;
-      setIsMobile(!!(userAgentMatch || widthMatch));
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const userAgentMatch = navigator.userAgent.match(/Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i);
+        const widthMatch = window.innerWidth <= 768;
+        // Dokunmatik ekran kontrolü
+        const touchMatch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        setIsMobile(!!(userAgentMatch || (widthMatch && touchMatch)));
+      }, 150); // 150ms debounce — çok sık tetiklenmesini engelle
     };
+    
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
+  // Ağ bağlantısı kalitesini kontrol et
+  useEffect(() => {
+    if ('connection' in navigator) {
+      const conn = navigator.connection;
+      const updateConnection = () => {
+        const type = conn.effectiveType || '4g';
+        setConnectionType(type);
+        // Yavaş bağlantıda otomatik olarak düşük performans moduna geç
+        if (type === 'slow-2g' || type === '2g') {
+          setIsLowPerformanceMode(true);
+        }
+      };
+      updateConnection();
+      conn.addEventListener('change', updateConnection);
+      return () => conn.removeEventListener('change', updateConnection);
+    }
   }, []);
 
   // FPS Tracker — deferred to avoid TBT impact during Lighthouse measurement window
@@ -119,14 +154,16 @@ export function PerformanceProvider({ children }) {
     }
   }, [isMobile]);
 
-  const contextValue = {
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
     isLowPerformanceMode,
     isLowPowerMode,
     isMobile,
     fps,
+    connectionType,
     // Provide a way to manually toggle if needed
     setIsLowPerformanceMode
-  };
+  }), [isLowPerformanceMode, isLowPowerMode, isMobile, fps, connectionType]);
 
   return (
     <PerformanceContext.Provider value={contextValue}>

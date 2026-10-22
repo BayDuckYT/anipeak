@@ -31,19 +31,11 @@ export default function GlobalEffects() {
   }, [user?.appearance_settings, isLowEnd]);
 
   // [MOBILE PERFORMANCE] Skip canvas entirely on mobile — saves significant TBT/CPU
-  if (isMobile) {
-    return (
-      <div
-        aria-hidden="true"
-        role="presentation"
-        className={`fixed inset-0 pointer-events-none z-[-1] transition-colors duration-700 ${
-          user?.appearance_settings?.theme === 'amoled' ? 'bg-black' : 'bg-[#070511]'
-        }`}
-      />
-    );
-  }
+  // Render handled at the bottom
 
   useEffect(() => {
+    if (isMobile) return; // Skip canvas logic on mobile
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -212,6 +204,18 @@ export default function GlobalEffects() {
       cancelAnimationFrame(animationFrameId);
     };
   }, [user, isLowEnd]);
+
+  if (isMobile) {
+    return (
+      <div
+        aria-hidden="true"
+        role="presentation"
+        className={`fixed inset-0 pointer-events-none z-[-1] transition-colors duration-700 ${
+          user?.appearance_settings?.theme === 'amoled' ? 'bg-black' : 'bg-[#070511]'
+        }`}
+      />
+    );
+  }
 
   return (
     <canvas
