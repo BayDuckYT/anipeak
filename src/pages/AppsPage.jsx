@@ -414,6 +414,7 @@ function StylizedQRCode({ size = 150 }) {
 }
 
 export default function AppsPage() {
+  const isDesktopApp = typeof window !== 'undefined' && Boolean(window.__TAURI__?.core?.invoke);
   const [activePlatform, setActivePlatform] = useState('android');
   const [openFaq, setOpenFaq] = useState(0);
 
@@ -450,7 +451,9 @@ export default function AppsPage() {
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-xs font-bold tracking-wider uppercase bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
-              MahoraPeak Resmi Uygulamaları • Android &amp; Windows &amp; iOS
+              {isDesktopApp
+                ? 'MahoraPeak Mobil Uygulamaları • Android & iOS'
+                : 'MahoraPeak Resmi Uygulamaları • Android & Windows & iOS'}
             </span>
             <span className="bg-violet-500/20 text-violet-300 text-[10px] font-black px-1.5 py-0.5 rounded border border-violet-400/30">
               GÜNCEL
@@ -521,18 +524,20 @@ export default function AppsPage() {
                 <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-black hidden sm:inline">v1.4</span>
               </button>
 
-              <button
-                onClick={() => setActivePlatform('windows')}
-                className={`flex items-center gap-2 sm:gap-3 px-5 sm:px-7 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                  activePlatform === 'windows'
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.6)] scale-[1.02]'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Monitor size={18} className={activePlatform === 'windows' ? 'text-white' : 'text-blue-400'} />
-                <span>Windows (PC)</span>
-                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-black hidden sm:inline">x64</span>
-              </button>
+              {!isDesktopApp && (
+                <button
+                  onClick={() => setActivePlatform('windows')}
+                  className={`flex items-center gap-2 sm:gap-3 px-5 sm:px-7 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                    activePlatform === 'windows'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.6)] scale-[1.02]'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Monitor size={18} className={activePlatform === 'windows' ? 'text-white' : 'text-blue-400'} />
+                  <span>Windows (PC)</span>
+                  <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-black hidden sm:inline">x64</span>
+                </button>
+              )}
 
               <button
                 onClick={() => setActivePlatform('ios')}
