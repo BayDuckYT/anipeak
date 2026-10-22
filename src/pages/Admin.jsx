@@ -1201,6 +1201,13 @@ function UsersPanel({ showToast }) {
                     if (isSavingUser) return;
                     try {
                       setIsSavingUser(true);
+                      const { data: authSessionData } = await supabase.auth.getSession();
+                      const adminAccessToken = authSessionData?.session?.access_token;
+                      if (!adminAccessToken) throw new Error('Oturumun sona ermiş. Yeniden giriş yapıp tekrar dene.');
+                      const adminRequestHeaders = {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${adminAccessToken}`,
+                      };
                       let passSuccess = false;
 
                       // 1. Şifre değiştirme işlemi
@@ -1215,7 +1222,7 @@ function UsersPanel({ showToast }) {
                         try {
                           const resp = await fetch('/api/admin/change-password', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: adminRequestHeaders,
                             body: JSON.stringify({
                               target_user_id: editingUser.id,
                               new_password: editingUser.newPassword
@@ -1265,7 +1272,7 @@ function UsersPanel({ showToast }) {
                       try {
                         const resp = await fetch('/api/admin/update-user', {
                           method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: adminRequestHeaders,
                           body: JSON.stringify({
                             target_user_id: editingUser.id,
                             updates

@@ -24,11 +24,20 @@ const SOUL_TYPES = [
   { name: 'Void Hunter', title: 'Boşluk Avcısı', desc: 'Kaybolmuş serilerin ve gizli kalmış hikayelerin kaşifi.', color: 'blue', genres: ['Gizem', 'Mystery', 'Dedektif', 'Suç', 'Crime'] }
 ];
 
+function getSeriesGenres(series) {
+  if (Array.isArray(series?.genres)) return series.genres;
+  if (typeof series?.genres === 'string') return series.genres.split(/[·,]/).map((genre) => genre.trim()).filter(Boolean);
+  if (Array.isArray(series?.genre)) return series.genre;
+  if (typeof series?.genre === 'string') return series.genre.split(/[·,]/).map((genre) => genre.trim()).filter(Boolean);
+  return [];
+}
+
 function calculateMatchScore(manga, userTopGenres) {
-  if (!manga.genres || !userTopGenres.length) return 75;
+  const mangaGenres = getSeriesGenres(manga);
+  if (!mangaGenres.length || !userTopGenres.length) return 75;
   // Match with weights (top genre gives more points)
   let genreScore = 0;
-  manga.genres.forEach(g => {
+  mangaGenres.forEach(g => {
     const rank = userTopGenres.findIndex(ug => ug.toLowerCase() === g.toLowerCase());
     if (rank !== -1) {
       // The higher the genre is in user's top list (lower index), the more points
@@ -46,6 +55,10 @@ function calculateMatchScore(manga, userTopGenres) {
 export default function OraclePage() {
   const { sortedSeries } = useApp();
   const { user, readingHistory } = useAuth();
+  const [oracleMood, setOracleMood] = useState('Bana seveceğim yeni bir seri bul');
+  const [aiRecommendations, setAiRecommendations] = useState([]);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiMessage, setAiMessage] = useState('');
   
   useSEO({
     title: 'Oracle',
@@ -74,7 +87,7 @@ export default function OraclePage() {
       // Ne kadar çok okuduysa o türü o kadar çok seviyordur (max çarpan: 5)
       const weight = Math.min(1 + (readChapters / 20), 5);
       
-      (s.genres || []).forEach(g => { 
+      getSeriesGenres(s).forEach(g => {
         genreCount[g] = (genreCount[g] || 0) + weight; 
       });
     });
@@ -142,6 +155,62 @@ export default function OraclePage() {
     return scored.length > 0 ? scored.slice(0, 20) : targetPool.slice(0, 20);
   }, [sortedSeries, userStats, readingHistory]);
 
+  const requestOracleRecommendations = async () => {
+    if (!user) {
+      setAiMessage('Kişisel Oracle önerileri için önce hesabına giriş yap.');
+      return;
+    }
+    setAiBusy(true);
+    setAiMessage('Oracle okuma tercihlerini inceliyor…');
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (!accessToken) throw new Error('Oturumun sona ermiş. Yeniden giriş yapıp deneyebilirsin.');
+
+      const response = await fetch('/api/oracle/recommend', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          mood: oracleMood,
+          genres: userStats.topGenres,
+          candidates: sortedSeries.slice(0, 40).map((series) => ({
+            id: series.id,
+            title: series.title,
+            summary: series.summary,
+            genres: getSeriesGenres(series),
+            rating: series.rating,
+          })),
+        }),
+      });
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error('Bu yerel önizleme Cloudflare API uç noktasını çalıştırmıyor. Oracle AI, Pages Functions dağıtımında etkin olacak.');
+      }
+      const result = await response.json().catch(() => null);
+      if (!result || typeof result !== 'object') {
+        throw new Error('Oracle sunucusu geçerli bir yanıt vermedi. Biraz sonra yeniden deneyebilirsin.');
+      }
+      if (!response.ok) throw new Error(result?.error || 'Oracle şu anda yanıt veremiyor.');
+
+      const seriesById = new Map(sortedSeries.map((series) => [String(series.id), series]));
+      const matches = (result.recommendations || []).flatMap((item) => {
+        const series = seriesById.get(String(item.id));
+        return series ? [{ ...series, oracleReason: item.reason, isOraclePick: true }] : [];
+      });
+      if (!matches.length) throw new Error('Bu seçim için uygun bir öneri bulunamadı. Başka bir ruh hali deneyebilirsin.');
+      setAiRecommendations(matches);
+      setAiMessage(`${matches.length} seri, seçimin ve okuma tercihlerine göre önerildi.`);
+    } catch (error) {
+      setAiRecommendations([]);
+      setAiMessage(error.message || 'Oracle önerisi hazırlanamadı. Biraz sonra yeniden dene.');
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   const systemRank = useMemo(() => {
     if (!user) return { value: 'Misafir', subtext: 'Giriş yaparak rütbenizi görün.' };
     const levelInfo = getLevelInfo(user.xp || 0, user.is_elite);
@@ -152,8 +221,8 @@ export default function OraclePage() {
     return <Loader fullScreen={false} text="Oracle Kehanetleri Yükleniyor..." />;
   }
 
-  const topMatch = recommendedSeries[0];
-  const row1 = recommendedSeries.slice(1, 10);
+  const topMatch = aiRecommendations[0] || recommendedSeries[0];
+  const row1 = aiRecommendations.length > 1 ? aiRecommendations.slice(1, 10) : recommendedSeries.slice(1, 10);
   
   // Karanlık ve Derin satırı için, ruh eşleşmesi iyi ama popülerliği düşük olanları bul (Hidden Gems)
   const row2 = [...recommendedSeries].sort((a, b) => (a.reads_num || 0) - (b.reads_num || 0)).slice(0, 10);
@@ -183,11 +252,11 @@ export default function OraclePage() {
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center gap-3 mb-6">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 backdrop-blur-md rounded-full border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
               <Sparkles size={14} className="text-cyan-400 animate-pulse" />
-              <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase">%99 RUH EŞLEŞMESİ</span>
+              <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase">{topMatch?.isOraclePick ? 'ORACLE AI SEÇİMİ' : userStats?.topGenres?.length ? 'OKUMA TERCİHLERİNE GÖRE' : 'KEŞİF SEÇİMİ'}</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 backdrop-blur-md rounded-full border border-purple-500/30">
               <Activity size={14} className="text-purple-400 animate-pulse" />
-              <span className="text-xs font-bold text-purple-400 tracking-widest uppercase">SİNİR AĞI AKTİF</span>
+              <span className="text-xs font-bold text-purple-400 tracking-widest uppercase">{topMatch?.isOraclePick ? 'TERCİHLERİNE GÖRE' : 'OKUMA VERİLERİNDEN'}</span>
             </div>
           </motion.div>
           
@@ -204,7 +273,9 @@ export default function OraclePage() {
           </motion.div>
           
           <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="text-slate-300 text-lg sm:text-xl font-medium max-w-3xl mb-8 drop-shadow-md line-clamp-3 leading-relaxed border-l-4 border-cyan-500 pl-4 bg-gradient-to-r from-black/40 to-transparent py-2">
-            Algoritmamızın derinliklerinde sana en uygun hikaye bu. {topMatch?.summary || 'Ruh profilin bu maceranın her karesinde kendinden bir parça bulacak. Kahin senin için bu seriyi özel olarak seçti.'}
+            {topMatch?.oracleReason || (userStats?.topGenres?.length
+              ? `Okuma geçmişindeki ${userStats.topGenres.slice(0, 2).join(' ve ')} tercihleriyle öne çıkıyor. ${topMatch?.summary || ''}`
+              : topMatch?.summary || 'Yeni bir seri keşfetmeye hazır mısın? Oracle, tercihlerini tanıdıkça önerilerini kişiselleştirir.')}
           </motion.p>
           
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-wrap gap-4">
@@ -213,16 +284,62 @@ export default function OraclePage() {
                 <Play size={20} className="fill-black" /> Hemen Oku
               </Link>
             )}
-            <button className="px-8 py-4 bg-[#141414]/80 text-white font-black uppercase tracking-widest rounded-xl flex items-center gap-2 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:border-white/30 transition-all duration-300">
-              <Info size={20} /> Detaylar
-            </button>
+            {topMatch && (
+              <Link to={`/manga/${topMatch.slug}`} className="px-8 py-4 bg-[#141414]/80 text-white font-black uppercase tracking-widest rounded-xl flex items-center gap-2 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:border-white/30 transition-all duration-300">
+                <Info size={20} /> Seriyi İncele
+              </Link>
+            )}
           </motion.div>
         </div>
       </div>
 
+      <section className="relative z-30 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 mb-8">
+        <div className="relative overflow-hidden rounded-3xl border border-cyan-300/15 bg-gradient-to-br from-[#111329]/95 via-[#101020]/95 to-[#180f29]/95 p-5 sm:p-7 shadow-[0_18px_60px_rgba(6,182,212,0.08)] backdrop-blur-xl">
+          <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
+                <Sparkles size={15} /> Oracle · Kişisel keşif
+              </div>
+              <h2 className="text-xl font-black text-white sm:text-2xl">Bugün nasıl bir hikâye arıyorsun?</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">Ruh halini seç; Oracle, okuma tercihlerinle serileri birlikte değerlendirip nedenini de açıklasın.</p>
+            </div>
+            <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:min-w-[520px]">
+              <select
+                value={oracleMood}
+                onChange={(event) => setOracleMood(event.target.value)}
+                aria-label="Oracle önerisi için ruh halini seç"
+                className="min-h-12 flex-1 rounded-xl border border-white/10 bg-[#0a0b18] px-4 text-sm font-semibold text-white outline-none transition-colors focus:border-cyan-400/60"
+              >
+                <option>Bana seveceğim yeni bir seri bul</option>
+                <option>Karanlık ve gizemli bir dünya</option>
+                <option>Hızlı tempolu, aksiyon dolu bir macera</option>
+                <option>Duygusal ve karakter odaklı bir hikâye</option>
+                <option>Fantastik, büyük dünyalı bir seri</option>
+                <option>Popüler olmayan gizli bir cevher</option>
+              </select>
+              <button
+                type="button"
+                onClick={requestOracleRecommendations}
+                disabled={aiBusy || !sortedSeries.length}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-5 text-sm font-black text-white shadow-lg shadow-cyan-950/40 transition-all hover:brightness-110 disabled:cursor-wait disabled:opacity-60"
+              >
+                <Sparkles size={17} className={aiBusy ? 'animate-pulse' : ''} />
+                {aiBusy ? 'Oracle düşünüyor…' : 'Bana öner'}
+              </button>
+            </div>
+          </div>
+          {aiMessage && (
+            <p role="status" aria-live="polite" className="relative mt-4 border-t border-white/5 pt-3 text-sm text-slate-300">
+              {aiMessage}
+            </p>
+          )}
+        </div>
+      </section>
+
       {/* ── NETFLIX ROWS ── */}
-      <div className="relative z-30 -mt-20">
-        <NetflixRow title="Sistem Öneriyor" subtitle={`${soulProfile.name} DNA'sına Uygun`} items={row1} />
+      <div className="relative z-30">
+        <NetflixRow title={aiRecommendations.length ? 'Oracle AI Seçkisi' : 'Türlerine Göre Öneriler'} subtitle={aiRecommendations.length ? 'Her seçim için kişisel bir açıklama hazırlandı' : `${soulProfile.title} profiline ve okuma tercihlerine göre`} items={row1} />
         <div className="mt-8">
           <NetflixRow title="Karanlık ve Derin" subtitle="Belki Gözden Kaçırmışsındır (Gizli Cevherler)" items={row2} />
         </div>
@@ -259,7 +376,7 @@ export default function OraclePage() {
                   </div>
                   <h3 className="text-4xl sm:text-5xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">{soulProfile.name}</h3>
                   <p className="text-gray-400 text-sm sm:text-base leading-relaxed mb-8 max-w-lg">
-                    {soulProfile.desc} Sistemdeki okuma geçmişin analiz edildi ve genetik eşleşme oranınız <strong className="text-cyan-400">%{soulProfile.dnaScore}</strong> olarak hesaplandı.
+                    {soulProfile.desc} Bu profil, hesabındaki okuma geçmişi ve tür tercihlerinden türetilir.
                   </p>
                   <div className="flex flex-wrap gap-3">
                     {soulProfile.cosmicDistribution.map(item => (

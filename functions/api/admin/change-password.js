@@ -14,9 +14,23 @@ export async function onRequestPost(context) {
     }
 
     const SUPABASE_URL = env?.VITE_SUPABASE_URL || env?.SUPABASE_URL || 'https://yrcrgkdikkaeccikdzvw.supabase.co';
-    const SUPABASE_SERVICE_KEY = env?.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyY3Jna2Rpa2thZWNjaWtkenZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjI2NDMxNywiZXhwIjoyMDkxODQwMzE3fQ.rVXIyF1wG6KG6K_bdtx0J84LZwv0Y0NGT4LJvAENvGw';
+    const SUPABASE_SERVICE_KEY = env?.SUPABASE_SERVICE_KEY;
+
+    if (!SUPABASE_SERVICE_KEY) {
+      return new Response(JSON.stringify({ error: 'Yönetim servisi yapılandırılmadı.' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    }
 
     const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const accessToken = request.headers.get('Authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!accessToken) return new Response(JSON.stringify({ error: 'Oturum açman gerekiyor.' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+    const { data: authData, error: authError } = await sbAdmin.auth.getUser(accessToken);
+    if (authError || !authData?.user) return new Response(JSON.stringify({ error: 'Oturum doğrulanamadı.' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+    const { data: callerProfile } = await sbAdmin.from('profiles').select('role').eq('id', authData.user.id).maybeSingle();
+    const isOwner = authData.user.email?.toLowerCase() === 'murathanozel134@gmail.com';
+    if (!isOwner && !['Baş Admin', 'Yönetici'].includes(callerProfile?.role)) {
+      return new Response(JSON.stringify({ error: 'Bu işlem için yönetici yetkisi gerekiyor.' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+    }
+
     const { data, error } = await sbAdmin.auth.admin.updateUserById(target_user_id, {
       password: new_password
     });

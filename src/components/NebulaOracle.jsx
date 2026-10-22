@@ -71,7 +71,7 @@ export const SoulDNA = ({ profile }) => {
       </svg>
       <div className="absolute flex flex-col items-center">
         <Sparkles className="text-cyan-400 w-6 h-6 mb-1" />
-        <span className="text-[10px] text-cyan-400/70 font-mono tracking-tighter">DNA-VERIFIED</span>
+        <span className="text-[10px] text-cyan-400/70 font-mono tracking-tighter">TERCİH PROFİLİ</span>
       </div>
     </div>
   );

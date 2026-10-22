@@ -4,7 +4,17 @@ import react from '@vitejs/plugin-react';
 
 function adminApiPlugin() {
   const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://yrcrgkdikkaeccikdzvw.supabase.co';
-  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyY3Jna2Rpa2thZWNjaWtkenZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjI2NDMxNywiZXhwIjoyMDkxODQwMzE3fQ.rVXIyF1wG6KG6K_bdtx0J84LZwv0Y0NGT4LJvAENvGw';
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+  async function getAdminAuthorizationStatus(sbAdmin, authorization) {
+    const accessToken = authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!accessToken) return 401;
+    const { data: authData, error: authError } = await sbAdmin.auth.getUser(accessToken);
+    if (authError || !authData?.user) return 401;
+    const { data: profile } = await sbAdmin.from('profiles').select('role').eq('id', authData.user.id).maybeSingle();
+    const isOwner = authData.user.email?.toLowerCase() === 'murathanozel134@gmail.com';
+    return isOwner || ['Baş Admin', 'Yönetici'].includes(profile?.role) ? 200 : 403;
+  }
 
   return {
     name: 'admin-api-dev-server',
@@ -22,8 +32,19 @@ function adminApiPlugin() {
                 res.setHeader('Content-Type', 'application/json');
                 return res.end(JSON.stringify({ error: 'target_user_id ve en az 6 karakterli new_password zorunludur.' }));
               }
+              if (!SUPABASE_SERVICE_KEY) {
+                res.statusCode = 503;
+                res.setHeader('Content-Type', 'application/json');
+                return res.end(JSON.stringify({ error: 'Yönetim servisi yapılandırılmadı.' }));
+              }
               const { createClient } = await import('@supabase/supabase-js');
               const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+              const authStatus = await getAdminAuthorizationStatus(sbAdmin, req.headers.authorization);
+              if (authStatus !== 200) {
+                res.statusCode = authStatus;
+                res.setHeader('Content-Type', 'application/json');
+                return res.end(JSON.stringify({ error: authStatus === 401 ? 'Oturum doğrulanamadı.' : 'Bu işlem için yönetici yetkisi gerekiyor.' }));
+              }
               const { data, error } = await sbAdmin.auth.admin.updateUserById(target_user_id, {
                 password: new_password
               });
@@ -55,8 +76,19 @@ function adminApiPlugin() {
                 res.setHeader('Content-Type', 'application/json');
                 return res.end(JSON.stringify({ error: 'target_user_id ve updates zorunludur.' }));
               }
+              if (!SUPABASE_SERVICE_KEY) {
+                res.statusCode = 503;
+                res.setHeader('Content-Type', 'application/json');
+                return res.end(JSON.stringify({ error: 'Yönetim servisi yapılandırılmadı.' }));
+              }
               const { createClient } = await import('@supabase/supabase-js');
               const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+              const authStatus = await getAdminAuthorizationStatus(sbAdmin, req.headers.authorization);
+              if (authStatus !== 200) {
+                res.statusCode = authStatus;
+                res.setHeader('Content-Type', 'application/json');
+                return res.end(JSON.stringify({ error: authStatus === 401 ? 'Oturum doğrulanamadı.' : 'Bu işlem için yönetici yetkisi gerekiyor.' }));
+              }
               
               if (updates.email) {
                 await sbAdmin.auth.admin.updateUserById(target_user_id, {
