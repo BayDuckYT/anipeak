@@ -187,7 +187,10 @@ export default function OraclePage() {
       });
       const contentType = response.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) {
-        throw new Error('Bu yerel önizleme Cloudflare API uç noktasını çalıştırmıyor. Oracle AI, Pages Functions dağıtımında etkin olacak.');
+        const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        throw new Error(isLocalPreview
+          ? 'Bu yerel önizleme Cloudflare API uç noktasını çalıştırmıyor. Oracle AI, Pages Functions dağıtımında etkin olacak.'
+          : `Oracle API beklenmeyen bir yanıt verdi (HTTP ${response.status}). Biraz sonra yeniden deneyebilirsin.`);
       }
       const result = await response.json().catch(() => null);
       if (!result || typeof result !== 'object') {
