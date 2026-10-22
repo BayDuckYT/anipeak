@@ -74,7 +74,22 @@ export async function onRequestPost({ request, env }) {
         ],
       }),
     });
-    if (!aiResponse.ok) return json({ error: 'Oracle şu anda öneri oluşturamadı. Biraz sonra yeniden deneyebilirsin.' }, 502);
+    if (!aiResponse.ok) {
+      const providerStatus = aiResponse.status;
+      let message = 'Oracle AI şu anda öneri oluşturamadı. Biraz sonra yeniden deneyebilirsin.';
+
+      if (providerStatus === 401 || providerStatus === 403) {
+        message = 'Oracle AI anahtarı veya erişim izni doğrulanamadı. Sunucu ayarlarını kontrol et.';
+      } else if (providerStatus === 404) {
+        message = 'Oracle AI modeline ulaşılamadı. Model ve API uç noktası ayarlarını kontrol et.';
+      } else if (providerStatus === 429) {
+        message = 'Oracle AI kullanım sınırına ulaşıldı. Biraz bekleyip tekrar deneyebilirsin.';
+      } else if (providerStatus >= 500) {
+        message = `Oracle AI sağlayıcısı geçici olarak yanıt vermiyor (HTTP ${providerStatus}). Biraz sonra tekrar dene.`;
+      }
+
+      return json({ error: message, providerStatus }, 502);
+    }
 
     const completion = await aiResponse.json();
     const rawContent = completion?.choices?.[0]?.message?.content;
