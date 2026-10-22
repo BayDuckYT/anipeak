@@ -59,10 +59,10 @@ export async function getOrCreateSeries(title, cover, description, genre = ['Aks
     if (malData && malData.data && malData.data.length > 0 && malData.data[0].score) {
       fetchedRating = parseFloat(malData.data[0].score);
     } else {
-      fetchedRating = parseFloat((Math.random() * (9.8 - 7.5) + 7.5).toFixed(1)); // Rastgele iyi puan (Fallback)
+      fetchedRating = 0; // Keep the neutral database default; never invent a rating.
     }
   } catch (e) {
-    fetchedRating = parseFloat((Math.random() * (9.8 - 7.5) + 7.5).toFixed(1));
+    fetchedRating = 0; // Do not invent ratings when the lookup fails.
   }
 
   const baseSlug = generateSlug(title);

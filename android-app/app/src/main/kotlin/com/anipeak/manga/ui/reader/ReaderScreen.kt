@@ -59,6 +59,9 @@ fun ReaderScreen(
                         )
                     }
                 }
+                is ReaderUiState.Premium -> {
+                    Text("Bu bölüm Premium erişim gerektiriyor.", color = TextSecondary, modifier = Modifier.padding(20.dp))
+                }
                 is ReaderUiState.Error -> {
                     Text(s.message, color = ErrorRed, modifier = Modifier.padding(16.dp))
                 }

@@ -27,7 +27,8 @@ const askQuestion = (query) => new Promise((resolve) => rl.question(query, resol
 // 🛡️ MAHORAPEAK SİBER NİZAM OPERASYON MERKEZİ
 // ==========================================
 const BASE_URL = 'https://mangaokutr.co';
-const GITHUB_TOKEN = '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';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+if (!GITHUB_TOKEN) throw new Error('Set GITHUB_TOKEN in the local environment before using this pipeline.');
 const GITHUB_USER = 'murathanozel48-prog';
 const REPO_NAME = 'mahorapeak-manga-assets';
 const STAGING_DIR = 'C:\\Users\\Murathan\\Desktop\\mahorapeak-manga-assets';

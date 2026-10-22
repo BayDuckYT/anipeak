@@ -955,11 +955,12 @@ function TicketsPanel({ showToast }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function UsersPanel({ showToast }) {
   const { calculateTitle } = useAuth();
-  const { registeredUsers, updateProfile, deleteProfile } = useApp();
+  const { registeredUsers, loadProfiles, updateProfile, deleteProfile } = useApp();
   const [search, setSearch] = useState('');
   const [editingUser, setEditingUser] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [filterRole, setFilterRole] = useState('All');
+  const [isSavingUser, setIsSavingUser] = useState(false);
 
   const filtered = registeredUsers.filter(u => {
     const matchesSearch = (u.username || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -1187,44 +1188,120 @@ function UsersPanel({ showToast }) {
               </div>
 
               <div className="p-6 border-t border-white/10 bg-white/[0.02] flex justify-end gap-3">
-                <button onClick={() => setEditingUser(null)} className="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold text-sm transition-colors">İptal Et</button>
-                <button onClick={async () => {
-                  try {
-                    // Şifre değiştirme işlemi (RPC Fonksiyonu)
-                    if (editingUser.newPassword && editingUser.newPassword.trim()) {
-                      if (editingUser.newPassword.length < 6) {
-                        showToast('Şifre en az 6 karakter olmalıdır!', 'error');
-                        return;
-                      }
-                      const { error: rpcError } = await supabase.rpc('change_password_admin_rpc', {
-                        payload: {
-                          target_user_id: editingUser.id,
-                          new_password: editingUser.newPassword
-                        }
-                      });
-                      if (rpcError) {
-                        console.error('[Admin] Şifre değiştirme tam hatası:', rpcError);
-                        showToast('Şifre değiştirilemedi: ' + rpcError.message, 'error');
-                        return;
-                      }
-                      showToast('Şifre başarıyla değiştirildi!', 'success');
-                    }
+                <button 
+                  onClick={() => !isSavingUser && setEditingUser(null)} 
+                  disabled={isSavingUser}
+                  className="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold text-sm transition-colors disabled:opacity-50"
+                >
+                  İptal Et
+                </button>
+                <button 
+                  disabled={isSavingUser}
+                  onClick={async () => {
+                    if (isSavingUser) return;
+                    try {
+                      setIsSavingUser(true);
+                      let passSuccess = false;
 
-                    const updates = { 
-                      role: editingUser.role, 
-                      username: editingUser.username, 
-                      email: editingUser.email, 
-                      xp: editingUser.xp,
-                      active_plan_id: editingUser.active_plan_id === 'none' ? null : editingUser.active_plan_id
-                    };
-                    await updateProfile(editingUser.id, updates);
-                    setEditingUser(null);
-                    showToast('Profil başarıyla mühürlendi!', 'success');
-                  } catch (err) {
-                    showToast('Hata: ' + err.message, 'error');
-                  }
-                }} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] transition-all flex items-center gap-2 text-sm uppercase tracking-wider">
-                  <Save size={18} /> Profili Güncelle
+                      // 1. Şifre değiştirme işlemi
+                      if (editingUser.newPassword && editingUser.newPassword.trim()) {
+                        if (editingUser.newPassword.length < 6) {
+                          showToast('Şifre en az 6 karakter olmalıdır!', 'error');
+                          setIsSavingUser(false);
+                          return;
+                        }
+
+                        // Öncelik: /api/admin/change-password endpoint'i
+                        try {
+                          const resp = await fetch('/api/admin/change-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              target_user_id: editingUser.id,
+                              new_password: editingUser.newPassword
+                            })
+                          });
+                          const resJson = await resp.json().catch(() => ({}));
+                          if (resp.ok && resJson.success) {
+                            passSuccess = true;
+                          }
+                        } catch (apiErr) {
+                          console.warn('[Admin] /api/admin/change-password API hatası:', apiErr);
+                        }
+
+                        // API yanıt vermediyse Supabase RPC fallback
+                        if (!passSuccess) {
+                          try {
+                            const resRpc = await supabase.rpc('change_password_admin_rpc', {
+                              payload: {
+                                target_user_id: editingUser.id,
+                                new_password: editingUser.newPassword
+                              }
+                            });
+                            if (!resRpc.error) passSuccess = true;
+                          } catch (rpcErr) {
+                            console.warn('[Admin] RPC hatası:', rpcErr);
+                          }
+                        }
+
+                        if (!passSuccess) {
+                          showToast('Şifre güncellenemedi! Lütfen daha sonra tekrar deneyin.', 'error');
+                          setIsSavingUser(false);
+                          return;
+                        }
+                      }
+
+                      // 2. Profil alanlarını güncelleme
+                      const updates = { 
+                        role: editingUser.role, 
+                        username: editingUser.username, 
+                        email: editingUser.email, 
+                        xp: Number(editingUser.xp) || 0,
+                        active_plan_id: editingUser.active_plan_id === 'none' ? null : editingUser.active_plan_id
+                      };
+
+                      let profileUpdated = false;
+                      // Öncelik: /api/admin/update-user endpoint'i
+                      try {
+                        const resp = await fetch('/api/admin/update-user', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            target_user_id: editingUser.id,
+                            updates
+                          })
+                        });
+                        const resJson = await resp.json().catch(() => ({}));
+                        if (resp.ok && resJson.success) {
+                          profileUpdated = true;
+                        }
+                      } catch (apiErr) {
+                        console.warn('[Admin] /api/admin/update-user API hatası:', apiErr);
+                      }
+
+                      // API yanıt vermediyse doğrudan updateProfile fallback
+                      if (!profileUpdated) {
+                        await updateProfile(editingUser.id, updates);
+                      } else if (loadProfiles) {
+                        await loadProfiles();
+                      }
+
+                      setEditingUser(null);
+                      if (passSuccess) {
+                        showToast('Şifre ve kullanıcı profili başarıyla mühürlendi!', 'success');
+                      } else {
+                        showToast('Kullanıcı profili başarıyla mühürlendi!', 'success');
+                      }
+                    } catch (err) {
+                      console.error('[Admin] Güncelleme hatası:', err);
+                      showToast('Hata: ' + (err.message || 'İşlem gerçekleştirilemedi'), 'error');
+                    } finally {
+                      setIsSavingUser(false);
+                    }
+                  }} 
+                  className="px-8 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl font-black shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] transition-all flex items-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
+                >
+                  <Save size={18} /> {isSavingUser ? 'Kaydediliyor...' : 'Profili Güncelle'}
                 </button>
               </div>
             </motion.div>

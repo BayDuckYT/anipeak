@@ -22,11 +22,7 @@ https.globalAgent.setMaxListeners(0);
 // ⚙️ KONFİGÜRASYON
 // ────────────────────────────────────────────────────────────
 const CONFIG = {
-  GITHUB_TOKENS: [
-    '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',
-    'YEDEK_TOKEN_1_BURAYA',
-    'YEDEK_TOKEN_2_BURAYA'
-  ],
+  GITHUB_TOKENS: (process.env.GITHUB_TOKENS || process.env.GITHUB_TOKEN || '').split(',').map((token) => token.trim()).filter(Boolean),
   GITHUB_USER:     'murathanozel48-prog',
   REPO_NAME:       'mahorapeak-manga-assets',
   BRANCH:          'main',
@@ -111,8 +107,7 @@ async function batchCommitToGitHub(files, commitMsg) {
   console.log(`\x1b[34m[GITHUB-LOCAL]\x1b[0m >> Toplam ${files.length} dosya Git CLI ile tek seferde gönderilecek...`);
 
   const repoPath = path.resolve('./assets_repo');
-  const token = CONFIG.GITHUB_TOKENS[0];
-  const repoUrl = `https://${token}@github.com/${CONFIG.GITHUB_USER}/${CONFIG.REPO_NAME}.git`;
+  const repoUrl = `https://github.com/${CONFIG.GITHUB_USER}/${CONFIG.REPO_NAME}.git`;
 
   if (!fs.existsSync(repoPath)) {
     console.log(`\x1b[34m[GITHUB-LOCAL]\x1b[0m >> Uzak depo klonlanıyor (Sadece ilk çalışmada)...`);
@@ -386,6 +381,12 @@ async function processSeries(seriesUrl, browser) {
 // ────────────────────────────────────────────────────────────
 
 async function main() {
+  if (!process.argv.includes('--apply')) {
+    throw new Error('Legacy V62 is write-capable. Use V63 by default; pass --apply only for intentional legacy writes.');
+  }
+  if (!CONFIG.GITHUB_TOKENS.length) {
+    throw new Error('Set GITHUB_TOKENS in the local environment before running this legacy script.');
+  }
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
   console.log('\x1b[35m%s\x1b[0m', '║   ⚡ MAHORAPEAK V62: AUTO RECOVER — MASS RESTORATION ⚡     ║');

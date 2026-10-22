@@ -39,8 +39,8 @@ const s3Client = new S3Client({
   region: 'auto',
   endpoint: process.env.R2_ENDPOINT || `https://5ea1dc1a085c04db3ae5f70b4e945b44.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID || '878089dbad138f06987f8b96e82b614a',
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '0dad9a38d0e5e85b73d159ead76dda8b280e7ade875f9cac7162c5c7a388f0ae',
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
 });
 
@@ -304,6 +304,12 @@ async function extractCatalogUrls(page, url) {
 }
 
 async function main() {
+  if (!process.argv.includes('--apply')) {
+    throw new Error('Legacy V61 is write-capable. Use V63 by default; pass --apply only for intentional legacy writes.');
+  }
+  if (!process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY || !process.env.R2_PUBLIC_URL) {
+    throw new Error('R2 credentials and public URL must be configured in the local environment.');
+  }
   console.clear();
   console.log('\x1b[35m%s\x1b[0m', '╔══════════════════════════════════════════════════════════╗');
   console.log('\x1b[35m%s\x1b[0m', '║   ⚡ MAHORAPEAK V62: OMNI-TITAN — MULTI-SITE EDITION ⚡      ║');

@@ -6,6 +6,8 @@
 
     <application
         android:name=".MahoraPeakApp"
+        android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher"
         android:allowBackup="true"
         android:label="MahoraPeak"
         android:supportsRtl="true"

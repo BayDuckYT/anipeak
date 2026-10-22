@@ -127,4 +127,8 @@ async function runScraper() {
   }
 }
 
-runScraper();
+if (process.argv.includes('--apply')) {
+  runScraper();
+} else {
+  console.log('[Scraper V3] Güvenlik nedeniyle eski scraper varsayılan olarak çalıştırılmıyor. Yazma işlemi için --apply belirtin.');
+}

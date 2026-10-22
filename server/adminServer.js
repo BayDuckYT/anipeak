@@ -228,6 +228,56 @@ app.get('/api/proxy', async (req, res) => {
     }
 });
 
+// [KULLANICI] - Şifre Değiştirme (Supabase Admin Auth API)
+app.post('/api/admin/change-password', async (req, res) => {
+    try {
+        const { target_user_id, new_password } = req.body || {};
+        if (!target_user_id || !new_password || new_password.length < 6) {
+            return res.status(400).json({ error: 'target_user_id ve en az 6 karakterli new_password zorunludur.' });
+        }
+        const { createClient } = await import('@supabase/supabase-js');
+        const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://yrcrgkdikkaeccikdzvw.supabase.co';
+        const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyY3Jna2Rpa2thZWNjaWtkenZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjI2NDMxNywiZXhwIjoyMDkxODQwMzE3fQ.rVXIyF1wG6KG6K_bdtx0J84LZwv0Y0NGT4LJvAENvGw';
+        
+        const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+        const { data, error } = await sbAdmin.auth.admin.updateUserById(target_user_id, {
+            password: new_password
+        });
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
+        res.json({ success: true, user: data.user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// [KULLANICI] - Profil Güncelleme (Auth & Profiles Senkronize)
+app.post('/api/admin/update-user', async (req, res) => {
+    try {
+        const { target_user_id, updates } = req.body || {};
+        if (!target_user_id || !updates) {
+            return res.status(400).json({ error: 'target_user_id ve updates zorunludur.' });
+        }
+        const { createClient } = await import('@supabase/supabase-js');
+        const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://yrcrgkdikkaeccikdzvw.supabase.co';
+        const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyY3Jna2Rpa2thZWNjaWtkenZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjI2NDMxNywiZXhwIjoyMDkxODQwMzE3fQ.rVXIyF1wG6KG6K_bdtx0J84LZwv0Y0NGT4LJvAENvGw';
+
+        const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+        if (updates.email) {
+            await sbAdmin.auth.admin.updateUserById(target_user_id, { email: updates.email });
+        }
+
+        const { data, error } = await sbAdmin.from('profiles').update(updates).eq('id', target_user_id).select();
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
+        res.json({ success: true, data });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`\n\x1b[35m%s\x1b[0m`, `⚓ MAHORAPEAK YÖNETİM MERKEZİ AKTİF ⚓`);
     console.log(`\x1b[36m%s\x1b[0m`, `Port: ${PORT}`);

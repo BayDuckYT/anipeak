@@ -1,12 +1,12 @@
 {
   "name": "mahorapeak-scraper",
-  "version": "1.0.0",
-  "description": "MahoraPeak paradoxscans scraping service",
-  "main": "index.js",
+  "version": "1.1.0",
+  "description": "MahoraPeak scraper with safe preview mode and guarded publishing",
+  "main": "v63_pipeline.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "v61": "node --max-old-space-size=18432 v61_speed_titan.js"
+    "start": "node v63_pipeline.js",
+    "v63": "node v63_pipeline.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",

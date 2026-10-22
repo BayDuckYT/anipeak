@@ -458,6 +458,7 @@ export function AppProvider({ children }) {
     deleteComment,
     // Users
     registeredUsers,
+    loadProfiles,
     updateProfile,
     deleteProfile,
     // Plans
