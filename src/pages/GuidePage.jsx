@@ -216,8 +216,8 @@ export default function GuidePage() {
         </motion.div>
 
         {/* ── KATEGORİ NAVİGASYON HAPLARI (Sticky & Yaylanan) ── */}
-        <div className="sticky top-20 z-30 py-3 mb-12 bg-[#070511]/85 backdrop-blur-2xl border-y border-white/[0.08]">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="sticky top-[72px] sm:top-20 z-30 py-2 sm:py-3 mb-10 sm:mb-12 bg-[#070511]/90 backdrop-blur-2xl border-y border-white/[0.08]">
+          <div className="flex items-center gap-2 overflow-x-auto overscroll-x-contain touch-pan-x no-scrollbar py-1 px-3 sm:px-1 snap-x snap-mandatory" aria-label="Rehber bölümleri">
             {GUIDE_SECTIONS.map((sec) => {
               const Icon = sec.icon;
               const isActive = activeTab === sec.id;
@@ -228,7 +228,7 @@ export default function GuidePage() {
                     setActiveTab(sec.id);
                     document.getElementById(sec.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-300 border ${
+                  className={`relative flex shrink-0 snap-start items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-300 border ${
                     isActive
                       ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white border-transparent shadow-lg shadow-violet-900/50 scale-102'
                       : 'bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] border-white/[0.08]'
@@ -243,7 +243,7 @@ export default function GuidePage() {
         </div>
 
         {/* ── 1. BÖLÜM: XP VE SEVİYE NASIL KASILIR? ── */}
-        <section id="xp" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="xp" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-500/35 flex items-center justify-center text-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
               <Zap size={22} />
@@ -299,7 +299,7 @@ export default function GuidePage() {
         </section>
 
         {/* ── 2. YENİ İNTERAKTİF BÖLÜM: CANLI XP VE KAZANÇ SİMÜLATÖRÜ ── */}
-        <section id="calculator" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="calculator" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
               <Gauge size={22} />
@@ -367,7 +367,7 @@ export default function GuidePage() {
         </section>
 
         {/* ── 3. BÖLÜM: RÜTBELER & SEVİYE KADEMELERİ ── */}
-        <section id="ranks" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="ranks" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-purple-500/20 border border-purple-500/35 flex items-center justify-center text-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
               <Trophy size={22} />
@@ -401,7 +401,7 @@ export default function GuidePage() {
         </section>
 
         {/* ── 4. BÖLÜM: BAŞARIMLAR & MÜHÜRLER ── */}
-        <section id="achievements" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="achievements" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-blue-500/20 border border-blue-500/35 flex items-center justify-center text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
               <Award size={22} />
@@ -439,7 +439,7 @@ export default function GuidePage() {
         </section>
 
         {/* ── 5. BÖLÜM: AURA PAZARI & GÖRÜNÜM ── */}
-        <section id="market" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="market" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-500/35 flex items-center justify-center text-fuchsia-400 shadow-[0_0_20px_rgba(217,70,239,0.3)]">
               <Sparkles size={22} />
@@ -478,7 +478,7 @@ export default function GuidePage() {
         </section>
 
         {/* ── 6. BÖLÜM: ELITE & VIP AVANTAJLARI ── */}
-        <section id="elite" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="elite" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-rose-500/20 border border-rose-500/35 flex items-center justify-center text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.3)]">
               <Crown size={22} />
@@ -522,7 +522,7 @@ export default function GuidePage() {
         </section>
 
         {/* ── 7. BÖLÜM: DİSCORD ENTEGRASYONU ── */}
-        <section id="discord" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="discord" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-indigo-500/20 border border-indigo-500/35 flex items-center justify-center text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.3)]">
               <Bot size={22} />
@@ -561,7 +561,7 @@ export default function GuidePage() {
         </section>
 
         {/* ── 8. BÖLÜM: SIKÇA SORULAN SORULAR ── */}
-        <section id="faq" className="space-y-6 mb-20 scroll-mt-36">
+        <section id="faq" className="space-y-6 mb-20 scroll-mt-32 sm:scroll-mt-36">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/35 flex items-center justify-center text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
               <HelpCircle size={22} />

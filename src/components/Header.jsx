@@ -42,14 +42,11 @@ export default function Header({ onAuthOpen }) {
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
     } else {
       document.body.style.overflow = '';
-      document.body.style.touchAction = '';
     }
     return () => {
       document.body.style.overflow = '';
-      document.body.style.touchAction = '';
     };
   }, [mobileOpen]);
 
@@ -151,7 +148,7 @@ export default function Header({ onAuthOpen }) {
               className={`w-auto object-contain transition-all duration-300 origin-left drop-shadow-[0_0_20px_rgba(239,68,68,0.55)] group-hover:drop-shadow-[0_0_30px_rgba(239,68,68,0.85)] ${
                 scrolled
                   ? 'h-9 max-w-[112px] sm:h-14 sm:max-w-none md:h-16 scale-100 sm:scale-110 md:scale-120'
-                  : 'h-10 max-w-[122px] sm:h-20 sm:max-w-none md:h-22 scale-100 sm:scale-125 md:scale-[1.38]'
+                  : 'h-9 max-w-[112px] sm:h-20 sm:max-w-none md:h-22 scale-100 sm:scale-125 md:scale-[1.38]'
               }`}
             />
           </div>
@@ -551,7 +548,7 @@ export default function Header({ onAuthOpen }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className="pointer-events-auto lg:hidden w-[95%] max-w-md mt-2 rounded-3xl bg-[#080614]/95 backdrop-blur-2xl border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.9)] p-4 space-y-2 max-h-[80vh] overflow-y-auto"
+            className="pointer-events-auto lg:hidden w-[95%] max-w-md mt-2 rounded-3xl bg-[#080614]/95 backdrop-blur-2xl border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.9)] p-4 space-y-2 max-h-[80dvh] overflow-y-auto overscroll-contain touch-pan-y"
           >
             {/* Mobile search */}
             <div className="relative mb-3">
