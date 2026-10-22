@@ -130,15 +130,15 @@ export default function Header({ onAuthOpen }) {
       <div
         className={`pointer-events-auto transition-all duration-500 ease-out flex items-center justify-between ${
           scrolled
-            ? 'mt-3 md:mt-3.5 w-[96%] max-w-[1380px] h-[72px] md:h-[76px] px-5 sm:px-7 md:px-8 rounded-full border border-white/12 bg-black/55 backdrop-blur-2xl shadow-[0_16px_45px_rgba(0,0,0,0.7)]'
-            : 'mt-0 w-full h-24 px-6 sm:px-10 lg:px-12 rounded-none border-b border-transparent bg-transparent backdrop-blur-none shadow-none'
+            ? 'mt-2 sm:mt-3 md:mt-3.5 w-[96%] max-w-[1380px] h-[60px] sm:h-[72px] md:h-[76px] px-3 sm:px-7 md:px-8 rounded-full border border-white/12 bg-black/55 backdrop-blur-2xl shadow-[0_16px_45px_rgba(0,0,0,0.7)]'
+            : 'mt-0 w-full h-[72px] sm:h-24 px-3 sm:px-10 lg:px-12 rounded-none border-b border-transparent bg-transparent backdrop-blur-none shadow-none'
         }`}
       >
         {/* Left: Prominent, Large & Readable Logo */}
         <Link 
           to="/" 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="flex items-center group flex-shrink-0 relative mr-4 md:mr-8" 
+          className="flex items-center group flex-shrink-0 relative mr-1 sm:mr-4 md:mr-8"
           aria-label="Ana Sayfa"
         >
           <div className="relative flex items-center">
@@ -149,7 +149,9 @@ export default function Header({ onAuthOpen }) {
               height="80"
               loading="eager"
               className={`w-auto object-contain transition-all duration-300 origin-left drop-shadow-[0_0_20px_rgba(239,68,68,0.55)] group-hover:drop-shadow-[0_0_30px_rgba(239,68,68,0.85)] ${
-                scrolled ? 'h-13 sm:h-14 md:h-16 scale-110 md:scale-120' : 'h-16 sm:h-20 md:h-22 scale-125 md:scale-[1.38]'
+                scrolled
+                  ? 'h-9 max-w-[112px] sm:h-14 sm:max-w-none md:h-16 scale-100 sm:scale-110 md:scale-120'
+                  : 'h-10 max-w-[122px] sm:h-20 sm:max-w-none md:h-22 scale-100 sm:scale-125 md:scale-[1.38]'
               }`}
             />
           </div>
@@ -194,13 +196,13 @@ export default function Header({ onAuthOpen }) {
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
 
           {/* Circular Search Toggle Button */}
           <div className="relative" ref={searchRef}>
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="w-10 h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-all active:scale-95"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-all active:scale-95"
               aria-label="Arama"
             >
               <Search size={17} />
@@ -275,7 +277,7 @@ export default function Header({ onAuthOpen }) {
             <button
               aria-label="Bildirimler"
               onClick={() => { setNotifOpen(!notifOpen); if (!notifOpen && user) markAllRead(); }}
-              className="relative w-10 h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-all active:scale-95"
+              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-all active:scale-95"
             >
               <Bell size={17} />
               {user && unreadCount > 0 && (
@@ -355,7 +357,7 @@ export default function Header({ onAuthOpen }) {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all"
+                  className="flex items-center gap-0.5 sm:gap-2 pl-0.5 sm:pl-1 pr-0.5 sm:pr-2 py-1 rounded-full hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all"
                   aria-label="Profil menüsünü aç"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-violet-600 flex items-center justify-center text-white text-sm font-bold relative flex-shrink-0">
@@ -380,7 +382,7 @@ export default function Header({ onAuthOpen }) {
                       {user.rank}
                     </span>
                   </div>
-                  <ChevronDown size={14} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={14} className={`hidden sm:block text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -503,7 +505,7 @@ export default function Header({ onAuthOpen }) {
               </div>
             </>
           ) : (
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden sm:flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => onAuthOpen('login')}
                 className="hidden md:inline-flex text-sm font-bold text-slate-200 hover:text-white px-3 py-2 transition-colors"
@@ -531,7 +533,7 @@ export default function Header({ onAuthOpen }) {
 
           {/* Mobile hamburger button */}
           <button 
-            className="lg:hidden w-10 h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 text-slate-200 hover:text-white transition-all active:scale-95 flex items-center justify-center ml-1"
+            className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 text-slate-200 hover:text-white transition-all active:scale-95 flex items-center justify-center ml-0 sm:ml-1"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
             aria-expanded={mobileOpen}

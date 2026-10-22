@@ -432,7 +432,7 @@ export default function ListDetail() {
 
 
            {/* Stats & Actions Card */}
-           <div className="w-full md:w-auto min-w-[320px] p-8 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-3xl border border-white/5 shadow-2xl space-y-8">
+           <div className="w-full md:w-auto md:min-w-[320px] p-5 sm:p-8 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-3xl border border-white/5 shadow-2xl space-y-6 sm:space-y-8">
               <div className="flex items-center justify-between">
                  <div className="flex items-center gap-3">
                     <img src={list.profiles?.avatar_url} alt={`${list.profiles?.username || 'Kullanıcı'} avatarı`} className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500/20 shadow-lg" />

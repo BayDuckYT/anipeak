@@ -151,7 +151,7 @@ export default function SchedulePage() {
     <main className="min-h-screen bg-[#070511] pb-20 overflow-x-hidden">
       
       {/* ── CINEMATIC HERO (Featured Series of the Day) ── */}
-      <div className="relative w-full h-[70vh] min-h-[500px] mb-12">
+      <div className="relative w-full h-[70vh] min-h-[420px] sm:min-h-[500px] mb-12">
         <div 
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000 scale-105" 
           style={{ backgroundImage: `url(${featuredToday?.poster_url || '/yayinarkaplan.jpg'})`, opacity: 0.4, mixBlendMode: 'screen' }}
@@ -159,17 +159,17 @@ export default function SchedulePage() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#070511] via-[#070511]/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#070511] via-[#070511]/80 to-transparent" />
         
-        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-12 h-full flex flex-col justify-end pb-24">
+        <div className="relative z-20 w-full max-w-[1400px] mx-auto px-4 sm:px-12 h-full flex flex-col justify-end pb-16 sm:pb-24">
           <div className="flex items-center gap-2 mb-4 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full w-fit border border-white/20">
             <Calendar size={14} className="text-purple-400" />
             <span className="text-xs font-bold text-white tracking-widest uppercase">Bugünün Öne Çıkanı</span>
           </div>
           
-          <h1 className="text-6xl sm:text-8xl font-black text-white uppercase tracking-tighter drop-shadow-2xl mb-4 max-w-3xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
+          <h1 className="text-4xl leading-tight sm:text-8xl font-black text-white uppercase tracking-tighter drop-shadow-2xl mb-4 max-w-3xl" style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}>
             {featuredToday?.series_name || 'YAYIN TAKVİMİ'}
           </h1>
           
-          <div className="flex items-center gap-4 text-slate-300 text-sm font-bold mb-8">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-slate-300 text-xs sm:text-sm font-bold mb-6 sm:mb-8">
             {featuredToday && (
               <>
                 <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded uppercase">{featuredToday.chapter_info}</span>
@@ -181,11 +181,11 @@ export default function SchedulePage() {
             )}
           </div>
           
-          <div className="flex gap-4">
-            <button className="px-8 py-3 bg-white text-black font-black uppercase tracking-widest rounded flex items-center gap-2 hover:bg-slate-200 transition-colors">
+          <div className="flex flex-wrap gap-2 sm:gap-4">
+            <button className="px-4 sm:px-8 py-3 bg-white text-black text-xs sm:text-sm font-black uppercase tracking-widest rounded flex items-center gap-2 hover:bg-slate-200 transition-colors">
               <BellRing size={20} /> Bildirim Kur
             </button>
-            <button className="px-8 py-3 bg-white/20 text-white font-black uppercase tracking-widest rounded flex items-center gap-2 backdrop-blur-md hover:bg-white/30 transition-colors">
+            <button className="px-4 sm:px-8 py-3 bg-white/20 text-white text-xs sm:text-sm font-black uppercase tracking-widest rounded flex items-center gap-2 backdrop-blur-md hover:bg-white/30 transition-colors">
               Tüm Takvim
             </button>
           </div>
