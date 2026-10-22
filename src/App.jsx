@@ -203,8 +203,7 @@ function AppContent() {
   // Bakım modundayken, eğer giriş yapan kişi YETKİLİ DEĞİLSE ekranı kapat
   const isResetPage = location.pathname === '/reset-password';
   const isAuthPage = location.pathname === '/auth';
-  const isAppsPage = location.pathname === '/indir' || location.pathname === '/apps' || location.pathname === '/uygulama';
-  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isMod && !isResetPage && !isAuthPage && !isAppsPage;
+  const isMaintenanceBlocked = maintenanceMode && !isAdmin && !isTester && !isMod && !isResetPage && !isAuthPage;
 
   return (
     <>

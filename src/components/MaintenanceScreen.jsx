@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Lock, Wrench, CalendarClock, BookOpen, Zap, Heart, Instagram, Sparkles, Smartphone } from 'lucide-react';
+import { Lock, Wrench, CalendarClock, BookOpen, Zap, Heart, Instagram, Sparkles } from 'lucide-react';
 
 /**
  * Açılış zamanı. Bir tarih verirsen (ör. '2026-12-01T18:00:00+03:00') canlı geri sayım gösterilir.
@@ -136,9 +135,6 @@ export default function MaintenanceScreen({ onAuthOpen }) {
           style={{ height: 'clamp(4rem,9vw,7rem)', width: 'auto', filter: 'drop-shadow(0 0 14px rgba(168,85,247,.6))' }}
         />
         <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15 }} style={{ display: 'flex', gap: '.7rem', alignItems: 'center' }}>
-          <Link to="/indir" className="mp-btn" style={{ textDecoration: 'none' }}>
-            <Smartphone size={15} style={{ color: '#c084fc' }} /> Uygulama İndir
-          </Link>
           <button id="maintenance-staff-login" className="mp-btn" onClick={() => onAuthOpen('login')}>
             <Lock size={15} style={{ color: '#c084fc' }} /> Yetkili Girişi
           </button>
