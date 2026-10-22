@@ -39,6 +39,8 @@ export default function Footer() {
             <h2 className="text-white font-bold text-sm mb-1">Hızlı Erişim</h2>
             <Link to="/all-series" className={linkCls}>Keşfet</Link>
             <Link to="/#trendler" className={linkCls}>Trendler</Link>
+            <Link to="/rehber" className={`${linkCls} text-emerald-300 font-semibold`}>Rehber &amp; XP</Link>
+            <Link to="/achievements" className={linkCls}>Başarımlar</Link>
             <Link to="/takvim" className={linkCls}>Takvim</Link>
             <Link to="/oracle" className={linkCls}>Oracle</Link>
             <Link to="/elite-upgrade" className={linkCls}>Premium</Link>

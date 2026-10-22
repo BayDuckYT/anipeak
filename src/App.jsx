@@ -41,8 +41,7 @@ const Achievements = lazy(() => import('./pages/Achievements.jsx'));
 const SchedulePage = lazy(() => import('./pages/SchedulePage.jsx'));
 const OraclePage = lazy(() => import('./pages/OraclePage.jsx'));
 const PopularityPage = lazy(() => import('./pages/PopularityPage.jsx'));
-const AetheSanctuary = lazy(() => import('./pages/AetheSanctuary.jsx'));
-const HouseInfo = lazy(() => import('./pages/HouseInfo.jsx'));
+const GuidePage = lazy(() => import('./pages/GuidePage.jsx'));
 const AuraMarket = lazy(() => import('./pages/AuraMarket.jsx'));
 const AppsPage = lazy(() => import('./pages/AppsPage.jsx'));
 
@@ -109,8 +108,9 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/takvim" element={<SchedulePage />} />
           <Route path="/oracle" element={<OraclePage />} />
           <Route path="/popular" element={<PopularityPage />} />
-          <Route path="/aethe-sanctuary" element={<AetheSanctuary />} />
-          <Route path="/haneler" element={<HouseInfo />} />
+          <Route path="/rehber" element={<GuidePage />} />
+          <Route path="/guide" element={<GuidePage />} />
+          <Route path="/haneler" element={<Navigate to="/rehber" replace />} />
           <Route path="/market" element={<PrivateRoute><AuraMarket /></PrivateRoute>} />
           <Route path="/:username/liste/:listId" element={<ListDetail />} />
           <Route path="/indir" element={<AppsPage />} />

@@ -5,7 +5,7 @@ import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
   ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles, Gem, Wallet, ShoppingCart,
-  Smartphone
+  Smartphone, HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -161,6 +161,7 @@ export default function Header({ onAuthOpen }) {
             { label: 'Ana Sayfa', path: '/', icon: Compass, iconColor: 'text-red-500', isActive: location.pathname === '/' && location.hash !== '#trendler', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
             { label: 'Trendler', path: '/#trendler', icon: TrendingUp, iconColor: 'text-purple-400', isActive: location.hash === '#trendler' },
             { label: 'Takvim', path: '/takvim', icon: Calendar, iconColor: 'text-indigo-400', isActive: location.pathname === '/takvim' },
+            { label: 'Rehber', path: '/rehber', icon: HelpCircle, iconColor: 'text-emerald-400', isActive: location.pathname === '/rehber' },
             { label: 'Oracle', path: '/oracle', icon: Sparkles, iconColor: 'text-cyan-400', isActive: location.pathname === '/oracle' },
             { label: 'Uygulama', path: '/indir', icon: Smartphone, iconColor: 'text-violet-400', isActive: location.pathname === '/indir' || location.pathname === '/apps' },
           ].map((item) => {
@@ -581,6 +582,9 @@ export default function Header({ onAuthOpen }) {
             </Link>
             <Link to="/takvim" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-200 hover:text-white hover:bg-white/5 transition-all min-h-[44px]">
               <Calendar size={16} className="text-indigo-400" /> Takvim
+            </Link>
+            <Link to="/rehber" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-200 hover:text-white hover:bg-white/5 transition-all min-h-[44px]">
+              <HelpCircle size={16} className="text-emerald-400" /> Rehber (XP & Bilgi)
             </Link>
             <Link to="/oracle" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-200 hover:text-white hover:bg-white/5 transition-all min-h-[44px]">
               <Sparkles size={16} className="text-cyan-400" /> Oracle

@@ -111,8 +111,8 @@ const PLAN_DATA = [
     bgImage: '/plans/aethe-bg.png',
     features: [
       'Hükümdar Paketindeki TÜM Ayrıcalıklar',
-      'Dört Efsanevi Haneden Birine Katılım',
-      'Aethe Kutsal Alanı & Haneler Savaşı',
+      'Özel Aethe Rozeti & Kozmik İmzalar',
+      'Aethe Kutsal Alanı & VIP Sohbet Odası',
       'Efsanevi AETHE Mührü & Kan Kırmızı Aura', 
       'TÜM Efektlere Sınırsız Erişim (387+)', 
       'Sadece İlk 20 Kişiye Özel Kadim Statü',
@@ -553,7 +553,7 @@ export default function EliteUpgrade() {
                     { label: 'İsim Plakası', pro: '5 Adet', shadow: '15 Adet', ruler: '30 Adet', aethe: 'Tümü Açık' },
                     { label: 'Avatar Efekti', pro: '10 Adet', shadow: '30 Adet', ruler: '100 Adet', aethe: 'Tümü Açık' },
                     { label: 'VIP Müşteri Desteği', pro: false, shadow: false, ruler: '7/24 Öncelikli', aethe: '7/24 Direkt Hat' },
-                    { label: 'Haneler Savaşına Katılım', pro: false, shadow: false, ruler: false, aethe: true }
+                    { label: 'Özel Kozmik Mühür ve Rozetler', pro: false, shadow: false, ruler: false, aethe: true }
                   ].map((row, i) => (
                     <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                       <td className="p-6 text-slate-400">{row.label}</td>

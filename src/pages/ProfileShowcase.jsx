@@ -70,6 +70,7 @@ import SiberVideo from '../components/SiberVideo';
 import { usePerformance } from '../context/PerformanceContext';
 import { fetchMALList } from '../lib/malService';
 import { useSEO } from '../hooks/useSEO';
+import { AchievementLogo, DEFAULT_ACHIEVEMENTS, getAchievementMeta } from '../data/achievementIcons';
 
 // Profil Kırpma Yardımcısı
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -1042,22 +1043,7 @@ export default function ProfileShowcase() {
                        </div>
                     )}
 
-                    {displayUser.faction && (
-                       <div className={`inline-flex px-4 py-1.5 rounded-xl bg-black/40 border backdrop-blur-md shadow-lg ${
-                          displayUser.faction === 'dragon' ? 'border-red-500/30 text-red-500' :
-                          displayUser.faction === 'fox' ? 'border-purple-500/30 text-purple-400' :
-                          displayUser.faction === 'wolf' ? 'border-blue-500/30 text-blue-400' :
-                          'border-amber-500/30 text-amber-500'
-                       }`}>
-                          <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 drop-shadow-md">
-                             <Shield size={12} className="shrink-0" />
-                             {displayUser.faction === 'dragon' ? 'KIZIL EJDER' :
-                              displayUser.faction === 'fox' ? 'GÜMÜŞ KITSUNE' :
-                              displayUser.faction === 'wolf' ? 'BUZ KURT' :
-                              'ALTIN ANKA'}
-                          </span>
-                       </div>
-                    )}
+
                   </div>
 
                   <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-60 mt-4" />
@@ -1232,12 +1218,19 @@ export default function ProfileShowcase() {
                   <div className="space-y-4">
                      <div className="flex justify-between items-center">
                         <div className="text-[10px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">BAŞARIMLAR</div>
-                        <div className="text-[9px] font-black text-zinc-300 bg-white/10 px-2 py-0.5 rounded-md">{userAchievements.length}/100</div>
+                        <Link to="/achievements" className="text-[9px] font-black text-violet-300 hover:text-white bg-violet-600/20 px-2 py-0.5 rounded-md border border-violet-500/30 transition-colors">
+                          {userAchievements.length} Mühür
+                        </Link>
                      </div>
                      <div className="flex flex-wrap gap-2">
-                        {userAchievements.slice(0, 5).map((ua, i) => (
-                           <div key={i} className="w-10 h-10 rounded-xl bg-black/60 border border-amber-500/30 hover:border-amber-400/60 transition-colors flex items-center justify-center text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]" title={ua.achievements?.name}>
-                              <Award size={16} />
+                        {userAchievements.slice(0, 6).map((ua, i) => (
+                           <div key={i} className="transition-transform hover:scale-110" title={ua.achievements?.name || 'Başarım'}>
+                              <AchievementLogo 
+                                name={ua.achievements?.name || ''} 
+                                category={ua.achievements?.category || 'Okuma'} 
+                                isUnlocked={true} 
+                                size="sm" 
+                              />
                            </div>
                         ))}
                      </div>
@@ -1511,44 +1504,127 @@ export default function ProfileShowcase() {
                   )}
 
                   {activeTab === 'basarimlar' && (
-                     <div className="space-y-10">
-                        <div className="flex justify-between items-end">
+                     <div className="space-y-8">
+                        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                            <div>
                               <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-2 drop-shadow-md">
-                                <Award size={24} className="text-amber-400" /> BAŞARIMLAR
+                                <Trophy size={24} className="text-amber-400" /> KAZANILAN KOZMİK MÜHÜRLER
                               </h3>
+                              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Profilde sergilenen rozetler</p>
                            </div>
-                           <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-zinc-300">
-                              {userAchievements.length} / 100
-                           </div>
+                           <Link 
+                             to="/achievements" 
+                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600/20 hover:bg-violet-600 border border-violet-500/40 text-violet-200 hover:text-white text-xs font-bold transition-all w-fit"
+                           >
+                              <Sparkles size={14} /> Tüm Başarımları Gör ({userAchievements.length})
+                           </Link>
                         </div>
                         
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-                           {userAchievements.map((ua, i) => (
-                              <div key={i} className="group relative aspect-square p-6 rounded-[2rem] bg-[#0A0A0A] border border-white/10 hover:border-amber-500/50 transition-all text-center flex flex-col items-center justify-center overflow-hidden shadow-xl">
-                                 <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                 
-                                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 mb-4">
-                                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-zinc-800 group-hover:text-amber-500/30 transition-colors">
-                                       <polygon points="50 1 95 25 95 75 50 99 5 75 5 25" fill="currentColor" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-                                    </svg>
-                                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-amber-500 scale-[0.85] opacity-20 group-hover:opacity-100 transition-all drop-shadow-[0_0_15px_rgba(245,158,11,1)]">
-                                       <polygon points="50 1 95 25 95 75 50 99 5 75 5 25" fill="currentColor" />
-                                    </svg>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                       <Award size={24} className="text-white group-hover:text-black transition-colors relative z-10" />
-                                    </div>
-                                 </div>
-                                 
-                                 <h4 className="text-[10px] sm:text-xs font-black text-white uppercase tracking-tighter leading-tight drop-shadow-md z-10">{ua.achievements?.name}</h4>
-                                 <p className="text-[8px] font-bold text-amber-500/70 uppercase tracking-widest mt-2 z-10">{new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}</p>
-                              </div>
-                           ))}
-                        </div>
+                        {userAchievements.length > 0 ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                             {userAchievements.map((ua, i) => {
+                                const ach = ua.achievements || {};
+                                return (
+                                  <div 
+                                    key={i} 
+                                    className="group relative p-5 rounded-3xl bg-[#0B081B] border border-white/10 hover:border-violet-500/60 transition-all duration-300 text-center flex flex-col items-center justify-center overflow-hidden shadow-xl hover:-translate-y-1 hover:shadow-[0_15px_35px_-10px_rgba(139,92,246,0.35)]"
+                                  >
+                                     <div className="absolute top-0 right-0 w-24 h-24 bg-violet-600/10 rounded-full blur-xl pointer-events-none" />
+                                     
+                                     <div className="mb-3 transform group-hover:scale-108 transition-transform duration-300">
+                                        <AchievementLogo
+                                          name={ach.name || ''}
+                                          category={ach.category || 'Okuma'}
+                                          isUnlocked={true}
+                                          size="md"
+                                        />
+                                     </div>
+                                     
+                                     <span className="text-[9px] font-bold uppercase tracking-wider text-violet-300/80 mb-1">
+                                        {ach.category || 'Mühür'}
+                                     </span>
+                                     <h4 className="text-xs font-black text-white uppercase tracking-tight leading-tight line-clamp-2 drop-shadow-md z-10 group-hover:text-violet-200 transition-colors">
+                                        {ach.name || 'Gizemli Mühür'}
+                                     </h4>
+                                     <p className="text-[8px] font-semibold text-slate-400 mt-2 z-10">
+                                        {new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}
+                                     </p>
+                                  </div>
+                                );
+                             })}
+                          </div>
+                        ) : (
+                          <div className="py-16 text-center rounded-3xl bg-white/[0.02] border border-white/[0.05] flex flex-col items-center justify-center p-8">
+                             <Trophy size={48} className="text-slate-600 mb-3" />
+                             <h4 className="text-white font-bold text-sm mb-1">Henüz Açılmış Mühür Yok</h4>
+                             <p className="text-slate-400 text-xs max-w-sm mb-5">
+                                Manga okuyarak, serileri favorileyerek ve bölümlere yorum bırakarak ilk başarımlarını açabilirsin!
+                             </p>
+                             <Link
+                               to="/achievements"
+                               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-xs font-bold shadow-lg shadow-violet-900/40 hover:brightness-110 transition-all"
+                             >
+                               Başarımları Keşfet
+                             </Link>
+                          </div>
+                        )}
                      </div>
                   )}
                </motion.div>
             </AnimatePresence>
+
+            {/* ── PROFİL ALT VITRINI: KOZMİK BAŞARIMLAR ŞERİDİ ── */}
+            <section className="mt-10 rounded-3xl p-6 sm:p-8 bg-[#090616]/90 border border-white/[0.08] backdrop-blur-md shadow-2xl relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-80 h-80 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                        <Trophy size={20} />
+                     </div>
+                     <div>
+                        <h3 className="text-white font-black text-lg tracking-tight">Kozmik Başarım Vitrini</h3>
+                        <p className="text-slate-400 text-xs">Kullanıcının kazandığı seçkin mühürler ve madalyalar</p>
+                     </div>
+                  </div>
+                  <Link 
+                     to="/achievements" 
+                     className="inline-flex items-center gap-1.5 text-xs font-bold text-violet-300 hover:text-white transition-colors"
+                  >
+                     Tüm Başarımlar ({userAchievements.length}) <ChevronRight size={14} />
+                  </Link>
+               </div>
+
+               {userAchievements.length > 0 ? (
+                  <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+                     {userAchievements.map((ua, i) => {
+                        const ach = ua.achievements || {};
+                        return (
+                           <div 
+                              key={i} 
+                              className="group flex-shrink-0 flex flex-col items-center p-3 rounded-2xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 transition-all duration-300 w-24 text-center cursor-pointer"
+                              title={`${ach.name || 'Başarım'} - ${new Date(ua.unlocked_at).toLocaleDateString('tr-TR')}`}
+                           >
+                              <div className="transform group-hover:scale-110 transition-transform">
+                                 <AchievementLogo 
+                                    name={ach.name || ''} 
+                                    category={ach.category || 'Okuma'} 
+                                    isUnlocked={true} 
+                                    size="md" 
+                                 />
+                              </div>
+                              <span className="text-[10px] font-bold text-slate-200 mt-2 truncate w-full group-hover:text-violet-300 transition-colors">
+                                 {ach.name || 'Mühür'}
+                              </span>
+                           </div>
+                        );
+                     })}
+                  </div>
+               ) : (
+                  <div className="py-6 text-center text-slate-500 text-xs">
+                     Henüz sergilenecek bir başarım mührü kazanılmamış.
+                  </div>
+               )}
+            </section>
           </main>
        </div>
 

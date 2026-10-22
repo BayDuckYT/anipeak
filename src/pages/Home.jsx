@@ -1059,13 +1059,13 @@ export default function Home() {
                 </span>
               </h3>
               <p className="text-slate-300 text-sm leading-relaxed mb-5 max-w-[280px]">
-                MahoraPeak Premium ile sıfır reklam, sana özel Haneler ve ismine özel ışıldayan auralar seni bekliyor.
+                MahoraPeak Premium ile sıfır reklam, sana özel auralar ve ismine özel ışıldayan efektler seni bekliyor.
               </p>
               <ul className="space-y-2.5 mb-7">
                 {[
                   'Tamamen reklamsız okuma deneyimi', 
                   'Yeni çıkan bölümlere erken erişim', 
-                  'Özel Haneler ve parlayan profil efektleri', 
+                  'Kozmik mühürler ve parlayan profil efektleri', 
                   'Gelişmiş kütüphane ve okuma senkronizasyonu'
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200 font-medium">
