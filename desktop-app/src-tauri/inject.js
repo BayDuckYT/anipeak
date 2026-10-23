@@ -1,5 +1,22 @@
 (() => {
   const isMahoraPeak = ['mahorapeak.com.tr', 'www.mahorapeak.com.tr'].includes(location.hostname);
+  const desktopInvoke = window.__TAURI__?.core?.invoke;
+  if (isMahoraPeak && desktopInvoke) {
+    let checkingSite = false;
+    const checkSiteAndFallBack = async () => {
+      if (checkingSite || !navigator.onLine) {
+        if (!navigator.onLine) desktopInvoke('open_offline_home');
+        return;
+      }
+      checkingSite = true;
+      try {
+        if (!(await desktopInvoke('check_site_available'))) await desktopInvoke('open_offline_home');
+      } catch { /* A transient IPC failure should not replace a working page. */ }
+      finally { checkingSite = false; }
+    };
+    window.addEventListener('offline', () => desktopInvoke('open_offline_home'));
+    window.setInterval(checkSiteAndFallBack, 12000);
+  }
   if (isMahoraPeak) {
     const installPageFrame = () => {
       if (!document.documentElement) return;

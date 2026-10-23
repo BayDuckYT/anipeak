@@ -286,17 +286,45 @@ fn delete_offline_chapter(app: tauri::AppHandle, id: String) -> Result<(), Strin
     fs::remove_dir_all(path).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
-fn open_site(window: tauri::WebviewWindow) -> Result<(), String> {
-    window
-        .navigate(SITE.parse().map_err(|e: url::ParseError| e.to_string())?)
-        .map_err(|e| e.to_string())
+async fn site_is_reachable() -> bool {
+    let Ok(client) = Client::builder()
+        .connect_timeout(Duration::from_secs(3))
+        .timeout(Duration::from_secs(5))
+        .user_agent("MahoraPeakDesktop/1.5")
+        .build()
+    else {
+        return false;
+    };
+    client.get(SITE).send().await.is_ok()
 }
 
 #[tauri::command]
-fn open_home(window: tauri::WebviewWindow) -> Result<(), String> {
+async fn check_site_available() -> bool {
+    site_is_reachable().await
+}
+
+#[tauri::command]
+async fn open_site(window: tauri::WebviewWindow) -> Result<(), String> {
+    if site_is_reachable().await {
+        window
+            .navigate(SITE.parse().map_err(|e: url::ParseError| e.to_string())?)
+            .map_err(|e| e.to_string())
+    } else {
+        window
+            .navigate("http://tauri.localhost/offline-home.html".parse().unwrap())
+            .map_err(|e| e.to_string())
+    }
+}
+
+#[tauri::command]
+async fn open_home(window: tauri::WebviewWindow) -> Result<(), String> {
+    open_site(window).await
+}
+
+#[tauri::command]
+fn open_offline_home(window: tauri::WebviewWindow) -> Result<(), String> {
     window
-        .navigate(SITE.parse().map_err(|e: url::ParseError| e.to_string())?)
+        .navigate("http://tauri.localhost/offline-home.html".parse().unwrap())
         .map_err(|e| e.to_string())
 }
 
@@ -428,6 +456,8 @@ fn main() {
             delete_offline_chapter,
             open_site,
             open_home,
+            check_site_available,
+            open_offline_home,
             open_offline_library,
             toggle_fullscreen,
             window_minimize,
@@ -436,7 +466,7 @@ fn main() {
             window_start_dragging
         ])
         .setup(|app| {
-            let url = WebviewUrl::External(SITE.parse().unwrap());
+            let url = WebviewUrl::App("offline-home.html".into());
             WebviewWindowBuilder::new(app, "main", url)
                 .title("MahoraPeak Desktop")
                 .inner_size(1440.0, 900.0)

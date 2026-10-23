@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#090711" />
+  <title>Çevrimdışı · MahoraPeak Desktop</title>
+  <link rel="stylesheet" href="./offline-home.css" />
+</head>
+<body>
+  <header class="offline-topbar" data-tauri-drag-region>
+    <button class="brand" id="home" type="button" aria-label="MahoraPeak ana sayfa"><img src="./mahorapeaklogov2.webp" alt="MahoraPeak" /><span>DESKTOP</span></button>
+    <div class="topbar-spacer"></div>
+    <span class="connection-chip"><i></i> <b id="connection-label">ÇEVRİMDIŞI MOD</b></span>
+    <div class="window-controls"><button data-window="minimize" aria-label="Küçült">—</button><button data-window="maximize" aria-label="Büyüt">□</button><button data-window="close" aria-label="Kapat">×</button></div>
+  </header>
+  <main class="offline-layout">
+    <section class="offline-hero">
+      <div class="hero-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-symbol">MP</div><div class="art-spark spark-one">✦</div><div class="art-spark spark-two">✧</div></div>
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulse-dot"></span> MAHORAPEAK DESKTOP · ÇEVRİMDIŞI</p>
+        <h1>Bağlantı gitti.<br /><span>Okuma keyfin kalmasın.</span></h1>
+        <p class="description">Siteye şu anda ulaşılamıyor. Daha önce indirdiğin manga bölümleri bu cihazda güvende; kütüphanene geçip internet olmadan okumaya devam edebilirsin.</p>
+        <div class="hero-actions"><button class="primary-button" id="open-library"><span>▤</span> İndirilen kütüphanem <b>→</b></button><button class="retry-button" id="retry"><span class="retry-icon">↻</span> Yeniden bağlan</button></div>
+        <p class="retry-status" id="retry-status" aria-live="polite">Bağlantı geri gelince siteyi otomatik açacağız.</p>
+      </div>
+    </section>
+
+    <section class="offline-library-card">
+      <div class="library-icon">▤</div>
+      <div class="library-copy"><span class="card-kicker">BU CİHAZDA SAKLANANLAR</span><strong id="chapter-total">Kütüphane kontrol ediliyor…</strong><small id="library-summary">İndirdiğin bölümler internet olmadan da açılır.</small></div>
+      <div class="library-storage"><span>Kullanılan alan</span><strong id="storage-total">—</strong></div>
+      <button class="card-arrow" id="card-library" aria-label="Kütüphaneyi aç">→</button>
+    </section>
+
+    <section class="offline-tips">
+      <div class="tips-heading"><span class="eyebrow">OKUMAYA DEVAM ET</span><h2>Çevrimdışı modda</h2></div>
+      <article class="tip-card"><span class="tip-index">01</span><span class="tip-icon">▤</span><div><strong>İndirilenleri aç</strong><p>Seri klasörlerine ve bölüm sırasına göre düzenlenmiş arşivine git.</p></div></article>
+      <article class="tip-card"><span class="tip-index">02</span><span class="tip-icon cyan">◉</span><div><strong>Bağlantıyı tekrar dene</strong><p>İnternet geldiğinde siteye dönmek için yeniden bağlan düğmesini kullan.</p></div></article>
+      <article class="tip-card"><span class="tip-index">03</span><span class="tip-icon gold">✦</span><div><strong>İndirmelerin cihazında</strong><p>Daha önce kaydettiğin sayfalar yerel kütüphanende kalır.</p></div></article>
+    </section>
+    <footer class="offline-footer"><span>MAHORAPEAK DESKTOP</span><span>Yerel kütüphanen cihazında saklanır.</span></footer>
+  </main>
+  <script type="module" src="./offline-home.js"></script>
+</body>
+</html>

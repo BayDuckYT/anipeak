@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         index: resolve(process.cwd(), 'index.html'),
         offline: resolve(process.cwd(), 'offline.html'),
+        offlineHome: resolve(process.cwd(), 'offline-home.html'),
       },
     },
   },
