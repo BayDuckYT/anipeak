@@ -702,6 +702,8 @@ function AnnouncementsPanel({ showToast }) {
   const { announcements, addAnnouncement, deleteAnnouncement } = useApp();
   const [newAnn, setNewAnn] = useState('');
   const [annType, setAnnType] = useState('system');
+  const [sending, setSending] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   return (
     <div className="space-y-6">
@@ -714,17 +716,26 @@ function AnnouncementsPanel({ showToast }) {
             <option value="important">Kritik Uyarı</option>
             <option value="event">Etkinlik</option>
           </select>
-          <input type="text" placeholder="Duyuru metni..." value={newAnn} onChange={e => setNewAnn(e.target.value)}
+          <textarea maxLength={240} rows={2} placeholder="Kısa ve anlaşılır duyuru metni..." value={newAnn} onChange={e => setNewAnn(e.target.value)}
             className="flex-1 bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500" />
-          <button onClick={async () => {
-            if (!newAnn.trim()) return;
-            await addAnnouncement(newAnn, annType);
-            setNewAnn('');
-            showToast('Duyuru gönderildi!', 'success');
-          }} className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-xl text-sm shadow-neon-purple hover:scale-[1.02] transition-transform">
-            YAYINLA
+          <button disabled={sending || !newAnn.trim()} onClick={async () => {
+            if (!newAnn.trim() || sending) return;
+            setSending(true);
+            try {
+              await addAnnouncement(newAnn, annType);
+              setNewAnn('');
+              showToast('Duyuru başarıyla yayınlandı.', 'success');
+            } catch (error) {
+              console.error('[Admin] Duyuru yayınlanamadı:', error);
+              showToast(`Duyuru yayınlanamadı: ${error.message || 'Bağlantıyı kontrol et.'}`, 'error');
+            } finally {
+              setSending(false);
+            }
+          }} className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-xl text-sm shadow-neon-purple hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+            {sending ? 'GÖNDERİLİYOR…' : 'YAYINLA'}
           </button>
         </div>
+        <p className="mt-2 text-right text-[11px] text-slate-500">{newAnn.length}/240 · Duyuru, bildirim tercihleri açık kullanıcılara gösterilir.</p>
       </div>
 
       <div className="glass border border-white/8 rounded-2xl overflow-hidden">
@@ -750,7 +761,12 @@ function AnnouncementsPanel({ showToast }) {
                   {new Date(a.created_at || a.ts).toLocaleString('tr-TR')}
                 </td>
                 <td className="px-5 py-4">
-                  <button onClick={async () => { await deleteAnnouncement(a.id); showToast('Duyuru silindi.', 'error'); }}
+                  <button disabled={deletingId === a.id} onClick={async () => {
+                    setDeletingId(a.id);
+                    try { await deleteAnnouncement(a.id); showToast('Duyuru silindi.', 'success'); }
+                    catch (error) { console.error('[Admin] Duyuru silinemedi:', error); showToast(`Duyuru silinemedi: ${error.message || 'Tekrar dene.'}`, 'error'); }
+                    finally { setDeletingId(null); }
+                  }}
                     className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-all">
                     <Trash2 size={16} />
                   </button>
@@ -954,7 +970,7 @@ function TicketsPanel({ showToast }) {
 // Sub-component: Users Panel
 // ─────────────────────────────────────────────────────────────────────────────
 function UsersPanel({ showToast }) {
-  const { calculateTitle } = useAuth();
+  const { calculateTitle, getLevelInfo } = useAuth();
   const { registeredUsers, loadProfiles, updateProfile, deleteProfile } = useApp();
   const [search, setSearch] = useState('');
   const [editingUser, setEditingUser] = useState(null);
@@ -1064,7 +1080,7 @@ function UsersPanel({ showToast }) {
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-black text-purple-400">{u.xp || 0}</span>
                         <span className="text-[9px] font-bold text-white bg-white/10 px-2 py-0.5 rounded uppercase tracking-tighter">
-                          {calculateTitle(u.xp || 0, u.is_elite)}
+                          {calculateTitle(u.xp || 0, u.is_elite, u.active_plan_id)}
                         </span>
                       </div>
                     </div>
@@ -1158,7 +1174,7 @@ function UsersPanel({ showToast }) {
                     </select>
                   </div>
                   <div className="col-span-2 md:col-span-1">
-                    <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1">Kazanılan XP (Lvl: {Math.floor((editingUser.xp || 0) / 1000) + 1})</label>
+                    <label className="block text-[11px] text-slate-400 mb-2 font-black uppercase tracking-widest ml-1">Kazanılan XP (Lvl: {getLevelInfo(editingUser.xp || 0, editingUser.is_elite, editingUser.active_plan_id).level})</label>
                     <input type="number" value={editingUser.xp || 0} onChange={e => setEditingUser(p => ({ ...p, xp: parseInt(e.target.value) || 0 }))}
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-all shadow-inner" />
                   </div>

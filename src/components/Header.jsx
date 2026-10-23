@@ -22,7 +22,7 @@ export default function Header({ onAuthOpen }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const { user, logout, notifications, markAllRead, unreadCount, calculateTitle, isEditor, isMod } = useAuth();
+  const { user, logout, notifications, markAllRead, markNotificationRead, unreadCount, calculateTitle, isEditor, isMod } = useAuth();
   const { series, plans } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
@@ -273,7 +273,7 @@ export default function Header({ onAuthOpen }) {
           <div className="relative" ref={notifRef}>
             <button
               aria-label="Bildirimler"
-              onClick={() => { setNotifOpen(!notifOpen); if (!notifOpen && user) markAllRead(); }}
+              onClick={() => setNotifOpen(!notifOpen)}
               className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-all active:scale-95"
             >
               <Bell size={17} />
@@ -289,13 +289,13 @@ export default function Header({ onAuthOpen }) {
                   initial={{ opacity: 0, y: 8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-3 w-80 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
+                  className="absolute right-0 top-full mt-3 w-[min(22rem,calc(100vw-1.5rem))] glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
                 >
                   <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between">
                     <span className="text-white text-sm font-bold">Bildirimler</span>
-                    {user && (
-                      <button onClick={markAllRead} className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
-                        <CheckCheck size={12} /> Tümü Okundu
+                    {user && unreadCount > 0 && (
+                      <button onClick={markAllRead} className="text-xs text-purple-300 hover:text-white flex items-center gap-1">
+                        <CheckCheck size={12} /> Tümünü okundu işaretle
                       </button>
                     )}
                   </div>
@@ -303,13 +303,17 @@ export default function Header({ onAuthOpen }) {
                     {user ? (
                       notifications?.length > 0 ? (
                         notifications.map((n) => (
-                          <div key={n.id} className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors ${!n.read ? 'bg-red-500/5' : ''}`}>
-                            <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.read ? 'bg-red-500' : 'bg-slate-700'}`} />
-                            <div className="min-w-0">
-                              <p className="text-slate-300 text-xs leading-relaxed">{n?.text}</p>
-                              <p className="text-slate-400 text-[10px] mt-1">{n?.time}</p>
+                          <button key={n.id} onClick={async () => {
+                            if (!n.read) await markNotificationRead(n.id);
+                            if (n.seriesId) { const target = series.find(item => String(item.id) === String(n.seriesId)); if (target?.slug) { setNotifOpen(false); navigate(`/manga/${target.slug}`); } }
+                          }} className={`w-full text-left flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors ${!n.read ? 'bg-purple-500/5' : ''}`}>
+                            <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.read ? 'bg-purple-400' : 'bg-slate-700'}`} />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-slate-200 text-xs leading-relaxed">{n?.text}</p>
+                              <p className="text-slate-500 text-[10px] mt-1">{n?.time}{n.chapterNum ? ` · Bölüm ${n.chapterNum}` : ''}</p>
                             </div>
-                          </div>
+                            {!n.read && <span className="text-[10px] text-purple-300">Yeni</span>}
+                          </button>
                         ))
                       ) : (
                         <div className="px-4 py-6 text-center text-slate-500 text-xs">Henüz bildirim yok.</div>
@@ -369,7 +373,7 @@ export default function Header({ onAuthOpen }) {
                   <div className="hidden sm:flex flex-col items-start justify-center">
                     <p className={`text-[11px] font-black leading-tight uppercase tracking-tight flex items-center gap-1 ${
                       user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
-                      user.rank === 'Manga Hükümdarı' ? 'rank-glow-purple' : 'text-white'
+                      user.baseRank === 'Mahora Hükümdarı' ? 'rank-glow-purple' : 'text-white'
                     }`}>
                       {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
                       {user.username}

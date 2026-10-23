@@ -4,6 +4,7 @@
 
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } from 'discord.js';
 import { hasPermission } from '../utils/permissions.js';
+import { getLevelInfo, getXPForLevel } from '../../../src/lib/gamification.js';
 
 const COLORS = { BLUE: 0x00BFFF, GREEN: 0x00FF88, RED: 0xFF003C, PURPLE: 0x8A2BE2, GOLD: 0xFFD700 };
 
@@ -20,7 +21,7 @@ export default {
       sub.setName('set')
         .setDescription('Kullanıcının seviyesini ayarlar.')
         .addUserOption(opt => opt.setName('kullanıcı').setDescription('Hedef kullanıcı').setRequired(true))
-        .addIntegerOption(opt => opt.setName('seviye').setDescription('Yeni seviye').setRequired(true).setMinValue(0).setMaxValue(100))
+        .addIntegerOption(opt => opt.setName('seviye').setDescription('Yeni seviye').setRequired(true).setMinValue(1).setMaxValue(100))
     )
     .addSubcommand(sub =>
       sub.setName('ekle')
@@ -59,10 +60,10 @@ export default {
         const { data: profile } = await supabase.from('profiles').select('*').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Profil bulunamadı veya hesap bağlı değil.' });
 
-        const level = profile.level || 1;
         const xp = profile.xp || 0;
-        const nextLevelXP = calculateXPForLevel(level + 1);
-        const progress = Math.round((xp / nextLevelXP) * 100);
+        const info = getLevelInfo(xp, profile.is_elite, profile.active_plan_id);
+        const level = info.level;
+        const progress = Math.round(info.progress);
         const progressBar = createProgressBar(progress);
 
         const embed = new EmbedBuilder()
@@ -71,7 +72,8 @@ export default {
           .addFields(
             { name: '📊 Seviye', value: `\`${level}\``, inline: true },
             { name: '✨ XP', value: `\`${xp.toLocaleString()}\``, inline: true },
-            { name: '📈 Sonraki Seviye', value: `\`${nextLevelXP.toLocaleString()}\` XP`, inline: true },
+            { name: '🔰 Rütbe', value: `**${info.rank}**`, inline: true },
+            { name: '📈 Sonraki Seviye', value: level >= 100 ? '`MAKSİMUM`' : `\`${info.nextLevelXP.toLocaleString()}\` XP`, inline: true },
             { name: '📊 İlerleme', value: `${progressBar} \`${progress}%\`` },
           )
           .setColor(COLORS.PURPLE)
@@ -85,10 +87,12 @@ export default {
         if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Admin yetkisi gerekli.' }); }
         const user = interaction.options.getUser('kullanıcı');
         const level = interaction.options.getInteger('seviye');
-        const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('id, is_elite, active_plan_id').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        await supabase.from('profiles').update({ level, xp: calculateXPForLevel(level) }).eq('id', profile.id);
+        const xp = getXPForLevel(level);
+        const info = getLevelInfo(xp, profile.is_elite, profile.active_plan_id);
+        await supabase.from('profiles').update({ level: info.level, xp, rank: info.rank }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ Seviye Ayarlandı').setDescription(`${user.tag} → Seviye **${level}**`).setColor(COLORS.GREEN)] });
         break;
       }
@@ -96,21 +100,25 @@ export default {
       case 'ekle': {
         if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
-        const { data: profile } = await supabase.from('profiles').select('id, level').eq('discord_id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('id, xp, is_elite, active_plan_id').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        const newLevel = Math.min((profile?.level || 1) + amount, 100);
-        await supabase.from('profiles').update({ level: newLevel }).eq('id', profile.id);
+        const current = getLevelInfo(profile.xp || 0, profile.is_elite, profile.active_plan_id);
+        const newLevel = Math.min(current.level + amount, 100);
+        const xp = getXPForLevel(newLevel);
+        const info = getLevelInfo(xp, profile.is_elite, profile.active_plan_id);
+        await supabase.from('profiles').update({ level: info.level, xp, rank: info.rank }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ Seviye Eklendi').setDescription(`${user.tag}: +${amount} → Seviye **${newLevel}**`).setColor(COLORS.GREEN)] });
         break;
       }
 
       case 'sifirla': {
         if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
-        const { data: profile } = await supabase.from('profiles').select('id').eq('discord_id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('id, is_elite, active_plan_id').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
-        await supabase.from('profiles').update({ level: 1, xp: 0 }).eq('id', profile.id);
+        const info = getLevelInfo(0, profile.is_elite, profile.active_plan_id);
+        await supabase.from('profiles').update({ level: info.level, xp: 0, rank: info.rank }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('🔄 Seviye Sıfırlandı').setDescription(`${user.tag} → Seviye **1** (XP: 0)`).setColor(COLORS.RED)] });
         break;
       }
@@ -118,11 +126,12 @@ export default {
       case 'xp-ekle': {
         if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
-        const { data: profile } = await supabase.from('profiles').select('id, xp').eq('discord_id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('id, xp, is_elite, active_plan_id').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
         const newXP = (profile?.xp || 0) + amount;
-        await supabase.from('profiles').update({ xp: newXP }).eq('id', profile.id);
+        const info = getLevelInfo(newXP, profile.is_elite, profile.active_plan_id);
+        await supabase.from('profiles').update({ xp: newXP, level: info.level, rank: info.rank }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('✅ XP Eklendi').setDescription(`${user.tag}: +\`${amount}\` XP → Toplam \`${newXP}\``).setColor(COLORS.GOLD)] });
         break;
       }
@@ -130,11 +139,12 @@ export default {
       case 'xp-cikar': {
         if (!hasPermission(interaction.member, 'BYK')) { return interaction.editReply({ content: '❌ Yetki yok.' }); }const user = interaction.options.getUser('kullanıcı');
         const amount = interaction.options.getInteger('miktar');
-        const { data: profile } = await supabase.from('profiles').select('id, xp').eq('discord_id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('id, xp, is_elite, active_plan_id').eq('discord_id', user.id).single();
         if (!profile) return interaction.editReply({ content: '❌ Hesap bağlı değil.' });
 
         const newXP = Math.max((profile?.xp || 0) - amount, 0);
-        await supabase.from('profiles').update({ xp: newXP }).eq('id', profile.id);
+        const info = getLevelInfo(newXP, profile.is_elite, profile.active_plan_id);
+        await supabase.from('profiles').update({ xp: newXP, level: info.level, rank: info.rank }).eq('id', profile.id);
         await interaction.editReply({ embeds: [new EmbedBuilder().setTitle('⬇️ XP Çıkarıldı').setDescription(`${user.tag}: -\`${amount}\` XP → Toplam \`${newXP}\``).setColor(COLORS.RED)] });
         break;
       }
@@ -142,12 +152,8 @@ export default {
   },
 };
 
-function calculateXPForLevel(level) {
-  return Math.floor(100 * Math.pow(level, 1.5));
-}
-
 function createProgressBar(percent) {
-  const filled = Math.round(percent / 5);
+  const filled = Math.min(20, Math.max(0, Math.round(percent / 5)));
   const empty = 20 - filled;
   return '█'.repeat(filled) + '░'.repeat(empty);
 }

@@ -14,7 +14,7 @@ export default {
       // 1. Kullanıcıyı discord_id ile bul
       const { data: profile, error: fetchError } = await client.supabase
         .from('profiles')
-        .select('id, username, xp, is_elite, reading_streak, discord_id')
+        .select('id, username, xp, is_elite, active_plan_id, reading_streak, discord_id')
         .eq('discord_id', discord_id)
         .maybeSingle(); // single() yerine maybeSingle() - hata fırlatmaz, null döner
 
@@ -40,7 +40,7 @@ export default {
         : 0;
       const totalSeries = history ? history.length : 0;
 
-      const levelInfo = getLevelInfo(profile.xp || 0, profile.is_elite);
+      const levelInfo = getLevelInfo(profile.xp || 0, profile.is_elite, profile.active_plan_id);
 
       const embed = new EmbedBuilder()
         .setTitle(`📊 MAHORAPEAK KARARGAH VERİLERİ — ${profile.username}`)

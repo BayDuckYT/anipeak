@@ -1,83 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { trackActivity } from '../lib/achievementService';
+import { getLevelInfo } from '../lib/gamification';
+
+export { calculateRank, getLevelInfo } from '../lib/gamification';
 
 const AuthContext = createContext(null);
-
-/**
- * XP bazlı rütbe hesaplama
- */
-/**
- * Yeni Kademeli Seviye ve Rütbe Hesaplama (MahoraPeak V4)
- */
-export function getLevelInfo(xp, is_elite = false, active_plan_id = null) {
-  let level, rank, xpInLevel, xpForNext, rankColor;
-  const val = Number(xp) || 0;
-
-  if (val < 500) {
-    level = Math.floor(val / 50) + 1;
-    rank = 'Manga Çırağı';
-    xpInLevel = val % 50;
-    xpForNext = 50;
-  } else if (val < 2000) {
-    level = 11 + Math.floor((val - 500) / 100);
-    rank = 'Manga Yolcusu';
-    xpInLevel = (val - 500) % 100;
-    xpForNext = 100;
-  } else if (val < 5000) {
-    level = 26 + Math.floor((val - 2000) / 200);
-    rank = 'Manga Savaşçısı';
-    xpInLevel = (val - 2000) % 200;
-    xpForNext = 200;
-  } else if (val < 10000) {
-    level = 41 + Math.floor((val - 5000) / 333);
-    rank = 'Manga Koruması';
-    xpInLevel = (val - 5000) % 333;
-    xpForNext = 333;
-  } else if (val < 25000) {
-    level = 56 + Math.floor((val - 10000) / 1000);
-    rank = 'Manga Koleksiyoncusu';
-    xpInLevel = (val - 10000) % 1000;
-    xpForNext = 1000;
-  } else if (val < 50000) {
-    level = 71 + Math.floor((val - 25000) / 1666);
-    rank = 'Manga Ustası';
-    xpInLevel = (val - 25000) % 1666;
-    xpForNext = 1666;
-  } else if (val < 100000) {
-    level = 86 + Math.floor((val - 50000) / 3333);
-    rank = 'Manga Efsanesi';
-    xpInLevel = (val - 50000) % 3333;
-    xpForNext = 3333;
-  } else {
-    level = 100;
-    rank = 'Manga Hükümdarı';
-    xpInLevel = 1;
-    xpForNext = 1;
-  }
-
-  if (level > 100) level = 100;
-
-  // Eğer premium kullanıcısıysa (is_elite) başına sadece Elite ekle
-  if (is_elite || active_plan_id) {
-    rank = `Elite ${rank}`;
-  }
-
-  return { 
-    level, 
-    rank, 
-    xpInLevel, 
-    xpForNext, 
-    progress: level === 100 ? 100 : (xpInLevel / xpForNext) * 100,
-    fullLabel: `Lv. ${level} ${rank}`,
-    rankStyle: (is_elite || active_plan_id) ? 'elite-gold-glow' : 'normal-rank'
-  };
-}
-
-// Geriye uyumluluk için eski fonksiyonu güncelle
-export function calculateRank(xp) {
-  return getLevelInfo(xp).rank;
-}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -152,7 +80,7 @@ export function AuthProvider({ children }) {
         xp:              data?.xp ?? 0,
         aura:            data?.aura ?? 0,
         ...getLevelInfo(data?.xp ?? 0, is_elite),
-        rank:            data?.rank || getLevelInfo(data?.xp ?? 0, is_elite).rank, // DB'deki rütbeyi koru
+        rank:            getLevelInfo(data?.xp ?? 0, is_elite, data?.active_plan_id).rank,
         mal_username:    data?.mal_username || null,
         badges:          data?.badges || [],
         active_decoration: data?.active_decoration || 'none',
@@ -243,12 +171,12 @@ export function AuthProvider({ children }) {
     if (!user?.id) return;
     
     const loadNotifications = async () => {
-      const settings = user.notification_settings || { newChapter: true, replies: true, system: true };
+      const settings = { newChapter: true, replies: true, system: true, schedule: true, ...(user.notification_settings || {}) };
       
       let allNotifs = [];
 
-      // 1. Fetch Global Announcements (if system notifications enabled)
-      if (settings.system !== false) {
+      // 1. Fetch global announcements and apply each user's preferences.
+      {
         const { data: annData } = await supabase
           .from('announcements')
           .select('*')
@@ -257,7 +185,14 @@ export function AuthProvider({ children }) {
         
         if (annData) {
           const readIds = user.read_notifications || [];
-          const mappedAnn = annData.map(a => ({
+          const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
+          const visibleAnnouncements = annData.filter(a => {
+            if (a.type === 'chapter' && settings.newChapter === false) return false;
+            if (a.type === 'chapter' && a.series_id && trackedSeries.size && (!trackedSeries.has(String(a.series_id)) || settings.schedule === false)) return false;
+            if (['system', 'important', 'event', 'series'].includes(a.type) && settings.system === false) return false;
+            return true;
+          });
+          const mappedAnn = visibleAnnouncements.map(a => ({
             id: `ann_${a.id}`,
             originalId: a.id,
             text: a.text,
@@ -265,7 +200,9 @@ export function AuthProvider({ children }) {
             time: new Date(a.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
             createdAt: new Date(a.created_at).getTime(),
             read: readIds.includes(a.id),
-            isAnnouncement: true
+            isAnnouncement: true,
+            seriesId: a.series_id || null,
+            chapterNum: a.chapter_num || null
           }));
           allNotifs = [...allNotifs, ...mappedAnn];
         }
@@ -280,10 +217,13 @@ export function AuthProvider({ children }) {
         .limit(30);
 
       if (notifData) {
+        const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
         const filteredNotifs = notifData.filter(n => {
           if (n.type === 'system' && settings.system === false) return false;
           if ((n.type === 'reply' || n.type === 'mention') && settings.replies === false) return false;
-          if (n.type === 'new_chapter' && settings.newChapter === false) return false;
+          if (['new_chapter', 'chapter'].includes(n.type) && settings.newChapter === false) return false;
+          if (['new_chapter', 'chapter'].includes(n.type) && n.series_id && trackedSeries.size && settings.schedule !== false && !trackedSeries.has(String(n.series_id))) return false;
+          if (n.type === 'schedule' && settings.schedule === false) return false;
           return true;
         });
 
@@ -295,7 +235,9 @@ export function AuthProvider({ children }) {
           time: new Date(n.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
           createdAt: new Date(n.created_at).getTime(),
           read: n.is_read,
-          isAnnouncement: false
+          isAnnouncement: false,
+          seriesId: n.series_id || null,
+          chapterNum: n.chapter_num || null
         }));
         allNotifs = [...allNotifs, ...mappedNotifs];
       }
@@ -314,14 +256,21 @@ export function AuthProvider({ children }) {
     const channels = [];
 
     const handleNewItem = (payload, isAnnouncement) => {
-      const settings = user.notification_settings || { newChapter: true, replies: true, system: true };
+      const settings = { newChapter: true, replies: true, system: true, schedule: true, ...(user.notification_settings || {}) };
       const item = payload.new;
       
-      if (isAnnouncement && settings.system === false) return;
-      if (!isAnnouncement) {
+      if (isAnnouncement) {
+        if (item.type === 'chapter' && settings.newChapter === false) return;
+        if (['system', 'important', 'event', 'series'].includes(item.type) && settings.system === false) return;
+        const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
+        if (item.type === 'chapter' && item.series_id && trackedSeries.size && (!trackedSeries.has(String(item.series_id)) || settings.schedule === false)) return;
+      } else {
         if (item.type === 'system' && settings.system === false) return;
         if ((item.type === 'reply' || item.type === 'mention') && settings.replies === false) return;
-        if (item.type === 'new_chapter' && settings.newChapter === false) return;
+        if (['new_chapter', 'chapter'].includes(item.type) && settings.newChapter === false) return;
+        const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
+        if (['new_chapter', 'chapter'].includes(item.type) && item.series_id && trackedSeries.size && (!trackedSeries.has(String(item.series_id)) || settings.schedule === false)) return;
+        if (item.type === 'schedule' && settings.schedule === false) return;
       }
 
       setNotifications(prev => {
@@ -333,9 +282,11 @@ export function AuthProvider({ children }) {
           time: new Date(item.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
           createdAt: new Date(item.created_at).getTime(),
           read: isAnnouncement ? (user.read_notifications || []).includes(item.id) : item.is_read,
-          isAnnouncement
+          isAnnouncement,
+          seriesId: item.series_id || null,
+          chapterNum: item.chapter_num || null
         };
-        const next = [fresh, ...prev].sort((a, b) => b.createdAt - a.createdAt).slice(0, 30);
+        const next = [fresh, ...prev.filter(existing => existing.id !== fresh.id)].sort((a, b) => b.createdAt - a.createdAt).slice(0, 30);
         updateUnread(next);
         return next;
       });
@@ -363,32 +314,29 @@ export function AuthProvider({ children }) {
   };
 
   // ── Gamification Logic ──────────────────────────────────────────────
-  const calculateTitle = (xp = 0, is_elite = false) => {
-    let baseTitle = 'Yeni Üye';
-    if (xp >= 1500) baseTitle = 'Kıdemli Okur';
-    else if (xp >= 500)  baseTitle = 'Manga Uzmanı';
-    else if (xp >= 100)  baseTitle = 'Aktif Üye';
-    
-    if (is_elite) return `👑 Elite ${baseTitle}`;
-    return baseTitle;
+  const calculateTitle = (xp = 0, is_elite = false, active_plan_id = null) => {
+    return getLevelInfo(xp, is_elite, active_plan_id).rank;
   };
 
   const updateXP = useCallback(async (amount) => {
     if (!user?.id) return;
-    
-    const newXP = (Number(user.xp) || 0) + amount;
-    const newRank = calculateRank(newXP);
+
+    const reward = Number(amount);
+    if (!Number.isFinite(reward) || reward <= 0) return;
+    const currentXP = Math.max(0, Math.floor(Number(user.xp) || 0));
+    const newXP = currentXP + Math.floor(reward);
+    if (newXP === currentXP) return;
+    const newInfo = getLevelInfo(newXP, user.is_elite, user.active_plan_id);
 
     const { error } = await supabase
       .from('profiles')
-      .update({ xp: newXP, rank: newRank })
+      .update({ xp: newXP, rank: newInfo.rank })
       .eq('id', user.id);
     
     if (error) {
       console.error('[XP] Güncelleme hatası:', error);
     } else {
-      const oldInfo = getLevelInfo(user.xp || 0, user.is_elite);
-      const newInfo = getLevelInfo(newXP, user.is_elite);
+      const oldInfo = getLevelInfo(currentXP, user.is_elite, user.active_plan_id);
       const levelUp = newInfo.level > oldInfo.level;
 
       setUser(prev => ({ 
@@ -420,6 +368,19 @@ export function AuthProvider({ children }) {
     if (!user?.id) return;
     
     try {
+      const { data: previousHistory, error: previousHistoryError } = await supabase
+        .from('reading_history')
+        .select('last_read_chapter')
+        .eq('user_id', user.id)
+        .eq('series_id', seriesId)
+        .maybeSingle();
+      if (previousHistoryError) throw previousHistoryError;
+
+      const currentChapter = Number(chapterNum);
+      const previousChapter = Number(previousHistory?.last_read_chapter);
+      const progressAdvanced = Number.isFinite(currentChapter) &&
+        (!Number.isFinite(previousChapter) || currentChapter > previousChapter);
+
       const { error: histError } = await supabase
         .from('reading_history')
         .upsert({
@@ -435,6 +396,7 @@ export function AuthProvider({ children }) {
       const today = new Date().toISOString().split('T')[0];
       const lastReadDate = user.last_read_date;
       let newStreak = user.reading_streak || 0;
+      let xpReward = progressAdvanced ? 10 : 0;
 
       if (lastReadDate !== today) {
         const yesterday = new Date();
@@ -447,9 +409,9 @@ export function AuthProvider({ children }) {
           newStreak = 1; // Seri bozuldu veya yeni başladı
         }
 
-        // 7. Gün Özel Ödülü
-        if (newStreak === 7) {
-          updateXP(1000); // Dev XP bonusu
+        // Her 7 günlük seri dönümünde XP ödülü
+        if (newStreak % 7 === 0) {
+          xpReward += 100;
           trackActivity(user.id, 'achievement_unlock', 1, { name: 'Gizli Başarım', type: 'streak_7' });
         }
 
@@ -459,14 +421,13 @@ export function AuthProvider({ children }) {
         });
       }
 
-      // Her bölüm okuma 10 XP verir
-      updateXP(10);
+      // İlerleme ve seri ödülünü tek güncellemede yaz; eşzamanlı XP yazımları birbirini ezmesin.
+      if (xpReward > 0) updateXP(xpReward);
       
       // Başarım takibi
-      trackActivity(user.id, 'read_chapter', 1, { 
-        seriesId, 
-        genres: [] 
-      });
+      if (progressAdvanced) {
+        trackActivity(user.id, 'read_chapter', 1, { seriesId, genres: [] });
+      }
     } catch (err) {
       console.error('[Auth] Reading progress update error:', err);
     }
@@ -494,15 +455,45 @@ export function AuthProvider({ children }) {
 
     if (promises.length > 0) {
       const results = await Promise.allSettled(promises);
-      const errors = results.filter(r => r.status === 'rejected');
-      if (errors.length > 0) console.error('[Notif] Okundu hatası:', errors);
+      const errors = results.filter(r => r.status === 'rejected' || r.value?.error);
+      if (errors.length > 0) {
+        console.error('[Notif] Okundu hatası:', errors);
+        return false;
+      }
       
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
+      return true;
     } else {
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
+      return true;
     }
+  }, [user, notifications]);
+
+  const markNotificationRead = useCallback(async (notificationId) => {
+    if (!user?.id) return false;
+    const notification = notifications.find(item => item.id === notificationId);
+    if (!notification || notification.read) return true;
+
+    let error = null;
+    if (notification.isAnnouncement) {
+      const readIds = Array.from(new Set([...(user.read_notifications || []), notification.originalId]));
+      ({ error } = await supabase.from('profiles').update({ read_notifications: readIds }).eq('id', user.id));
+      if (!error) setUser(prev => prev ? { ...prev, read_notifications: readIds } : prev);
+    } else {
+      ({ error } = await supabase.from('notifications').update({ is_read: true }).eq('id', notification.originalId).eq('user_id', user.id));
+    }
+    if (error) {
+      console.error('[Notif] Bildirim okundu güncellenemedi:', error);
+      return false;
+    }
+    setNotifications(prev => {
+      const next = prev.map(item => item.id === notificationId ? { ...item, read: true } : item);
+      setUnreadCount(next.filter(item => !item.read).length);
+      return next;
+    });
+    return true;
   }, [user, notifications]);
 
   // ── Authentication Boot & Listeners ──────────────────────────────────
@@ -882,9 +873,11 @@ export function AuthProvider({ children }) {
     unreadCount,
     sendNotification,
     markAllRead,
+    markNotificationRead,
     updateXP,
     updateReadingProgress,
     calculateTitle,
+    getLevelInfo,
     resetPassword,
     verifyOtp,
     updatePassword,

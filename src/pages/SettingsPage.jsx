@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Shield, Bell, Eye, Palette, Link as LinkIcon, 
   AlertTriangle, Settings as SettingsIcon, Check, Loader2, 
-  Camera, ImageIcon, Zap, Swords, ChevronRight, Fingerprint, 
+  Camera, ImageIcon, Zap, Swords, ChevronRight, Fingerprint, Calendar,
   Moon, Sun, Wind, Flame, ShieldAlert, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -159,7 +159,7 @@ export default function SettingsPage() {
     url: 'https://mahorapeak.com.tr/settings'
   });
 
-  const [notifSettings, setNotifSettings] = useState({ newChapter: true, replies: true, system: true });
+  const [notifSettings, setNotifSettings] = useState({ newChapter: true, replies: true, system: true, schedule: true, scheduleSeriesIds: [] });
   const [privacySettings, setPrivacySettings] = useState({ publicProfile: true, showActivity: true });
   const [appearanceSettings, setAppearanceSettings] = useState({ theme: 'dark', animations: true });
   const [malUsername, setMalUsername] = useState('');
@@ -167,7 +167,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user) {
-      if (user.notification_settings) setNotifSettings(user.notification_settings);
+      if (user.notification_settings) setNotifSettings(prev => ({ ...prev, ...user.notification_settings, scheduleSeriesIds: user.notification_settings.scheduleSeriesIds || [] }));
       if (user.privacy_settings) setPrivacySettings(user.privacy_settings);
       if (user.appearance_settings) setAppearanceSettings(user.appearance_settings);
       if (user.mal_username) setMalUsername(user.mal_username);
@@ -823,10 +823,23 @@ export default function SettingsPage() {
                       <EpicToggle 
                         icon={Bell}
                         title="Yeni Bölüm Alarmı" 
-                        desc="Takip ettiğin serilere yeni bölüm eklendiğinde anında haberin olsun."
+                        desc="Yeni bölüm duyurularını bildirim kutunda göster. Takvimde takip ettiğin seriler varsa yalnızca onların bölüm duyuruları gösterilir."
                         enabled={notifSettings.newChapter}
                         onToggle={() => handleSave({ notification_settings: { ...notifSettings, newChapter: !notifSettings.newChapter } })}
                       />
+                      <EpicToggle
+                        icon={Calendar}
+                        title="Takvim Takipleri"
+                        desc={`${(notifSettings.scheduleSeriesIds || []).length} seri takipte. Takvimde bir serinin zilini açarak listeye ekleyebilirsin.`}
+                        enabled={notifSettings.schedule !== false}
+                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, schedule: notifSettings.schedule === false } })}
+                      />
+                      {(notifSettings.scheduleSeriesIds || []).length > 0 && (
+                        <button
+                          onClick={() => handleSave({ notification_settings: { ...notifSettings, scheduleSeriesIds: [] } }, 'Takvim takiplerin temizlendi')}
+                          className="text-xs font-bold text-purple-300 hover:text-white transition-colors"
+                        >Takip edilen serileri temizle</button>
+                      )}
                       <EpicToggle 
                         icon={User}
                         title="Yorum Etkileşimleri" 

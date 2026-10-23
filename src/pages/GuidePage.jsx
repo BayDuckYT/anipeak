@@ -8,6 +8,7 @@ import {
   TrendingUp, Shield, Layers, Gauge, Gift, Play
 } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
+import { getLevelInfo, MAX_LEVEL, RANKS } from '../lib/gamification';
 import '../styles/home.css';
 
 // ── Ultra-Akıcı Donanım Hızlandırmalı Motion Varyantları (GPU) ──
@@ -42,8 +43,8 @@ const GUIDE_SECTIONS = [
 const XP_ACTIVITIES = [
   {
     title: 'Bölüm Okumak',
-    reward: '+15 XP',
-    desc: 'Okuduğun her manga veya manhwa bölümü bittiğinde hesabına anında XP yansır.',
+    reward: '+10 XP',
+    desc: 'Okuma ilerlemesi kaydedildiğinde hesabına XP eklenir.',
     icon: BookOpen,
     color: 'from-blue-600/25 via-cyan-600/15 to-[#0F0B24]',
     border: 'border-blue-500/30 hover:border-blue-400/60',
@@ -51,58 +52,39 @@ const XP_ACTIVITIES = [
   },
   {
     title: 'Günlük Seri (Streak)',
-    reward: 'Katlanan Çarpan',
-    desc: 'Her gün siteye giriş yapıp bölüm okuyarak serini koru, ekstra çarpanlı XP kazan.',
+    reward: '+100 XP / 7 gün',
+    desc: 'Her yedi günlük kesintisiz okuma serisi dönümünde ek XP kazan.',
     icon: Flame,
     color: 'from-orange-600/25 via-amber-600/15 to-[#0F0B24]',
     border: 'border-orange-500/30 hover:border-orange-400/60',
     iconColor: 'text-orange-300'
   },
   {
-    title: 'Bölümlere Yorum Bırakmak',
+    title: 'Seri veya bölüm puanlamak',
     reward: '+5 XP',
-    desc: 'Bölüm sonundaki yorum alanına düşüncelerini yaz, toplulukla fikir alışverişi yap.',
-    icon: MessageSquare,
-    color: 'from-purple-600/25 via-fuchsia-600/15 to-[#0F0B24]',
-    border: 'border-purple-500/30 hover:border-purple-400/60',
-    iconColor: 'text-purple-300'
-  },
-  {
-    title: 'Bölümleri Beğenmek',
-    reward: '+2 XP',
-    desc: 'Sevdiğin bölümleri kalple veya yıldızla ödüllendirerek seriyi öne çıkar.',
-    icon: Heart,
-    color: 'from-rose-600/25 via-pink-600/15 to-[#0F0B24]',
-    border: 'border-rose-500/30 hover:border-rose-400/60',
-    iconColor: 'text-rose-300'
-  },
-  {
-    title: 'Discord Hesabını Bağlamak',
-    reward: '+250 XP (Tek Sefer)',
-    desc: 'Profilinden aldığın kodu Discord sunucumuza yazarak tek tıkla hesabını bağla.',
-    icon: Bot,
-    color: 'from-indigo-600/25 via-violet-600/15 to-[#0F0B24]',
-    border: 'border-indigo-500/30 hover:border-indigo-400/60',
-    iconColor: 'text-indigo-300'
-  },
-  {
-    title: 'Başarım Kilidi Açmak',
-    reward: '+50 - 500 XP',
-    desc: 'Hedeflenen görevleri tamamlayıp rozet kazandıkça ekstra XP sandıkları açılır.',
-    icon: Award,
-    color: 'from-emerald-600/25 via-teal-600/15 to-[#0F0B24]',
-    border: 'border-emerald-500/30 hover:border-emerald-400/60',
-    iconColor: 'text-emerald-300'
+    desc: 'Seriye ya da bölüme ilk puanını verdiğinde XP kazanırsın.',
+    icon: Star,
+    color: 'from-amber-600/25 via-yellow-600/15 to-[#0F0B24]',
+    border: 'border-amber-500/30 hover:border-amber-400/60',
+    iconColor: 'text-amber-300'
   }
 ];
 
+const RANK_STYLES = [
+  { badge: 'bg-slate-500/20 text-slate-300 border-slate-500/40', perk: 'Yolculuğuna başla; her seviyede XP eşiği kademeli yükselir.' },
+  { badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40', perk: 'Düzenli okumayla ilk rütbe eşiğini geç.' },
+  { badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', perk: 'Daha yüksek seviyelere ulaşarak okur profilini geliştir.' },
+  { badge: 'bg-purple-500/20 text-purple-300 border-purple-500/40', perk: 'Üst kademelerde her yeni seviye daha fazla XP ister.' },
+  { badge: 'bg-rose-500/20 text-rose-300 border-rose-500/40', perk: 'Ustalığa yaklaş; seviyeler arası XP aralığı genişler.' },
+  { badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40', perk: '100. seviyeye ulaş ve en yüksek rütbeyi kazan.' },
+];
+
 const RANK_TIERS = [
-  { level: 'Lv 1 - 9', name: 'Çaylak Okur', badge: 'bg-slate-500/20 text-slate-300 border-slate-500/40', perk: 'Temel okuma, yorum yapma ve kütüphane oluşturma.' },
-  { level: 'Lv 10 - 24', name: 'Maceracı', badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40', perk: 'Mavi profil ışığı, yorumlarda öne çıkan renkli ad etiketi.' },
-  { level: 'Lv 25 - 49', name: 'Kıdemli Avcı', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', perk: 'Zümrüt aurası, pazar indirimleri ve özel rozetler.' },
-  { level: 'Lv 50 - 74', name: 'Üstün Şövalye', badge: 'bg-purple-500/20 text-purple-300 border-purple-500/40', perk: 'Mor parıltı, profil afişleri ve Discord özel rütbesi.' },
-  { level: 'Lv 75 - 99', name: 'Hükümdar Muhafızı', badge: 'bg-rose-500/20 text-rose-300 border-rose-500/40', perk: 'Ateşli aura, erken bölüm önizlemeleri ve özel plaket.' },
-  { level: 'Lv 100+', name: 'Mahora Hükümdarı', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40', perk: 'Altın taç simgesi ve sitede parıldayan en yüksek prestij.' },
+  ...RANKS.map((rank, index) => ({
+    level: rank.minLevel === MAX_LEVEL ? `Lv ${rank.minLevel}+` : `Lv ${rank.minLevel} - ${rank.maxLevel}`,
+    name: rank.name,
+    ...RANK_STYLES[index],
+  })),
 ];
 
 const FAQS = [
@@ -112,7 +94,7 @@ const FAQS = [
   },
   {
     q: 'Discord hesabımı bağlamak bana ne kazandırır?',
-    a: 'Discord hesabını bağladığında tek seferlik 250 XP kazanırsın. Ayrıca Discord sunucumuzdaki seviyen ve rollerin siteye senkronize olur; VIP üyeliklerin Discord rollerine anında yansır.'
+    a: 'Discord hesabını bağlamak XP kazandırmaz. Bağlantı, Discord özelliklerinin hesabınla eşleşmesini sağlar.'
   },
   {
     q: 'Aura Pazarı\'ndaki efektleri nasıl satın alırım?',
@@ -128,7 +110,7 @@ const FAQS = [
   },
   {
     q: 'MahoraPeak Elite paketini nasıl alabilirim?',
-    a: 'Üst menüdeki veya profilindeki "Premium" sayfasına giderek aylık veya süresiz paket seçeneklerinden birini tercih edebilir ve anında tüm ayrıcalıklardan yararlanabilirsin.'
+    a: 'Premium paketlerin mevcut satın alma ve üyelik durumu için Premium sayfasındaki güncel bilgilere bakabilirsin.'
   }
 ];
 
@@ -145,10 +127,11 @@ export default function GuidePage() {
 
   // İnteraktif XP Hesaplama Mantığı
   const calculatedStats = useMemo(() => {
-    const dailyXp = dailyChapters * 15 + 15; // 15 XP bölüm başı + ortalama 3 yorum/beğeni
-    const monthlyXp = dailyXp * 30;
-    const estimatedLevel = Math.min(100, Math.floor(Math.sqrt(monthlyXp / 80)) + 1);
-    return { dailyXp, monthlyXp, estimatedLevel };
+    const readingXpPerDay = dailyChapters * 10;
+    const monthlyXp = readingXpPerDay * 30 + Math.floor(30 / 7) * 100;
+    const dailyXp = Math.round(monthlyXp / 30);
+    const { level: estimatedLevel, rank: estimatedRank } = getLevelInfo(monthlyXp);
+    return { dailyXp, monthlyXp, estimatedLevel, estimatedRank };
   }, [dailyChapters]);
 
   const toggleFaq = (index) => {
@@ -336,7 +319,7 @@ export default function GuidePage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/40 border border-white/[0.06]">
                     <span className="text-xs text-slate-400 font-medium">Günlük Tahmini XP:</span>
-                    <span className="text-sm font-black text-amber-300">~{calculatedStats.dailyXp} XP</span>
+                  <span className="text-sm font-black text-amber-300">~{calculatedStats.dailyXp} XP</span>
                   </div>
                   <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/40 border border-white/[0.06]">
                     <span className="text-xs text-slate-400 font-medium">Aylık Tahmini Toplam XP:</span>
@@ -357,9 +340,7 @@ export default function GuidePage() {
                   Seviye {calculatedStats.estimatedLevel}
                 </h3>
                 <p className="text-xs text-slate-400 mt-1 max-w-xs">
-                  {calculatedStats.estimatedLevel >= 50 ? 'Üstün Şövalye kademesine ulaşır ve mor auraları açarsın!' :
-                   calculatedStats.estimatedLevel >= 25 ? 'Kıdemli Avcı unvanını alır ve indirimlerden yararlanırsın!' :
-                   'Maceracı kademesine adım atar ve renkli isme kavuşursun!'}
+                  {calculatedStats.estimatedRank} rütbesine ulaşırsın. Bu tahmin her gün okunan bölüm sayısına ve haftalık seri ödüllerine göre hesaplanır.
                 </p>
               </div>
             </div>
@@ -374,7 +355,7 @@ export default function GuidePage() {
             </div>
             <div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Rütbeler ve Kademe Sistemi</h2>
-              <p className="text-slate-400 text-xs sm:text-sm">Seviye atladıkça açılan unvanlar ve ayrıcalıklar</p>
+              <p className="text-slate-400 text-xs sm:text-sm">Seviyene göre güncellenen rütbe unvanları</p>
             </div>
           </div>
 

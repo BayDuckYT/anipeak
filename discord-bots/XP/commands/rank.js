@@ -28,7 +28,7 @@ export default {
         });
       }
 
-      const info = getLevelInfo(data.xp || 0);
+      const info = getLevelInfo(data.xp || 0, data.is_elite, data.active_plan_id);
       const progressPercent = Math.floor(info.progress || 0);
       
       // Fiyakalı İlerleme Çubuğu

@@ -180,7 +180,7 @@ export const DEFAULT_ACHIEVEMENTS = [
   { id: 'ach-17', name: 'Çaylaklıktan Çıkış', description: 'Seviye 25\'e ulaş.', category: 'Rütbe', requirement_type: 'level', requirement_value: 25 },
   { id: 'ach-18', name: 'Üstün Avcı', description: 'Seviye 50\'ye ulaş.', category: 'Rütbe', requirement_type: 'level', requirement_value: 50 },
   { id: 'ach-19', name: 'Kadim Güç', description: 'Seviye 75\'e ulaş.', category: 'Rütbe', requirement_type: 'level', requirement_value: 75 },
-  { id: 'ach-20', name: 'Manga Hükümdarı', description: 'Seviye 100\'e ulaş ve tahta otur!', category: 'Rütbe', requirement_type: 'level', requirement_value: 100 },
+  { id: 'ach-20', name: 'Mahora Hükümdarı', description: 'Seviye 100\'e ulaş ve tahta otur!', category: 'Rütbe', requirement_type: 'level', requirement_value: 100 },
   { id: 'ach-21', name: 'Gece Kuşu', description: 'Gece 00:00 - 04:00 arası 5 bölüm oku.', category: 'Okuma', requirement_type: 'night_reading', requirement_value: 5 },
   { id: 'ach-22', name: 'Hızlı Okur', description: 'Bir bölümü hızlıca tamamla.', category: 'Okuma', requirement_type: 'fast_read', requirement_value: 1 },
   { id: 'ach-23', name: 'Hata Avcısı', description: 'Sitede bir bug bul ve yetkililere bildir.', category: 'Efsanevi', requirement_type: 'special', requirement_value: 1, is_secret: true },

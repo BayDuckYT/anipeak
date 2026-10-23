@@ -2,11 +2,13 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { Star, Bell, BellRing, ChevronRight, ChevronLeft, Calendar } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useApp } from '../context/AppContext.jsx';
 import { useSEO } from '../hooks/useSEO';
 import Loader from '../components/Loader';
 
 // Netflix Style Horizontal Slider
-function NetflixScheduleRow({ title, dateStr, items }) {
+function NetflixScheduleRow({ title, dateStr, items, isTracked, onToggleTrack, resolveSeriesId }) {
   const scrollRef = useRef(null);
 
   const scrollLeft = () => {
@@ -75,8 +77,15 @@ function NetflixScheduleRow({ title, dateStr, items }) {
                     }`}>
                       {item.chapter_info}
                     </span>
-                    <button className="text-slate-400 hover:text-white transition-colors" aria-label="Bildirim Al">
-                      <Bell size={14} />
+                    <button
+                      type="button"
+                      disabled={!resolveSeriesId(item)}
+                      onClick={(event) => { event.stopPropagation(); onToggleTrack(item); }}
+                      className={`transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${isTracked(item) ? 'text-purple-300' : 'text-slate-400 hover:text-white'}`}
+                      aria-label={isTracked(item) ? `${item.series_name} takibini kapat` : `${item.series_name} için bölüm bildirimi aç`}
+                      title={!resolveSeriesId(item) ? 'Bu seri katalogla eşleştirilemedi' : isTracked(item) ? 'Takip ediliyor' : 'Yeni bölüm bildirimi al'}
+                    >
+                      {isTracked(item) ? <BellRing size={14} /> : <Bell size={14} />}
                     </button>
                   </div>
                 </div>
@@ -92,6 +101,50 @@ function NetflixScheduleRow({ title, dateStr, items }) {
 export default function SchedulePage() {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [followMessage, setFollowMessage] = useState('');
+  const { user, updateProfile } = useAuth();
+  const { sortedSeries = [] } = useApp();
+  const trackedSeriesIds = (user?.notification_settings?.scheduleSeriesIds || []).map(String);
+
+  const resolveSeriesId = (item) => {
+    if (item.series_id) return String(item.series_id);
+    const normalize = (value) => String(value || '').trim().toLocaleLowerCase('tr-TR');
+    return sortedSeries.find(series => normalize(series.title) === normalize(item.series_name))?.id?.toString() || null;
+  };
+
+  const isTracked = (item) => {
+    const seriesId = resolveSeriesId(item);
+    return Boolean(seriesId && trackedSeriesIds.includes(seriesId));
+  };
+
+  const toggleTrack = async (item) => {
+    const seriesId = resolveSeriesId(item);
+    if (!user) {
+      window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }));
+      return;
+    }
+    if (!seriesId) return;
+    const wasTracked = isTracked(item);
+    const nextIds = wasTracked
+      ? trackedSeriesIds.filter(id => id !== seriesId)
+      : [...new Set([...trackedSeriesIds, seriesId])];
+    try {
+      await updateProfile({ notification_settings: {
+        newChapter: true,
+        replies: true,
+        system: true,
+        schedule: true,
+        ...(user.notification_settings || {}),
+        scheduleSeriesIds: nextIds,
+      } });
+      setFollowMessage(wasTracked ? `${item.series_name} takibi kapatıldı.` : `${item.series_name} takibe alındı; yeni bölüm duyurularını bildirim kutusunda göreceksin.`);
+      window.setTimeout(() => setFollowMessage(''), 3200);
+    } catch (error) {
+      console.error('[Takvim] Takip ayarı kaydedilemedi:', error);
+      setFollowMessage('Takip ayarı kaydedilemedi. Yeniden dene.');
+      window.setTimeout(() => setFollowMessage(''), 3200);
+    }
+  };
 
   useSEO({
     title: 'Yayın Takvimi',
@@ -182,10 +235,16 @@ export default function SchedulePage() {
           </div>
           
           <div className="flex flex-wrap gap-2 sm:gap-4">
-            <button className="px-4 sm:px-8 py-3 bg-white text-black text-xs sm:text-sm font-black uppercase tracking-widest rounded flex items-center gap-2 hover:bg-slate-200 transition-colors">
-              <BellRing size={20} /> Bildirim Kur
+            <button
+              type="button"
+              disabled={!featuredToday || !resolveSeriesId(featuredToday)}
+              onClick={() => featuredToday && toggleTrack(featuredToday)}
+              className="px-4 sm:px-8 py-3 bg-white text-black text-xs sm:text-sm font-black uppercase tracking-widest rounded flex items-center gap-2 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {featuredToday && isTracked(featuredToday) ? <Bell size={20} /> : <BellRing size={20} />}
+              {featuredToday && isTracked(featuredToday) ? 'Takibi Kapat' : 'Seriyi Takip Et'}
             </button>
-            <button className="px-4 sm:px-8 py-3 bg-white/20 text-white text-xs sm:text-sm font-black uppercase tracking-widest rounded flex items-center gap-2 backdrop-blur-md hover:bg-white/30 transition-colors">
+            <button onClick={() => document.getElementById('takvim-gunleri')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="px-4 sm:px-8 py-3 bg-white/20 text-white text-xs sm:text-sm font-black uppercase tracking-widest rounded flex items-center gap-2 backdrop-blur-md hover:bg-white/30 transition-colors">
               Tüm Takvim
             </button>
           </div>
@@ -193,9 +252,10 @@ export default function SchedulePage() {
       </div>
 
       {/* ── NETFLIX ROWS ── */}
-      <div className="relative z-30 -mt-20">
+      {followMessage && <div role="status" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] rounded-xl border border-purple-400/30 bg-[#171126] px-4 py-3 text-sm text-white shadow-xl">{followMessage}</div>}
+      <div id="takvim-gunleri" className="relative z-30 -mt-20 scroll-mt-24">
         {upcomingDays.map(day => (
-          <NetflixScheduleRow key={day.id} title={day.title} dateStr={day.dateStr} items={day.items} />
+          <NetflixScheduleRow key={day.id} title={day.title} dateStr={day.dateStr} items={day.items} isTracked={isTracked} onToggleTrack={toggleTrack} resolveSeriesId={resolveSeriesId} />
         ))}
       </div>
 

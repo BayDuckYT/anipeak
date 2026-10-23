@@ -241,6 +241,7 @@ export function AppProvider({ children }) {
         type: 'chapter',
         text: `🔥 ${target?.title || 'Seri'}'nin ${number}. Bölümü Yayında!`,
         series_id: seriesId,
+        chapter_num: number,
       }]);
     }
     return data;
@@ -332,11 +333,14 @@ export function AppProvider({ children }) {
 
   // ── Announcements ────────────────────────────────────────────────────
   const addAnnouncement = useCallback(async (text, type = 'system') => {
-    await supabase.from('announcements').insert([{ text, type }]);
+    const { data, error } = await supabase.from('announcements').insert([{ text: text.trim(), type }]).select().single();
+    if (error) throw error;
+    return data;
   }, []);
 
   const deleteAnnouncement = useCallback(async (id) => {
-    await supabase.from('announcements').delete().eq('id', id);
+    const { error } = await supabase.from('announcements').delete().eq('id', id);
+    if (error) throw error;
   }, []);
 
   // ── Ratings ──────────────────────────────────────────────────────────
