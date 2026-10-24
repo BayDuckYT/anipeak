@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
@@ -29,7 +30,6 @@ export default function Header({ onAuthOpen }) {
   const location = useLocation();
   const profileRef = useRef(null);
   const notifRef = useRef(null);
-  const searchRef = useRef(null);
   const searchInputRef = useRef(null);
 
   useEffect(() => {
@@ -78,7 +78,6 @@ export default function Header({ onAuthOpen }) {
     const handler = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
       if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
-      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -232,7 +231,7 @@ export default function Header({ onAuthOpen }) {
         <div className="flex items-center gap-1 sm:gap-3">
 
           {/* Circular Search Toggle Button */}
-          <div className="relative" ref={searchRef}>
+          <div className="relative">
             <button
               onClick={() => setSearchOpen(true)}
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-all active:scale-95"
@@ -242,7 +241,7 @@ export default function Header({ onAuthOpen }) {
             </button>
 
             <AnimatePresence>
-              {searchOpen && (
+              {searchOpen && createPortal((
                 <motion.div
                   role="presentation"
                   onMouseDown={(event) => {
@@ -342,7 +341,7 @@ export default function Header({ onAuthOpen }) {
                     </div>
                   </motion.section>
                 </motion.div>
-              )}
+              ), document.body)}
             </AnimatePresence>
           </div>
 
