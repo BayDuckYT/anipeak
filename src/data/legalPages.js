@@ -3,51 +3,97 @@
 
 export const DEFAULT_LEGAL_PAGES = {
   'hakkinda': {
-    title: 'Hakkımızda & Kurumsal Vizyon',
-    updated_at: '2026-02-01T00:00:00.000Z',
+    title: 'Hakkımızda — MahoraPeak Dijital Evreni',
+    updated_at: '2026-02-15T00:00:00.000Z',
     content: `
-      <h2>Kurumsal Profil</h2>
-      <p>MahoraPeak, dijital çizgi roman, webtoon, manga ve manhwa ekosisteminde bağımsız okuma deneyimini modern web teknolojileriyle birleştiren öncü bir dijital yayın ve topluluk platformudur. Misyonumuz; küresel çapta üretilen yaratıcı görsel edebiyat eserlerini, Türkçe konuşan okuyucu kitlesine yüksek çözünürlüklü görüntüleme standartları, optimize edilmiş akış mimarisi ve kesintisiz erişilebilirlikle sunmaktır.</p>
+      <h2>Biz Kimiz? Tutkunun Kodla Buluştuğu Yer</h2>
+      <p>MahoraPeak; manga, manhwa, manhua ve webtoon kültürüne gönülden bağlı bağımsız geliştiriciler, editörler ve çevirmenler tarafından hayata geçirilmiş yeni nesil bir dijital eğlence ve okuma platformudur. Yola çıkış amacımız son derece netti: Yavaş açılan, rahatsız edici reklamlarla dolup taşan, mobilde donan ve okuyucuyu yoran geleneksel platformların ötesine geçerek; pürüzsüz, modern ve sanat eserine yakışır bir dijital sığınak inşa etmek.</p>
 
-      <h2>Altyapı ve Hizmet Standartları</h2>
-      <p>Platformumuz; çok katmanlı CDN dağıtım ağları, gerçek zamanlı veri senkronizasyonu ve kullanıcı odaklı mikroservis mimarileri üzerine inşa edilmiştir. Kullanıcılarımızın güvenliği, gizliliği ve okuma ergonomisi tüm teknolojik geliştirmelerimizin merkezinde yer almaktadır.</p>
+      <h2>Teknolojik DNA'mız ve Mühendislik Felsefemiz</h2>
+      <p>MahoraPeak sadece bir çizgi roman okuma arayüzü değil, arkasında yüksek performanslı modern web teknolojilerinin çalıştığı dinamik bir ekosistemdir:</p>
+      <ul>
+        <li><strong>Ultra Hızlı Akış Motoru:</strong> Sayfalar arası geçişlerde donma yaşamamanız için WebP/AVIF format optimizasyonları ve çok katmanlı küresel CDN (İçerik Dağıtım Ağı) altyapısı kullanıyoruz.</li>
+        <li><strong>Canlı Senkronizasyon & Okuma Hafızası:</strong> Bölümde kaldığınız sayfadan favori listelerinize kadar her detay, cihazlar arasında saniyeler içinde kayıpsız eşitlenir.</li>
+        <li><strong>Otonom Yapay Zeka Destek Masası:</strong> Platform içi sorunlarınızı anında çözmek üzere 7/24 hizmet veren Mahora Asistan motorumuz her an yanınızdadır.</li>
+        <li><strong>Erişilebilirlik ve Mobil Güç:</strong> İster masaüstü tarayıcınızdan ister Android APK uygulamamızdan aynı akıcı, reklamsız ve kusursuz deneyimi yaşarsınız.</li>
+      </ul>
 
-      <h2>Yayıncılık İlkeleri</h2>
-      <p>MahoraPeak; yürürlükteki mevzuata, fikri haklara ve dijital topluluk standartlarına tam uyum ilkesini benimser. İçerik ve topluluk süreçlerinde şeffaflık, hesap verebilirlik ve 7/24 kesintisiz teknik destek prensibiyle hareket eder.</p>
+      <h2>Temel Değerlerimiz ve Topluluk Anlayışımız</h2>
+      <p>Bizim için en değerli unsur sayılar değil, hikayelerin altında buluşan insanlardır. MahoraPeak bünyesinde;</p>
+      <ul>
+        <li><strong>Eser Sahibine ve Sanata Saygı:</strong> Hak sahiplerinin taleplerini dinleyen, şeffaf ve uluslararası mevzuata (FSEK / DMCA) tam uyumlu bir yayın politikası gözetiriz.</li>
+        <li><strong>Özgür ve Seviyeli İletişim:</strong> Her yaştan çizgi roman meraklısının fikirlerini saygı çerçevesinde paylaşabileceği, spoiler korumalı ve nezakete dayalı bir yorum kültürü inşa ederiz.</li>
+        <li><strong>Kullanıcı Mahremiyeti:</strong> Ziyaretçilerimizi ticari birer veri kaynağı olarak değil, yol arkadaşımız olarak görürüz. Verileriniz şifrelenir ve asla üçüncü taraflara satılmaz.</li>
+      </ul>
+
+      <h2>Vizyonumuz: Yaşayan Bir Edebiyat Sığınağı</h2>
+      <p>Hedefimiz yalnızca popüler serileri yayınlamak değil; XP sistemiyle seviye atladığınız, klan/hane seçerek aidiyet hissettiğiniz, etkinliklerle ödüller kazandığınız ve günün yorgunluğunu kaliteli hikayelerle geride bıraktığınız Türkiye'nin en sevilen çizgi roman mabedi olmaktır. Bizimle bu macerayı paylaştığınız için teşekkür ederiz!</p>
     `
   },
   'sartlar': {
-    title: 'Kullanım ve Hizmet Şartları Sözleşmesi',
-    updated_at: '2026-02-01T00:00:00.000Z',
+    title: 'Kullanım Şartları ve Hizmet Sözleşmesi',
+    updated_at: '2026-02-15T00:00:00.000Z',
     content: `
-      <h2>1. Sözleşmenin Tarafları ve Bağlayıcılığı</h2>
-      <p>İşbu Kullanım Şartları Sözleşmesi ("Sözleşme"), MahoraPeak dijital platformuna ("Platform") web tarayıcıları, masaüstü veya mobil uygulamalar üzerinden erişen tüm gerçek veya tüzel kişiler ("Kullanıcı") ile MahoraPeak İdaresi arasında akdedilmiştir. Platforma erişim sağlanması, Sözleşme koşullarının gayrikabili rücu kabul edildiği anlamına gelir.</p>
+      <h2>1. Sözleşmenin Tarafları ve Karşılıklı Güven İlkesi</h2>
+      <p>İşbu Kullanım Şartları Sözleşmesi ("Sözleşme"); <strong>MahoraPeak</strong> dijital platformuna ("Platform / mahorapeak.com.tr"), buna bağlı alt alan adlarına, mobil ve masaüstü uygulamalarına erişim sağlayan veya hizmetlerimizden faydalanan tüm ziyaretçiler ve kayıtlı üyeler ("Kullanıcı") ile MahoraPeak İdaresi arasında akdedilmiştir. Platforma giriş yapmanız, sayfaları görüntülemeniz veya bir hesap oluşturmanız; bu sözleşmede yer alan tüm hükümleri okuduğunuz, anladığınız ve gayrikabili rücu kabul ettiğiniz anlamına gelir.</p>
 
-      <h2>2. Hizmetin Niteliği ve Yer Sağlayıcı Beyanı</h2>
-      <p>MahoraPeak, 5651 sayılı "İnternet Ortamında Yapılan Yayınların Düzenlenmesi ve Bu Yayınlar Yoluyla İşlenen Suçlarla Mücadele Edilmesi Hakkında Kanun" kapsamında <strong>Yer Sağlayıcı</strong> statüsündedir. MahoraPeak, kullanıcılar veya üçüncü taraflarca sağlanan içeriklerin hukuka uygunluğunu önceden denetleme yükümlülüğü altında olmayıp; hukuka aykırılık bildirimi halinde "Uyar-Kaldır" mekanizmasını işletmekle mükelleftir.</p>
+      <h2>2. Hukuki Statümüz ve Yer Sağlayıcı Beyanı</h2>
+      <p>MahoraPeak; 5651 sayılı "İnternet Ortamında Yapılan Yayınların Düzenlenmesi ve Bu Yayınlar Yoluyla İşlenen Suçlarla Mücadele Edilmesi Hakkında Kanun" kapsamında <strong>"Yer Sağlayıcı"</strong> statüsünde faaliyet göstermektedir.</p>
+      <p>5651 sayılı kanunun 5. maddesi uyarınca; <em>"Yer sağlayıcı, yer sağladığı içeriği kontrol etmek veya hukuka aykırı bir faaliyetin söz konusu olup olmadığını araştırmakla yükümlü değildir."</em> MahoraPeak, bağımsız çevirmenler ve topluluk üyeleri tarafından paylaşılan görsel ve metinsel içeriklerin yayınlanmasına teknik zemin sunmakta olup, olası telif ve hak ihlali bildirimlerinde <strong>"Uyar ve Kaldır"</strong> mekanizmasını ivedilikle ve tavizsiz uygulamaktadır.</p>
 
-      <h2>3. Hesap Güvenliği ve Kötüye Kullanım Yasağı</h2>
-      <p>Kullanıcı, hesap bilgilerinin gizliliğini korumakla tek başına yükümlüdür. Platform sistemlerine yetkisiz erişim teşebbüsünde bulunmak, otomatik veri kazıma (scraping, crawling) yazılımları çalıştırmak, DDoS veya sunucu kararlılığını bozacak faaliyetlerde bulunmak hukuki ve cezai takibata tabidir.</p>
+      <h2>3. Hesap Güvenliği, Haklar ve Kullanıcı Sorumluluğu</h2>
+      <ul>
+        <li>Kullanıcı, oluşturduğu hesabın şifre güvenliğinden ve hesabı üzerinden gerçekleştirilen her türlü işlemden bizzat sorumludur.</li>
+        <li>Hesapların üçüncü şahıslara devredilmesi, kiralanması veya ticari amaçla satılması yasaktır.</li>
+        <li>Kullanıcılarımızın sistemlerimize giriş için kullandığı parolalar kriptografik tuzlanmış hash algoritmalarıyla korunur; hiçbir yönetici şifrenizi açık metin olarak göremez veya sizden talep edemez.</li>
+      </ul>
 
-      <h2>4. Değişiklik ve Fesih Yetkisi</h2>
-      <p>Platform idaresi, sunulan hizmetlerin içeriğini, üyelik haklarını ve sözleşme maddelerini önceden haber vermeksizin güncelleme ya da kötü niyetli kullanıcıların erişimini tek taraflı olarak derhal durdurma hakkını saklı tutar.</p>
+      <h2>4. Adil Kullanım İlkeleri ve Yasaklı Faaliyetler</h2>
+      <p>Topluluğumuzun güvenliğini ve sunucu istikrarımızı temin etmek amacıyla aşağıdaki fiiller kesinlikle yasaktır ve tespiti halinde derhal yasal işlem başlatılır:</p>
+      <ul>
+        <li><strong>Otomasyon ve Veri Kazıma Yasağı:</strong> Platform altyapısına otomatik botlar, web scraper, crawler veya benzeri yazılımlarla müdahale etmek, veritabanını izinsiz kopyalamak ve sunucu kaynaklarını aşırı tüketmek.</li>
+        <li><strong>Siber Güvenlik İhlalleri:</strong> Platformun güvenlik açıklarını suistimal etmeye çalışmak, DDoS atakları düzenlemek, zararlı kod veya tersine mühendislik araçları kullanmak.</li>
+        <li><strong>Sahte Kimlik ve Dolandırıcılık:</strong> Kendisini yetkili, yönetici veya editör gibi tanıtarak diğer kullanıcıların hesaplarını ya da Aura bakiyelerini ele geçirmeye çalışmak.</li>
+      </ul>
+
+      <h2>5. Fikri Mülkiyet ve Hak Sahipliği</h2>
+      <p>MahoraPeak arayüzü, özgün web tasarımı, logo, yazılım kodları, stil dosyaları ve platform içi grafik varlıkları MahoraPeak'e aittir ve uluslararası telif hakları mevzuatıyla korunmaktadır. İzinsiz taklit edilemez, kaynak gösterilmeden ticari mecralarda kullanılamaz.</p>
+
+      <h2>6. Değişiklik Hakkı ve Yürürlük</h2>
+      <p>MahoraPeak İdaresi; yasal mevzuattaki değişiklikler, teknolojik gereksinimler veya hizmet standartlarını yükseltmek amacıyla işbu sözleşme maddelerini dilediği zaman güncelleme hakkını saklı tutar. Güncellenen şartlar sitede yayınlandığı andan itibaren tüm kullanıcılar için bağlayıcıdır.</p>
     `
   },
   'gizlilik': {
-    title: 'Kişisel Verilerin Korunması ve Gizlilik Politikası',
-    updated_at: '2026-02-01T00:00:00.000Z',
+    title: 'Gizlilik Bildirimi, KVKK ve Veri Güvenliği Politikası',
+    updated_at: '2026-02-15T00:00:00.000Z',
     content: `
-      <h2>1. Veri Sorumlusu Beyanı</h2>
-      <p>MahoraPeak olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") ve uluslararası veri güvenliği standartları (GDPR) uyarınca, kullanıcılarımızın kişisel verilerinin gizliliğini ve dokunulmazlığını anayasal güvence altında kabul etmekteyiz.</p>
+      <h2>Temel Taahhüdümüz: "Kişisel Veriniz Sizin Mahremiyetinizdir"</h2>
+      <p>MahoraPeak olarak en temel prensibimiz; kullanıcılarımızın mahremiyetine mutlak saygı göstermek ve dijital ayak izinizi güvence altına almaktır. 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") ve Avrupa Birliği Genel Veri Koruma Tüzüğü ("GDPR") normlarını yalnızca yasal bir zorunluluk değil, okuyucularımıza verdiğimiz ahlaki bir söz olarak kabul ediyoruz.</p>
+      <p><strong>Net ve Kesin Sözümüz:</strong> MahoraPeak, kullanıcılarının hiçbir kişisel bilgisini, okuma alışkanlıklarını veya verilerini reklam şirketlerine, veri simsarlarına ya da üçüncü taraf kurumlara <u>asla satmaz, kiralamaz ve pazarlamaz.</u></p>
 
-      <h2>2. İşlenen Veriler ve Hukuki Sebepler</h2>
-      <p>Platform üzerinden yalnızca hizmetin ifası için zorunlu olan asgari veriler (kullanıcı adı, kriptografik tuzlanmış hash parola, e-posta adresi, oturum çerezleri ve teknik IP log kayıtları) 5651 sayılı kanunun emredici hükümleri doğrultusunda işlenmektedir.</p>
+      <h2>1. Hangi Verileri Neden İşliyoruz?</h2>
+      <p>Sizlere kesintisiz bir okuma deneyimi sunabilmek adına yalnızca asgari düzeyde teknik veri işlenmektedir:</p>
+      <ul>
+        <li><strong>Hesap Bilgileri:</strong> Kayıt sırasında belirlediğiniz kullanıcı adı, şifrelenmiş parola ve e-posta adresiniz (şifre sıfırlama ve hesap doğrulama için).</li>
+        <li><strong>Okuma Tercihleri ve İlerleme:</strong> Hangi serinin kaçıncı bölümünde kaldığınız, favori listeniz ve kütüphane kayıtlarınız (cihazlarınız arasında okumanızı sürdürebilmeniz için).</li>
+        <li><strong>Teknik Erişim Logları:</strong> 5651 sayılı kanunun emredici yasal hükümleri gereğince IP adresiniz ve oturum zaman damgalarınız yasal saklama sürelerince şifreli günlüklerde tutulur.</li>
+      </ul>
 
-      <h2>3. Çerez (Cookie) Politikası</h2>
-      <p>Platform, yalnızca oturum sürekliliğini temin eden işlevsel ve güvenli birinci taraf çerezleri kullanır. Kullanıcı verileri kesinlikle üçüncü taraf reklam ağlarına, pazarlama şirketlerine veya veri tüccarlarına satılamaz, devredilemez.</p>
+      <h2>2. Çerez (Cookie) Kullanım Şeffaflığı</h2>
+      <p>Sitemizde sizi takip eden, internette peşinizden gelen can sıkıcı reklam çerezleri <strong>kesinlikle bulunmaz</strong>. Kullandığımız çerezler yalnızca şunlardır:</p>
+      <ul>
+        <li><strong>Oturum Çerezleri:</strong> Giriş yaptığınızda her sayfada yeniden şifre girmek zorunda kalmamanızı sağlar.</li>
+        <li><strong>Tercih Çerezleri:</strong> Seçtiğiniz tema modunu (Cyber Mor / Saf Siyah AMOLED), okuma yönünü ve animasyon ayarlarınızı hatırlar.</li>
+      </ul>
 
-      <h2>4. Veri Güvenliği ve Hak Arama</h2>
-      <p>Kullanıcılar diledikleri zaman hesaplarının ve buna bağlı tüm kişisel veri kayıtlarının kalıcı olarak silinmesini talep etme hakkına sahiptir. Talepler, platformumuzun resmi İletişim kanalları üzerinden veri koruma temsilcisine iletilebilir.</p>
+      <h2>3. Veri Güvenliği ve Kriptografik Koruma</h2>
+      <p>Tüm sunucu iletişimimiz 256-Bit SSL/TLS modern şifreleme sertifikaları ile korunmaktadır. Veritabanlarımız en güncel güvenlik yamalarıyla tecrit edilmiş olup; şifreleriniz tek yönlü geri döndürülemez tuzlama (salting & hashing) yöntemleriyle saklanır.</p>
+
+      <h2>4. Unutulma Hakkı: "Verilerinizi Tek Tıkla Silebilirsiniz"</h2>
+      <p>KVKK Madde 11 uyarınca her kullanıcımız verileri üzerinde tam tasarruf yetkisine sahiptir. MahoraPeak'ten ayrılmak istediğinizde, Ayarlar sayfamızdaki <strong>Tehlikeli Bölge</strong> panelinden okuma geçmişinizi, bildirimlerinizi ve hesabınızı kalıcı olarak tek seferde silebilirsiniz. Silinen veriler sunucularımızdan geri döndürülemez biçimde yok edilir.</p>
+
+      <h2>5. İletişim ve Hak Arama</h2>
+      <p>Kişisel verilerinizin işlenmesine ilişkin her türlü soru, itiraz veya bilgi talebinizi web sitemizin resmi <strong><a href="/iletisim" style="color: #c084fc; font-weight: bold; text-decoration: underline;">İletişim Masası</a></strong> üzerinden veri koruma sorumlularımıza 7/24 iletebilirsiniz.</p>
     `
   },
   'topluluk-kurallari': {
