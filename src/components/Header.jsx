@@ -248,8 +248,9 @@ export default function Header({ onAuthOpen }) {
               <Search size={17} />
             </button>
 
-            <AnimatePresence>
-              {searchOpen && createPortal((
+            {createPortal(
+              <AnimatePresence>
+                {searchOpen && (
                 <motion.div
                   role="presentation"
                   onMouseDown={(event) => {
@@ -374,8 +375,10 @@ export default function Header({ onAuthOpen }) {
                     </div>
                   </motion.section>
                 </motion.div>
-              ), document.body)}
-            </AnimatePresence>
+                )}
+              </AnimatePresence>,
+              document.body
+            )}
           </div>
 
           {/* Admin Panel Button */}
