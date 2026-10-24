@@ -1,103 +1,108 @@
 // src/data/legalPages.js
-// MahoraPeak Hukuki & Yasal Sayfa Metinleri (Fallback & Standart İçerikler)
+// MahoraPeak Kurumsal & Hukuki Mevzuat Metinleri (5651 Sayılı Kanun, 5846 FSEK ve DMCA Uyumlu)
 
 export const DEFAULT_LEGAL_PAGES = {
   'hakkinda': {
-    title: 'Hakkımızda',
-    updated_at: '2026-01-15T00:00:00.000Z',
+    title: 'Hakkımızda & Kurumsal Vizyon',
+    updated_at: '2026-02-01T00:00:00.000Z',
     content: `
-      <h2>MahoraPeak'e Hoş Geldiniz</h2>
-      <p>MahoraPeak; manga, manhwa, manhua ve webtoon severleri en kaliteli Türkçe çeviriler, yüksek çözünürlüklü görseller ve modern bir okuma deneyimiyle buluşturmak amacıyla kurulmuş bağımsız bir dijital eğlence platformudur.</p>
+      <h2>Kurumsal Profil</h2>
+      <p>MahoraPeak, dijital çizgi roman, webtoon, manga ve manhwa ekosisteminde bağımsız okuma deneyimini modern web teknolojileriyle birleştiren öncü bir dijital yayın ve topluluk platformudur. Misyonumuz; küresel çapta üretilen yaratıcı görsel edebiyat eserlerini, Türkçe konuşan okuyucu kitlesine yüksek çözünürlüklü görüntüleme standartları, optimize edilmiş akış mimarisi ve kesintisiz erişilebilirlikle sunmaktır.</p>
 
-      <h3>Vizyonumuz & Misyonumuz</h3>
-      <p>Amacımız, küresel çizgi roman kültürünü Türkçe konuşan okuyuculara en akıcı, hızlı ve reklamsız bir arayüzle sunmaktır. Topluluğumuzun geri bildirimlerini dinleyerek geliştirdiğimiz platformumuzda; mobil uygulama desteği, canlı okuma geçmişi senkronizasyonu ve interaktif topluluk etkinlikleri yer almaktadır.</p>
+      <h2>Altyapı ve Hizmet Standartları</h2>
+      <p>Platformumuz; çok katmanlı CDN dağıtım ağları, gerçek zamanlı veri senkronizasyonu ve kullanıcı odaklı mikroservis mimarileri üzerine inşa edilmiştir. Kullanıcılarımızın güvenliği, gizliliği ve okuma ergonomisi tüm teknolojik geliştirmelerimizin merkezinde yer almaktadır.</p>
 
-      <h3>Gelişmiş Teknoloji Altyapısı</h3>
-      <p>MahoraPeak; ultra hızlı CDN sunucuları, akıllı önbellekleme sistemleri ve 7/24 otonom destek asistanı altyapısıyla kesintisiz bir okuma keyfi sağlar.</p>
+      <h2>Yayıncılık İlkeleri</h2>
+      <p>MahoraPeak; yürürlükteki mevzuata, fikri haklara ve dijital topluluk standartlarına tam uyum ilkesini benimser. İçerik ve topluluk süreçlerinde şeffaflık, hesap verebilirlik ve 7/24 kesintisiz teknik destek prensibiyle hareket eder.</p>
     `
   },
   'sartlar': {
-    title: 'Kullanım Şartları',
-    updated_at: '2026-01-15T00:00:00.000Z',
+    title: 'Kullanım ve Hizmet Şartları Sözleşmesi',
+    updated_at: '2026-02-01T00:00:00.000Z',
     content: `
-      <h2>1. Genel Koşullar ve Kabul</h2>
-      <p>MahoraPeak web sitesini veya mobil uygulamalarını ziyaret ederek ya da kullanarak, bu Kullanım Şartları'nda belirtilen tüm kural ve yükümlülükleri kabul etmiş sayılırsınız. Şartları kabul etmiyorsanız lütfen platformu kullanmayınız.</p>
+      <h2>1. Sözleşmenin Tarafları ve Bağlayıcılığı</h2>
+      <p>İşbu Kullanım Şartları Sözleşmesi ("Sözleşme"), MahoraPeak dijital platformuna ("Platform") web tarayıcıları, masaüstü veya mobil uygulamalar üzerinden erişen tüm gerçek veya tüzel kişiler ("Kullanıcı") ile MahoraPeak İdaresi arasında akdedilmiştir. Platforma erişim sağlanması, Sözleşme koşullarının gayrikabili rücu kabul edildiği anlamına gelir.</p>
 
-      <h2>2. Hesap Güvenliği ve Sorumluluk</h2>
-      <p>Kullanıcılar hesaplarının güvenliğinden (şifre gizliliği, üçüncü şahıslarla paylaşılmaması) bizzat sorumludur. Hesabınız üzerinden gerçekleştirilen her türlü işlem tarafınıza ait kabul edilir.</p>
+      <h2>2. Hizmetin Niteliği ve Yer Sağlayıcı Beyanı</h2>
+      <p>MahoraPeak, 5651 sayılı "İnternet Ortamında Yapılan Yayınların Düzenlenmesi ve Bu Yayınlar Yoluyla İşlenen Suçlarla Mücadele Edilmesi Hakkında Kanun" kapsamında <strong>Yer Sağlayıcı</strong> statüsündedir. MahoraPeak, kullanıcılar veya üçüncü taraflarca sağlanan içeriklerin hukuka uygunluğunu önceden denetleme yükümlülüğü altında olmayıp; hukuka aykırılık bildirimi halinde "Uyar-Kaldır" mekanizmasını işletmekle mükelleftir.</p>
 
-      <h2>3. Hizmetlerin Kapsamı</h2>
-      <p>MahoraPeak, platformda sunduğu içerikleri, tasarım öğelerini veya üyelik avantajlarını önceden bildirimde bulunarak veya bulunmaksızın güncelleme, değiştirme ya da sonlandırma hakkını saklı tutar.</p>
+      <h2>3. Hesap Güvenliği ve Kötüye Kullanım Yasağı</h2>
+      <p>Kullanıcı, hesap bilgilerinin gizliliğini korumakla tek başına yükümlüdür. Platform sistemlerine yetkisiz erişim teşebbüsünde bulunmak, otomatik veri kazıma (scraping, crawling) yazılımları çalıştırmak, DDoS veya sunucu kararlılığını bozacak faaliyetlerde bulunmak hukuki ve cezai takibata tabidir.</p>
 
-      <h2>4. Fikri Mülkiyet ve İçerik Kullanımı</h2>
-      <p>Platformda paylaşılan orijinal çeviriler, düzenlemeler, logo ve arayüz tasarımları MahoraPeak ekibine aittir. İçeriklerin izinsiz kazınması (scraping), ticari amaçla kopyalanması veya yeniden dağıtılması kesinlikle yasaktır.</p>
+      <h2>4. Değişiklik ve Fesih Yetkisi</h2>
+      <p>Platform idaresi, sunulan hizmetlerin içeriğini, üyelik haklarını ve sözleşme maddelerini önceden haber vermeksizin güncelleme ya da kötü niyetli kullanıcıların erişimini tek taraflı olarak derhal durdurma hakkını saklı tutar.</p>
     `
   },
   'gizlilik': {
-    title: 'Gizlilik ve Çerez Politikası (KVKK)',
-    updated_at: '2026-01-15T00:00:00.000Z',
+    title: 'Kişisel Verilerin Korunması ve Gizlilik Politikası',
+    updated_at: '2026-02-01T00:00:00.000Z',
     content: `
-      <h2>1. Toplanan Bilgiler</h2>
-      <p>MahoraPeak olarak kullanıcılarımızın gizliliğine azami özen gösteriyoruz. Hizmetlerimizden faydalanırken kayıt esnasında belirttiğiniz e-posta adresi, kullanıcı adı ve okuma geçmişi/tercihleriniz şifrelenmiş güvenli veritabanlarında saklanır.</p>
+      <h2>1. Veri Sorumlusu Beyanı</h2>
+      <p>MahoraPeak olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") ve uluslararası veri güvenliği standartları (GDPR) uyarınca, kullanıcılarımızın kişisel verilerinin gizliliğini ve dokunulmazlığını anayasal güvence altında kabul etmekteyiz.</p>
 
-      <h2>2. Çerezlerin (Cookies) Kullanımı</h2>
-      <p>Sitemizde oturumun açık kalmasını sağlamak, tema tercihlerinizi hatırlamak ve sayfa yükleme sürelerini optimize etmek amacıyla birinci taraf çerezler kullanılmaktadır. Hiçbir kişisel bilginiz reklam veya üçüncü şahıs şirketlerle satılmaz.</p>
+      <h2>2. İşlenen Veriler ve Hukuki Sebepler</h2>
+      <p>Platform üzerinden yalnızca hizmetin ifası için zorunlu olan asgari veriler (kullanıcı adı, kriptografik tuzlanmış hash parola, e-posta adresi, oturum çerezleri ve teknik IP log kayıtları) 5651 sayılı kanunun emredici hükümleri doğrultusunda işlenmektedir.</p>
 
-      <h2>3. Veri Güvenliği</h2>
-      <p>Tüm veri transferleri SSL/TLS şifreleme protokolleriyle güvence altındadır. Şifreleriniz saltlanmış hash algoritmalarıyla korunur, sistem yöneticileri dahil kimse açık şifrenizi göremez.</p>
+      <h2>3. Çerez (Cookie) Politikası</h2>
+      <p>Platform, yalnızca oturum sürekliliğini temin eden işlevsel ve güvenli birinci taraf çerezleri kullanır. Kullanıcı verileri kesinlikle üçüncü taraf reklam ağlarına, pazarlama şirketlerine veya veri tüccarlarına satılamaz, devredilemez.</p>
+
+      <h2>4. Veri Güvenliği ve Hak Arama</h2>
+      <p>Kullanıcılar diledikleri zaman hesaplarının ve buna bağlı tüm kişisel veri kayıtlarının kalıcı olarak silinmesini talep etme hakkına sahiptir. Talepler, platformumuzun resmi İletişim kanalları üzerinden veri koruma temsilcisine iletilebilir.</p>
     `
   },
   'topluluk-kurallari': {
-    title: 'Topluluk Kuralları',
-    updated_at: '2026-01-15T00:00:00.000Z',
+    title: 'Resmi Topluluk Kuralları ve Disiplin Yönergesi',
+    updated_at: '2026-02-01T00:00:00.000Z',
     content: `
-      <h2>1. Saygı ve Hoşgörü</h2>
-      <p>Yorumlarda, forumlarda veya Discord topluluğumuzda diğer üyelere, çevirmenlere ya da editörlere hakaret, küfür, taciz, nefret söylemi veya ayrımcılık içeren ifadelerde bulunmak kesinlikle yasaktır.</p>
+      <h2>1. Kamu Düzeni, Hukuk ve Saygı İlkesi</h2>
+      <p>MahoraPeak platformu dahilindeki yorum alanları, inceleme bölümleri ve canlı etkileşim panellerinde Türk Ceza Kanunu'na, genel ahlaka ve kamu düzenine aykırı paylaşımda bulunulamaz. Hakaret, tehdit, taciz, nefret söylemi, dini, ırki veya siyasi ayrımcılık kesin ihraç sebebidir.</p>
 
-      <h2>2. Spoiler Uyarısı</h2>
-      <p>Gelecek bölümlerle veya hikaye gidişatıyla ilgili bilgi içeren yorumlarda mutlaka <strong>[SPOILER]</strong> butonu/etiketi kullanılmalıdır. Kasıtlı olarak spoiler veren hesaplar geçici veya kalıcı olarak yorum yapmaktan men edilir.</p>
+      <h2>2. Spoiler ve İçerik Bütünlüğü</h2>
+      <p>Eserlerin henüz yayımlanmamış bölümlerine veya kilit olay örgülerine dair sürpriz bozan detaylar (spoiler) açık metin olarak paylaşılamaz. Spoiler niteliğindeki tüm metinler için sistemin sunduğu gizleme etiketlerinin kullanılması zorunludur. İhlal halinde yorum yapma yetkisi süresiz askıya alınır.</p>
 
-      <h2>3. Reklam ve Spam Yasağı</h2>
-      <p>Platform içerisinde izinsiz başka site, sunucu, ticari ürün veya kanal reklamı yapmak, art arda anlamsız yorumlar paylaşmak yasaktır.</p>
-
-      <h2>4. Hesap Güvenliği ve Dolandırıcılık</h2>
-      <p>Diğer kullanıcıların hesap bilgilerini ele geçirmeye çalışmak, hile veya açık kullanmak kalıcı IP ve hesap engeline neden olur.</p>
+      <h2>3. Ticari Faaliyet, Spam ve Zararlı Bağlantı Yasağı</h2>
+      <p>Yorum veya profil alanlarında izinsiz ticari tanıtım, üçüncü taraf web sitesi/Discord sunucusu bağlantısı, phishing veya kötü amaçlı yazılım yönlendirmesi tespit edildiğinde ilgili hesap ve ilişkili IP blokları derhal mühürlenir.</p>
     `
   },
   'iade-ve-teslimat': {
-    title: 'İade ve Teslimat Politikası',
-    updated_at: '2026-01-15T00:00:00.000Z',
+    title: 'Mesafeli Satış, Teslimat ve Cayma Hakkı Şartnamesi',
+    updated_at: '2026-02-01T00:00:00.000Z',
     content: `
-      <h2>1. Dijital İçerik Teslimatı</h2>
-      <p>MahoraPeak platformu üzerinden satın alınan tüm ürünler (Aura bakiyesi, Aethe VIP, Shadow aboneliği, profil çerçeveleri ve dijital rozetler) <strong>tamamen dijital niteliktedir</strong>. Ödeme işlemi 3D Secure veya Havale/EFT ile onaylandığı anda ilgili ürün kullanıcının hesabına saniyeler içinde otomatik olarak teslim edilir.</p>
+      <h2>1. Satışa Konu Hizmetin Niteliği</h2>
+      <p>MahoraPeak platformu üzerinde sunulan Aura bakiyesi, Aethe VIP üyeliği, Shadow ayrıcalıkları ve dijital profil özelleştirmeleri; <strong>fiziki teslimatı bulunmayan, elektronik ortamda anında ifa edilen gayrimaddi dijital tüketim malları</strong> kapsamındadır.</p>
 
-      <h2>2. Cayma Hakkı ve İade Koşulları</h2>
-      <p>6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği'nin 15. maddesinin (ğ) bendi uyarınca; <em>"Elektronik ortamda anında ifa edilen hizmetler veya tüketiciye anında teslim edilen gayrimaddi mallara ilişkin sözleşmelerde cayma hakkı kullanılamaz."</em></p>
+      <h2>2. Cayma Hakkının Yasal İstisnası</h2>
+      <p>6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği'nin 15. maddesinin 1. fıkrasının (ğ) bendi hükmünce; <em>"Elektronik ortamda anında ifa edilen hizmetler veya tüketiciye anında teslim edilen gayrimaddi mallara ilişkin sözleşmelerde cayma hakkı kullanılamaz."</em> Ödeme onayıyla birlikte hesap bakiyesine aktarılan veya aktifleştirilen dijital ürünlerde cayma ve iade hakkı bulunmamaktadır.</p>
 
-      <h2>3. Hatalı Çekim ve Teknik Aksaklıklar</h2>
-      <p>Kullanıcının banka hesabından ücret tahsil edilmesine rağmen teknik bir aksaklık sebebiyle Aura veya VIP aboneliğin hesaba tanımlanmaması durumunda; işlem dekontu veya sipariş numarası ile Canlı Destek Masamıza başvurulduğunda bakiye ivedilikle tanımlanır ya da banka hesabına kesintisiz iade edilir.</p>
+      <h2>3. Müşteri Memnuniyeti ve Hata Düzeltme Prosedürü</h2>
+      <p>Ödeme kuruluşundan kaynaklı mükerrer çekimler, teknik sistem arızası nedeniyle bakiyenin hesaba yansımaması veya yetkisiz işlem durumlarında; işlem dekontu ve referans kodu ile birlikte platformumuzun resmi <strong>İletişim Masası</strong> veya Canlı Destek yetkilileri üzerinden talep oluşturulduğunda gerekli incelemeler yapılarak haklı iadeler veya telafi yüklemeleri ivedilikle gerçekleştirilir.</p>
     `
   },
   'dmca': {
-    title: 'DMCA & Telif Hakkı Politikası',
-    updated_at: '2026-01-15T00:00:00.000Z',
+    title: 'DMCA & Telif Hakkı (FSEK) Yasal Bildirim Politikası',
+    updated_at: '2026-02-01T00:00:00.000Z',
     content: `
-      <h2>Telif Hakkı & DMCA Bildirim Süreci</h2>
-      <p>MahoraPeak (mahorapeak.com.tr), 5651 sayılı kanun kapsamında <strong>"Yer Sağlayıcı"</strong> ve Dijital Milenyum Telif Hakkı Yasası (DMCA) ilkeleri doğrultusunda <strong>"Uyar & Kaldır" (Notice & Takedown)</strong> prensibiyle hizmet vermektedir.</p>
+      <h2>Yasal Dayanak & Yer Sağlayıcı Bildirimi</h2>
+      <p>MahoraPeak (<strong>mahorapeak.com.tr</strong>); 5651 sayılı "İnternet Ortamında Yapılan Yayınların Düzenlenmesi ve Bu Yayınlar Yoluyla İşlenen Suçlarla Mücadele Edilmesi Hakkında Kanun"un 5. maddesi gereğince <strong>"Yer Sağlayıcı"</strong> olarak faaliyet göstermektedir. Aynı yasanın ilgili maddesi uyarınca; <em>"Yer sağlayıcı, yer sağladığı içeriği kontrol etmek veya hukuka aykırı bir faaliyetin söz konusu olup olmadığını araştırmakla yükümlü değildir."</em></p>
 
-      <h2>Telif Sahibi Hakları</h2>
-      <p>Platformumuzda yer alan içeriklerin telif haklarının şahsınıza veya temsil ettiğiniz kuruma ait olduğunu ve izinsiz paylaşıldığını düşünüyorsanız, resmi telif bildiriminde bulunabilirsiniz.</p>
+      <p>Bununla birlikte platformumuz; 5846 sayılı Fikir ve Sanat Eserleri Kanunu (FSEK) ve uluslararası Dijital Binyıl Telif Hakkı Yasası (Digital Millennium Copyright Act - 17 U.S.C. § 512, "DMCA") normları çerçevesinde <strong>"Uyar ve Kaldır" (Notice and Takedown)</strong> ilkesini titizlikle ve tavizsiz olarak uygulamaktadır.</p>
 
-      <h3>Gerekli Bildirim Bilgileri:</h3>
+      <h2>Telif Hakkı İhlali Bildirim Usulü</h2>
+      <p>Platformumuzda yer alan herhangi bir eserin (çizgi roman, görsel, metin veya çeviri) telif haklarının şahsınıza, yayınevinize veya temsil ettiğiniz tüzel kişiliğe ait olduğunu ve yasal haklarınızın ihlal edildiğini beyan ediyorsanız, tarafımıza resmi bildirimde bulunmanız gerekmektedir.</p>
+
+      <h3>Gerekli Bildirim Unsurları:</h3>
       <ul>
-        <li>Telif hakkı ihlaline konu olan eserin tam adı ve orijinal bağlantısı.</li>
-        <li>İhlal edildiği iddia edilen eserin platformumuzdaki sayfa URL bağlantısı.</li>
-        <li>Telif hakkı sahibi veya yasal temsilcisi olduğunuza dair yetki belgesi / beyan.</li>
-        <li>İletişim bilgileriniz (Ad-Soyad, Kurum Adı, E-posta adresi, Telefon numarası).</li>
+        <li>Telif hakkı ihlaline konu olduğu iddia edilen eserin tam yasal adı ve tescilli orijinal bağlantısı.</li>
+        <li>İhlale neden olduğu iddia edilen materyalin sitemizdeki kesin URL adresi (örn: mahorapeak.com.tr/manga/...).</li>
+        <li>Telif hakkı sahibi olduğunuza veya hak sahibi adına hukuki işlem yapmaya tam yetkili yasal vekil olduğunuza dair resmi belge veya ıslak/elektronik imzalı beyanname.</li>
+        <li>Tebligat ve yasal inceleme için gerekli iletişim bilgileri (Tam Ad-Soyad / Kurum Ünvanı, İkametgah/Şirket Adresi, Telefon Numarası, Resmi Kurumsal E-posta).</li>
+        <li>Talebin iyi niyetli olduğuna ve beyan edilen bilgilerin doğruluğuna ilişkin yasal sorumluluk kabul beyanı.</li>
       </ul>
 
-      <h3>İletişim & Kaldırma Adresi</h3>
-      <p>Telif hakkı bildirimlerinizi doğrudan <strong>dmca@mahorapeak.com.tr</strong> veya <strong>iletisim@mahorapeak.com.tr</strong> adresine iletebilirsiniz. Yasal inceleme 24-48 saat içerisinde tamamlanır ve doğrulanmış içerikler platformumuzdan derhal kaldırılır.</p>
+      <h2>Resmi Bildirim Kanalı</h2>
+      <p>Yasal tebligatların ve telif hakkı kaldırma bildirimlerinin kayıt altına alınması, işlem güvenliği ve resmi inceleme sürecinin gecikmeksizin başlatılabilmesi amacıyla; tüm başvurular doğrudan web sitemiz bünyesinde yer alan <strong><a href="/iletisim" style="color: #c084fc; font-weight: bold; text-decoration: underline;">Resmi İletişim &amp; Hukuki Bildirim Masası</a></strong> üzerinden kabul edilmektedir.</p>
+
+      <p>Usulüne uygun olarak iletilen ve hak sahipliği teyit edilen bildirimler, Hukuk ve İçerik İnceleme Komitemiz tarafından derhal işleme alınmakta; yasal azami süre olan <strong>24 ila 48 saat</strong> içerisinde şikayete konu içerik sistemlerimizden ve sunucu önbelleklerimizden tamamen erişime kapatılmaktadır.</p>
     `
   }
 };

@@ -35,10 +35,10 @@ export default function Contact() {
   };
 
   const contactCards = [
-    { title: 'Genel İletişim', email: 'info@mahorapeak.com.tr', color: 'from-blue-500 to-cyan-500', icon: <Mail size={24} /> },
-    { title: 'Öneri', email: 'support@mahorapeak.com.tr', color: 'from-emerald-500 to-teal-500', icon: <Send size={24} /> },
-    { title: 'İşbirlikleri & Reklam', email: 'business@mahorapeak.com.tr', color: 'from-rose-500 to-orange-500', icon: <Send size={24} /> },
-    { title: 'Hata Bildirimi', email: 'support@mahorapeak.com.tr', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
+    { title: 'Genel İletişim & Destek', email: 'MahoraPeak İletişim Masası', color: 'from-blue-500 to-cyan-500', icon: <Mail size={24} /> },
+    { title: 'Hukuk & DMCA Masası', email: 'FSEK / 5651 Yasal İnceleme', color: 'from-purple-500 to-indigo-600', icon: <CheckCircle2 size={24} /> },
+    { title: 'İşbirlikleri & Sponsorluk', email: 'Partnerlik & Tanıtım', color: 'from-rose-500 to-orange-500', icon: <Send size={24} /> },
+    { title: 'Teknik & Hata Bildirimi', email: 'Sistem Operasyon Birimi', color: 'from-amber-500 to-red-500', icon: <CheckCircle2 size={24} /> }
   ];
 
   return (
@@ -121,10 +121,11 @@ export default function Contact() {
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-purple-500 outline-none transition-all cursor-pointer"
                   >
                     <option value="Genel İletişim" className="bg-[#0a0a14]">Genel İletişim</option>
-                    <option value="Öneri" className="bg-[#0a0a14]">Öneri</option>
-                    <option value="Teknik Destek" className="bg-[#0a0a14]">Teknik Destek</option>
-                    <option value="İşbirlikleri" className="bg-[#0a0a14]">İşbirlikleri</option>
-                    <option value="Hata Bildirimi" className="bg-[#0a0a14]">Hata Bildirimi</option>
+                    <option value="DMCA & Telif Hakkı Bildirimi" className="bg-[#0a0a14]">⚖️ DMCA & Telif Hakkı Bildirimi</option>
+                    <option value="Yasal & Hukuki Tebligat" className="bg-[#0a0a14]">🏛️ Yasal & Hukuki Tebligat</option>
+                    <option value="Teknik Destek & Hata" className="bg-[#0a0a14]">Teknik Destek & Hata</option>
+                    <option value="Öneri & Geri Bildirim" className="bg-[#0a0a14]">Öneri & Geri Bildirim</option>
+                    <option value="İşbirlikleri & Sponsorluk" className="bg-[#0a0a14]">İşbirlikleri & Sponsorluk</option>
                   </select>
                 </div>
 
