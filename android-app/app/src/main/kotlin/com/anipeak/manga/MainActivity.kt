@@ -61,6 +61,8 @@ import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
@@ -72,6 +74,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -89,6 +92,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import coil.compose.AsyncImage
 import androidx.core.view.WindowCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -114,6 +121,19 @@ import java.net.URL
 import java.security.MessageDigest
 
 private data class OfflineFile(val id: Long, val title: String, val sizeLabel: String, val uri: Uri?)
+private data class OfflineChapter(
+    val id: String,
+    val seriesTitle: String,
+    val chapterTitle: String,
+    val chapterNumber: Double,
+    val directory: String,
+    val pages: List<String>,
+    val sizeBytes: Long
+)
+private sealed interface ChapterDownloadState {
+    data class Downloading(val series: String, val chapter: String, val current: Int, val total: Int) : ChapterDownloadState
+    data class Error(val message: String) : ChapterDownloadState
+}
 private data class AndroidUpdate(val version: String, val url: String, val notes: String, val sha256: String?)
 private sealed interface UpdateUiState {
     data object Hidden : UpdateUiState
@@ -129,7 +149,11 @@ class MainActivity : ComponentActivity() {
     private var updateState by mutableStateOf<UpdateUiState>(UpdateUiState.Hidden)
     private var downloadedUpdate: File? = null
     private var installSettingsOpened = false
-    private var isReaderPage = false
+    private var isReaderPage by mutableStateOf(false)
+    private var offlineHubOpen by mutableStateOf(false)
+    private var offlineReader by mutableStateOf<OfflineChapter?>(null)
+    private var offlineChapters by mutableStateOf(emptyList<OfflineChapter>())
+    private var chapterDownloadState by mutableStateOf<ChapterDownloadState?>(null)
     private val notificationPermissionRequest = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         Toast.makeText(this, if (granted) "Telefon bildirimleri açıldı" else "Bildirim izni verilmedi", Toast.LENGTH_SHORT).show()
     }
@@ -156,6 +180,118 @@ class MainActivity : ComponentActivity() {
         runCatching { (getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager).remove(file.id) }
         val prefs = getSharedPreferences("offline_downloads", MODE_PRIVATE)
         prefs.edit().putStringSet("ids", prefs.getStringSet("ids", emptySet()).orEmpty() - file.id.toString()).apply()
+    }
+
+    private fun persistOfflineChapters(chapters: List<OfflineChapter>) {
+        val json = org.json.JSONArray()
+        chapters.forEach { chapter ->
+            json.put(JSONObject()
+                .put("id", chapter.id).put("seriesTitle", chapter.seriesTitle).put("chapterTitle", chapter.chapterTitle)
+                .put("chapterNumber", chapter.chapterNumber).put("directory", chapter.directory)
+                .put("pages", org.json.JSONArray(chapter.pages)).put("sizeBytes", chapter.sizeBytes))
+        }
+        getSharedPreferences("offline_chapters", MODE_PRIVATE).edit().putString("items", json.toString()).apply()
+        offlineChapters = chapters.sortedWith(compareBy<OfflineChapter> { it.seriesTitle.lowercase() }.thenBy { it.chapterNumber })
+    }
+
+    private fun loadOfflineChapters() {
+        val raw = getSharedPreferences("offline_chapters", MODE_PRIVATE).getString("items", "[]") ?: "[]"
+        val parsed = runCatching {
+            val array = org.json.JSONArray(raw)
+            (0 until array.length()).mapNotNull { index ->
+                val item = array.getJSONObject(index)
+                val directory = item.getString("directory")
+                val folder = File(filesDir, directory)
+                val pagesJson = item.optJSONArray("pages") ?: return@mapNotNull null
+                val pages = (0 until pagesJson.length()).map { pagesJson.getString(it) }.filter { File(folder, it).isFile }
+                if (pages.isEmpty()) return@mapNotNull null
+                OfflineChapter(item.getString("id"), item.getString("seriesTitle"), item.getString("chapterTitle"),
+                    item.optDouble("chapterNumber", 0.0), directory, pages, item.optLong("sizeBytes"))
+            }
+        }.getOrDefault(emptyList())
+        offlineChapters = parsed.sortedWith(compareBy<OfflineChapter> { it.seriesTitle.lowercase() }.thenBy { it.chapterNumber })
+        persistOfflineChapters(parsed)
+    }
+
+    private fun deleteOfflineChapter(chapter: OfflineChapter) {
+        runCatching { File(filesDir, chapter.directory).deleteRecursively() }
+        persistOfflineChapters(offlineChapters.filterNot { it.id == chapter.id })
+    }
+
+    private fun downloadOfflineChapter(payload: JSONObject) {
+        val slug = safeFilePart(payload.optString("seriesSlug"))
+        val chapterSlug = safeFilePart(payload.optString("chapterSlug"))
+        val series = payload.optString("seriesTitle").take(120).ifBlank { slug.replace('-', ' ').replaceFirstChar { it.uppercase() } }
+        val number = payload.optDouble("chapterNumber", 0.0)
+        val title = payload.optString("chapterTitle").take(100).ifBlank { "Bölüm ${number.toString().removeSuffix(".0")}" }
+        val pagesJson = payload.optJSONArray("pages") ?: run { chapterDownloadState = ChapterDownloadState.Error("Bölüm sayfaları bulunamadı."); return }
+        val urls = (0 until pagesJson.length()).mapNotNull { pagesJson.optString(it).takeIf { value -> value.isNotBlank() } }
+            .filter { runCatching { URL(it).protocol == "https" }.getOrDefault(false) }.distinct().take(300)
+        if (slug.isBlank() || chapterSlug.isBlank() || urls.isEmpty()) {
+            chapterDownloadState = ChapterDownloadState.Error("Bu bölümde indirilebilir sayfa bulunamadı.")
+            return
+        }
+        lifecycleScope.launch {
+            chapterDownloadState = ChapterDownloadState.Downloading(series, title, 0, urls.size)
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val id = "$slug-$chapterSlug"
+                    val directory = "offline-chapters/$id"
+                    val folder = File(filesDir, directory)
+                    val tempFolder = File(filesDir, "offline-chapters/.$id.partial")
+                    tempFolder.deleteRecursively()
+                    if (!tempFolder.mkdirs()) error("Cihazda indirme alanı açılamadı.")
+                    var totalBytes = 0L
+                    urls.forEachIndexed { index, imageUrl ->
+                        val connection = (URL(imageUrl).openConnection() as HttpURLConnection).apply {
+                            connectTimeout = 12000
+                            readTimeout = 25000
+                            setRequestProperty("User-Agent", webView?.settings?.userAgentString ?: "MahoraPeakAndroidApp/1.0")
+                            setRequestProperty("Referer", "https://mahorapeak.com.tr/")
+                            CookieManager.getInstance().getCookie(imageUrl)?.let { setRequestProperty("Cookie", it) }
+                        }
+                        try {
+                            if (connection.responseCode !in 200..299) error("Sayfa ${index + 1} indirilemedi (${connection.responseCode}).")
+                            val mime = connection.contentType?.substringBefore(';')
+                            val ext = android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mime)
+                                ?: URL(imageUrl).path.substringAfterLast('.', "jpg").takeIf { it.length in 2..5 } ?: "jpg"
+                            val pageFile = File(tempFolder, "%03d.%s".format(index + 1, ext))
+                            connection.inputStream.use { input -> pageFile.outputStream().use { output ->
+                                val buffer = ByteArray(32 * 1024)
+                                while (true) {
+                                    val count = input.read(buffer)
+                                    if (count < 0) break
+                                    totalBytes += count
+                                    if (totalBytes > 400L * 1024L * 1024L) error("Bölüm indirme sınırını aştı (400 MB).")
+                                    output.write(buffer, 0, count)
+                                }
+                            } }
+                        } finally { connection.disconnect() }
+                        withContext(Dispatchers.Main) {
+                            chapterDownloadState = ChapterDownloadState.Downloading(series, title, index + 1, urls.size)
+                        }
+                    }
+                    folder.deleteRecursively()
+                    if (!tempFolder.renameTo(folder)) error("İndirilen bölüm kaydedilemedi.")
+                    val item = OfflineChapter(id, series, title, number, directory, folder.listFiles()?.filter { it.isFile }?.sortedBy { it.name }?.map { it.name }.orEmpty(), totalBytes)
+                    item
+                }
+            }
+            result.onSuccess { chapter ->
+                persistOfflineChapters((offlineChapters.filterNot { it.id == chapter.id } + chapter))
+                chapterDownloadState = null
+                Toast.makeText(this@MainActivity, "${chapter.chapterTitle} çevrimdışı kütüphaneye eklendi", Toast.LENGTH_LONG).show()
+            }.onFailure { error ->
+                chapterDownloadState = ChapterDownloadState.Error(error.message ?: "Bölüm indirilemedi.")
+            }
+        }
+    }
+
+    private fun openExternalOfflineFile(file: OfflineFile) {
+        file.uri?.let { uri -> runCatching {
+            val type = contentResolver.getType(uri) ?: "application/octet-stream"
+            startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri, type).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+        }.onFailure { Toast.makeText(this, "Bu dosya için açacak uygulama bulunamadı", Toast.LENGTH_SHORT).show() } }
     }
 
     private fun checkForAndroidUpdate() {
@@ -284,6 +420,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadOfflineChapters()
         WindowCompat.setDecorFitsSystemWindows(window, true)
         window.statusBarColor = AndroidColor.rgb(10, 8, 16)
         window.navigationBarColor = AndroidColor.rgb(10, 8, 16)
@@ -292,6 +429,8 @@ class MainActivity : ComponentActivity() {
         var reloadPage: (() -> Unit)? = null
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                if (offlineReader != null) { offlineReader = null; return }
+                if (offlineHubOpen) { offlineHubOpen = false; return }
                 val currentWebView = webView
                 if (currentWebView?.canGoBack() == true) currentWebView.goBack() else finish()
             }
@@ -425,6 +564,7 @@ class MainActivity : ComponentActivity() {
                                         val prefs = getSharedPreferences("offline_downloads", MODE_PRIVATE)
                                         val ids = prefs.getStringSet("ids", emptySet()).orEmpty() + id.toString()
                                         prefs.edit().putStringSet("ids", ids.toSet()).apply()
+                                        runOnUiThread { offlineFiles = loadOfflineFiles() }
                                         Toast.makeText(this@MainActivity, "İndirme başladı · Bildirimlerden takip edebilirsin", Toast.LENGTH_LONG).show()
                                     }.onFailure {
                                         Toast.makeText(this@MainActivity, "Bu içerik indirilemedi", Toast.LENGTH_SHORT).show()
@@ -447,20 +587,16 @@ class MainActivity : ComponentActivity() {
                     if (hasPageError) {
                         NetworkErrorScreen(
                             files = offlineFiles,
+                            chapters = offlineChapters,
                             onDelete = { file -> removeOfflineFile(file); offlineFiles = loadOfflineFiles() },
+                            onDeleteChapter = ::deleteOfflineChapter,
+                            onOpenChapter = { offlineReader = it },
                             onRetry = {
                                 hasPageError = false
                                 isLoading = true
                                 reloadPage?.invoke()
                             },
-                            onOpen = { file -> file.uri?.let { uri ->
-                                runCatching {
-                                    val type = contentResolver.getType(uri) ?: "application/octet-stream"
-                                    startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri, type).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
-                                }.onFailure {
-                                    Toast.makeText(this@MainActivity, "Bu dosya için açacak uygulama bulunamadı", Toast.LENGTH_SHORT).show()
-                                }
-                            } }
+                            onOpen = ::openExternalOfflineFile
                         )
                     } else {
                         AnimatedVisibility(
@@ -470,6 +606,41 @@ class MainActivity : ComponentActivity() {
                         ) {
                             LaunchScreen(progress = pageProgress)
                         }
+                    }
+                    if (!hasPageError && offlineHubOpen) {
+                        NetworkErrorScreen(
+                            files = offlineFiles,
+                            chapters = offlineChapters,
+                            onDelete = { file -> removeOfflineFile(file); offlineFiles = loadOfflineFiles() },
+                            onDeleteChapter = ::deleteOfflineChapter,
+                            onOpenChapter = { offlineReader = it },
+                            onRetry = { offlineHubOpen = false },
+                            onOpen = ::openExternalOfflineFile,
+                            onClose = { offlineHubOpen = false }
+                        )
+                    }
+                    if (!hasPageError && !offlineHubOpen && !isLoading && offlineReader == null) {
+                        FloatingActionButton(
+                            onClick = { offlineFiles = loadOfflineFiles(); loadOfflineChapters(); offlineHubOpen = true },
+                            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 20.dp),
+                            containerColor = PurplePrimary,
+                            contentColor = Color.White
+                        ) { Icon(Icons.Filled.LibraryBooks, contentDescription = "Çevrimdışı kütüphanem") }
+                    }
+                    offlineReader?.let { chapter -> OfflineChapterReader(chapter, onBack = { offlineReader = null }) }
+                    when (val download = chapterDownloadState) {
+                        is ChapterDownloadState.Downloading -> AlertDialog(
+                            onDismissRequest = {},
+                            title = { Text("Bölüm indiriliyor") },
+                            text = { Column { Text("${download.series} · ${download.chapter}"); Spacer(Modifier.height(12.dp)); LinearProgressIndicator(progress = download.current.toFloat() / download.total.coerceAtLeast(1), modifier = Modifier.fillMaxWidth()); Text("${download.current} / ${download.total} sayfa", modifier = Modifier.padding(top = 8.dp)) } },
+                            confirmButton = {}
+                        )
+                        is ChapterDownloadState.Error -> AlertDialog(
+                            onDismissRequest = { chapterDownloadState = null },
+                            title = { Text("İndirme tamamlanamadı") }, text = { Text(download.message) },
+                            confirmButton = { TextButton(onClick = { chapterDownloadState = null }) { Text("Tamam") } }
+                        )
+                        null -> Unit
                     }
                     when (val state = updateState) {
                         is UpdateUiState.Available -> UpdateDialog(
@@ -540,6 +711,7 @@ class MainActivity : ComponentActivity() {
                     if (!isMainFrame || sourceOrigin.host !in setOf("mahorapeak.com.tr", "www.mahorapeak.com.tr")) return
                     val payload = runCatching { JSONObject(message.data ?: "") }.getOrNull() ?: return
                     when (payload.optString("action")) {
+                        "downloadChapter" -> downloadOfflineChapter(payload)
                         "requestNotifications" -> requestNotificationPermission()
                         "setReaderMode" -> {
                             isReaderPage = payload.optBoolean("enabled", false)
@@ -697,7 +869,8 @@ class MainActivity : ComponentActivity() {
                   if (!readerStyle) {
                     readerStyle = document.createElement('style'); readerStyle.id = 'mahorapeak-reader-controls-style';
                     readerStyle.textContent = `
-                      #mahorapeak-reader-dock { position:fixed; z-index:10020; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 12px); transform:translateX(-50%); display:flex; align-items:center; gap:7px; padding:8px; border:1px solid rgba(196,154,255,.28); border-radius:20px; background:rgba(14,10,23,.9); color:#fff; box-shadow:0 12px 36px rgba(0,0,0,.44),0 0 24px rgba(128,65,220,.18); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); transition:opacity .24s ease, transform .24s ease; }
+                       #mahorapeak-reader-dock { position:fixed; z-index:10020; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 12px); transform:translateX(-50%); display:flex; align-items:center; gap:5px; max-width:calc(100vw - 12px); overflow-x:auto; scrollbar-width:none; padding:6px; border:1px solid rgba(196,154,255,.28); border-radius:18px; background:rgba(14,10,23,.92); color:#fff; box-shadow:0 12px 36px rgba(0,0,0,.44),0 0 24px rgba(128,65,220,.18); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); transition:opacity .24s ease, transform .24s ease; }
+                       #mahorapeak-reader-dock::-webkit-scrollbar { display:none; }
                       #mahorapeak-reader-dock.mp-reader-hidden { opacity:0; pointer-events:none; transform:translate(-50%,12px); }
                       #mahorapeak-reader-dock button { min-width:42px; height:42px; padding:0 11px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:rgba(255,255,255,.07); color:#f6f1ff; font:700 13px system-ui,sans-serif; touch-action:manipulation; }
                       #mahorapeak-reader-dock button:active { background:rgba(145,78,230,.5); transform:scale(.96); }
@@ -711,8 +884,18 @@ class MainActivity : ComponentActivity() {
                     document.head.appendChild(readerStyle);
                   }
                   readerDock = document.createElement('div'); readerDock.id = 'mahorapeak-reader-dock';
-                  readerDock.innerHTML = '<button type="button" data-reader-step="-1" aria-label="Önceki ekran">‹</button><span data-reader-progress>Sayfa</span><button type="button" data-reader-step="1" aria-label="Sonraki ekran">›</button><button type="button" data-reader-chapters aria-label="Bölüm listesi">Bölüm</button><button type="button" data-reader-volume aria-label="Ses tuşu ayarı">Ses: Açık</button>';
+                   readerDock.innerHTML = '<button type="button" data-reader-step="-1" aria-label="Önceki ekran">‹</button><span data-reader-progress>Sayfa</span><button type="button" data-reader-step="1" aria-label="Sonraki ekran">›</button><button type="button" data-reader-download aria-label="Bölümü indir">⬇ İndir</button><button type="button" data-reader-chapters aria-label="Bölüm listesi">Bölüm</button><button type="button" data-reader-volume aria-label="Ses tuşu ayarı">Ses: Açık</button>';
                   document.body.appendChild(readerDock);
+                   readerDock.querySelector('[data-reader-download]').addEventListener('click', function(event) {
+                     event.stopPropagation();
+                     var match = location.pathname.match(/^\/manga\/([^/]+)\/(bolum-[^/]+)/i);
+                     var pages = Array.from(document.querySelectorAll('img[alt^="Page "]')).map(function(img) { return img.currentSrc || img.src; }).filter(Boolean);
+                     if (!match || !pages.length || !window.MahoraPeakAndroid) { alert('Bölüm sayfaları henüz yüklenmedi. Biraz bekleyip tekrar dene.'); return; }
+                     var chapterNumber = Number((match[2].match(/[\d.]+/) || ['0'])[0]);
+                     var seriesTitle = document.querySelector('main h1')?.textContent?.trim() || document.title.split('|')[0].trim();
+                     window.MahoraPeakAndroid.postMessage(JSON.stringify({ action: 'downloadChapter', seriesSlug: match[1], chapterSlug: match[2], seriesTitle: seriesTitle, chapterTitle: 'Bölüm ' + chapterNumber, chapterNumber: chapterNumber, pages: pages }));
+                     scheduleReaderDockHide();
+                   });
                   ['-1','1'].forEach(function(direction) { readerDock.querySelector('[data-reader-step="' + direction + '"]').addEventListener('click', function(event) { event.stopPropagation(); readerStep(Number(direction)); }); });
                   readerDock.querySelector('[data-reader-chapters]').addEventListener('click', function(event) {
                     event.stopPropagation();
@@ -851,24 +1034,32 @@ private fun LaunchScreen(progress: Int) {
 @Composable
 private fun NetworkErrorScreen(
     files: List<OfflineFile>,
+    chapters: List<OfflineChapter>,
     onRetry: () -> Unit,
     onOpen: (OfflineFile) -> Unit,
-    onDelete: (OfflineFile) -> Unit
+    onDelete: (OfflineFile) -> Unit,
+    onDeleteChapter: (OfflineChapter) -> Unit,
+    onOpenChapter: (OfflineChapter) -> Unit,
+    onClose: (() -> Unit)? = null
 ) {
     var selectedTab by remember { mutableStateOf("home") }
-    val series = files.groupBy { offlineSeriesName(it.title) }.toSortedMap(String.CASE_INSENSITIVE_ORDER)
+    var expandedSeries by remember { mutableStateOf<String?>(null) }
+    val series = chapters.groupBy { it.seriesTitle }.toSortedMap(String.CASE_INSENSITIVE_ORDER)
+    val legacySeries = files.groupBy { offlineSeriesName(it.title) }.toSortedMap(String.CASE_INSENSITIVE_ORDER)
     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0xFF100C19), Color(0xFF08070D))))) {
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(Modifier.height(10.dp))
-            Box(Modifier.size(68.dp).clip(RoundedCornerShape(22.dp)).background(Brush135), contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.MenuBook, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
+        Column(Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(42.dp).clip(RoundedCornerShape(14.dp)).background(Brush135), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Filled.MenuBook, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                }
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("MahoraPeak", color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.ExtraBold)
+                    Text(if (onClose == null) "ÇEVRİMDIŞI MOD" else "ÇEVRİMDIŞI ALAN", color = PurpleAccent, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                }
+                onClose?.let { TextButton(onClick = it) { Text("Kapat", color = Color.White) } }
             }
-            Spacer(Modifier.height(14.dp))
-            Text("MahoraPeak", color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.ExtraBold)
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 listOf("home" to "Ana sayfa", "library" to "Kütüphanem").forEach { (key, label) ->
                     val active = selectedTab == key
@@ -879,8 +1070,9 @@ private fun NetworkErrorScreen(
                     ) { Text(label, Modifier.padding(vertical = 13.dp), color = if (active) Color.White else Color(0xFFBEB5CC), fontSize = 13.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center) }
                 }
             }
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
             if (selectedTab == "home") {
+              Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                 Surface(color = Color(0xFF171321), shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(18.dp), horizontalAlignment = Alignment.Start) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -891,7 +1083,7 @@ private fun NetworkErrorScreen(
                         Spacer(Modifier.height(12.dp))
                         Text("Okumaya kaldığın yerden devam et.", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(6.dp))
-                        Text("${files.size} bölüm hazır · İnternet bağlantısı olmadan açılır", color = Color(0xFFAAA2B8), fontSize = 13.sp)
+                        Text("${chapters.size + files.size} indirme hazır · İnternetsiz açılır", color = Color(0xFFAAA2B8), fontSize = 13.sp)
                         Spacer(Modifier.height(15.dp))
                         Button(onClick = { selectedTab = "library" }, shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)) {
                             Icon(Icons.Filled.MenuBook, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Kütüphaneme git", fontWeight = FontWeight.Bold)
@@ -902,52 +1094,87 @@ private fun NetworkErrorScreen(
                 OutlinedButton(onClick = onRetry, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().height(48.dp)) {
                     Icon(Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Bağlantıyı yeniden dene", fontWeight = FontWeight.Bold)
                 }
+                Spacer(Modifier.height(12.dp))
+                if (chapters.isNotEmpty()) {
+                    Text("SON İNDİRMELER", color = PurpleAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp)
+                    chapters.takeLast(4).reversed().forEach { chapter ->
+                        OfflineChapterRow(chapter, onOpenChapter, onDeleteChapter)
+                    }
+                }
+              }
             }
             if (selectedTab == "library") {
-            Surface(color = Color(0xFF171321), shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
+              Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Surface(color = Color(0xFF171321), shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(17.dp)) {
                     Text("ÇEVRİMDIŞI KÜTÜPHANE", color = PurpleAccent, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
                     Spacer(Modifier.height(8.dp))
-                    Text(if (files.isEmpty()) "Henüz indirilen bölüm yok" else "${series.size} seri · ${files.size} bölüm", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(if (files.isEmpty() && chapters.isEmpty()) "Henüz indirilen bölüm yok" else "${series.size + legacySeries.size} seri · ${files.size + chapters.size} bölüm", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(4.dp))
                     Text(
                         if (files.isEmpty()) "Bir dosyayı çevrimiçiyken indir; bağlantın olmadığında buradan açabilirsin."
                         else "İndirilen dosyaların cihazında saklanır ve internet olmadan açılır.",
                         color = Color(0xFFAAA2B8), fontSize = 12.sp, lineHeight = 18.sp
                     )
-                    series.forEach { (seriesName, chapters) ->
+                    if (chapters.isEmpty() && files.isEmpty()) Text("Okuyucudaki ⬇ İndir düğmesiyle bölümleri cihazına kaydet.", color = Color(0xFFAAA2B8), fontSize = 12.sp, lineHeight = 18.sp, modifier = Modifier.padding(top = 10.dp))
+                    series.forEach { (seriesName, seriesChapters) ->
                         Spacer(Modifier.height(12.dp))
-                        Surface(color = Color(0xFF211A2D), shape = RoundedCornerShape(15.dp), modifier = Modifier.fillMaxWidth()) {
+                        Surface(color = Color(0xFF211A2D), shape = RoundedCornerShape(15.dp), modifier = Modifier.fillMaxWidth().clickable { expandedSeries = if (expandedSeries == seriesName) null else seriesName }) {
                             Column(Modifier.padding(12.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Filled.MenuBook, contentDescription = null, tint = PurpleAccent, modifier = Modifier.size(19.dp))
                                     Spacer(Modifier.width(9.dp))
                                     Column(Modifier.weight(1f)) {
                                         Text(seriesName, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-                                        Text("${chapters.size} indirilen bölüm · Bölüm numarasına göre", color = Color(0xFFAAA2B8), fontSize = 11.sp)
+                                        Text("${seriesChapters.size} indirilen bölüm · Bölüm numarasına göre", color = Color(0xFFAAA2B8), fontSize = 11.sp)
                                     }
                                 }
-                                chapters.sortedBy { chapterNumber(it.title) }.forEach { file ->
-                                    Spacer(Modifier.height(8.dp))
-                                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF171321)).clickable { onOpen(file) }.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Filled.Download, contentDescription = null, tint = PurpleAccent, modifier = Modifier.size(18.dp))
-                                        Spacer(Modifier.width(9.dp))
-                                        Column(Modifier.weight(1f)) {
-                                            Text(file.title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                                            Text(file.sizeLabel, color = Color(0xFFAAA2B8), fontSize = 10.sp)
-                                        }
-                                        Icon(Icons.Filled.OpenInNew, contentDescription = "Aç", tint = Color(0xFFAAA2B8), modifier = Modifier.size(17.dp))
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Sil", color = Color(0xFFFF8C9B), fontSize = 11.sp, modifier = Modifier.clickable { onDelete(file) }.padding(4.dp))
-                                    }
+                                if (expandedSeries == seriesName) seriesChapters.sortedBy { it.chapterNumber }.forEach { chapter ->
+                                    OfflineChapterRow(chapter, onOpenChapter, onDeleteChapter)
                                 }
                             }
                         }
                     }
+                    legacySeries.forEach { (seriesName, legacyFiles) ->
+                        Text("$seriesName · ${legacyFiles.size} dosya", color = Color(0xFFAAA2B8), fontSize = 12.sp, modifier = Modifier.padding(top = 12.dp))
+                        legacyFiles.forEach { file -> Row(Modifier.fillMaxWidth().padding(top = 6.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFF211A2D)).clickable { onOpen(file) }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) { Text(file.title, color = Color.White, modifier = Modifier.weight(1f)); Text("Sil", color = Color(0xFFFF8C9B), modifier = Modifier.clickable { onDelete(file) }) } }
+                    }
                 }
+                }
+              }
             }
+        }
+    }
+}
+
+@Composable
+private fun OfflineChapterRow(chapter: OfflineChapter, onOpen: (OfflineChapter) -> Unit, onDelete: (OfflineChapter) -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFF171321)).clickable { onOpen(chapter) }.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(Icons.Filled.Download, contentDescription = null, tint = PurpleAccent, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(9.dp))
+        Column(Modifier.weight(1f)) {
+            Text(chapter.chapterTitle, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            Text("${chapter.pages.size} sayfa · ${String.format("%.1f MB", chapter.sizeBytes / 1024f / 1024f)}", color = Color(0xFFAAA2B8), fontSize = 10.sp)
+        }
+        Text("Oku", color = PurpleAccent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.width(8.dp))
+        Text("Sil", color = Color(0xFFFF8C9B), fontSize = 11.sp, modifier = Modifier.clickable { onDelete(chapter) }.padding(4.dp))
+    }
+}
+
+@Composable
+private fun OfflineChapterReader(chapter: OfflineChapter, onBack: () -> Unit) {
+    val context = LocalContext.current
+    Surface(Modifier.fillMaxSize(), color = Color(0xFF08070D)) {
+        Column {
+            Row(Modifier.fillMaxWidth().background(Color(0xFF100C19)).padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("‹", color = PurpleAccent, fontSize = 28.sp, modifier = Modifier.clickable { onBack() }.padding(horizontal = 8.dp))
+                Column(Modifier.weight(1f)) { Text(chapter.seriesTitle, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1); Text(chapter.chapterTitle, color = Color(0xFFAAA2B8), fontSize = 12.sp) }
+                Text("${chapter.pages.size} sayfa", color = Color(0xFFAAA2B8), fontSize = 11.sp)
             }
-            Spacer(Modifier.height(16.dp))
+            LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                items(chapter.pages) { page -> AsyncImage(model = File(File(context.filesDir, chapter.directory), page), contentDescription = "Bölüm sayfası", modifier = Modifier.fillMaxWidth()) }
+            }
         }
     }
 }
@@ -964,6 +1191,9 @@ private fun offlineSeriesName(title: String): String {
         .replace(Regex("[_-]+"), " ").trim()
     return clean.ifBlank { "İndirilen bölümler" }
 }
+
+private fun safeFilePart(value: String): String = value.lowercase()
+    .replace(Regex("[^a-z0-9._-]"), "-").trim('-', '.', '_').take(100)
 
 private fun compareVersions(first: String, second: String): Int {
     val left = first.split('.', '-', '+').map { it.toIntOrNull() ?: 0 }
