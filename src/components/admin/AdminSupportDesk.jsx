@@ -4,7 +4,6 @@ import {
   Headphones, 
   MessageSquare, 
   Send, 
-  Bot, 
   UserCheck, 
   Sparkles, 
   Crown, 
@@ -123,7 +122,7 @@ export default function AdminSupportDesk() {
           .order('created_at', { ascending: true });
 
         if (!error && data) {
-          setMessages(data.map(normalizeSupportMessage));
+          setMessages(data.map(normalizeSupportMessage).filter(message => message.sender_type !== 'bot'));
         }
       } catch (err) {
         console.warn('Mesajlar çekilemedi:', err);
@@ -144,9 +143,11 @@ export default function AdminSupportDesk() {
           filter: `ticket_id=eq.${selectedTicket.id}`
         },
         (payload) => {
+          const incomingMessage = normalizeSupportMessage(payload.new);
+          if (incomingMessage.sender_type === 'bot') return;
           setMessages((prev) => {
             if (prev.some(m => m.id === payload.new.id)) return prev;
-            return [...prev, normalizeSupportMessage(payload.new)];
+            return [...prev, incomingMessage];
           });
         }
       )
@@ -466,7 +467,13 @@ export default function AdminSupportDesk() {
               ) : (
                 messages.map((m, idx) => {
                   const isAdmin = m.sender_type === 'admin';
-                  const isBot = m.sender_type === 'bot';
+                  if (m.sender_type === 'system') {
+                    return (
+                      <div key={m.id || idx} className="mx-auto max-w-[90%] rounded-xl border border-purple-500/20 bg-purple-950/40 px-3 py-2 text-center text-[11px] text-purple-200">
+                        {m.message}
+                      </div>
+                    );
+                  }
 
                   return (
                     <div
@@ -477,10 +484,6 @@ export default function AdminSupportDesk() {
                         {isAdmin ? (
                           <span className="text-emerald-400 font-semibold flex items-center gap-1">
                             <UserCheck className="w-3 h-3" /> Siz ({m.sender_name})
-                          </span>
-                        ) : isBot ? (
-                          <span className="text-purple-400 font-semibold flex items-center gap-1">
-                            <Bot className="w-3 h-3" /> Mahora Asistan (Bot)
                           </span>
                         ) : (
                           <span className="text-pink-400 font-semibold">
@@ -496,8 +499,6 @@ export default function AdminSupportDesk() {
                         className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed whitespace-pre-line ${
                           isAdmin
                             ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-tr-none shadow-[0_4px_15px_rgba(16,185,129,0.3)]'
-                            : isBot
-                            ? 'bg-purple-950/40 border border-purple-500/20 text-purple-200 rounded-tl-none'
                             : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
                         }`}
                       >

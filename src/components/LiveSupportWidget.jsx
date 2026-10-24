@@ -5,11 +5,9 @@ import {
   MessageSquare, 
   X, 
   Send, 
-  Bot, 
   UserCheck, 
   Sparkles, 
   ChevronDown, 
-  ExternalLink, 
   AlertCircle,
   Clock,
   ShieldAlert,
@@ -20,11 +18,10 @@ import {
   ArrowLeft,
   ArrowRight
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext.jsx';
 import { 
-  analyzeSupportMessage, 
   calculateSupportPriority, 
   getPriorityMeta,
   getSupportPlan,
@@ -47,7 +44,6 @@ export default function LiveSupportWidget() {
   const [ticketListFilter, setTicketListFilter] = useState('active');
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedTopic, setSelectedTopic] = useState(SUPPORT_TOPICS[0]);
   const [showTopicSelect, setShowTopicSelect] = useState(false);
@@ -91,33 +87,19 @@ export default function LiveSupportWidget() {
       setUnreadCount(0);
       scrollToBottom();
     }
-  }, [isOpen, supportView, messages, isTyping]);
+  }, [isOpen, supportView, messages]);
 
-  // Sayfa yüklendiğinde var olan aktif bileti veya karşılama mesajını başlat
+  // Sayfa yüklendiğinde var olan destek konuşmalarını yükle.
   useEffect(() => {
     initTicket();
   }, [user?.id]);
 
   const initTicket = async () => {
-    const welcomeMsg = {
-      id: 'welcome-bot',
-      sender_type: 'bot',
-      sender_name: 'Mahora Asistan',
-      message: `Merhaba ${account?.username || account?.user_metadata?.username || 'değerli izleyicimiz'}! 👋 Ben MahoraPeak Asistanı. Size nasıl yardımcı olabilirim? Aşağıdan konunuzu seçebilir veya sorunuzu yazabilirsiniz.`,
-      created_at: new Date().toISOString(),
-      actions: [
-        { label: '💳 Aura / Bakiye', trigger: 'aura' },
-        { label: '👑 Aethe VIP Avantajları', trigger: 'aethe' },
-        { label: '📱 Uygulama İndir', trigger: 'uygulama' },
-        { label: '👨‍💻 Canlı Yetkiliye Bağlan', trigger: 'force_admin' }
-      ]
-    };
-
     if (!user) {
       setTicketsLoading(false);
       setTicket(null);
       setMyTickets([]);
-      setMessages([welcomeMsg]);
+      setMessages([]);
       return;
     }
 
@@ -150,17 +132,17 @@ export default function LiveSupportWidget() {
           .order('created_at', { ascending: true });
 
         if (msgData && msgData.length > 0) {
-          setMessages(msgData.map(normalizeSupportMessage));
+          setMessages(msgData.map(normalizeSupportMessage).filter(message => message.sender_type !== 'bot'));
         } else {
-          setMessages([welcomeMsg]);
+          setMessages([]);
         }
       } else {
         setTicket(null);
-        setMessages([welcomeMsg]);
+        setMessages([]);
       }
     } catch (err) {
       console.warn('Destek ticket yüklenirken fallback kullanılıyor:', err);
-      setMessages([welcomeMsg]);
+      setMessages([]);
     } finally {
       setTicketsLoading(false);
     }
@@ -182,10 +164,11 @@ export default function LiveSupportWidget() {
         },
         (payload) => {
           const newMsg = normalizeSupportMessage(payload.new);
+          if (newMsg.sender_type === 'bot') return;
           setMessages((prev) => {
             if (prev.some(m => m.id === newMsg.id)) return prev;
             const optimisticIndex = prev.findIndex(m =>
-              (String(m.id).startsWith('usr_') || String(m.id).startsWith('bot_')) &&
+              String(m.id).startsWith('usr_') &&
               m.ticket_id === newMsg.ticket_id &&
               m.sender_type === newMsg.sender_type &&
               m.message === newMsg.message
@@ -304,7 +287,7 @@ export default function LiveSupportWidget() {
       return;
     }
     forceMessageScrollRef.current = true;
-    setMessages((data || []).map(normalizeSupportMessage));
+    setMessages((data || []).map(normalizeSupportMessage).filter(message => message.sender_type !== 'bot'));
   };
 
   // Konu Değiştirme
@@ -326,14 +309,6 @@ export default function LiveSupportWidget() {
       }
     }
 
-    const topicMsg = {
-      id: 'sys_' + Date.now(),
-      sender_type: 'system',
-      sender_name: 'Sistem',
-      message: `Konu güncellendi: ${topic.label}`,
-      created_at: new Date().toISOString()
-    };
-    setMessages(prev => [...prev, topicMsg]);
   };
 
   const startSupportChat = async () => {
@@ -407,9 +382,27 @@ export default function LiveSupportWidget() {
         return;
       }
 
+      const openingMessage = {
+        ticket_id: activeTicket.id,
+        sender: 'system',
+        sender_name: 'MahoraPeak Destek',
+        message: 'Talebiniz alındı. Yetkili destek ekibimiz birazdan bu sohbete katılacak.'
+      };
+      const { data: savedOpeningMessage, error: openingMessageError } = await supabase
+        .from('support_messages')
+        .insert([openingMessage])
+        .select()
+        .single();
+      if (openingMessageError) console.warn('Destek açılış mesajı kaydedilemedi:', openingMessageError);
+
       setMessages([
-        { id: `support-opened-${Date.now()}`, sender_type: 'system', message: 'Talebiniz alındı. Bu sohbetten destek ekibiyle yazışabilirsiniz.', created_at: new Date().toISOString() },
-        normalizeSupportMessage(savedMessage)
+        normalizeSupportMessage(savedMessage),
+        normalizeSupportMessage(savedOpeningMessage || {
+          ...openingMessage,
+          id: `support-opened-${Date.now()}`,
+          sender_type: 'system',
+          created_at: new Date().toISOString()
+        })
       ]);
       forceMessageScrollRef.current = true;
       newTicketRequestedRef.current = false;
@@ -494,48 +487,6 @@ export default function LiveSupportWidget() {
       }
     }
 
-    // 2. Bot Otonom Cevap Motoru Analizi
-    setIsTyping(true);
-
-    setTimeout(async () => {
-      const botResult = analyzeSupportMessage(text);
-      setIsTyping(false);
-
-      if (botResult) {
-        const queueConnected = botResult.escalateToAdmin
-          ? await escalateTicketToAdmin(activeTicket, text)
-          : false;
-        const botMsg = {
-          id: 'bot_' + Date.now(),
-          ticket_id: activeTicket.id,
-          sender_type: 'bot',
-          sender_name: 'Mahora Asistan',
-          message: botResult.escalateToAdmin
-            ? (queueConnected
-              ? 'Talebiniz destek kuyruğuna alındı. Yanıt geldiğinde bu sohbetten görebilirsiniz.'
-              : 'Talebiniz şu anda destek kuyruğuna eklenemedi. Lütfen yeniden deneyin; sorun sürerse biraz sonra tekrar yazın.')
-            : botResult.reply,
-          actions: botResult.actions || [],
-          created_at: new Date().toISOString()
-        };
-
-        setMessages(prev => [...prev, botMsg]);
-
-        // Veritabanına bot mesajını kaydet
-        if (!activeTicket.id.startsWith('local_')) {
-          supabase.from('support_messages').insert([{
-            ticket_id: activeTicket.id,
-            sender: 'bot',
-            sender_name: 'Mahora Asistan',
-            message: botResult.reply
-          }]).select().single().then(({ data, error }) => {
-            if (error) console.warn('Asistan mesajı kaydedilemedi:', error);
-            else if (data) setMessages(prev => prev.map(message => message.id === botMsg.id ? normalizeSupportMessage(data) : message));
-          });
-        }
-
-      }
-    }, 600);
     } catch (error) {
       console.error('Destek mesajı gönderilemedi:', error);
       setMessages(prev => [...prev, {
@@ -580,29 +531,6 @@ export default function LiveSupportWidget() {
     return false;
   };
 
-  // Buton Tıklaması
-  const handleActionClick = async (action) => {
-    if (action.trigger === 'force_admin') {
-      const activeTicket = await getOrCreateTicket('Canlı destek yetkilisi');
-      const queued = await escalateTicketToAdmin(activeTicket, 'Canlı destek yetkilisi talebi');
-      const adminNoticeMsg = {
-        id: 'escalate_' + Date.now(),
-        sender_type: 'bot',
-        sender_name: 'Mahora Asistan',
-        message: queued
-          ? 'Talebiniz destek kuyruğuna alındı. Yanıt geldiğinde bu sohbetten görebilirsiniz.'
-          : 'Talebiniz şu anda destek kuyruğuna eklenemedi. Lütfen yeniden deneyin; sorun sürerse biraz sonra tekrar yazın.',
-        created_at: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, adminNoticeMsg]);
-      return;
-    }
-
-    if (action.trigger) {
-      handleSendMessage(action.label);
-    }
-  };
-
   // Reader (bölüm okuma) sayfasındayken gizle
   const isReaderPage = location.pathname.startsWith('/manga/') && location.pathname.split('/').filter(Boolean).length >= 3;
   if (isReaderPage) return null;
@@ -638,17 +566,17 @@ export default function LiveSupportWidget() {
           <div className="relative p-4 bg-gradient-to-r from-purple-950/90 via-[#130b2c] to-indigo-950/90 border-b border-purple-500/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-[0_0_18px_rgba(168,85,247,0.6)]">
-                <Bot className="w-5 h-5" />
+                <Headphones className="w-5 h-5" />
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-violet-300 rounded-full border-2 border-[#090518]" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-extrabold text-white text-sm tracking-wide">MahoraPeak Asistan</h3>
+                  <h3 className="font-extrabold text-white text-sm tracking-wide">MahoraPeak Destek</h3>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-200 font-bold border border-violet-400/20">
                     Yardım merkezi
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-400">Otomatik yardım ve canlı destek</p>
+                <p className="text-[11px] text-gray-400">Canlı destek ekibi</p>
               </div>
             </div>
 
@@ -908,7 +836,6 @@ export default function LiveSupportWidget() {
           <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-purple-600/30 hover:scrollbar-thumb-purple-500/50 [overflow-anchor:none]">
             {messages.map((msg, index) => {
               const isUser = msg.sender_type === 'user';
-              const isBot = msg.sender_type === 'bot';
               const isSystem = msg.sender_type === 'system';
 
               if (isSystem) {
@@ -926,11 +853,7 @@ export default function LiveSupportWidget() {
                   className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
                 >
                   <div className="flex items-center gap-1.5 mb-1 px-1 text-[11px] text-gray-400">
-                    {isBot ? (
-                      <span className="text-purple-400 font-semibold flex items-center gap-1">
-                        <Bot className="w-3 h-3" /> Mahora Bot
-                      </span>
-                    ) : isUser ? (
+                    {isUser ? (
                       <span className="text-pink-400 font-medium">Siz</span>
                     ) : (
                       <span className="text-emerald-400 font-semibold flex items-center gap-1">
@@ -946,97 +869,17 @@ export default function LiveSupportWidget() {
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed whitespace-pre-line shadow-md ${
                       isUser
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-none shadow-[0_4px_15px_rgba(168,85,247,0.3)]'
-                        : isBot
-                        ? 'bg-[#150d30] border border-purple-500/30 text-gray-100 rounded-tl-none'
                         : 'bg-emerald-950/70 border border-emerald-500/40 text-emerald-100 rounded-tl-none'
                     }`}
                   >
                     {msg.message}
 
-                    {/* Bot Aksiyon Butonları */}
-                    {msg.actions && msg.actions.length > 0 && (
-                      <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-wrap gap-1.5">
-                        {msg.actions.map((act, actIdx) => (
-                          act.url ? (
-                            act.external ? (
-                              <a
-                                key={actIdx}
-                                href={act.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/40 text-purple-200 border border-purple-500/40 text-[11px] font-semibold transition"
-                              >
-                                {act.label} <ExternalLink className="w-3 h-3" />
-                              </a>
-                            ) : (
-                              <Link
-                                key={actIdx}
-                                to={act.url}
-                                onClick={() => setIsOpen(false)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/40 text-purple-200 border border-purple-500/40 text-[11px] font-semibold transition"
-                              >
-                                {act.label}
-                              </Link>
-                            )
-                          ) : (
-                            <button
-                              key={actIdx}
-                              onClick={() => handleActionClick(act)}
-                              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600/40 to-indigo-600/40 hover:from-purple-600 hover:to-indigo-600 text-white border border-purple-400/40 text-[11px] font-semibold transition shadow-sm"
-                            >
-                              {act.label}
-                            </button>
-                          )
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
               );
             })}
 
-            {/* Daktilo / Yazıyor Efekti */}
-            {isTyping && (
-              <div className="flex items-center gap-2 text-xs text-purple-300">
-                <Bot className="w-3.5 h-3.5 animate-bounce" />
-                <span className="flex gap-1 items-center bg-white/5 px-3 py-1.5 rounded-full border border-purple-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse delay-100"></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse delay-200"></span>
-                  <span className="ml-1 text-[11px]">Mahora yazıyor...</span>
-                </span>
-              </div>
-            )}
-
           </div>
-
-          {/* HIZLI KONU ETİKETLERİ */}
-          {!currentTicketIsClosed && <div className="px-3 py-1.5 bg-[#070314]/90 border-t border-purple-500/20 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => handleSendMessage('Aura bakiye nasıl yüklenir?')}
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-gray-300 text-[10px] border border-white/10 transition"
-            >
-              💳 Aura Yükle
-            </button>
-            <button
-              onClick={() => handleSendMessage('Uygulama nasıl indirilir?')}
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-gray-300 text-[10px] border border-white/10 transition"
-            >
-              📱 Uygulama İndir
-            </button>
-            <button
-              onClick={() => handleSendMessage('Bölüm sayfaları yüklenmiyor veya okuyucuda hata görüyorum')}
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-gray-300 text-[10px] border border-white/10 transition"
-            >
-              ⚠️ Bölüm Sorunu
-            </button>
-            <button
-              onClick={() => handleActionClick({ trigger: 'force_admin' })}
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-semibold border border-amber-500/30 transition flex items-center gap-1"
-            >
-              <Headphones className="w-3 h-3" /> Canlı Yetkili
-            </button>
-          </div>}
 
           {/* MESAJ YAZMA ALANI */}
           {!currentTicketIsClosed ? <form
