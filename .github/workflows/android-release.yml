@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'android-v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -51,4 +52,5 @@ jobs:
         with:
           name: MahoraPeak Android ${{ github.ref_name }}
           generate_release_notes: true
+          overwrite_files: true
           files: ${{ runner.temp }}/mahorapeak-android.apk
