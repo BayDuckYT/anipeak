@@ -10,11 +10,12 @@ import {
   Eye, Star, Trash2, Edit3, Shield, ChevronRight, Globe,
   Crown, Check, X, Search, Image as ImageIcon, Activity,
   UserCheck, Save, ShieldAlert, SkipBack, Flame, Layers, Bell,
-  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle, Upload, KeyRound
+  CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle, Upload, KeyRound, Headphones
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
 import AdminAnnouncementsPanel from '../components/admin/AdminAnnouncementsPanel.jsx';
 import AdminSchedulePanel from '../components/admin/AdminSchedulePanel.jsx';
+import AdminSupportDesk from '../components/admin/AdminSupportDesk.jsx';
 import { ERROR_DICTIONARY } from '../utils/errorDictionary.js';
 import { uploadAdminImage } from '../lib/imageService';
 
@@ -23,17 +24,17 @@ export const ADMIN_ROLES = {
   'Baş Admin': {
     color: 'text-red-400 bg-red-500/10 border-red-500/30',
     badge: 'bg-gradient-to-br from-red-600 to-rose-900',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash', 'moderation'],
+    access: ['dashboard', 'supportDesk', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash', 'moderation'],
   },
   'Yönetici': {
     color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
     badge: 'bg-gradient-to-br from-purple-600 to-indigo-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash', 'moderation'],
+    access: ['dashboard', 'supportDesk', 'content', 'chapterEditor', 'add', 'announcements', 'schedule', 'users', 'tickets', 'errorDecoder', 'pages', 'messages', 'promoCodes', 'suggestions', 'settings', 'trash', 'moderation'],
   },
   'Admin Yardımcısı': {
     color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
     badge: 'bg-gradient-to-br from-blue-600 to-cyan-800',
-    access: ['dashboard', 'content', 'chapterEditor', 'add', 'schedule', 'suggestions', 'trash', 'moderation'],
+    access: ['dashboard', 'supportDesk', 'content', 'chapterEditor', 'add', 'schedule', 'suggestions', 'trash', 'moderation'],
   },
   'Editör': {
     color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
@@ -74,6 +75,7 @@ export const ADMIN_ROLES = {
 
 const ALL_NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'supportDesk', label: 'Canlı Destek', icon: Headphones },
   { id: 'content', label: 'Seriler', icon: BookOpen },
   { id: 'chapterEditor', label: 'Bölüm Editörü', icon: Layers },
   { id: 'add', label: 'Hızlı Ekle', icon: PlusCircle },
@@ -81,7 +83,7 @@ const ALL_NAV = [
   { id: 'announcements', label: 'Duyuru Yönetimi', icon: Bell },
   { id: 'schedule', label: 'Yayın Takvimi', icon: Calendar },
   { id: 'users', label: 'Kullanıcılar', icon: UserCheck },
-  { id: 'tickets', label: 'Destek Talepleri', icon: ShieldAlert },
+  { id: 'tickets', label: 'Hata Bildirimleri', icon: ShieldAlert },
   { id: 'errorDecoder', label: 'Hata Bulucu', icon: AlertTriangle },
   { id: 'pages', label: 'Sayfa Yönetimi', icon: FileText },
   { id: 'messages', label: 'Mesajlar', icon: Mail },
@@ -2237,6 +2239,7 @@ export default function Admin() {
         )}
 
         {safeActiveNav === 'announcements' && <AnnouncementsPanel showToast={showToast} />}
+        {safeActiveNav === 'supportDesk' && <AdminSupportDesk />}
         {safeActiveNav === 'users' && <UsersPanel showToast={showToast} />}
         {safeActiveNav === 'tickets' && <TicketsPanel showToast={showToast} />}
         {safeActiveNav === 'errorDecoder' && <ErrorDecoderPanel />}
