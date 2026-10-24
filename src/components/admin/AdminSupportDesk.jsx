@@ -50,7 +50,9 @@ export default function AdminSupportDesk() {
   const [statusFilter, setStatusFilter] = useState('all'); // all, waiting_admin, in_progress, closed
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const shouldFollowMessagesRef = useRef(true);
+  const forceMessageScrollRef = useRef(true);
 
   // Biletleri Çek - Kesin Kural: priority DESC, created_at ASC (VIP en üstte, eşitlikte ilk yazan en üstte!)
   const fetchTickets = async () => {
@@ -109,6 +111,9 @@ export default function AdminSupportDesk() {
       return;
     }
 
+    // Her yeni konuşmada yalnızca konuşmanın kendi kaydırma alanını en alta al.
+    forceMessageScrollRef.current = true;
+
     const fetchMessages = async () => {
       try {
         const { data, error } = await supabase
@@ -153,7 +158,15 @@ export default function AdminSupportDesk() {
   }, [selectedTicket?.id]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (!container || (!forceMessageScrollRef.current && !shouldFollowMessagesRef.current)) return;
+
+    forceMessageScrollRef.current = false;
+    requestAnimationFrame(() => {
+      // scrollIntoView kullanmak sayfanın tamamını da kaydırabiliyor. Sadece sohbet
+      // panelinin kendi scrollTop değerini güncelliyoruz.
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    });
   }, [messages]);
 
   // Admin Mesaj Gönderme
@@ -438,7 +451,14 @@ export default function AdminSupportDesk() {
             </div>
 
             {/* SOHBET MESAJLARI AKIŞI */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-purple-600/30">
+            <div
+              ref={messagesContainerRef}
+              onScroll={(event) => {
+                const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
+                shouldFollowMessagesRef.current = scrollHeight - scrollTop - clientHeight < 80;
+              }}
+              className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-purple-600/30"
+            >
               {messages.length === 0 ? (
                 <div className="p-8 text-center text-gray-500 text-xs">
                   Henüz mesaj yok.
@@ -487,7 +507,6 @@ export default function AdminSupportDesk() {
                   );
                 })
               )}
-              <div ref={messagesEndRef} />
             </div>
 
             {['resolved', 'closed'].includes(selectedTicket.status) ? (
