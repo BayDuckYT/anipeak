@@ -22,7 +22,7 @@ object NetworkModule {
     @Singleton
     fun provideSupabaseService(): SupabaseService {
         val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
-        
+
         val client = OkHttpClient.Builder()
             .addInterceptor(logger)
             .addInterceptor { chain ->
