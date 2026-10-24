@@ -59,6 +59,7 @@ export default function LiveSupportWidget() {
   const [intakeError, setIntakeError] = useState('');
   const [startingChat, setStartingChat] = useState(false);
   const messagesContainerRef = useRef(null);
+  const forceMessageScrollRef = useRef(false);
   const topicSelectionTouchedRef = useRef(false);
   const sendingMessageRef = useRef(false);
   const newTicketRequestedRef = useRef(false);
@@ -71,7 +72,18 @@ export default function LiveSupportWidget() {
   // Yalnızca sohbet listesini kaydır; scrollIntoView sayfanın tamamını aşağı çekebiliyor.
   const scrollToBottom = () => {
     const container = messagesContainerRef.current;
-    if (container) container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    if (!container) return;
+    const distanceFromBottom = container.scrollHeight - container.clientHeight - container.scrollTop;
+    if (!forceMessageScrollRef.current && distanceFromBottom > 140) return;
+    container.scrollTop = container.scrollHeight;
+    forceMessageScrollRef.current = false;
+  };
+
+  const preservePageScroll = () => {
+    const pageY = window.scrollY;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (Math.abs(window.scrollY - pageY) > 2) window.scrollTo({ top: pageY, left: 0, behavior: 'instant' });
+    }));
   };
 
   useEffect(() => {
@@ -79,7 +91,7 @@ export default function LiveSupportWidget() {
       setUnreadCount(0);
       scrollToBottom();
     }
-  }, [isOpen, messages, isTyping]);
+  }, [isOpen, supportView, messages, isTyping]);
 
   // Sayfa yüklendiğinde var olan aktif bileti veya karşılama mesajını başlat
   useEffect(() => {
@@ -291,6 +303,7 @@ export default function LiveSupportWidget() {
       console.warn('Destek sohbeti yüklenemedi:', error);
       return;
     }
+    forceMessageScrollRef.current = true;
     setMessages((data || []).map(normalizeSupportMessage));
   };
 
@@ -398,6 +411,7 @@ export default function LiveSupportWidget() {
         { id: `support-opened-${Date.now()}`, sender_type: 'system', message: 'Talebiniz alındı. Bu sohbetten destek ekibiyle yazışabilirsiniz.', created_at: new Date().toISOString() },
         normalizeSupportMessage(savedMessage)
       ]);
+      forceMessageScrollRef.current = true;
       newTicketRequestedRef.current = false;
       setSupportView('chat');
     } catch (error) {
@@ -618,7 +632,7 @@ export default function LiveSupportWidget() {
 
       {/* CANLI DESTEK PENCERESİ */}
       {isOpen && (
-        <div className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] right-2 left-2 sm:left-auto sm:right-8 sm:bottom-8 w-auto sm:w-[410px] h-[min(620px,calc(100dvh-2rem-env(safe-area-inset-bottom)))] max-h-[88dvh] z-50 flex flex-col rounded-3xl bg-[#090518]/95 backdrop-blur-2xl border border-purple-500/40 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-5">
+        <div onClickCapture={(event) => { if (event.target.closest('button')) preservePageScroll(); }} onSubmitCapture={preservePageScroll} className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] right-2 left-2 sm:left-auto sm:right-8 sm:bottom-8 w-auto sm:w-[410px] h-[min(620px,calc(100dvh-2rem-env(safe-area-inset-bottom)))] max-h-[88dvh] z-50 flex flex-col rounded-3xl bg-[#090518]/95 backdrop-blur-2xl border border-purple-500/40 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-5 [overflow-anchor:none]">
           
           {/* ÜST BAŞLIK / HEADER */}
           <div className="relative p-4 bg-gradient-to-r from-purple-950/90 via-[#130b2c] to-indigo-950/90 border-b border-purple-500/30 flex items-center justify-between">
@@ -891,7 +905,7 @@ export default function LiveSupportWidget() {
           )}
 
           {/* SOHBET MESAJ ALANI */}
-          <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-purple-600/30 hover:scrollbar-thumb-purple-500/50">
+          <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-purple-600/30 hover:scrollbar-thumb-purple-500/50 [overflow-anchor:none]">
             {messages.map((msg, index) => {
               const isUser = msg.sender_type === 'user';
               const isBot = msg.sender_type === 'bot';
@@ -1011,10 +1025,10 @@ export default function LiveSupportWidget() {
               📱 Uygulama İndir
             </button>
             <button
-              onClick={() => handleSendMessage('Video açılmıyor hata veriyor')}
+              onClick={() => handleSendMessage('Bölüm sayfaları yüklenmiyor veya okuyucuda hata görüyorum')}
               className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-gray-300 text-[10px] border border-white/10 transition"
             >
-              ⚠️ Video Hatası
+              ⚠️ Bölüm Sorunu
             </button>
             <button
               onClick={() => handleActionClick({ trigger: 'force_admin' })}

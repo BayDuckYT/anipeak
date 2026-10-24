@@ -135,7 +135,7 @@ export const SUPPORT_TOPICS = [
 export const BOT_KNOWLEDGE_BASE = [
   {
     id: 'connect_admin',
-    keywords: ['yetkili', 'admin', 'canlı destek', 'insan', 'temsilci', 'destek ekibi', 'gerçek kişi', 'bağlan', 'görüşmek'],
+    keywords: ['yetkiliye bağlan', 'canlı yetkili', 'canlı destek istiyorum', 'temsilciyle görüşmek', 'insanla konuşmak', 'destek ekibine aktar'],
     reply: 'Talebiniz canlı destek yetkilimize aktarıldı. Lütfen bekleyin sayfayı kapatmayın, buradan yanıt verilecektir!',
     escalateToAdmin: true,
     actions: []
@@ -169,11 +169,29 @@ export const BOT_KNOWLEDGE_BASE = [
   },
   {
     id: 'video_issue',
-    keywords: ['açılmıyor', 'video', 'bölüm', 'donuyor', 'hata', 'oynatmıyor', 'yüklenmiyor', 'player', 'ses yok', 'altyazı'],
-    reply: 'Bölüm oynatıcıda sorun yaşıyorsanız:\n1. Oynatıcı altındaki alternatif kaynak/server (Fembed, Vidmoly, Stream) değiştirin.\n2. Tarayıcı önbelleğinizi temizleyin veya gizli sekmede deneyin.\n3. Reklam engelleyici (AdBlock) varsa kapatıp sayfayı yenileyin.\n\nSorun devam ederse lütfen hangi animede olduğunu belirtin, yetkiliye aktarayım!',
+    keywords: ['açılmıyor', 'video', 'bölüm', 'sayfa yüklenmiyor', 'donuyor', 'hata', 'yüklenmiyor', 'görsel görünmüyor', 'indirme sorunu', 'çevrimdışı'],
+    reply: 'Okuyucu veya bölüm sorunu için önce sayfayı yenile, ardından başka bir ağda ya da tarayıcıda dene. Sorun sürerse seri adı, bölüm numarası, cihazın ve gördüğün hata mesajıyla birlikte bu sohbete yaz; destek ekibimiz inceleyebilsin.',
     actions: [
       { label: '👨‍💻 Canlı Yetkiliye Aktar', trigger: 'force_admin' }
     ]
+  },
+  {
+    id: 'content_request',
+    keywords: ['seri önerisi', 'manga önerisi', 'seri ekleyin', 'manga ekleyin', 'içerik talebi', 'çeviri isteği'],
+    reply: 'Seri veya bölüm önerini not ettim. Talebin daha hızlı değerlendirilsin diye seri adını, istediğin bölüm/çeviri bilgisini ve varsa kaynak bağlantısını da paylaşabilirsin.',
+    actions: [{ label: '👨‍💻 Talebi yetkiliye ilet', trigger: 'force_admin' }]
+  },
+  {
+    id: 'campaign',
+    keywords: ['promosyon kodu', 'kampanya kodu', 'hediye kodu', 'kod çalışmıyor'],
+    reply: 'Kodun geçerlilik tarihini ve hesabında daha önce kullanılıp kullanılmadığını kontrol et. Sorun devam ederse kodu ve gördüğün uyarıyı bu sohbete ekle; ekibimiz kontrol etsin.',
+    actions: [{ label: '👨‍💻 Kodu yetkiliye ilet', trigger: 'force_admin' }]
+  },
+  {
+    id: 'partnership',
+    keywords: ['iş birliği', 'reklam vermek', 'sponsor olmak', 'marka iş birliği'],
+    reply: 'İş birliği talebini doğru ekibe iletebilmemiz için marka/kanal adını, teklif türünü ve sana ulaşabileceğimiz e-posta adresini paylaş.',
+    actions: [{ label: '👨‍💻 İş birliği talebi oluştur', trigger: 'force_admin' }]
   },
   {
     id: 'password_reset',
@@ -193,7 +211,7 @@ export const BOT_KNOWLEDGE_BASE = [
   },
   {
     id: 'greetings',
-    keywords: ['selam', 'merhaba', 'sa', 'slm', 'hey', 'günaydın', 'iyi günler', 'iyi akşamlar', 'naber'],
+    keywords: ['selam', 'merhaba', 'slm', 'hey', 'günaydın', 'iyi günler', 'iyi akşamlar', 'naber'],
     reply: 'Merhaba! Ben MahoraPeak Asistanı Mahora 🤖 Size nasıl yardımcı olabilirim? Aşağıdaki hızlı konulardan seçebilir veya sorunuzu yazabilirsiniz!',
     actions: [
       { label: '💎 Aura & Bakiye', trigger: 'aura' },
@@ -210,15 +228,18 @@ export const BOT_KNOWLEDGE_BASE = [
 export function analyzeSupportMessage(text) {
   if (!text || typeof text !== 'string') return null;
 
-  const normalized = text
-    .toLowerCase()
-    .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, ' ')
-    .trim();
+  const tokenize = (value) => value.toLocaleLowerCase('tr-TR').match(/[\p{L}\p{N}]+/gu) || [];
+  const tokens = tokenize(text);
 
-  // 1. Doğrudan veya anahtar kelime eşleşmesi
+  // Tam kelime ve kelime öbeği eşleştirmesi; kısa parçalar (ör. "sa" içeren "sayfa") eşleşmez.
   for (const item of BOT_KNOWLEDGE_BASE) {
     const match = item.keywords.some(kw => {
-      return normalized.includes(kw);
+      const keywordTokens = tokenize(kw);
+      if (!keywordTokens.length || keywordTokens.length > tokens.length) return false;
+      for (let start = 0; start <= tokens.length - keywordTokens.length; start += 1) {
+        if (keywordTokens.every((token, offset) => tokens[start + offset] === token)) return true;
+      }
+      return false;
     });
 
     if (match) {
@@ -232,12 +253,12 @@ export function analyzeSupportMessage(text) {
     }
   }
 
-  // 2. Eşleşme yoksa yetkiliye aktar
+  // Bilinmeyen mesajları otomatik olarak canlı desteğe aktarma; kullanıcıya net seçenek sun.
   return {
     matched: false,
-    reply: 'Talebiniz canlı destek yetkilimize aktarıldı. Lütfen bekleyin sayfayı kapatmayın, buradan yanıt verilecektir!',
-    actions: [],
-    escalateToAdmin: true,
+    reply: 'Mesajını aldım. Konunu doğru anlayabilmem için seri adı, bölüm numarası veya gördüğün hata mesajı gibi biraz daha ayrıntı yazabilirsin. İstersen aşağıdan canlı yetkiliye de aktarabilirsin.',
+    actions: [{ label: '👨‍💻 Canlı yetkiliye bağlan', trigger: 'force_admin' }],
+    escalateToAdmin: false,
     intent: 'fallback'
   };
 }
