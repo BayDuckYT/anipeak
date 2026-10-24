@@ -15,7 +15,6 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
   const isElite = userData.is_elite || (rank && rank.includes('Elite'));
   const isStaff = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester', 'Moderatör'].includes(role);
   const planId = userData.active_plan_id;
-  const houseId = userData.house_id;
   const isHeadAdmin = role === 'Baş Admin' || role === 'Kurucu' || userData?.username === 'MAHORAPEAK' || userData?.username === 'MAHORA';
 
   const handleClick = (e) => {
@@ -110,31 +109,6 @@ export default function UserBadges({ user, showCrown = false, showGem = true, cl
           <span className="text-[12px] drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]">🛡️</span>
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card-navy text-white text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border border-orange-500/50 z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom">
             MODERATÖR
-          </div>
-        </motion.div>
-      )}
-
-      {houseId && (
-        <motion.div
-          whileHover={{ scale: 1.2 }}
-          className="relative group cursor-pointer flex items-center justify-center p-0.5 outline-none"
-        >
-          <Shield size={iconSize} className={`drop-shadow-[0_0_8px_currentColor] ${
-            houseId === 'dragon' ? 'text-red-500' :
-            houseId === 'fox' ? 'text-purple-400' :
-            houseId === 'wolf' ? 'text-blue-400' :
-            'text-orange-400'
-          }`} />
-          <div className={`absolute -top-10 left-1/2 -translate-x-1/2 bg-card-navy text-white text-[9px] font-black py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none uppercase tracking-widest whitespace-nowrap border z-[100] shadow-2xl scale-90 group-hover:scale-100 origin-bottom ${
-            houseId === 'dragon' ? 'border-red-500/50' :
-            houseId === 'fox' ? 'border-purple-500/50' :
-            houseId === 'wolf' ? 'border-blue-500/50' :
-            'border-orange-500/50'
-          }`}>
-            {houseId === 'dragon' ? 'KIZIL EJDER' :
-             houseId === 'fox' ? 'GÜMÜŞ KITSUNE' :
-             houseId === 'wolf' ? 'BUZ KURT' :
-             'ALTIN ANKA'}
           </div>
         </motion.div>
       )}

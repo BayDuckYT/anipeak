@@ -27,7 +27,7 @@ export const DEFAULT_LEGAL_PAGES = {
       </ul>
 
       <h2>Vizyonumuz: Yaşayan Bir Edebiyat Sığınağı</h2>
-      <p>Hedefimiz yalnızca popüler serileri yayınlamak değil; XP sistemiyle seviye atladığınız, klan/hane seçerek aidiyet hissettiğiniz, etkinliklerle ödüller kazandığınız ve günün yorgunluğunu kaliteli hikayelerle geride bıraktığınız Türkiye'nin en sevilen çizgi roman mabedi olmaktır. Bizimle bu macerayı paylaştığınız için teşekkür ederiz!</p>
+      <p>Hedefimiz yalnızca popüler serileri yayınlamak değil; XP sistemiyle seviye atladığınız, benzersiz rozetler ve unvanlar kazandığınız, etkinliklerle ödüllendirildiğiniz ve günün yorgunluğunu kaliteli hikayelerle geride bıraktığınız Türkiye'nin en sevilen çizgi roman mabedi olmaktır. Bizimle bu macerayı paylaştığınız için teşekkür ederiz!</p>
     `
   },
   'sartlar': {

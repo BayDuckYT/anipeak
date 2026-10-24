@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Shield, Bell, Eye, Palette, Link as LinkIcon, 
   AlertTriangle, Settings as SettingsIcon, Check, Loader2, 
-  Camera, ImageIcon, Zap, Swords, ChevronRight, Fingerprint, Calendar,
-  Moon, Sun, Wind, Flame, ShieldAlert, Sparkles, Volume2, VolumeX,
+  Camera, ImageIcon, Zap, ChevronRight, Fingerprint, Calendar,
+  Moon, Sun, ShieldAlert, Sparkles, Volume2, VolumeX,
   MonitorSmartphone, BellRing, BellOff, BookOpen, PartyPopper, MessageCircle,
-  ExternalLink, Trash2, Clock, KeyRound, AlertOctagon, RefreshCw, X, ShieldCheck
+  ExternalLink, Trash2, Clock, KeyRound, AlertOctagon, RefreshCw, X, ShieldCheck,
+  CheckCircle2, Sliders, Smartphone, Laptop, BadgeCheck, FileText, Bookmark, CalendarClock,
+  Radio, Volume1
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -18,6 +20,7 @@ import {
   resolveNotifSettings,
   requestBrowserPermission,
   browserPushSupported,
+  playNotificationSound,
 } from '../lib/notifications.js';
 import Cropper from 'react-easy-crop';
 
@@ -90,51 +93,8 @@ const resizeImage = (file, maxDim) => {
   });
 };
 
-const HOUSES = [
-  { 
-    id: 'dragon', 
-    name: 'Kızıl Ejder', 
-    desc: 'Saldırgan ve lider ruhlular',
-    icon: Flame,
-    color: 'from-red-600 to-rose-900', 
-    shadow: 'shadow-[0_0_40px_rgba(225,29,72,0.4)]', 
-    border: 'border-rose-500',
-    glow: 'bg-rose-500/20'
-  },
-  { 
-    id: 'shadow', 
-    name: 'Gölge Tarikatı', 
-    desc: 'Sessiz ve stratejik hareket edenler',
-    icon: Moon,
-    color: 'from-purple-600 to-indigo-950', 
-    shadow: 'shadow-[0_0_40px_rgba(147,51,234,0.4)]', 
-    border: 'border-purple-500',
-    glow: 'bg-purple-500/20'
-  },
-  { 
-    id: 'storm', 
-    name: 'Fırtına Lejyonu', 
-    desc: 'Hızlı ve sınır tanımayanlar',
-    icon: Wind,
-    color: 'from-cyan-500 to-blue-900', 
-    shadow: 'shadow-[0_0_40px_rgba(6,182,212,0.4)]', 
-    border: 'border-cyan-500',
-    glow: 'bg-cyan-500/20'
-  },
-  { 
-    id: 'phoenix', 
-    name: 'Altın Anka', 
-    desc: 'Küllerinden doğan azimliler',
-    icon: Sun,
-    color: 'from-amber-500 to-orange-900', 
-    shadow: 'shadow-[0_0_40px_rgba(245,158,11,0.4)]', 
-    border: 'border-amber-500',
-    glow: 'bg-amber-500/20'
-  },
-];
-
 export default function SettingsPage() {
-  const { user, updateProfile, updatePassword, toggleTrackSeries, clearAllNotifications, logout } = useAuth();
+  const { user, updateProfile, updatePassword, clearAllNotifications, logout } = useAuth();
   const { series = [] } = useApp();
   const [activeTab, setActiveTab] = useState('hesap');
   const [isSaving, setIsSaving] = useState(false);
@@ -175,6 +135,8 @@ export default function SettingsPage() {
   const [appearanceSettings, setAppearanceSettings] = useState({ theme: 'dark', animations: true });
   const [malUsername, setMalUsername] = useState('');
   const [bioText, setBioText] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
 
   useEffect(() => {
@@ -184,6 +146,8 @@ export default function SettingsPage() {
       if (user.appearance_settings) setAppearanceSettings(user.appearance_settings);
       if (user.mal_username) setMalUsername(user.mal_username);
       if (user.bio) setBioText(user.bio);
+      if (user.username) setUsernameInput(user.username);
+      if (user.email) setEmailInput(user.email);
     }
   }, [user]);
 
@@ -199,6 +163,19 @@ export default function SettingsPage() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const updateNotifSetting = async (key, val, label = 'Bildirim Ayarı Güncellendi') => {
+    const updated = { ...notifSettings, [key]: val };
+    setNotifSettings(updated);
+    await handleSave({ notification_settings: updated }, label);
+  };
+
+  const updateQuietHours = async (field, val) => {
+    const updatedQuiet = { ...notifSettings.quietHours, [field]: val };
+    const updated = { ...notifSettings, quietHours: updatedQuiet };
+    setNotifSettings(updated);
+    await handleSave({ notification_settings: updated }, 'Sessiz Saatler Güncellendi');
   };
 
   const handleChangePassword = async () => {
@@ -253,90 +230,78 @@ export default function SettingsPage() {
         crop: { x: 0, y: 0 },
         zoom: 1,
         croppedAreaPixels: null,
-        outputSize: 'medium'
+        outputSize: 'medium',
       });
     };
     reader.readAsDataURL(file);
     e.target.value = '';
   };
 
-  const uploadDirectly = async (file, type) => {
+  const handleCropComplete = async () => {
+    if (!cropModal.imageSrc || !cropModal.croppedAreaPixels) return;
     setIsSaving(true);
     try {
-      const url = await uploadAvatar(file, type);
-      if (url) {
-        if (type === 'avatar') {
-          await updateProfile({ avatar_url: url });
-        } else {
-          const nextApp = { ...appearanceSettings, custom_banner_url: url };
-          setAppearanceSettings(nextApp);
-          await updateProfile({ appearance_settings: nextApp });
-        }
-        setToastMsg('Profil Görseliniz Güncellendi');
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
+      const isAvatar = cropModal.type === 'avatar';
+      let targetDim = null;
+
+      if (isAvatar) {
+        const preset = SIZE_PRESETS.find(p => p.id === cropModal.outputSize);
+        targetDim = preset?.size || null;
+      } else {
+        const preset = BANNER_SIZE_PRESETS.find(p => p.id === cropModal.outputSize);
+        targetDim = preset?.w || null;
       }
+
+      const croppedBlob = await getCroppedImg(cropModal.imageSrc, cropModal.croppedAreaPixels, targetDim);
+      const url = await uploadAvatar(croppedBlob, user.id);
+
+      if (isAvatar) {
+        await handleSave({ avatar_url: url }, 'Profil Fotoğrafı Güncellendi');
+      } else {
+        await handleSave({ banner_url: url }, 'Kapak Fotoğrafı Güncellendi');
+      }
+
+      setCropModal({ isOpen: false, imageSrc: null, type: 'avatar', file: null, crop: { x: 0, y: 0 }, zoom: 1, croppedAreaPixels: null, outputSize: 'medium' });
     } catch (err) {
-      alert('Görsel yüklenemedi!');
+      alert('Görsel işlenirken hata oluştu: ' + (err.message || ''));
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleGifUpload = async () => {
-    const { file, type, selectedSize } = gifSizeModal;
-    if (!file) return;
-    setGifSizeModal(prev => ({ ...prev, isOpen: false }));
-    if (gifSizeModal.previewUrl) URL.revokeObjectURL(gifSizeModal.previewUrl);
-
-    if (selectedSize === 'original') {
-      await uploadDirectly(file, type);
-    } else {
-      setIsSaving(true);
-      try {
-        const preset = SIZE_PRESETS.find(p => p.id === selectedSize);
-        const resizedBlob = await resizeImage(file, preset?.size || null);
-        await uploadDirectly(resizedBlob, type);
-      } catch (err) {
-        alert('Boyutlandırma hatası!');
-      } finally {
-        setIsSaving(false);
-      }
-    }
-  };
-
-  const handleCropComplete = async () => {
-    if (!cropModal.croppedAreaPixels || !cropModal.imageSrc) return;
+    if (!gifSizeModal.file) return;
     setIsSaving(true);
     try {
-      const presets = cropModal.type === 'avatar' ? SIZE_PRESETS : BANNER_SIZE_PRESETS;
-      const preset = presets.find(p => p.id === cropModal.outputSize);
-      const targetSize = cropModal.type === 'avatar' ? (preset?.size || null) : (preset?.w || null);
-      
-      const croppedBlob = await getCroppedImg(cropModal.imageSrc, cropModal.croppedAreaPixels, targetSize);
-      const url = await uploadAvatar(croppedBlob, cropModal.type);
-      if (url) {
-        if (cropModal.type === 'avatar') {
-          await updateProfile({ avatar_url: url });
-        } else {
-          const nextApp = { ...appearanceSettings, custom_banner_url: url };
-          setAppearanceSettings(nextApp);
-          await updateProfile({ appearance_settings: nextApp });
-        }
-        setCropModal(prev => ({ ...prev, isOpen: false }));
-        setToastMsg('Profiliniz Güncellendi');
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
+      const isAvatar = gifSizeModal.type === 'avatar';
+      let maxDim = null;
+
+      if (isAvatar) {
+        const preset = SIZE_PRESETS.find(p => p.id === gifSizeModal.selectedSize);
+        maxDim = preset?.size || null;
+      } else {
+        const preset = BANNER_SIZE_PRESETS.find(p => p.id === gifSizeModal.selectedSize);
+        maxDim = preset?.w || null;
       }
+
+      const finalFile = await resizeImage(gifSizeModal.file, maxDim);
+      const url = await uploadAvatar(finalFile, user.id);
+
+      if (isAvatar) {
+        await handleSave({ avatar_url: url }, 'Hareketli Avatar Güncellendi');
+      } else {
+        await handleSave({ banner_url: url }, 'Hareketli Kapak Güncellendi');
+      }
+
+      setGifSizeModal({ isOpen: false, file: null, type: 'avatar', previewUrl: null, selectedSize: 'medium' });
     } catch (err) {
-      alert('Kırpma/Yükleme hatası!');
+      alert('GIF yüklenirken hata oluştu: ' + (err.message || ''));
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Tehlikeli Bölge Eylemleri
-  const handleExecuteDangerAction = async () => {
+  const handleDangerAction = async () => {
     const { action } = dangerModal;
     setIsSaving(true);
 
@@ -383,10 +348,10 @@ export default function SettingsPage() {
 
   const menuItems = [
     { id: 'hesap', label: 'Profil Kimliği', icon: User, color: 'text-purple-400' },
-    { id: 'guvenlik', label: 'Güvenlik', icon: Shield, color: 'text-indigo-400' },
-    { id: 'gorunum', label: 'Görünüm', icon: Palette, color: 'text-pink-400' },
-    { id: 'bildirimler', label: 'Bildirimler', icon: Bell, color: 'text-cyan-400' },
-    { id: 'gizlilik', label: 'Gizlilik', icon: Eye, color: 'text-emerald-400' },
+    { id: 'bildirimler', label: 'Bildirim Merkezi', icon: Bell, color: 'text-cyan-400' },
+    { id: 'guvenlik', label: 'Güvenlik & Şifre', icon: Shield, color: 'text-indigo-400' },
+    { id: 'gorunum', label: 'Görünüm & Tema', icon: Palette, color: 'text-pink-400' },
+    { id: 'gizlilik', label: 'Gizlilik (Gölge)', icon: Eye, color: 'text-emerald-400' },
     { id: 'mal', label: 'MyAnimeList', icon: LinkIcon, color: 'text-blue-400' },
   ];
 
@@ -430,19 +395,19 @@ export default function SettingsPage() {
               >
                 <div className="flex items-center gap-3 text-red-400 mb-4">
                   <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-2xl">
-                    <AlertOctagon size={24} />
+                    <AlertTriangle size={24} />
                   </div>
                   <div>
-                    <h3 className="font-black text-white text-base uppercase">Eylemi Onayla</h3>
-                    <p className="text-[11px] text-red-300">Bu işlem geri alınamaz</p>
+                    <h3 className="font-black text-sm uppercase text-white">İşlemi Onaylayın</h3>
+                    <p className="text-[11px] text-red-300">Bu işlem geri alınamaz!</p>
                   </div>
                 </div>
 
                 <p className="text-xs text-gray-300 leading-relaxed mb-6">
-                  {dangerModal.action === 'clear_history' && 'Tüm okuma geçmişiniz ve bölümlerde kaldığınız yer bilgileri kalıcı olarak sıfırlanacaktır.'}
-                  {dangerModal.action === 'clear_notifications' && 'Gelen kutunuzdaki tüm okunmuş ve okunmamış bildirimler tamamen silinecektir.'}
-                  {dangerModal.action === 'clear_cache' && 'Tarayıcınızdaki yerel veriler temizlenecek ve sayfa yeniden yüklenecektir.'}
-                  {dangerModal.action === 'delete_account' && 'DİKKAT: Hesabınız kalıcı olarak kapatılacaktır. Onaylamak için lütfen aşağıdaki alana tam olarak "HESABIMI SİL" yazınız.'}
+                  {dangerModal.action === 'clear_history' && 'Tüm okuma geçmişiniz ve bölüm ilerlemeleriniz silinecektir. Emin misiniz?'}
+                  {dangerModal.action === 'clear_notifications' && 'Gelen kutunuzdaki tüm bildirimler ve duyuru kayıtları temizlenecektir.'}
+                  {dangerModal.action === 'clear_cache' && 'Tarayıcınızdaki yerel veriler silinip site baştan yüklenecektir.'}
+                  {dangerModal.action === 'delete_account' && 'MahoraPeak hesabınız kalıcı olarak kapatılacaktır. Devam etmek için aşağıdaki alana HESABIMI SİL yazınız:'}
                 </p>
 
                 {dangerModal.action === 'delete_account' && (
@@ -452,7 +417,7 @@ export default function SettingsPage() {
                       placeholder="HESABIMI SİL"
                       value={dangerModal.confirmText}
                       onChange={(e) => setDangerModal({ ...dangerModal, confirmText: e.target.value })}
-                      className="w-full bg-black/50 border border-red-500/40 rounded-xl px-4 py-3 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-red-400 font-bold"
+                      className="w-full bg-black/60 border border-red-500/40 rounded-xl p-3 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-red-500 font-mono"
                     />
                   </div>
                 )}
@@ -460,16 +425,17 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-end gap-3">
                   <button
                     onClick={() => setDangerModal({ isOpen: false, action: null, confirmText: '' })}
-                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition"
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition"
                   >
                     Vazgeç
                   </button>
                   <button
-                    onClick={handleExecuteDangerAction}
-                    disabled={isSaving || (dangerModal.action === 'delete_account' && dangerModal.confirmText !== 'HESABIMI SİL')}
-                    className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] disabled:opacity-40 transition"
+                    onClick={handleDangerAction}
+                    disabled={isSaving}
+                    className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition shadow-lg shadow-red-900/40 flex items-center gap-2"
                   >
-                    {isSaving ? 'İşleniyor...' : 'Evet, Onaylıyorum'}
+                    {isSaving && <Loader2 size={14} className="animate-spin" />}
+                    <span>Onayla ve Uygula</span>
                   </button>
                 </div>
               </motion.div>
@@ -479,21 +445,21 @@ export default function SettingsPage() {
         document.body
       )}
 
-      {/* Cropper Modal */}
+      {/* Kırpma Modalı */}
       {createPortal(
         <AnimatePresence>
           {cropModal.isOpen && (
             <div className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-              <div className="w-full max-w-2xl bg-[#0f0924] border border-purple-500/30 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
-                <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">
-                    {cropModal.type === 'avatar' ? 'Profil Fotoğrafını Kırp' : 'Arkaplanı Kırp'}
+              <div className="w-full max-w-xl bg-[#0f0924] border border-purple-500/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+                <div className="p-4 border-b border-white/10 flex justify-between items-center">
+                  <h3 className="text-sm font-black text-white uppercase">
+                    {cropModal.type === 'avatar' ? '👤 Avatar Kırp' : '🖼️ Kapak Kırp'}
                   </h3>
-                  <button onClick={() => setCropModal(prev => ({ ...prev, isOpen: false }))} className="p-1.5 text-gray-400 hover:text-white">
-                    <X size={20} />
+                  <button onClick={() => setCropModal(prev => ({ ...prev, isOpen: false }))} className="text-gray-400 hover:text-white">
+                    <X size={18} />
                   </button>
                 </div>
-                <div className="relative w-full h-[380px] bg-black">
+                <div className="relative w-full h-80 bg-black">
                   <Cropper
                     image={cropModal.imageSrc}
                     crop={cropModal.crop}
@@ -655,77 +621,116 @@ export default function SettingsPage() {
                 className="bg-[#0b071e]/90 backdrop-blur-3xl border border-purple-500/25 rounded-3xl p-6 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] relative overflow-hidden"
               >
                 
-                {/* 1. PROFİL KİMLİĞİ */}
+                {/* 1. PROFİL KİMLİĞİ (HESAP BİLGİLERİ) */}
                 {activeTab === 'hesap' && (
                   <div className="space-y-8">
                     <div>
                       <h2 className="text-2xl font-black text-white uppercase tracking-tight">Profil Kimliği</h2>
-                      <p className="text-purple-400/80 text-xs font-bold uppercase tracking-widest mt-1">Kişisel Bilgiler ve Görünüm</p>
+                      <p className="text-purple-400 text-xs font-bold uppercase tracking-widest mt-1">Görsel Varlıklar ve Hesap Detayları</p>
                     </div>
 
-                    {/* Profil Başlık Kartı */}
-                    <div className="relative p-6 rounded-3xl bg-gradient-to-r from-purple-950/50 via-[#150d30] to-indigo-950/40 border border-purple-500/30 flex flex-col md:flex-row items-center gap-6 shadow-xl">
-                      <div className="relative group">
-                        <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-purple-400/50 bg-black flex items-center justify-center shadow-[0_0_25px_rgba(168,85,247,0.4)]">
-                          {user?.avatar_url ? (
-                            <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                          ) : (
-                            <User size={44} className="text-purple-400" />
-                          )}
-                          <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition cursor-pointer backdrop-blur-xs">
-                            <Camera size={20} className="text-white mb-1" />
-                            <span className="text-[9px] font-black uppercase text-white">Değiştir</span>
-                            <input type="file" className="hidden" accept="image/*,image/gif" onChange={(e) => handleFileSelect(e, 'avatar')} />
-                          </label>
+                    {/* Banner & Avatar Alanı */}
+                    <div className="relative rounded-3xl overflow-hidden border border-purple-500/20 bg-black/50">
+                      {/* Banner Görseli */}
+                      <div className="h-44 sm:h-52 w-full bg-gradient-to-r from-purple-950 via-[#0e0722] to-indigo-950 relative group">
+                        {user?.banner_url ? (
+                          <img src={user.banner_url} alt="Kapak" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-purple-400/30 text-xs font-black uppercase tracking-widest">
+                            Özel Kapak Görseli Ekleyin
+                          </div>
+                        )}
+                        <label className="absolute top-4 right-4 px-4 py-2 rounded-xl bg-black/60 hover:bg-black/90 text-white text-xs font-bold border border-white/20 backdrop-blur-md cursor-pointer transition flex items-center gap-2 shadow-lg">
+                          <Camera size={14} />
+                          <span>Kapağı Değiştir</span>
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, 'banner')} />
+                        </label>
+                      </div>
+
+                      {/* Avatar & İsim */}
+                      <div className="p-6 pt-0 flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16 sm:-mt-20 relative z-10">
+                        <div className="relative group">
+                          <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl overflow-hidden border-4 border-[#0b071e] bg-black shadow-2xl relative">
+                            <img
+                              src={user?.avatar_url || 'https://wsrv.nl/?url=https://mahorapeak.com.tr/mahorapeaklogov2.png'}
+                              alt="Avatar"
+                              className="w-full h-full object-cover"
+                            />
+                            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center text-white cursor-pointer backdrop-blur-xs">
+                              <Camera size={20} />
+                              <span className="text-[10px] font-bold mt-1">Değiştir</span>
+                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, 'avatar')} />
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="flex-1 min-w-0 pb-2">
+                          <div className="flex items-center gap-2.5">
+                            <h3 className="text-xl sm:text-2xl font-black text-white truncate">{user?.username}</h3>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                              {user?.role || 'Üye'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-0.5">{user?.email}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Form Alanları: Kullanıcı Adı & E-posta */}
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-black text-gray-300 uppercase tracking-widest block">KULLANICI ADI</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={usernameInput}
+                            onChange={(e) => setUsernameInput(e.target.value)}
+                            placeholder="Kullanıcı Adı"
+                            className="w-full bg-black/40 border border-purple-500/20 rounded-2xl p-4 pr-24 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                          />
+                          <button
+                            onClick={() => handleSave({ username: usernameInput }, 'Kullanıcı Adı Güncellendi')}
+                            disabled={isSaving || usernameInput === user?.username}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition disabled:opacity-0"
+                          >
+                            Kaydet
+                          </button>
                         </div>
                       </div>
 
-                      <div className="flex-1 text-center md:text-left space-y-2">
-                        <div className="flex items-center justify-center md:justify-start gap-3">
-                          <h3 className="text-2xl font-black text-white tracking-tight">{user?.username || 'Kullanıcı'}</h3>
-                          <Zap size={20} className="text-amber-400 fill-amber-400" />
-                        </div>
-                        <p className="text-xs text-gray-400">{user?.email || 'kullanici@mahorapeak.com.tr'}</p>
-
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-2">
-                          <span className="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-black uppercase tracking-widest">
-                            {user?.role || 'ÜYE'}
-                          </span>
-                          <label className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/15 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer">
-                            <ImageIcon size={14} className="text-purple-400" />
-                            <span>Profil Arkaplanı Seç (GIF/Foto)</span>
-                            <input type="file" className="hidden" accept="image/*,image/gif" onChange={(e) => handleFileSelect(e, 'banner')} />
-                          </label>
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-black text-gray-300 uppercase tracking-widest block">E-POSTA ADRESİ</label>
+                        <div className="relative">
+                          <input
+                            type="email"
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            placeholder="E-posta Adresi"
+                            className="w-full bg-black/40 border border-purple-500/20 rounded-2xl p-4 pr-24 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                          />
+                          <button
+                            onClick={() => handleSave({ email: emailInput }, 'E-posta Güncellendi')}
+                            disabled={isSaving || emailInput === user?.email}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition disabled:opacity-0"
+                          >
+                            Kaydet
+                          </button>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Form Alanları */}
-                    <div className="grid md:grid-cols-2 gap-5">
-                      <FuturisticInput
-                        label="KULLANICI ADI"
-                        value={user?.username}
-                        placeholder="Kullanıcı Adı"
-                        onSave={(val) => handleSave({ username: val }, 'Kullanıcı Adı Güncellendi')}
-                        isSaving={isSaving}
-                      />
-                      <FuturisticInput
-                        label="E-POSTA ADRESİ"
-                        value={user?.email}
-                        placeholder="E-posta Adresi"
-                        onSave={(val) => handleSave({ email: val }, 'E-posta Güncellendi')}
-                        isSaving={isSaving}
-                      />
                     </div>
 
                     {/* Biyografi */}
                     <div className="space-y-2">
-                      <label className="text-[11px] font-black text-gray-300 uppercase tracking-widest block">BİYOGRAFİ / HAKKINDA</label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-black text-gray-300 uppercase tracking-widest">BİYOGRAFİ / HAKKINDA</label>
+                        <span className="text-[10px] text-gray-500 font-mono">{bioText.length}/280</span>
+                      </div>
                       <textarea
                         rows={3}
+                        maxLength={280}
                         value={bioText}
                         onChange={(e) => setBioText(e.target.value)}
-                        placeholder="Profilinizde görünecek kısa bir biyografi yazın..."
+                        placeholder="Profilinizde görünecek bir biyografi yazın..."
                         className="w-full bg-black/40 border border-purple-500/20 rounded-2xl p-4 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition resize-none"
                       />
                       <div className="flex justify-end">
@@ -739,47 +744,269 @@ export default function SettingsPage() {
                       </div>
                     </div>
 
-                    {/* Faction / Hane Seçimi */}
-                    <div className="space-y-3 pt-4 border-t border-purple-500/20">
-                      <label className="text-[11px] font-black text-gray-300 uppercase tracking-widest block">TARİKAT / HANE SEÇİMİ</label>
-                      <div className="grid sm:grid-cols-2 gap-3">
-                        {HOUSES.map((house) => {
-                          const isSelected = user?.house === house.id;
-                          const Icon = house.icon;
-                          return (
-                            <div
-                              key={house.id}
-                              onClick={() => handleSave({ house: house.id }, `${house.name} Hanesine Katıldınız!`)}
-                              className={`p-4 rounded-2xl cursor-pointer border transition-all flex items-center justify-between ${
-                                isSelected
-                                  ? `bg-gradient-to-r ${house.color} border-white/40 text-white shadow-lg`
-                                  : 'bg-black/30 border-white/5 hover:border-purple-500/30 text-gray-400 hover:text-white'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-white/10">
-                                  <Icon size={18} />
-                                </div>
-                                <div>
-                                  <h4 className="text-xs font-black uppercase text-white">{house.name}</h4>
-                                  <p className="text-[10px] opacity-75">{house.desc}</p>
-                                </div>
-                              </div>
-                              {isSelected && <Check size={16} className="text-white" />}
-                            </div>
-                          );
-                        })}
+                    {/* Hesap Özeti & Rozet Bilgisi */}
+                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] grid sm:grid-cols-3 gap-4">
+                      <div>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Üyelik Rolü</span>
+                        <span className="text-sm font-black text-white mt-0.5 block">{user?.role || 'Kullanıcı'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Aktif Plan</span>
+                        <span className="text-sm font-black text-purple-300 mt-0.5 block">{user?.active_plan_id ? user.active_plan_id.toUpperCase() : 'Standart'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Kayıt Tarihi</span>
+                        <span className="text-sm font-black text-slate-300 mt-0.5 block">{user?.created_at ? new Date(user.created_at).toLocaleDateString('tr-TR') : 'Şubat 2026'}</span>
                       </div>
                     </div>
 
                   </div>
                 )}
 
-                {/* 2. GÜVENLİK */}
+                {/* 2. BİLDİRİM MERKEZİ (DOPDOLU & DETAYLI) */}
+                {activeTab === 'bildirimler' && (
+                  <div className="space-y-10">
+                    <div>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2.5">
+                        <Bell className="text-cyan-400" size={24} /> Bildirim Merkezi
+                      </h2>
+                      <p className="text-cyan-400 text-xs font-bold uppercase tracking-widest mt-1">
+                        Hangi durumlarda, nasıl ve nereden sinyal almak istediğinizi özelleştirin
+                      </p>
+                    </div>
+
+                    {/* Grup 1: Okuma & Seri Bildirimleri */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2 border-b border-white/[0.06] pb-2">
+                        <BookOpen size={16} className="text-emerald-400" /> Okuma &amp; Seri Alarmları
+                      </h3>
+
+                      <div className="grid gap-3">
+                        <EpicToggle
+                          icon={BookOpen}
+                          title="Yeni Bölüm Bildirimleri"
+                          desc="Kütüphanenizdeki serilere yeni bölüm eklendiğinde anlık bildirim alın."
+                          enabled={notifSettings.newChapter}
+                          onToggle={() => updateNotifSetting('newChapter', !notifSettings.newChapter, 'Bölüm Bildirimleri Güncellendi')}
+                        />
+
+                        <EpicToggle
+                          icon={Bookmark}
+                          title="Yalnızca Takip Ettiğim Seriler"
+                          desc="Aktif edildiğinde, yalnızca okuma listenizde veya favorilerinizde olan seriler için bölüm bildirimi alırsınız."
+                          enabled={notifSettings.onlyTracked}
+                          onToggle={() => updateNotifSetting('onlyTracked', !notifSettings.onlyTracked, 'Filtre Tercihi Güncellendi')}
+                        />
+
+                        <EpicToggle
+                          icon={Sparkles}
+                          title="Yeni Seri Eklemeleri"
+                          desc="MahoraPeak kütüphanesine yepyeni bir manga veya manhwa eklendiğinde ilk sizin haberiniz olsun."
+                          enabled={notifSettings.newSeries}
+                          onToggle={() => updateNotifSetting('newSeries', !notifSettings.newSeries, 'Seri Bildirimleri Güncellendi')}
+                        />
+
+                        <EpicToggle
+                          icon={CalendarClock}
+                          title="Haftalık Yayın Takvimi Hatırlatıcıları"
+                          desc="Takip ettiğiniz serilerin haftalık yayın günlerinde saat yaklaşınca sistem hatırlatması alın."
+                          enabled={notifSettings.schedule}
+                          onToggle={() => updateNotifSetting('schedule', !notifSettings.schedule, 'Takvim Hatırlatıcıları Güncellendi')}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Grup 2: Sosyal & Etkileşim Bildirimleri */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2 border-b border-white/[0.06] pb-2">
+                        <MessageCircle size={16} className="text-pink-400" /> Sosyal &amp; Topluluk Etkileşimi
+                      </h3>
+
+                      <div className="grid gap-3">
+                        <EpicToggle
+                          icon={MessageCircle}
+                          title="Yanıtlar, Beğeniler ve Etiketlenmeler"
+                          desc="Yorumunuza biri yanıt verdiğinde, beğendiğinde veya sohbetlerde sizden bahsedildiğinde anında haber ver."
+                          enabled={notifSettings.replies}
+                          onToggle={() => updateNotifSetting('replies', !notifSettings.replies, 'Sosyal Bildirimler Güncellendi')}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Grup 3: Platform, Sistem & Etkinlikler */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2 border-b border-white/[0.06] pb-2">
+                        <PartyPopper size={16} className="text-amber-400" /> Sistem &amp; Özel Etkinlikler
+                      </h3>
+
+                      <div className="grid gap-3">
+                        <EpicToggle
+                          icon={Zap}
+                          title="Sistem Güncellemeleri & Bakım"
+                          desc="Sunucu bakımları, yeni site özellikleri ve altyapı güncellemelerinden haberdar olun."
+                          enabled={notifSettings.system}
+                          onToggle={() => updateNotifSetting('system', !notifSettings.system, 'Sistem Bildirimleri Güncellendi')}
+                        />
+
+                        <EpicToggle
+                          icon={PartyPopper}
+                          title="Özel Etkinlikler, XP & Kampanyalar"
+                          desc="Hafta sonu çift XP etkinlikleri, Aura çekilişleri ve topluluk yarışmaları hakkında bildirimler."
+                          enabled={notifSettings.events}
+                          onToggle={() => updateNotifSetting('events', !notifSettings.events, 'Etkinlik Bildirimleri Güncellendi')}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Grup 4: İletim Kanalları & Ortam Tercihleri */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2 border-b border-white/[0.06] pb-2">
+                        <Sliders size={16} className="text-purple-400" /> İletim Kanalları &amp; Sesler
+                      </h3>
+
+                      <div className="grid gap-3">
+                        {/* Toast */}
+                        <EpicToggle
+                          icon={MonitorSmartphone}
+                          title="Ekran İçi Toast Balonları"
+                          desc="Sitede gezinirken yeni bir bildirim geldiğinde sağ alt köşede akıcı bir bildirim kartı belirtsin."
+                          enabled={notifSettings.toast}
+                          onToggle={() => updateNotifSetting('toast', !notifSettings.toast, 'Toast Bildirimleri Güncellendi')}
+                        />
+
+                        {/* Ses */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-2xl bg-black/40 border border-white/5 hover:border-white/15 transition gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${notifSettings.sound ? 'bg-purple-600/30 border-purple-500 text-purple-300' : 'bg-white/5 border-white/10 text-gray-500'}`}>
+                              {notifSettings.sound ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black uppercase text-white">Bildirim Ses Efekti</h4>
+                              <p className="text-[10px] text-gray-400 mt-0.5">Yeni bildirim düştüğünde melodik bir ses çalar</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 self-end sm:self-auto">
+                            <button
+                              onClick={() => playNotificationSound('high')}
+                              className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-300 flex items-center gap-1.5 transition"
+                            >
+                              <Volume1 size={13} /> Sesi Test Et
+                            </button>
+                            <button 
+                              onClick={() => updateNotifSetting('sound', !notifSettings.sound, 'Ses Ayarı Güncellendi')}
+                              className={`relative w-14 h-7 rounded-full transition-all duration-300 p-0.5 flex items-center border ${
+                                notifSettings.sound ? 'bg-purple-600 border-purple-400' : 'bg-zinc-800 border-zinc-700'
+                              }`}
+                            >
+                              <motion.div 
+                                animate={{ x: notifSettings.sound ? 28 : 0 }}
+                                className="w-5 h-5 bg-white rounded-full shadow"
+                              />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Web Push */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-2xl bg-black/40 border border-white/5 hover:border-white/15 transition gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 flex items-center justify-center">
+                              <Laptop size={20} />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black uppercase text-white">Tarayıcı Masaüstü / Web Push</h4>
+                              <p className="text-[10px] text-gray-400 mt-0.5">Sekme arka plandayken veya simge durumundayken sistem bildirimi alın</p>
+                            </div>
+                          </div>
+
+                          <div className="self-end sm:self-auto">
+                            {browserPermission !== 'granted' && browserPushSupported() ? (
+                              <button
+                                onClick={async () => {
+                                  const perm = await requestBrowserPermission();
+                                  setBrowserPermission(perm);
+                                  if (perm === 'granted') {
+                                    await updateNotifSetting('browserPush', true, 'Tarayıcı Bildirim İzni Verildi');
+                                  }
+                                }}
+                                className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-cyan-900/30"
+                              >
+                                Bildirim İzni İste
+                              </button>
+                            ) : browserPermission === 'granted' ? (
+                              <span className="text-[10px] font-black px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                                <CheckCircle2 size={12} /> İzin Aktif
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold px-3 py-1.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
+                                Desteklenmiyor
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Grup 5: Sessiz Saatler / Rahatsız Etme Modu */}
+                    <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.08] space-y-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                            <Moon size={20} />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-black uppercase text-white">Sessiz Saatler (Rahatsız Etme)</h4>
+                            <p className="text-[10px] text-gray-400">Belirlediğiniz zaman aralığında bildirim sesleri ve pop-uplar otomatik susturulur.</p>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={() => updateQuietHours('enabled', !notifSettings.quietHours?.enabled)}
+                          className={`relative w-14 h-7 rounded-full transition-all duration-300 p-0.5 flex items-center border ${
+                            notifSettings.quietHours?.enabled ? 'bg-indigo-600 border-indigo-400' : 'bg-zinc-800 border-zinc-700'
+                          }`}
+                        >
+                          <motion.div 
+                            animate={{ x: notifSettings.quietHours?.enabled ? 28 : 0 }}
+                            className="w-5 h-5 bg-white rounded-full shadow"
+                          />
+                        </button>
+                      </div>
+
+                      {notifSettings.quietHours?.enabled && (
+                        <div className="pt-4 border-t border-white/[0.06] grid sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Başlangıç Saati</label>
+                            <input
+                              type="time"
+                              value={notifSettings.quietHours?.start || '23:00'}
+                              onChange={(e) => updateQuietHours('start', e.target.value)}
+                              className="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Bitiş Saati</label>
+                            <input
+                              type="time"
+                              value={notifSettings.quietHours?.end || '08:00'}
+                              onChange={(e) => updateQuietHours('end', e.target.value)}
+                              className="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                )}
+
+                {/* 3. GÜVENLİK */}
                 {activeTab === 'guvenlik' && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Güvenlik Ağı</h2>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2.5">
+                        <Shield className="text-indigo-400" size={24} /> Güvenlik Ağı
+                      </h2>
                       <p className="text-indigo-400 text-xs font-bold uppercase tracking-widest mt-1">Şifreleme ve Erişim Yönetimi</p>
                     </div>
 
@@ -841,11 +1068,13 @@ export default function SettingsPage() {
                   </div>
                 )}
 
-                {/* 3. GÖRÜNÜM */}
+                {/* 4. GÖRÜNÜM */}
                 {activeTab === 'gorunum' && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Görünüm & Motor</h2>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2.5">
+                        <Palette className="text-pink-400" size={24} /> Görünüm &amp; Motor
+                      </h2>
                       <p className="text-pink-400 text-xs font-bold uppercase tracking-widest mt-1">Arayüz ve Performans Seçenekleri</p>
                     </div>
 
@@ -858,102 +1087,56 @@ export default function SettingsPage() {
                             className={`p-5 rounded-2xl border text-left transition flex items-center gap-4 ${
                               appearanceSettings.theme === 'dark'
                                 ? 'bg-purple-950/50 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]'
-                                : 'bg-black/40 border-white/10 text-gray-400 hover:text-white'
+                                : 'bg-black/30 border-white/5 text-gray-400 hover:text-white'
                             }`}
                           >
-                            <div className="p-3 bg-purple-600/30 rounded-xl text-purple-300">
-                              <Moon size={22} />
+                            <div className="p-3 bg-purple-500/20 rounded-xl text-purple-300">
+                              <Moon size={20} />
                             </div>
                             <div>
-                              <h4 className="text-xs font-black uppercase">Cyber Mor (Standart)</h4>
-                              <p className="text-[10px] text-gray-400 mt-0.5">Dengeli neon kontrast</p>
+                              <h4 className="text-xs font-black uppercase text-white">Cyber Gece</h4>
+                              <p className="text-[10px] text-gray-400">Klasik koyu MahoraPeak mor neon atmosferi</p>
                             </div>
                           </button>
 
                           <button
-                            onClick={() => handleSave({ appearance_settings: { ...appearanceSettings, theme: 'amoled' } }, 'Saf Siyah Tema Seçildi')}
+                            onClick={() => handleSave({ appearance_settings: { ...appearanceSettings, theme: 'amoled' } }, 'AMOLED Siyah Tema Seçildi')}
                             className={`p-5 rounded-2xl border text-left transition flex items-center gap-4 ${
                               appearanceSettings.theme === 'amoled'
-                                ? 'bg-black border-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-                                : 'bg-black/40 border-white/10 text-gray-400 hover:text-white'
+                                ? 'bg-black border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]'
+                                : 'bg-black/30 border-white/5 text-gray-400 hover:text-white'
                             }`}
                           >
-                            <div className="p-3 bg-emerald-600/30 rounded-xl text-emerald-300">
-                              <Zap size={22} />
+                            <div className="p-3 bg-black border border-white/20 rounded-xl text-white">
+                              <Sun size={20} />
                             </div>
                             <div>
-                              <h4 className="text-xs font-black uppercase">Saf Siyah (AMOLED)</h4>
-                              <p className="text-[10px] text-gray-400 mt-0.5">Piksel tasarrufu ve derin siyah</p>
+                              <h4 className="text-xs font-black uppercase text-white">AMOLED Saf Siyah</h4>
+                              <p className="text-[10px] text-gray-400">OLED ekranlar için ultra pil tasarrufu sağlayan derin siyah</p>
                             </div>
                           </button>
                         </div>
                       </div>
 
+                      {/* Akıcı Animasyonlar */}
                       <EpicToggle
-                        icon={Sparkles}
-                        title="Sinematik Animasyonlar"
-                        desc="Sitedeki neon parçacık efektlerini, cam yansımalarını ve akıcı geçişleri etkinleştirir."
+                        icon={Zap}
+                        title="Akıcı Animasyonlar & Efektler"
+                        desc="Sayfa geçişleri, neon parlamaları ve etkileşim animasyonlarını etkinleştirin."
                         enabled={appearanceSettings.animations}
-                        onToggle={() => handleSave({ appearance_settings: { ...appearanceSettings, animations: !appearanceSettings.animations } })}
+                        onToggle={() => handleSave({ appearance_settings: { ...appearanceSettings, animations: !appearanceSettings.animations } }, 'Animasyon Tercihi Güncellendi')}
                       />
                     </div>
                   </div>
                 )}
 
-                {/* 4. BİLDİRİMLER */}
-                {activeTab === 'bildirimler' && (
-                  <div className="space-y-8">
-                    <div>
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Sinyal Ağları</h2>
-                      <p className="text-cyan-400 text-xs font-bold uppercase tracking-widest mt-1">Haberleşme ve Bölüm Alarmları</p>
-                    </div>
-
-                    <div className="space-y-4">
-                      <EpicToggle
-                        icon={BookOpen}
-                        title="Yeni Bölüm Bildirimleri"
-                        desc="Takip ettiğin serilere yeni bölüm geldiğinde anlık bildirim al."
-                        enabled={notifSettings.newChapter}
-                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, newChapter: !notifSettings.newChapter } })}
-                      />
-
-                      <div className="p-5 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <MonitorSmartphone size={20} className="text-purple-400" />
-                          <div>
-                            <h4 className="text-xs font-black uppercase text-white">Tarayıcı Masaüstü Bildirimleri</h4>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Sekme arka plandayken sistem bildirimi al</p>
-                          </div>
-                        </div>
-
-                        {browserPermission !== 'granted' && browserPushSupported() ? (
-                          <button
-                            onClick={async () => {
-                              const perm = await requestBrowserPermission();
-                              setBrowserPermission(perm);
-                              if (perm === 'granted') {
-                                handleSave({ notification_settings: { ...notifSettings, browserPush: true } }, 'Masaüstü Bildirimleri Açıldı');
-                              }
-                            }}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition"
-                          >
-                            İzin Ver
-                          </button>
-                        ) : (
-                          <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            Aktif
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 5. GİZLİLİK */}
+                {/* 5. GİZLİLİK (GÖLGE MODU) */}
                 {activeTab === 'gizlilik' && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Gölge Modu</h2>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2.5">
+                        <Eye className="text-emerald-400" size={24} /> Gölge Modu
+                      </h2>
                       <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest mt-1">Gizlilik ve Görünürlük Tercihleri</p>
                     </div>
 
@@ -961,16 +1144,16 @@ export default function SettingsPage() {
                       <EpicToggle
                         icon={Eye}
                         title="Profil Görünürlüğü"
-                        desc="Profilinizin diğer kullanıcılar tarafından incelenmesine izin verin."
+                        desc="Profilinizin diğer kullanıcılar tarafından incelenmesine ve ziyaret edilmesine izin verin."
                         enabled={privacySettings.publicProfile}
-                        onToggle={() => handleSave({ privacy_settings: { ...privacySettings, publicProfile: !privacySettings.publicProfile } })}
+                        onToggle={() => handleSave({ privacy_settings: { ...privacySettings, publicProfile: !privacySettings.publicProfile } }, 'Profil Görünürlüğü Güncellendi')}
                       />
                       <EpicToggle
                         icon={Zap}
                         title="Aktivite Radarı"
                         desc="Şu an okuduğunuz serilerin ve listelerinizin profilinizde görünmesini sağlayın."
                         enabled={privacySettings.showActivity}
-                        onToggle={() => handleSave({ privacy_settings: { ...privacySettings, showActivity: !privacySettings.showActivity } })}
+                        onToggle={() => handleSave({ privacy_settings: { ...privacySettings, showActivity: !privacySettings.showActivity } }, 'Aktivite Radarı Güncellendi')}
                       />
                     </div>
                   </div>
@@ -980,7 +1163,9 @@ export default function SettingsPage() {
                 {activeTab === 'mal' && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Veritabanı Bağlantısı</h2>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2.5">
+                        <LinkIcon className="text-blue-400" size={24} /> Veritabanı Bağlantısı
+                      </h2>
                       <p className="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1">MyAnimeList Entegrasyonu</p>
                     </div>
 
@@ -1080,16 +1265,14 @@ export default function SettingsPage() {
                               <AlertOctagon size={16} /> Hesabı Kalıcı Olarak Kapat
                             </h4>
                             <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                              Hesabınız silindiğinde tüm favorileriniz, seviye puanlarınız (XP), Aura bakiyeniz ve VIP aboneliğiniz kalıcı olarak silinir. Bu işlem geri döndürülemez.
+                              Hesabınız, kayıtlı listeleriniz, yorumlarınız ve tüm verileriniz kalıcı olarak silinir. Bu işlem geri döndürülemez.
                             </p>
                           </div>
-                        </div>
-                        <div className="pt-2">
                           <button
                             onClick={() => setDangerModal({ isOpen: true, action: 'delete_account', confirmText: '' })}
-                            className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(239,68,68,0.5)] transition"
+                            className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shrink-0"
                           >
-                            Hesabımı Kalıcı Olarak Sil
+                            Hesabı Sil
                           </button>
                         </div>
                       </div>
@@ -1101,68 +1284,39 @@ export default function SettingsPage() {
               </motion.div>
             </AnimatePresence>
           </main>
-
         </div>
       </div>
     </div>
   );
 }
 
-function FuturisticInput({ label, value, placeholder, onSave, isSaving }) {
-  const [val, setVal] = useState(value || '');
-
-  useEffect(() => {
-    setVal(value || '');
-  }, [value]);
-
-  return (
-    <div className="space-y-2">
-      <label className="text-[11px] font-black text-gray-300 uppercase tracking-widest block">{label}</label>
-      <div className="relative">
-        <input
-          type="text"
-          value={val}
-          onChange={(e) => setVal(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-black/40 border border-purple-500/20 rounded-2xl p-4 pr-14 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
-        />
-        <button
-          onClick={() => onSave(val)}
-          disabled={isSaving || val === value}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white disabled:opacity-0 transition"
-          title="Kaydet"
-        >
-          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} strokeWidth={3} />}
-        </button>
-      </div>
-    </div>
-  );
-}
+// ── Yardımcı Toggle Bileşeni ──────────────────────────────────────────────────
 
 function EpicToggle({ icon: Icon, title, desc, enabled, onToggle }) {
   return (
-    <div className="flex items-center justify-between p-5 rounded-2xl bg-black/40 border border-white/10 hover:border-purple-500/30 transition">
-      <div className="flex items-center gap-4 pr-4">
-        <div className={`p-2.5 rounded-xl border ${enabled ? 'bg-purple-600/30 border-purple-500/50 text-purple-300' : 'bg-white/5 border-white/10 text-gray-500'}`}>
-          <Icon size={20} />
+    <div className="flex items-center justify-between p-5 rounded-2xl bg-black/40 border border-white/5 hover:border-white/15 transition-all group">
+      <div className="flex items-center gap-4 flex-1 pr-4">
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center border transition-all ${
+          enabled ? 'bg-purple-600/30 border-purple-500 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'bg-white/5 border-white/10 text-gray-500'
+        }`}>
+          <Icon size={20} strokeWidth={1.75} />
         </div>
         <div>
-          <h4 className="text-xs font-black uppercase text-white">{title}</h4>
-          <p className="text-[10px] text-gray-400 mt-0.5">{desc}</p>
+          <h4 className="text-xs font-black uppercase text-white tracking-wide">{title}</h4>
+          <p className="text-[11px] text-gray-400 leading-relaxed mt-0.5">{desc}</p>
         </div>
       </div>
 
-      <button
-        type="button"
+      <button 
         onClick={onToggle}
-        className={`relative w-14 h-8 rounded-full transition-colors p-1 flex items-center shrink-0 border ${
-          enabled ? 'bg-purple-600 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-black/60 border-white/20'
+        className={`relative w-14 h-7 rounded-full transition-all duration-300 p-0.5 flex items-center shrink-0 border ${
+          enabled ? 'bg-purple-600 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-zinc-800 border-zinc-700'
         }`}
       >
-        <motion.div
-          animate={{ x: enabled ? 24 : 0 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          className="w-6 h-6 rounded-full bg-white shadow-md"
+        <motion.div 
+          animate={{ x: enabled ? 28 : 0 }}
+          transition={{ type: "spring", stiffness: 450, damping: 28 }}
+          className="w-5 h-5 bg-white rounded-full shadow"
         />
       </button>
     </div>
