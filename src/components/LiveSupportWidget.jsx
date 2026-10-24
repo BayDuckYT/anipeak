@@ -213,11 +213,15 @@ export default function LiveSupportWidget() {
     setShowTopicSelect(false);
 
     if (ticket && !ticket.id.startsWith('local_')) {
-      await supabase
-        .from('support_tickets')
-        .update({ subject: topic.label })
-        .eq('id', ticket.id)
-        .catch(e => console.warn(e));
+      try {
+        const { error } = await supabase
+          .from('support_tickets')
+          .update({ subject: topic.label })
+          .eq('id', ticket.id);
+        if (error) console.warn('Destek konusu güncellenemedi:', error);
+      } catch (error) {
+        console.warn('Destek konusu güncellenemedi:', error);
+      }
     }
 
     const topicMsg = {
@@ -399,19 +403,24 @@ export default function LiveSupportWidget() {
   const escalateTicketToAdmin = async (currentTicket, latestMessage = '') => {
     const t = currentTicket || ticket;
 
-    if (t && !t.id.startsWith('local_')) {
-      const { error } = await supabase
-        .from('support_tickets')
-        .update({
-          status: 'waiting_admin',
-          priority: priorityScore,
-          ...(latestMessage ? { last_message: latestMessage } : {}),
-          last_message_at: new Date().toISOString(),
-          unread_admin: true
-        })
-        .eq('id', t.id)
-        .catch(e => ({ error: e }));
-      if (error) {
+    if (t?.id && !String(t.id).startsWith('local_')) {
+      try {
+        const { error } = await supabase
+          .from('support_tickets')
+          .update({
+            status: 'waiting_admin',
+            priority: priorityScore,
+            ...(latestMessage ? { last_message: latestMessage } : {}),
+            last_message_at: new Date().toISOString(),
+            unread_admin: true
+          })
+          .eq('id', t.id);
+
+        if (error) {
+          console.warn('Destek talebi kuyruğa alınamadı:', error);
+          return false;
+        }
+      } catch (error) {
         console.warn('Destek talebi kuyruğa alınamadı:', error);
         return false;
       }
