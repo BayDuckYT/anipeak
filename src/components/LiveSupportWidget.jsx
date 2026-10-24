@@ -42,6 +42,8 @@ export default function LiveSupportWidget() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [ticket, setTicket] = useState(null);
+  const [myTickets, setMyTickets] = useState([]);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -58,6 +60,7 @@ export default function LiveSupportWidget() {
   const messagesContainerRef = useRef(null);
   const topicSelectionTouchedRef = useRef(false);
   const sendingMessageRef = useRef(false);
+  const newTicketRequestedRef = useRef(false);
 
   const account = user;
   const priorityScore = calculateSupportPriority(account);
@@ -98,10 +101,14 @@ export default function LiveSupportWidget() {
     };
 
     if (!user) {
+      setTicketsLoading(false);
+      setTicket(null);
+      setMyTickets([]);
       setMessages([welcomeMsg]);
       return;
     }
 
+    setTicketsLoading(true);
     try {
       const { data, error } = await supabase
         .from('support_tickets')
@@ -109,20 +116,24 @@ export default function LiveSupportWidget() {
         .eq('user_id', user.id)
         .in('status', ['open', 'waiting_admin', 'in_progress'])
         .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(10);
 
-      if (data) {
-        setTicket({ ...data, user_plan: data.user_plan || data.plan_id || 'member' });
-        if (data.subject && !topicSelectionTouchedRef.current) {
-          const matched = SUPPORT_TOPICS.find(t => t.label.includes(data.subject) || data.subject.includes(t.id));
+      if (error) throw error;
+      const activeTickets = data || [];
+      setMyTickets(activeTickets);
+
+      if (activeTickets.length > 0) {
+        const currentTicket = { ...activeTickets[0], user_plan: activeTickets[0].user_plan || activeTickets[0].plan_id || 'member' };
+        setTicket(currentTicket);
+        if (currentTicket.subject && !topicSelectionTouchedRef.current) {
+          const matched = SUPPORT_TOPICS.find(t => t.label.includes(currentTicket.subject) || currentTicket.subject.includes(t.id));
           if (matched) setSelectedTopic(matched);
         }
 
         const { data: msgData } = await supabase
           .from('support_messages')
           .select('*')
-          .eq('ticket_id', data.id)
+          .eq('ticket_id', currentTicket.id)
           .order('created_at', { ascending: true });
 
         if (msgData && msgData.length > 0) {
@@ -131,11 +142,14 @@ export default function LiveSupportWidget() {
           setMessages([welcomeMsg]);
         }
       } else {
+        setTicket(null);
         setMessages([welcomeMsg]);
       }
     } catch (err) {
       console.warn('Destek ticket yüklenirken fallback kullanılıyor:', err);
       setMessages([welcomeMsg]);
+    } finally {
+      setTicketsLoading(false);
     }
   };
 
@@ -184,8 +198,8 @@ export default function LiveSupportWidget() {
   }, [ticket?.id, isOpen]);
 
   // Yeni Bilet Açma veya Varolanı Alma
-  const getOrCreateTicket = async (initialQuery = '', contact = {}, startInQueue = false) => {
-    if (ticket && !String(ticket.id).startsWith('local_')) return ticket;
+  const getOrCreateTicket = async (initialQuery = '', contact = {}, startInQueue = false, forceNew = false) => {
+    if (!forceNew && ticket && !String(ticket.id).startsWith('local_')) return ticket;
 
     const newTicketData = {
       user_id: user?.id || null,
@@ -209,6 +223,7 @@ export default function LiveSupportWidget() {
       if (!error && data) {
         const savedTicket = { ...data, user_plan: data.user_plan || data.plan_id || supportPlan };
         setTicket(savedTicket);
+        setMyTickets(prev => [savedTicket, ...prev.filter(item => item.id !== savedTicket.id)].slice(0, 10));
         return savedTicket;
       }
       if (error) console.warn('Destek talebi kaydedilemedi:', error);
@@ -218,7 +233,27 @@ export default function LiveSupportWidget() {
 
     const localTicket = { ...newTicketData, id: 'local_' + Date.now() };
     setTicket(localTicket);
+    setMyTickets(prev => [localTicket, ...prev.filter(item => item.id !== localTicket.id)].slice(0, 10));
     return localTicket;
+  };
+
+  const openSupportConversation = async (selectedTicket) => {
+    setTicket(selectedTicket);
+    setSupportView('chat');
+    const matched = SUPPORT_TOPICS.find(topic => topic.label === selectedTicket.subject || selectedTicket.subject?.includes(topic.id));
+    if (matched) setSelectedTopic(matched);
+    if (String(selectedTicket.id).startsWith('local_')) return;
+
+    const { data, error } = await supabase
+      .from('support_messages')
+      .select('*')
+      .eq('ticket_id', selectedTicket.id)
+      .order('created_at', { ascending: true });
+    if (error) {
+      console.warn('Destek sohbeti yüklenemedi:', error);
+      return;
+    }
+    setMessages((data || []).map(normalizeSupportMessage));
   };
 
   // Konu Değiştirme
@@ -281,7 +316,7 @@ export default function LiveSupportWidget() {
     let supportStage = 'destek talebini oluşturma';
     try {
       const contact = user ? {} : { name: guestName.trim(), email: guestEmail.trim() };
-      const activeTicket = await getOrCreateTicket(description, contact, true);
+      const activeTicket = await getOrCreateTicket(description, contact, true, newTicketRequestedRef.current);
       if (activeTicket.id.startsWith('local_')) {
         setIntakeError('Destek talebi veritabanına kaydedilemedi. Supabase SQL Editor’da MahoraPeak destek şeması (supabase_support_v3.sql) çalıştırıldıktan sonra yeniden deneyin.');
         return;
@@ -326,6 +361,7 @@ export default function LiveSupportWidget() {
         { id: `support-opened-${Date.now()}`, sender_type: 'system', message: 'Talebiniz alındı. Bu sohbetten destek ekibiyle yazışabilirsiniz.', created_at: new Date().toISOString() },
         normalizeSupportMessage(savedMessage)
       ]);
+      newTicketRequestedRef.current = false;
       setSupportView('chat');
     } catch (error) {
       console.error(`Canlı destek başlatılamadı (${supportStage}):`, error);
@@ -339,7 +375,7 @@ export default function LiveSupportWidget() {
     topicSelectionTouchedRef.current = false;
     setSupportStep(1);
     setIntakeError('');
-    setSupportView('intake');
+    setSupportView(ticketsLoading ? 'inbox' : (myTickets.length > 0 || ticket ? 'inbox' : 'intake'));
     setIsOpen(true);
   };
 
@@ -380,11 +416,14 @@ export default function LiveSupportWidget() {
         if (savedUserMessage) {
           setMessages(prev => prev.map(message => message.id === userMsg.id ? normalizeSupportMessage(savedUserMessage) : message));
         }
+        const lastMessageAt = new Date().toISOString();
         await supabase.from('support_tickets').update({
           last_message: text,
-          last_message_at: new Date().toISOString(),
+          last_message_at: lastMessageAt,
           unread_admin: true
         }).eq('id', activeTicket.id);
+        setTicket(prev => prev?.id === activeTicket.id ? { ...prev, last_message: text, last_message_at: lastMessageAt } : prev);
+        setMyTickets(prev => prev.map(item => item.id === activeTicket.id ? { ...item, last_message: text, last_message_at: lastMessageAt } : item));
       }
     }
 
@@ -555,7 +594,77 @@ export default function LiveSupportWidget() {
             </button>
           </div>
 
-          {supportView === 'intake' ? (
+          {supportView === 'inbox' ? (
+            <div className="flex flex-1 min-h-0 flex-col bg-[#0b0719]">
+              <div className="px-5 pt-5 pb-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-violet-300">Destek merkezi</p>
+                    <h4 className="mt-1 text-xl font-bold text-white">Sohbetlerim</h4>
+                    <p className="mt-1 text-xs text-gray-400">Aktif destek taleplerini buradan açabilirsin.</p>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-semibold text-violet-200">
+                    {myTickets.length} aktif
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
+                {ticketsLoading ? (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5 text-center text-sm text-gray-400">Sohbetlerin yükleniyor…</div>
+                ) : myTickets.length > 0 ? (
+                  <div className="space-y-2">
+                    {myTickets.map(item => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => openSupportConversation(item)}
+                        className="w-full rounded-2xl border border-violet-400/20 bg-gradient-to-br from-violet-500/[0.09] to-fuchsia-500/[0.04] p-3.5 text-left transition hover:border-violet-300/50 hover:bg-violet-500/[0.12]"
+                      >
+                        <span className="flex items-start justify-between gap-3">
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-bold text-white">{item.subject || '❔ Genel Destek'}</span>
+                            <span className="mt-1 block truncate text-xs text-gray-400">{item.last_message || 'Sohbeti açıp destek ekibiyle yazışmaya devam et.'}</span>
+                          </span>
+                          <span className="shrink-0 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2 py-1 text-[9px] font-bold text-cyan-200">
+                            {item.status === 'in_progress' ? 'Yanıtlanıyor' : 'Aktif'}
+                          </span>
+                        </span>
+                        <span className="mt-3 flex items-center justify-between text-[10px] text-gray-500">
+                          <span>{item.last_message_at ? new Date(item.last_message_at).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' }) : 'Destek talebi'}</span>
+                          <span className="font-semibold text-violet-200">Sohbete git →</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.025] px-5 py-8 text-center">
+                    <MessageSquare className="mx-auto h-8 w-8 text-violet-300" />
+                    <p className="mt-3 text-sm font-semibold text-white">Henüz aktif sohbetin yok</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-400">Yeni bir destek talebi oluşturduğunda sohbetin burada görünecek.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-white/[0.07] bg-[#090614] px-4 py-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    newTicketRequestedRef.current = true;
+                    topicSelectionTouchedRef.current = false;
+                    setSelectedTopic(SUPPORT_TOPICS[0]);
+                    setIssueDescription('');
+                    setIntakeError('');
+                    setSupportStep(1);
+                    setSupportView('intake');
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-950/30 transition hover:brightness-110"
+                >
+                  <MessageSquare size={16} /> Yeni destek talebi
+                </button>
+              </div>
+            </div>
+          ) : supportView === 'intake' ? (
             <div className="flex flex-1 min-h-0 flex-col bg-[#0b0719]">
               <div className="px-5 pt-5 pb-4">
                 <div className="mb-3 flex items-center justify-between text-[11px] text-gray-400">
@@ -652,6 +761,17 @@ export default function LiveSupportWidget() {
             </div>
           ) : (
             <>
+
+          <div className="flex items-center justify-between border-b border-white/[0.07] bg-[#0a0617] px-3.5 py-2">
+            <button
+              type="button"
+              onClick={() => setSupportView('inbox')}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-gray-300 transition hover:bg-white/[0.06] hover:text-white"
+            >
+              <ArrowLeft size={14} /> Sohbetlerim
+            </button>
+            <span className="truncate text-[10px] text-gray-500">{ticket?.subject || 'Yeni destek sohbeti'}</span>
+          </div>
 
           {/* KONU SEÇİCİ BARI */}
           <div className="relative px-3.5 py-2 bg-[#0c0722] border-b border-purple-500/20 flex items-center justify-between gap-2">
