@@ -15,7 +15,10 @@ import {
   ShieldAlert,
   Crown,
   Tag,
-  Check
+  Check,
+  CircleHelp,
+  ArrowLeft,
+  ArrowRight
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -29,6 +32,11 @@ import {
   SUPPORT_TOPICS 
 } from '../lib/supportBot';
 
+const normalizeSupportMessage = (message) => ({
+  ...message,
+  sender_type: message?.sender_type || message?.sender || 'user'
+});
+
 export default function LiveSupportWidget() {
   const { user } = useAuth();
   const location = useLocation();
@@ -40,6 +48,13 @@ export default function LiveSupportWidget() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedTopic, setSelectedTopic] = useState(SUPPORT_TOPICS[0]);
   const [showTopicSelect, setShowTopicSelect] = useState(false);
+  const [supportView, setSupportView] = useState('chat');
+  const [supportStep, setSupportStep] = useState(1);
+  const [issueDescription, setIssueDescription] = useState('');
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [intakeError, setIntakeError] = useState('');
+  const [startingChat, setStartingChat] = useState(false);
   const messagesEndRef = useRef(null);
 
   const account = user;
@@ -95,7 +110,7 @@ export default function LiveSupportWidget() {
         .maybeSingle();
 
       if (data) {
-        setTicket(data);
+        setTicket({ ...data, user_plan: data.user_plan || data.plan_id || 'member' });
         if (data.subject) {
           const matched = SUPPORT_TOPICS.find(t => t.label.includes(data.subject) || data.subject.includes(t.id));
           if (matched) setSelectedTopic(matched);
@@ -108,7 +123,7 @@ export default function LiveSupportWidget() {
           .order('created_at', { ascending: true });
 
         if (msgData && msgData.length > 0) {
-          setMessages(msgData);
+          setMessages(msgData.map(normalizeSupportMessage));
         } else {
           setMessages([welcomeMsg]);
         }
@@ -136,7 +151,7 @@ export default function LiveSupportWidget() {
           filter: `ticket_id=eq.${ticket.id}`
         },
         (payload) => {
-          const newMsg = payload.new;
+          const newMsg = normalizeSupportMessage(payload.new);
           setMessages((prev) => {
             if (prev.some(m => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
@@ -155,18 +170,19 @@ export default function LiveSupportWidget() {
   }, [ticket?.id, isOpen]);
 
   // Yeni Bilet Açma veya Varolanı Alma
-  const getOrCreateTicket = async (initialQuery = '') => {
-    if (ticket) return ticket;
+  const getOrCreateTicket = async (initialQuery = '', contact = {}, startInQueue = false) => {
+    if (ticket && !String(ticket.id).startsWith('local_')) return ticket;
 
     const newTicketData = {
       user_id: user?.id || null,
-      user_email: user?.email || 'guest@mahorapeak.com',
-      user_name: account?.username || account?.user_metadata?.username || 'Misafir İzleyici',
+      user_email: user?.email || contact.email || null,
+      user_name: account?.username || account?.user_metadata?.username || contact.name || 'Misafir İzleyici',
       user_avatar: account?.avatar_url || null,
       priority: priorityScore,
-      user_plan: supportPlan,
-      status: 'open',
-      subject: selectedTopic?.label || initialQuery.slice(0, 80) || 'Genel Destek'
+      plan_id: supportPlan,
+      status: startInQueue ? 'waiting_admin' : 'open',
+      subject: selectedTopic?.label || initialQuery.slice(0, 80) || 'Genel Destek',
+      ...(startInQueue ? { last_message: initialQuery, last_message_at: new Date().toISOString(), unread_admin: true } : {})
     };
 
     try {
@@ -177,9 +193,11 @@ export default function LiveSupportWidget() {
         .single();
 
       if (!error && data) {
-        setTicket(data);
-        return data;
+        const savedTicket = { ...data, user_plan: data.user_plan || data.plan_id || supportPlan };
+        setTicket(savedTicket);
+        return savedTicket;
       }
+      if (error) console.warn('Destek talebi kaydedilemedi:', error);
     } catch (err) {
       console.warn('Bilet açılamadı, yerel mod devam ediyor:', err);
     }
@@ -197,7 +215,7 @@ export default function LiveSupportWidget() {
     if (ticket && !ticket.id.startsWith('local_')) {
       await supabase
         .from('support_tickets')
-        .update({ subject: topic.label, updated_at: new Date().toISOString() })
+        .update({ subject: topic.label })
         .eq('id', ticket.id)
         .catch(e => console.warn(e));
     }
@@ -210,6 +228,87 @@ export default function LiveSupportWidget() {
       created_at: new Date().toISOString()
     };
     setMessages(prev => [...prev, topicMsg]);
+  };
+
+  const startSupportChat = async () => {
+    setIntakeError('');
+    const description = issueDescription.trim();
+
+    if (supportStep === 1) {
+      setSupportStep(2);
+      return;
+    }
+    if (description.length < 20) {
+      setIntakeError('Sorununuzu en az 20 karakterle biraz daha açıklayın.');
+      return;
+    }
+    if (!user && supportStep === 2) {
+      setSupportStep(3);
+      return;
+    }
+    if (!user) {
+      if (guestName.trim().length < 2) {
+        setIntakeError('Lütfen adınızı ve soyadınızı yazın.');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail.trim())) {
+        setIntakeError('Geçerli bir e-posta adresi girin.');
+        return;
+      }
+    }
+
+    setStartingChat(true);
+    try {
+      const contact = user ? {} : { name: guestName.trim(), email: guestEmail.trim() };
+      const activeTicket = await getOrCreateTicket(description, contact, true);
+      if (activeTicket.id.startsWith('local_')) {
+        setIntakeError('Destek talebi kaydedilemedi. Biraz sonra tekrar deneyin.');
+        return;
+      }
+
+      const queueReady = await escalateTicketToAdmin(activeTicket, description);
+      if (!queueReady) {
+        setIntakeError('Talebiniz şu anda destek kuyruğuna eklenemedi. Lütfen yeniden deneyin; sorun sürerse biraz sonra tekrar yazın.');
+        return;
+      }
+
+      const { data: savedMessage, error: messageError } = await supabase
+        .from('support_messages')
+        .insert([{
+          ticket_id: activeTicket.id,
+          sender: 'user',
+          sender_name: user?.username || user?.user_metadata?.username || guestName.trim() || 'Misafir',
+          sender_avatar: user?.avatar_url || null,
+          message: description
+        }])
+        .select()
+        .single();
+
+      if (messageError || !savedMessage) {
+        console.warn('İlk destek mesajı kaydedilemedi:', messageError);
+        setIntakeError('Mesajınız kaydedilemedi. Lütfen tekrar deneyin.');
+        return;
+      }
+
+      setMessages(prev => [
+        ...prev.filter(message => message.id !== savedMessage.id),
+        { id: `support-opened-${Date.now()}`, sender_type: 'system', message: 'Talebiniz alındı. Bu sohbetten destek ekibiyle yazışabilirsiniz.', created_at: new Date().toISOString() },
+        normalizeSupportMessage(savedMessage)
+      ]);
+      setSupportView('chat');
+    } catch (error) {
+      console.warn('Canlı destek başlatılamadı:', error);
+      setIntakeError('Canlı destek şu anda başlatılamadı. Lütfen tekrar deneyin.');
+    } finally {
+      setStartingChat(false);
+    }
+  };
+
+  const launchSupport = () => {
+    setSupportStep(1);
+    setIntakeError('');
+    setSupportView('intake');
+    setIsOpen(true);
   };
 
   // Mesaj Gönderme
@@ -235,13 +334,21 @@ export default function LiveSupportWidget() {
 
     // Veritabanına kaydet
     if (!activeTicket.id.startsWith('local_')) {
-      supabase.from('support_messages').insert([{
+      const { error } = await supabase.from('support_messages').insert([{
         ticket_id: activeTicket.id,
-        sender_type: 'user',
+        sender: 'user',
         sender_name: userMsg.sender_name,
         sender_avatar: account?.avatar_url || null,
         message: text
-      }]).catch(e => console.warn(e));
+      }]);
+      if (error) console.warn('Kullanıcı mesajı kaydedilemedi:', error);
+      else {
+        await supabase.from('support_tickets').update({
+          last_message: text,
+          last_message_at: new Date().toISOString(),
+          unread_admin: true
+        }).eq('id', activeTicket.id);
+      }
     }
 
     // 2. Bot Otonom Cevap Motoru Analizi
@@ -253,7 +360,7 @@ export default function LiveSupportWidget() {
 
       if (botResult) {
         const queueConnected = botResult.escalateToAdmin
-          ? await escalateTicketToAdmin(activeTicket)
+          ? await escalateTicketToAdmin(activeTicket, text)
           : false;
         const botMsg = {
           id: 'bot_' + Date.now(),
@@ -263,7 +370,7 @@ export default function LiveSupportWidget() {
           message: botResult.escalateToAdmin
             ? (queueConnected
               ? 'Talebiniz destek kuyruğuna alındı. Yanıt geldiğinde bu sohbetten görebilirsiniz.'
-              : 'Şu anda destek kuyruğuna bağlanılamadı. İnternet bağlantınızı kontrol edip biraz sonra tekrar deneyin.')
+              : 'Talebiniz şu anda destek kuyruğuna eklenemedi. Lütfen yeniden deneyin; sorun sürerse biraz sonra tekrar yazın.')
             : botResult.reply,
           actions: botResult.actions || [],
           created_at: new Date().toISOString()
@@ -275,10 +382,10 @@ export default function LiveSupportWidget() {
         if (!activeTicket.id.startsWith('local_')) {
           supabase.from('support_messages').insert([{
             ticket_id: activeTicket.id,
-            sender_type: 'bot',
+            sender: 'bot',
             sender_name: 'Mahora Asistan',
             message: botResult.reply
-          }]).catch(e => console.warn(e));
+          }]).then(({ error }) => { if (error) console.warn('Asistan mesajı kaydedilemedi:', error); });
         }
 
       }
@@ -286,7 +393,7 @@ export default function LiveSupportWidget() {
   };
 
   // Yetkiliye Aktar (Admin Kuyruğuna Al)
-  const escalateTicketToAdmin = async (currentTicket) => {
+  const escalateTicketToAdmin = async (currentTicket, latestMessage = '') => {
     const t = currentTicket || ticket;
 
     if (t && !t.id.startsWith('local_')) {
@@ -295,7 +402,9 @@ export default function LiveSupportWidget() {
         .update({
           status: 'waiting_admin',
           priority: priorityScore,
-          updated_at: new Date().toISOString()
+          ...(latestMessage ? { last_message: latestMessage } : {}),
+          last_message_at: new Date().toISOString(),
+          unread_admin: true
         })
         .eq('id', t.id)
         .catch(e => ({ error: e }));
@@ -313,14 +422,14 @@ export default function LiveSupportWidget() {
   const handleActionClick = async (action) => {
     if (action.trigger === 'force_admin') {
       const activeTicket = await getOrCreateTicket('Canlı destek yetkilisi');
-      const queued = await escalateTicketToAdmin(activeTicket);
+      const queued = await escalateTicketToAdmin(activeTicket, 'Canlı destek yetkilisi talebi');
       const adminNoticeMsg = {
         id: 'escalate_' + Date.now(),
         sender_type: 'bot',
         sender_name: 'Mahora Asistan',
         message: queued
           ? 'Talebiniz destek kuyruğuna alındı. Yanıt geldiğinde bu sohbetten görebilirsiniz.'
-          : 'Şu anda destek kuyruğuna bağlanılamadı. İnternet bağlantınızı kontrol edip biraz sonra tekrar deneyin.',
+          : 'Talebiniz şu anda destek kuyruğuna eklenemedi. Lütfen yeniden deneyin; sorun sürerse biraz sonra tekrar yazın.',
         created_at: new Date().toISOString()
       };
       setMessages(prev => [...prev, adminNoticeMsg]);
@@ -342,21 +451,21 @@ export default function LiveSupportWidget() {
       <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
         {!isOpen && (
           <button
-            onClick={() => setIsOpen(true)}
-            aria-label="Canlı Destek"
+          onClick={launchSupport}
+          aria-label="Yardıma mı ihtiyacınız var?"
             className="relative group flex items-center gap-3 px-4 py-3.5 rounded-full bg-gradient-to-r from-purple-800 via-indigo-700 to-pink-600 text-white font-semibold shadow-[0_8px_30px_rgba(147,51,234,0.5)] hover:shadow-[0_12px_45px_rgba(147,51,234,0.75)] transition-all duration-300 hover:scale-105 active:scale-95 border border-purple-400/30"
           >
             {/* Arka Parlama Efekti */}
             <span className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 opacity-60 blur-md group-hover:opacity-100 transition duration-300 -z-10 animate-pulse"></span>
 
             <div className="relative">
-              <Headphones className="w-5 h-5 animate-bounce" />
+              <CircleHelp className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-violet-300 rounded-full border-2 border-[#090614]" />
             </div>
 
             <div className="flex flex-col text-left">
-              <span className="text-xs uppercase tracking-wider font-extrabold text-pink-200">MahoraPeak Destek</span>
-              <span className="text-[11px] text-white/80 font-medium">Asistan ve canlı destek</span>
+              <span className="text-xs uppercase tracking-wider font-extrabold text-pink-200">Yardıma mı ihtiyacın var?</span>
+              <span className="text-[11px] text-white/80 font-medium">MahoraPeak destek merkezi</span>
             </div>
 
             {/* Okunmamış Rozet */}
@@ -399,6 +508,105 @@ export default function LiveSupportWidget() {
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {supportView === 'intake' ? (
+            <div className="flex flex-1 min-h-0 flex-col bg-[#0b0719]">
+              <div className="px-5 pt-5 pb-4">
+                <div className="mb-3 flex items-center justify-between text-[11px] text-gray-400">
+                  {supportStep > 1 ? (
+                    <button
+                      onClick={() => { setIntakeError(''); setSupportStep(step => step - 1); }}
+                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 -ml-2 text-gray-300 hover:bg-white/5"
+                    ><ArrowLeft size={14} /> Geri</button>
+                  ) : <span>MahoraPeak Destek</span>}
+                  <span>Adım {supportStep} / {user ? 2 : 3}</span>
+                </div>
+                <div className="h-1 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all duration-300" style={{ width: `${(supportStep / (user ? 2 : 3)) * 100}%` }} />
+                </div>
+                <h4 className="mt-5 text-xl font-bold tracking-tight text-white">
+                  {supportStep === 1 ? 'Size nasıl yardımcı olabiliriz?' : supportStep === 2 ? 'Talebinizi kısaca anlatın' : 'Size nasıl ulaşalım?'}
+                </h4>
+                <p className="mt-1 text-sm leading-relaxed text-gray-400">
+                  {supportStep === 1 ? 'Konuyu seçin; talebinizi doğru ekibe iletelim.' : supportStep === 2 ? 'Sorunu ilk mesajda anlatmanız daha hızlı yardımcı olmamızı sağlar.' : 'Yanıtımız bu sohbet penceresinde görünür; e-posta adresinizi de iletişim için kullanırız.'}
+                </p>
+              </div>
+
+              <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-4">
+                {supportStep === 1 && (
+                  <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] divide-y divide-white/[0.07]">
+                    {SUPPORT_TOPICS.map(topic => {
+                      const selected = selectedTopic?.id === topic.id;
+                      return (
+                        <button
+                          key={topic.id}
+                          type="button"
+                          onClick={() => setSelectedTopic(topic)}
+                          className={`flex w-full items-center gap-3 px-3 py-3 text-left transition ${selected ? 'bg-violet-500/10' : 'hover:bg-white/[0.04]'}`}
+                        >
+                          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border text-base ${selected ? 'border-violet-400/30 bg-violet-500/15' : 'border-white/10 bg-white/[0.04]'}`}>{topic.label.split(' ')[0]}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-semibold text-white">{topic.label.replace(/^\S+\s/, '')}</span>
+                            <span className="mt-0.5 block text-xs text-gray-400">{topic.description}</span>
+                          </span>
+                          <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border ${selected ? 'border-violet-300 bg-violet-400 text-[#160c2a]' : 'border-gray-500'}`}>
+                            {selected && <Check size={12} strokeWidth={3} />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {supportStep === 2 && (
+                  <div>
+                    <textarea
+                      value={issueDescription}
+                      onChange={event => { setIssueDescription(event.target.value); setIntakeError(''); }}
+                      maxLength={2000}
+                      rows={6}
+                      placeholder="Örn. ne oldu, ne zaman oldu, hangi seri veya sayfada?"
+                      className="w-full resize-none rounded-2xl border border-white/15 bg-white/[0.04] p-4 text-sm leading-relaxed text-white outline-none placeholder:text-gray-500 focus:border-violet-400/70 focus:ring-2 focus:ring-violet-500/15"
+                    />
+                    <div className="mt-2 flex items-start justify-between gap-3 text-[11px] text-gray-500">
+                      <span>Talebinizin doğru ekibe ulaşması için birkaç ayrıntı ekleyin.</span>
+                      <span className="shrink-0">{issueDescription.trim().length} / 20 min.</span>
+                    </div>
+                    {user && <p className="mt-4 rounded-xl border border-violet-400/15 bg-violet-400/[0.06] px-3 py-2.5 text-xs leading-relaxed text-violet-200">Hesabınızla giriş yaptığınız için iletişim bilgisi adımını atlayıp sohbete geçeceksiniz.</p>}
+                  </div>
+                )}
+
+                {supportStep === 3 && (
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="support-guest-name" className="mb-1.5 block text-xs font-semibold text-gray-300">Ad soyad</label>
+                      <input id="support-guest-name" autoComplete="name" value={guestName} onChange={event => setGuestName(event.target.value)} placeholder="Adınız ve soyadınız" maxLength={100} className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-violet-400/70" />
+                    </div>
+                    <div>
+                      <label htmlFor="support-guest-email" className="mb-1.5 block text-xs font-semibold text-gray-300">E-posta</label>
+                      <input id="support-guest-email" type="email" autoComplete="email" value={guestEmail} onChange={event => setGuestEmail(event.target.value)} placeholder="ornek@eposta.com" maxLength={254} className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-violet-400/70" />
+                    </div>
+                    <p className="text-xs leading-relaxed text-gray-500">E-posta adresiniz yalnızca bu destek talebine yanıt vermek için kullanılır.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-white/[0.07] bg-[#090614] px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                {intakeError && <p role="alert" className="mb-3 rounded-xl border border-rose-400/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">{intakeError}</p>}
+                <button
+                  type="button"
+                  onClick={startSupportChat}
+                  disabled={startingChat || (supportStep === 2 && issueDescription.trim().length < 20) || (supportStep === 3 && (!guestName.trim() || !guestEmail.trim()))}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-950/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {startingChat ? 'Sohbet hazırlanıyor…' : supportStep === 1 ? 'Devam et' : supportStep === 2 && !user ? 'Devam et' : 'Sohbete geç'}
+                  {!startingChat && <ArrowRight size={16} />}
+                </button>
+                <p className="mt-2 text-center text-[10px] text-gray-600">Güvenli destek altyapısı · MahoraPeak</p>
+              </div>
+            </div>
+          ) : (
+            <>
 
           {/* KONU SEÇİCİ BARI */}
           <div className="relative px-3.5 py-2 bg-[#0c0722] border-b border-purple-500/20 flex items-center justify-between gap-2">
@@ -609,7 +817,8 @@ export default function LiveSupportWidget() {
               <Send className="w-4 h-4" />
             </button>
           </form>
-
+            </>
+          )}
         </div>
       )}
     </>

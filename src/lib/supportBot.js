@@ -119,12 +119,12 @@ export function getPriorityMeta(priority) {
  * Hazır Destek Konuları (Kullanıcının bilet konusu seçebilmesi için)
  */
 export const SUPPORT_TOPICS = [
-  { id: 'payment', label: '💳 Ödeme / Aura Yükleme', placeholder: 'Aura ödemeniz veya yükleme işleminizle ilgili detay girin...' },
-  { id: 'video', label: '🎬 Bölüm / Player Hatası', placeholder: 'Hangi seri ve hangi bölümde sorun yaşıyorsunuz?' },
-  { id: 'vip', label: '👑 Aethe / VIP Avantajları', placeholder: 'VIP paketiniz veya üyelik haklarınızla ilgili sorunuz...' },
-  { id: 'app', label: '📱 Mobil / Masaüstü Uygulama', placeholder: 'Android veya Windows uygulaması hakkında sorunuz...' },
-  { id: 'account', label: '🔑 Hesap / Şifre / Giriş', placeholder: 'Hesabınız veya e-posta onayınız hakkında sorunuz...' },
-  { id: 'other', label: '💬 Diğer / Genel Destek', placeholder: 'Size nasıl yardımcı olabiliriz?' }
+  { id: 'account', label: '🔑 Hesap ve Giriş', description: 'Giriş, şifre, profil veya hesap işlemleri', placeholder: 'Hesabınızla ilgili yaşadığınız durumu anlatın...' },
+  { id: 'payment', label: '💳 Üyelik ve Ödeme', description: 'Premium, Aura, ödeme veya fatura işlemleri', placeholder: 'Ödeme veya üyelik işlemiyle ilgili detayları yazın...' },
+  { id: 'app', label: '📱 Uygulama Desteği', description: 'Android, iOS veya masaüstü uygulaması', placeholder: 'Cihazınızı ve uygulamada yaşadığınız sorunu yazın...' },
+  { id: 'video', label: '🎬 Bölüm ve Oynatıcı', description: 'Bölüm, görüntü, ses veya altyazı sorunu', placeholder: 'Seri adını ve bölüm numarasını da ekleyin...' },
+  { id: 'vip', label: '👑 Premium Avantajları', description: 'Paketler ve üyelik ayrıcalıkları', placeholder: 'Paketiniz veya üyelik haklarınızla ilgili sorunuzu yazın...' },
+  { id: 'other', label: '💬 Diğer Konular', description: 'Öneri, geri bildirim veya başka bir konu', placeholder: 'Size nasıl yardımcı olabiliriz?' }
 ];
 
 /**

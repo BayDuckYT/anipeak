@@ -34,6 +34,11 @@ const getTicketPriority = (ticket) => {
   return Number.isFinite(storedPriority) && storedPriority > 0 ? storedPriority : 50;
 };
 
+const normalizeSupportMessage = (message) => ({
+  ...message,
+  sender_type: message?.sender_type || message?.sender || 'user'
+});
+
 export default function AdminSupportDesk() {
   const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
@@ -63,7 +68,10 @@ export default function AdminSupportDesk() {
 
       const { data, error } = await query;
       if (!error && data) {
-        const ordered = [...data].sort((a, b) => {
+        const ordered = data.map(ticket => ({
+          ...ticket,
+          user_plan: ticket.user_plan || ticket.plan_id || 'member'
+        })).sort((a, b) => {
           const byPriority = getTicketPriority(b) - getTicketPriority(a);
           return byPriority || new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         });
@@ -108,7 +116,7 @@ export default function AdminSupportDesk() {
           .order('created_at', { ascending: true });
 
         if (!error && data) {
-          setMessages(data);
+          setMessages(data.map(normalizeSupportMessage));
         }
       } catch (err) {
         console.warn('Mesajlar çekilemedi:', err);
@@ -131,7 +139,7 @@ export default function AdminSupportDesk() {
         (payload) => {
           setMessages((prev) => {
             if (prev.some(m => m.id === payload.new.id)) return prev;
-            return [...prev, payload.new];
+            return [...prev, normalizeSupportMessage(payload.new)];
           });
         }
       )
@@ -156,8 +164,7 @@ export default function AdminSupportDesk() {
 
     const newMsg = {
       ticket_id: selectedTicket.id,
-      sender_id: user?.id || null,
-      sender_type: 'admin',
+      sender: 'admin',
       sender_name: user?.username || 'Yetkili Destek Ekibi',
       sender_avatar: user?.avatar_url || null,
       message: text
@@ -171,16 +178,13 @@ export default function AdminSupportDesk() {
         .single();
 
       if (!error && data) {
-        setMessages(prev => [...prev, data]);
+        setMessages(prev => [...prev, normalizeSupportMessage(data)]);
       }
 
       // Bileti 'in_progress' durumuna güncelle
       await supabase
         .from('support_tickets')
-        .update({
-          status: 'in_progress',
-          updated_at: new Date().toISOString()
-        })
+        .update({ status: 'in_progress', last_message: text, last_message_at: new Date().toISOString(), unread_user: true })
         .eq('id', selectedTicket.id);
 
       // Listeyi de güncelle
@@ -199,10 +203,7 @@ export default function AdminSupportDesk() {
     try {
       await supabase
         .from('support_tickets')
-        .update({
-          status: newStatus,
-          updated_at: new Date().toISOString()
-        })
+        .update({ status: newStatus })
         .eq('id', selectedTicket.id);
 
       setSelectedTicket(prev => ({ ...prev, status: newStatus }));
