@@ -5,6 +5,7 @@
  */
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { insertWithFallback } from '../lib/notifications.js';
 
 const AppContext = createContext(null);
 
@@ -332,15 +333,43 @@ export function AppProvider({ children }) {
   }, [series]);
 
   // ── Announcements ────────────────────────────────────────────────────
-  const addAnnouncement = useCallback(async (text, type = 'system') => {
-    const { data, error } = await supabase.from('announcements').insert([{ text: text.trim(), type }]).select().single();
+  const addAnnouncement = useCallback(async (content, maybeType = 'system') => {
+    const payload = typeof content === 'string'
+      ? { text: content.trim(), type: maybeType }
+      : {
+          text: (content.text || '').trim(),
+          type: content.type || maybeType || 'system',
+          title: content.title || null,
+          link: content.link || null,
+          image_url: content.imageUrl || content.image_url || null,
+          audience: content.audience || 'all',
+          pinned: Boolean(content.pinned),
+          priority: content.priority || (content.type === 'important' ? 'high' : 'normal'),
+          expires_at: content.expiresAt ? new Date(content.expiresAt).toISOString() : null,
+          series_id: content.seriesId || content.series_id || null,
+          chapter_num: content.chapterNum ?? content.chapter_num ?? null,
+        };
+
+    const basicKeys = ['text', 'type', 'series_id', 'chapter_num'];
+    const data = await insertWithFallback(supabase, 'announcements', payload, basicKeys, (basic, full) => {
+      if (full.title) basic.text = `[${full.title}] ${basic.text}`;
+      return basic;
+    });
+    setAnnouncements(prev => [data, ...prev.filter(a => a.id !== data.id)]);
+    return data;
+  }, []);
+
+  const updateAnnouncement = useCallback(async (id, updates) => {
+    const { data, error } = await supabase.from('announcements').update(updates).eq('id', id).select().single();
     if (error) throw error;
+    setAnnouncements(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
     return data;
   }, []);
 
   const deleteAnnouncement = useCallback(async (id) => {
     const { error } = await supabase.from('announcements').delete().eq('id', id);
     if (error) throw error;
+    setAnnouncements(prev => prev.filter(a => a.id !== id));
   }, []);
 
   // ── Ratings ──────────────────────────────────────────────────────────
@@ -455,6 +484,7 @@ export function AppProvider({ children }) {
     // Announcements
     announcements,
     addAnnouncement,
+    updateAnnouncement,
     deleteAnnouncement,
     // Ratings & Comments
     updateRating,

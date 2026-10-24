@@ -5,11 +5,20 @@ import {
   User, Shield, Bell, Eye, Palette, Link as LinkIcon, 
   AlertTriangle, Settings as SettingsIcon, Check, Loader2, 
   Camera, ImageIcon, Zap, Swords, ChevronRight, Fingerprint, Calendar,
-  Moon, Sun, Wind, Flame, ShieldAlert, Sparkles
+  Moon, Sun, Wind, Flame, ShieldAlert, Sparkles, Volume2, VolumeX,
+  MonitorSmartphone, BellRing, BellOff, BookOpen, PartyPopper, MessageCircle,
+  ExternalLink, Trash2, Clock
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useApp } from '../context/AppContext.jsx';
 import { useSEO } from '../hooks/useSEO';
 import { uploadAvatar } from '../lib/imageService';
+import {
+  resolveNotifSettings,
+  playNotificationSound,
+  requestBrowserPermission,
+  browserPushSupported,
+} from '../lib/notifications.js';
 import Cropper from 'react-easy-crop';
 
 const SIZE_PRESETS = [
@@ -127,11 +136,13 @@ const HOUSES = [
 ];
 
 export default function SettingsPage() {
-  const { user, updateProfile, updatePassword } = useAuth();
+  const { user, updateProfile, updatePassword, toggleTrackSeries } = useAuth();
+  const { series = [] } = useApp();
   const [activeTab, setActiveTab] = useState('hesap');
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('Ayarlar Güncellendi');
+  const [browserPermission, setBrowserPermission] = useState(() => (typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'));
   
   const [cropModal, setCropModal] = useState({
     isOpen: false,
@@ -159,7 +170,7 @@ export default function SettingsPage() {
     url: 'https://mahorapeak.com.tr/settings'
   });
 
-  const [notifSettings, setNotifSettings] = useState({ newChapter: true, replies: true, system: true, schedule: true, scheduleSeriesIds: [] });
+  const [notifSettings, setNotifSettings] = useState(() => resolveNotifSettings(user?.notification_settings));
   const [privacySettings, setPrivacySettings] = useState({ publicProfile: true, showActivity: true });
   const [appearanceSettings, setAppearanceSettings] = useState({ theme: 'dark', animations: true });
   const [malUsername, setMalUsername] = useState('');
@@ -167,7 +178,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user) {
-      if (user.notification_settings) setNotifSettings(prev => ({ ...prev, ...user.notification_settings, scheduleSeriesIds: user.notification_settings.scheduleSeriesIds || [] }));
+      if (user.notification_settings) setNotifSettings(resolveNotifSettings(user.notification_settings));
       if (user.privacy_settings) setPrivacySettings(user.privacy_settings);
       if (user.appearance_settings) setAppearanceSettings(user.appearance_settings);
       if (user.mal_username) setMalUsername(user.mal_username);
@@ -813,47 +824,355 @@ export default function SettingsPage() {
                 )}
 
                 {activeTab === 'bildirimler' && (
-                  <div className="space-y-16">
+                  <div className="space-y-12">
                     <header>
                       <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Sinyal Ağları</h2>
-                      <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">Haberleşme Tercihleri</p>
+                      <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">Haberleşme ve İletim Tercihleri</p>
                     </header>
 
+                    {/* ── BÖLÜM 1: İÇERİK FİLTRELERİ ── */}
                     <div className="space-y-6">
+                      <div className="flex items-center gap-2">
+                        <Bell size={16} className="text-purple-400" />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-300">İçerik Bildirimleri</h3>
+                      </div>
+
                       <EpicToggle 
-                        icon={Bell}
-                        title="Yeni Bölüm Alarmı" 
-                        desc="Yeni bölüm duyurularını bildirim kutunda göster. Takvimde takip ettiğin seriler varsa yalnızca onların bölüm duyuruları gösterilir."
+                        icon={BookOpen}
+                        title="Yeni Bölüm Bildirimleri" 
+                        desc="Sitede yayınlanan yeni bölümler için anlık bildirim al."
                         enabled={notifSettings.newChapter}
                         onToggle={() => handleSave({ notification_settings: { ...notifSettings, newChapter: !notifSettings.newChapter } })}
                       />
-                      <EpicToggle
-                        icon={Calendar}
-                        title="Takvim Takipleri"
-                        desc={`${(notifSettings.scheduleSeriesIds || []).length} seri takipte. Takvimde bir serinin zilini açarak listeye ekleyebilirsin.`}
-                        enabled={notifSettings.schedule !== false}
-                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, schedule: notifSettings.schedule === false } })}
-                      />
-                      {(notifSettings.scheduleSeriesIds || []).length > 0 && (
-                        <button
-                          onClick={() => handleSave({ notification_settings: { ...notifSettings, scheduleSeriesIds: [] } }, 'Takvim takiplerin temizlendi')}
-                          className="text-xs font-bold text-purple-300 hover:text-white transition-colors"
-                        >Takip edilen serileri temizle</button>
-                      )}
+
                       <EpicToggle 
-                        icon={User}
-                        title="Yorum Etkileşimleri" 
-                        desc="Yaptığın yorumlara birisi yanıt verdiğinde veya beğendiğinde bildirim al."
+                        icon={BellRing}
+                        title="Yalnızca Takip Ettiğim Seriler" 
+                        desc="Açıkken yalnızca Takvim'de veya serilerde takip butonuna bastığın yapımların yeni bölüm bildirimleri gelir; diğer seriler bildirim kutunu doldurmaz."
+                        enabled={notifSettings.onlyTracked}
+                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, onlyTracked: !notifSettings.onlyTracked } })}
+                      />
+
+                      <EpicToggle 
+                        icon={Sparkles}
+                        title="Yeni Seri Lansmanları" 
+                        desc="Platforma yeni bir manhwa/webtoon eklendiğinde ilk senin haberin olsun."
+                        enabled={notifSettings.newSeries}
+                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, newSeries: !notifSettings.newSeries } })}
+                      />
+
+                      <EpicToggle 
+                        icon={Calendar}
+                        title="Takvim Hatırlatıcıları" 
+                        desc="Takip ettiğin serilerin yayın gününde veya bölümü yayına girdiği saatte otomatik hatırlatıcı oluştur."
+                        enabled={notifSettings.scheduleReminders}
+                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, scheduleReminders: !notifSettings.scheduleReminders } })}
+                      />
+
+                      <EpicToggle 
+                        icon={MessageCircle}
+                        title="Sosyal & Yorum Etkileşimleri" 
+                        desc="Yorumlarına yanıt geldiğinde, etiketlendiğinde veya beğeni aldığında bildirim al."
                         enabled={notifSettings.replies}
                         onToggle={() => handleSave({ notification_settings: { ...notifSettings, replies: !notifSettings.replies } })}
                       />
+
+                      <EpicToggle 
+                        icon={PartyPopper}
+                        title="Etkinlikler & Aura Kampanyaları" 
+                        desc="2X Aura hafta sonları, sezonluk etkinlikler ve özel hediye kodları."
+                        enabled={notifSettings.events}
+                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, events: !notifSettings.events } })}
+                      />
+
                       <EpicToggle 
                         icon={AlertTriangle}
-                        title="Sistem Duyuruları" 
-                        desc="Bakım modu, kritik güncellemeler ve platform duyuruları."
+                        title="Sistem & Güncelleme Duyuruları" 
+                        desc="Planlı bakım çalışmaları, güvenlik uyarıları ve site yenilikleri (Kritik uyarılar her zaman gösterilir)."
                         enabled={notifSettings.system}
                         onToggle={() => handleSave({ notification_settings: { ...notifSettings, system: !notifSettings.system } })}
                       />
+                    </div>
+
+                    {/* ── BÖLÜM 2: İLETİM KANALLARI & SES ── */}
+                    <div className="space-y-6 pt-6 border-t border-white/5">
+                      <div className="flex items-center gap-2">
+                        <Volume2 size={16} className="text-cyan-400" />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-300">İletim Kanalları & Ses</h3>
+                      </div>
+
+                      <EpicToggle 
+                        icon={Sparkles}
+                        title="Anlık Açılır Bildirim (Toast)" 
+                        desc="Site içinde gezinirken yeni bir bildirim geldiğinde ekranın sağ üstünde şık bir kart belirir."
+                        enabled={notifSettings.toast}
+                        onToggle={() => handleSave({ notification_settings: { ...notifSettings, toast: !notifSettings.toast } })}
+                      />
+
+                      <div className="p-8 rounded-[2.5rem] bg-black/40 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                        <div className="flex items-center gap-6 flex-1 pr-4">
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-500 shrink-0 ${notifSettings.sound ? 'bg-white text-black border-transparent shadow-[0_0_30px_rgba(255,255,255,0.3)]' : 'bg-white/5 border-white/10 text-zinc-500'}`}>
+                            {notifSettings.sound ? <Volume2 size={24} /> : <VolumeX size={24} />}
+                          </div>
+                          <div>
+                            <h4 className="text-base font-black text-white uppercase tracking-widest">Bildirim Sesi</h4>
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-2 leading-relaxed max-w-lg">
+                              Yeni bildirimlerde fütüristik hafif sinyal sesi çal.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => playNotificationSound('normal')}
+                            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all flex items-center gap-1.5"
+                          >
+                            <Volume2 size={14} className="text-cyan-400" />
+                            <span>Test Et</span>
+                          </button>
+
+                          <button 
+                            type="button"
+                            onClick={() => handleSave({ notification_settings: { ...notifSettings, sound: !notifSettings.sound } })}
+                            className={`relative w-20 h-10 rounded-full transition-all duration-500 p-1 flex items-center shrink-0 border ${
+                              notifSettings.sound ? 'bg-white/20 border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.2)]' : 'bg-black/60 border-white/10'
+                            }`}
+                          >
+                            <motion.div 
+                              animate={{ x: notifSettings.sound ? 40 : 0 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                              className={`w-8 h-8 rounded-full shadow-lg ${notifSettings.sound ? 'bg-white' : 'bg-zinc-600'}`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="p-8 rounded-[2.5rem] bg-black/40 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                        <div className="flex items-center gap-6 flex-1 pr-4">
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-500 shrink-0 ${notifSettings.browserPush ? 'bg-white text-black border-transparent shadow-[0_0_30px_rgba(255,255,255,0.3)]' : 'bg-white/5 border-white/10 text-zinc-500'}`}>
+                            <MonitorSmartphone size={24} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-base font-black text-white uppercase tracking-widest">Masaüstü / Tarayıcı Push Bildirimleri</h4>
+                              {browserPermission === 'granted' && (
+                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                  İzin Verildi
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-2 leading-relaxed max-w-lg">
+                              Sekme arka plandayken veya simge durumundayken sistem bildirimleri gönder.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
+                          {browserPermission !== 'granted' && browserPushSupported() && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const perm = await requestBrowserPermission();
+                                setBrowserPermission(perm);
+                                if (perm === 'granted') {
+                                  handleSave({ notification_settings: { ...notifSettings, browserPush: true } }, 'Tarayıcı Bildirimleri Aktif');
+                                }
+                              }}
+                              className="px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg transition-all"
+                            >
+                              İzin Ver
+                            </button>
+                          )}
+
+                          <button 
+                            type="button"
+                            onClick={async () => {
+                              if (!notifSettings.browserPush && browserPermission !== 'granted') {
+                                const perm = await requestBrowserPermission();
+                                setBrowserPermission(perm);
+                                if (perm !== 'granted') return;
+                              }
+                              handleSave({ notification_settings: { ...notifSettings, browserPush: !notifSettings.browserPush } });
+                            }}
+                            className={`relative w-20 h-10 rounded-full transition-all duration-500 p-1 flex items-center shrink-0 border ${
+                              notifSettings.browserPush ? 'bg-white/20 border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.2)]' : 'bg-black/60 border-white/10'
+                            }`}
+                          >
+                            <motion.div 
+                              animate={{ x: notifSettings.browserPush ? 40 : 0 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                              className={`w-8 h-8 rounded-full shadow-lg ${notifSettings.browserPush ? 'bg-white' : 'bg-zinc-600'}`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── BÖLÜM 3: SESSİZ SAATLER (RAHATSIZ ETME) ── */}
+                    <div className="space-y-6 pt-6 border-t border-white/5">
+                      <div className="flex items-center gap-2">
+                        <Moon size={16} className="text-indigo-400" />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-300">Sessiz Saatler (Rahatsız Etmeyin)</h3>
+                      </div>
+
+                      <div className="p-8 rounded-[2.5rem] bg-black/40 border border-white/5 space-y-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest">Gece Sessizlik Protokolü</h4>
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                              Belirlenen saat aralığında ses ve açılır toast'lar susturulur, bildirimler kutuda sessizce birikir.
+                            </p>
+                          </div>
+
+                          <button 
+                            type="button"
+                            onClick={() => handleSave({
+                              notification_settings: {
+                                ...notifSettings,
+                                quietHours: {
+                                  ...notifSettings.quietHours,
+                                  enabled: !notifSettings.quietHours?.enabled,
+                                }
+                              }
+                            })}
+                            className={`relative w-16 h-8 rounded-full transition-all duration-500 p-1 flex items-center shrink-0 border ${
+                              notifSettings.quietHours?.enabled ? 'bg-white/20 border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'bg-black/60 border-white/10'
+                            }`}
+                          >
+                            <motion.div 
+                              animate={{ x: notifSettings.quietHours?.enabled ? 32 : 0 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                              className={`w-6 h-6 rounded-full shadow-lg ${notifSettings.quietHours?.enabled ? 'bg-white' : 'bg-zinc-600'}`}
+                            />
+                          </button>
+                        </div>
+
+                        {notifSettings.quietHours?.enabled && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                <Clock size={12} /> Başlangıç Saati
+                              </label>
+                              <input
+                                type="time"
+                                value={notifSettings.quietHours?.start || '23:00'}
+                                onChange={(e) => handleSave({
+                                  notification_settings: {
+                                    ...notifSettings,
+                                    quietHours: { ...notifSettings.quietHours, start: e.target.value }
+                                  }
+                                })}
+                                className="w-full bg-[#070511] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                              />
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                <Clock size={12} /> Bitiş Saati
+                              </label>
+                              <input
+                                type="time"
+                                value={notifSettings.quietHours?.end || '08:00'}
+                                onChange={(e) => handleSave({
+                                  notification_settings: {
+                                    ...notifSettings,
+                                    quietHours: { ...notifSettings.quietHours, end: e.target.value }
+                                  }
+                                })}
+                                className="w-full bg-[#070511] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ── BÖLÜM 4: TAKİP EDİLEN SERİLER ── */}
+                    <div className="space-y-6 pt-6 border-t border-white/5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} className="text-purple-400" />
+                          <h3 className="text-xs font-black uppercase tracking-widest text-slate-300">
+                            Takip Edilen Seriler ({notifSettings.scheduleSeriesIds?.length || 0})
+                          </h3>
+                        </div>
+
+                        {(notifSettings.scheduleSeriesIds || []).length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleSave({ notification_settings: { ...notifSettings, scheduleSeriesIds: [] } }, 'Tüm serilerin takibi kaldırıldı')}
+                            className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+                          >
+                            <Trash2 size={12} /> Tümünü Temizle
+                          </button>
+                        )}
+                      </div>
+
+                      {(notifSettings.scheduleSeriesIds || []).length === 0 ? (
+                        <div className="p-8 rounded-[2.5rem] bg-black/40 border border-white/5 text-center">
+                          <BellOff size={28} className="text-slate-600 mx-auto mb-2" />
+                          <p className="text-white text-xs font-bold mb-1">Henüz Takip Ettiğin Seri Yok</p>
+                          <p className="text-slate-500 text-[11px] mb-4">
+                            Yayın Takvimi'nde serilerin yanındaki zil ikonuna basarak anlık bölüm takibine alabilirsin.
+                          </p>
+                          <a
+                            href="/takvim"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-purple-600 hover:bg-purple-500 text-white transition-all shadow-md"
+                          >
+                            <Calendar size={13} /> Yayın Takvimine Git
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                          {notifSettings.scheduleSeriesIds.map((sid) => {
+                            const match = series.find((s) => String(s.id) === String(sid));
+                            return (
+                              <div
+                                key={sid}
+                                className="flex items-center justify-between p-3 rounded-2xl bg-black/40 border border-white/5 hover:border-white/15 transition-all group"
+                              >
+                                <div className="flex items-center gap-3 min-w-0 pr-2">
+                                  {match?.cover ? (
+                                    <img
+                                      src={match.cover}
+                                      alt={match.title}
+                                      className="w-8 h-10 object-cover rounded-lg shrink-0 border border-white/10"
+                                    />
+                                  ) : (
+                                    <div className="w-8 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 shrink-0">
+                                      <BookOpen size={14} />
+                                    </div>
+                                  )}
+                                  <div className="min-w-0">
+                                    <p className="text-white text-xs font-bold truncate">
+                                      {match?.title || `Seri #${sid}`}
+                                    </p>
+                                    <p className="text-slate-500 text-[10px] truncate">
+                                      Bölüm bildirimleri açık
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    await toggleTrackSeries(sid);
+                                    setNotifSettings((prev) => ({
+                                      ...prev,
+                                      scheduleSeriesIds: prev.scheduleSeriesIds.filter((id) => id !== sid),
+                                    }));
+                                  }}
+                                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
+                                  title="Takibi bırak"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

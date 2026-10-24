@@ -12,6 +12,7 @@ import Footer from './components/Footer.jsx';
 import GlobalEffects from './components/GlobalEffects.jsx';
 import Loader from './components/Loader.jsx';
 import XPToast from './components/XPToast.jsx';
+import NotificationToast from './components/NotificationToast.jsx';
 import MaintenanceScreen from './components/MaintenanceScreen.jsx';
 
 // MAHORAPEAK_SİBER_GÜNCELLEME_V3_1741
@@ -211,6 +212,7 @@ function AppContent() {
         <ScrollToTop />
         <GlobalEffects />
         <XPToast />
+        <NotificationToast />
 
         <main id="main-content" className="min-h-screen bg-[#070511]">
           {isMaintenanceBlocked ? (

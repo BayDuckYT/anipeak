@@ -1,7 +1,20 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { trackActivity } from '../lib/achievementService';
 import { getLevelInfo } from '../lib/gamification';
+import { useApp } from './AppContext.jsx';
+import {
+  resolveNotifSettings,
+  normalizeAnnouncement,
+  normalizePersonal,
+  buildScheduleReminders,
+  shouldShowNotification,
+  sortNotifications,
+  loadLocalList,
+  saveLocalList,
+  localDateString,
+  insertWithFallback,
+} from '../lib/notifications.js';
 
 export { calculateRank, getLevelInfo } from '../lib/gamification';
 
@@ -21,8 +34,17 @@ export function AuthProvider({ children }) {
     return !localStorage.getItem('mahorapeak_user_cache');
   });
   const [readingHistory, setReadingHistory] = useState([]);
-  const [notifications, setNotifications]   = useState([]);
-  const [unreadCount,   setUnreadCount]     = useState(0);
+  // ── Bildirim Motoru v2 durumları ───────────────────────────────────
+  const [rawAnnouncements, setRawAnnouncements] = useState([]);
+  const [rawPersonal, setRawPersonal]           = useState([]);
+  const [scheduleToday, setScheduleToday]       = useState([]);
+  const [readAnnIds, setReadAnnIds]             = useState([]);
+  const [readLocalIds, setReadLocalIds]         = useState([]);
+  const [dismissedIds, setDismissedIds]         = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notifClock, setNotifClock]             = useState(() => Date.now());
+  const seenNotifIdsRef = useRef(null);
+  const notifFetchedRef = useRef(false);
   const profileChannelRef = useRef(null);
 
   // ── Stable profile fetcher ─────────────────────────────────────────
@@ -138,12 +160,33 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // [SİSTEM DUYURUSU] Unified notification sender
-  const sendNotification = useCallback(async (text, type = 'system') => {
+  // [SİSTEM DUYURUSU] Unified notification sender (supports string or rich payload)
+  const sendNotification = useCallback(async (content, maybeType = 'system') => {
     try {
-      await supabase.from('announcements').insert([{ text, type, created_at: new Date().toISOString() }]);
+      const payload = typeof content === 'string'
+        ? { text: content.trim(), type: maybeType }
+        : {
+            text: (content.text || '').trim(),
+            type: content.type || maybeType || 'system',
+            title: content.title || null,
+            link: content.link || null,
+            image_url: content.imageUrl || content.image_url || null,
+            audience: content.audience || 'all',
+            pinned: Boolean(content.pinned),
+            priority: content.priority || (content.type === 'important' ? 'high' : 'normal'),
+            expires_at: content.expiresAt ? new Date(content.expiresAt).toISOString() : null,
+            series_id: content.seriesId || content.series_id || null,
+            chapter_num: content.chapterNum ?? content.chapter_num ?? null,
+          };
+
+      const basicKeys = ['text', 'type', 'series_id', 'chapter_num', 'created_at'];
+      await insertWithFallback(supabase, 'announcements', payload, basicKeys, (basic, full) => {
+        if (full.title) basic.text = `[${full.title}] ${basic.text}`;
+        return basic;
+      });
     } catch (err) {
       console.error('[Auth] Bildirim gönderilemedi:', err);
+      throw err;
     }
   }, []);
 
@@ -166,152 +209,152 @@ export function AuthProvider({ children }) {
       .subscribe();
   }, []);
 
-  // ── Sync Database Announcements & Personal Notifications ────────────────────
+  // ── Bildirim Motoru v2: veri çekme, realtime, türetilmiş liste ──────────────
+  const appCtx = useApp();
+  const allSeries = appCtx?.series || [];
+
+  const notificationSettings = useMemo(
+    () => resolveNotifSettings(user?.notification_settings),
+    [user?.notification_settings]
+  );
+  const trackedSeriesIds = notificationSettings.scheduleSeriesIds;
+
+  // Kullanıcı değişince yerel okundu / kaldırıldı listelerini yükle
+  useEffect(() => {
+    seenNotifIdsRef.current = null;
+    notifFetchedRef.current = false;
+    if (!user?.id) {
+      setRawAnnouncements([]); setRawPersonal([]); setScheduleToday([]);
+      setReadAnnIds([]); setReadLocalIds([]); setDismissedIds([]);
+      return;
+    }
+    setReadLocalIds(loadLocalList(user.id, 'read'));
+    setDismissedIds(loadLocalList(user.id, 'dismissed'));
+  }, [user?.id]);
+
+  // Sunucudaki okundu listesiyle birleştir (diğer cihazlardan gelen okumalar)
+  useEffect(() => {
+    const serverIds = (user?.read_notifications || []).map(Number);
+    if (!serverIds.length) return;
+    setReadAnnIds(prev => Array.from(new Set([...prev, ...serverIds])));
+  }, [user?.read_notifications]);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id) return;
+    setNotificationsLoading(true);
+    try {
+      const [annRes, notifRes] = await Promise.all([
+        supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(40),
+        supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50),
+      ]);
+      if (!annRes.error) setRawAnnouncements(annRes.data || []);
+      else console.warn('[Notif] Duyurular alınamadı:', annRes.error.message);
+      if (!notifRes.error) setRawPersonal(notifRes.data || []);
+      else console.warn('[Notif] Kişisel bildirimler alınamadı:', notifRes.error.message);
+    } finally {
+      notifFetchedRef.current = true;
+      setNotificationsLoading(false);
+    }
+  }, [user?.id]);
+
+  // İlk yükleme + realtime abonelik (yalnızca kullanıcı değişince yeniden kurulur)
   useEffect(() => {
     if (!user?.id) return;
-    
-    const loadNotifications = async () => {
-      const settings = { newChapter: true, replies: true, system: true, schedule: true, ...(user.notification_settings || {}) };
-      
-      let allNotifs = [];
+    fetchNotifications();
 
-      // 1. Fetch global announcements and apply each user's preferences.
-      {
-        const { data: annData } = await supabase
-          .from('announcements')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(20);
-        
-        if (annData) {
-          const readIds = user.read_notifications || [];
-          const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
-          const visibleAnnouncements = annData.filter(a => {
-            if (a.type === 'chapter' && settings.newChapter === false) return false;
-            if (a.type === 'chapter' && a.series_id && trackedSeries.size && (!trackedSeries.has(String(a.series_id)) || settings.schedule === false)) return false;
-            if (['system', 'important', 'event', 'series'].includes(a.type) && settings.system === false) return false;
-            return true;
-          });
-          const mappedAnn = visibleAnnouncements.map(a => ({
-            id: `ann_${a.id}`,
-            originalId: a.id,
-            text: a.text,
-            type: a.type || 'system',
-            time: new Date(a.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
-            createdAt: new Date(a.created_at).getTime(),
-            read: readIds.includes(a.id),
-            isAnnouncement: true,
-            seriesId: a.series_id || null,
-            chapterNum: a.chapter_num || null
-          }));
-          allNotifs = [...allNotifs, ...mappedAnn];
-        }
-      }
-
-      // 2. Fetch Personal Notifications
-      const { data: notifData } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(30);
-
-      if (notifData) {
-        const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
-        const filteredNotifs = notifData.filter(n => {
-          if (n.type === 'system' && settings.system === false) return false;
-          if ((n.type === 'reply' || n.type === 'mention') && settings.replies === false) return false;
-          if (['new_chapter', 'chapter'].includes(n.type) && settings.newChapter === false) return false;
-          if (['new_chapter', 'chapter'].includes(n.type) && n.series_id && trackedSeries.size && settings.schedule !== false && !trackedSeries.has(String(n.series_id))) return false;
-          if (n.type === 'schedule' && settings.schedule === false) return false;
-          return true;
-        });
-
-        const mappedNotifs = filteredNotifs.map(n => ({
-          id: `notif_${n.id}`,
-          originalId: n.id,
-          text: n.message || n.text || 'Yeni bildirim',
-          type: n.type || 'info',
-          time: new Date(n.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
-          createdAt: new Date(n.created_at).getTime(),
-          read: n.is_read,
-          isAnnouncement: false,
-          seriesId: n.series_id || null,
-          chapterNum: n.chapter_num || null
-        }));
-        allNotifs = [...allNotifs, ...mappedNotifs];
-      }
-
-      // Sort combined
-      allNotifs.sort((a, b) => b.createdAt - a.createdAt);
-      const topNotifs = allNotifs.slice(0, 30);
-      
-      setNotifications(topNotifs);
-      updateUnread(topNotifs);
-    };
-
-    loadNotifications();
-
-    // Setup Realtime Channels
-    const channels = [];
-
-    const handleNewItem = (payload, isAnnouncement) => {
-      const settings = { newChapter: true, replies: true, system: true, schedule: true, ...(user.notification_settings || {}) };
-      const item = payload.new;
-      
-      if (isAnnouncement) {
-        if (item.type === 'chapter' && settings.newChapter === false) return;
-        if (['system', 'important', 'event', 'series'].includes(item.type) && settings.system === false) return;
-        const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
-        if (item.type === 'chapter' && item.series_id && trackedSeries.size && (!trackedSeries.has(String(item.series_id)) || settings.schedule === false)) return;
-      } else {
-        if (item.type === 'system' && settings.system === false) return;
-        if ((item.type === 'reply' || item.type === 'mention') && settings.replies === false) return;
-        if (['new_chapter', 'chapter'].includes(item.type) && settings.newChapter === false) return;
-        const trackedSeries = new Set((settings.scheduleSeriesIds || []).map(String));
-        if (['new_chapter', 'chapter'].includes(item.type) && item.series_id && trackedSeries.size && (!trackedSeries.has(String(item.series_id)) || settings.schedule === false)) return;
-        if (item.type === 'schedule' && settings.schedule === false) return;
-      }
-
-      setNotifications(prev => {
-        const fresh = {
-          id: isAnnouncement ? `ann_${item.id}` : `notif_${item.id}`,
-          originalId: item.id,
-          text: isAnnouncement ? item.text : (item.message || item.text || 'Yeni bildirim'),
-          type: item.type || (isAnnouncement ? 'system' : 'info'),
-          time: new Date(item.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
-          createdAt: new Date(item.created_at).getTime(),
-          read: isAnnouncement ? (user.read_notifications || []).includes(item.id) : item.is_read,
-          isAnnouncement,
-          seriesId: item.series_id || null,
-          chapterNum: item.chapter_num || null
-        };
-        const next = [fresh, ...prev.filter(existing => existing.id !== fresh.id)].sort((a, b) => b.createdAt - a.createdAt).slice(0, 30);
-        updateUnread(next);
-        return next;
-      });
-    };
-
-    const annChannel = supabase
-      .channel('announcements-realtime-auth')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (p) => handleNewItem(p, true))
+    const channel = supabase
+      .channel(`notif-center-${user.id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'announcements' }, (p) => {
+        setRawAnnouncements(prev => [p.new, ...prev.filter(a => a.id !== p.new.id)].slice(0, 60));
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'announcements' }, (p) => {
+        setRawAnnouncements(prev => prev.map(a => (a.id === p.new.id ? { ...a, ...p.new } : a)));
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'announcements' }, (p) => {
+        setRawAnnouncements(prev => prev.filter(a => a.id !== p.old?.id));
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, (p) => {
+        setRawPersonal(prev => [p.new, ...prev.filter(n => n.id !== p.new.id)].slice(0, 80));
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, (p) => {
+        setRawPersonal(prev => prev.filter(n => n.id !== p.old?.id));
+      })
       .subscribe();
-    channels.push(annChannel);
 
-    const notifChannel = supabase
-      .channel(`notifications-${user.id}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, (p) => handleNewItem(p, false))
-      .subscribe();
-    channels.push(notifChannel);
+    // Sekmeye geri dönünce tazele (realtime kopmuş olabilir)
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchNotifications(); };
+    document.addEventListener('visibilitychange', onVisible);
 
     return () => {
-      channels.forEach(ch => supabase.removeChannel(ch));
+      supabase.removeChannel(channel);
+      document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [user?.id, user?.read_notifications, user?.notification_settings]);
+  }, [user?.id, fetchNotifications]);
 
-  const updateUnread = (notifList) => {
-    setUnreadCount(notifList.filter(n => !n.read).length);
-  };
+  // Takvim hatırlatıcıları: takip edilen seri varsa bugünün programını çek
+  const hasTracked = trackedSeriesIds.length > 0;
+  useEffect(() => {
+    if (!user?.id || !hasTracked) { setScheduleToday([]); return; }
+    let cancelled = false;
+    const loadSchedule = async () => {
+      const { data, error } = await supabase
+        .from('publishing_schedule')
+        .select('*')
+        .eq('release_date', localDateString());
+      if (!cancelled && !error) setScheduleToday(data || []);
+    };
+    loadSchedule();
+    const refresh = setInterval(loadSchedule, 15 * 60_000);
+    return () => { cancelled = true; clearInterval(refresh); };
+  }, [user?.id, hasTracked]);
+
+  // Dakikalık saat: "şimdi yayında" geçişleri ve göreli zamanlar için
+  useEffect(() => {
+    if (!user?.id) return;
+    const tick = setInterval(() => setNotifClock(Date.now()), 60_000);
+    return () => clearInterval(tick);
+  }, [user?.id]);
+
+  const notifications = useMemo(() => {
+    if (!user?.id) return [];
+    const role = user.role;
+    const isStaff = ['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Moderatör'].includes(role);
+    const isPremiumUser = Boolean(user.is_elite) || ['Pro', 'Hükümdar Gölgesi', 'Hükümdar', 'Aethe', 'Tester'].includes(role);
+    const ctx = {
+      settings: notificationSettings,
+      tracked: new Set(trackedSeriesIds),
+      isPremium: isPremiumUser,
+      isStaff,
+    };
+    const dismissed = new Set(dismissedIds);
+    const list = [
+      ...rawAnnouncements.map(a => normalizeAnnouncement(a, readAnnIds)),
+      ...rawPersonal.map(normalizePersonal),
+      ...buildScheduleReminders(scheduleToday, trackedSeriesIds, allSeries, readLocalIds, notifClock),
+    ]
+      .filter(n => !dismissed.has(n.id))
+      .filter(n => shouldShowNotification(n, ctx))
+      .map(n => ({ ...n, tracked: Boolean(n.seriesId && ctx.tracked.has(String(n.seriesId))) }));
+    return sortNotifications(list).slice(0, 60);
+  }, [user?.id, user?.role, user?.is_elite, notificationSettings, trackedSeriesIds, dismissedIds,
+      rawAnnouncements, rawPersonal, scheduleToday, allSeries, readAnnIds, readLocalIds, notifClock]);
+
+  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
+
+  // Yeni gelen bildirimleri yakala → toast / ses / tarayıcı bildirimi
+  useEffect(() => {
+    if (!user?.id || !notifFetchedRef.current) return;
+    if (seenNotifIdsRef.current === null) {
+      seenNotifIdsRef.current = new Set(notifications.map(n => n.id));
+      return;
+    }
+    const seen = seenNotifIdsRef.current;
+    const fresh = notifications.filter(n => !seen.has(n.id) && !n.read && n.createdAt > Date.now() - 10 * 60_000);
+    notifications.forEach(n => seen.add(n.id));
+    fresh.slice(0, 3).forEach(n => {
+      window.dispatchEvent(new CustomEvent('notification-received', { detail: n }));
+    });
+  }, [notifications, user?.id]);
 
   // ── Gamification Logic ──────────────────────────────────────────────
   const calculateTitle = (xp = 0, is_elite = false, active_plan_id = null) => {
@@ -433,68 +476,87 @@ export function AuthProvider({ children }) {
     }
   }, [user, updateXP]);
 
-  const markAllRead = useCallback(async () => {
-    if (!user?.id) return;
-    
-    const annIds = notifications.filter(n => n.isAnnouncement).map(n => n.originalId);
-    const uniqueIds = Array.from(new Set([...(user.read_notifications || []), ...annIds]));
-
-    const promises = [];
-    if (annIds.length > 0) {
-      promises.push(
-        supabase.from('profiles').update({ read_notifications: uniqueIds }).eq('id', user.id)
-      );
-    }
-
-    const hasUnreadPersonal = notifications.some(n => !n.isAnnouncement && !n.read);
-    if (hasUnreadPersonal) {
-      promises.push(
-        supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false)
-      );
-    }
-
-    if (promises.length > 0) {
-      const results = await Promise.allSettled(promises);
-      const errors = results.filter(r => r.status === 'rejected' || r.value?.error);
-      if (errors.length > 0) {
-        console.error('[Notif] Okundu hatası:', errors);
-        return false;
-      }
-      
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-      return true;
-    } else {
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-      return true;
-    }
-  }, [user, notifications]);
-
-  const markNotificationRead = useCallback(async (notificationId) => {
-    if (!user?.id) return false;
-    const notification = notifications.find(item => item.id === notificationId);
-    if (!notification || notification.read) return true;
-
-    let error = null;
-    if (notification.isAnnouncement) {
-      const readIds = Array.from(new Set([...(user.read_notifications || []), notification.originalId]));
-      ({ error } = await supabase.from('profiles').update({ read_notifications: readIds }).eq('id', user.id));
-      if (!error) setUser(prev => prev ? { ...prev, read_notifications: readIds } : prev);
-    } else {
-      ({ error } = await supabase.from('notifications').update({ is_read: true }).eq('id', notification.originalId).eq('user_id', user.id));
-    }
+  // ── Bildirim aksiyonları ──────────────────────────────────────────────
+  const persistAnnouncementReads = useCallback(async (nextIds) => {
+    if (!user?.id) return true;
+    const { error } = await supabase.from('profiles').update({ read_notifications: nextIds }).eq('id', user.id);
     if (error) {
-      console.error('[Notif] Bildirim okundu güncellenemedi:', error);
+      console.error('[Notif] Okundu bilgisi kaydedilemedi:', error);
       return false;
     }
-    setNotifications(prev => {
-      const next = prev.map(item => item.id === notificationId ? { ...item, read: true } : item);
-      setUnreadCount(next.filter(item => !item.read).length);
+    setUser(prev => {
+      if (!prev) return prev;
+      const next = { ...prev, read_notifications: nextIds };
+      localStorage.setItem('mahorapeak_user_cache', JSON.stringify(next));
       return next;
     });
     return true;
-  }, [user, notifications]);
+  }, [user?.id]);
+
+  /** ids verilmezse görünen tüm bildirimleri okundu yapar. */
+  const markAllRead = useCallback(async (ids = null) => {
+    if (!user?.id) return false;
+    const scope = new Set(ids || notifications.map(n => n.id));
+    const targets = notifications.filter(n => scope.has(n.id) && !n.read);
+    if (!targets.length) return true;
+
+    const annIds = targets.filter(n => n.source === 'announcement').map(n => Number(n.originalId));
+    const personalIds = targets.filter(n => n.source === 'personal').map(n => n.originalId);
+    const localIds = targets.filter(n => n.source === 'schedule').map(n => n.id);
+
+    // İyimser güncelleme
+    const nextAnn = Array.from(new Set([...readAnnIds, ...annIds]));
+    if (annIds.length) setReadAnnIds(nextAnn);
+    if (personalIds.length) {
+      const set = new Set(personalIds);
+      setRawPersonal(prev => prev.map(p => (set.has(p.id) ? { ...p, is_read: true } : p)));
+    }
+    if (localIds.length) {
+      setReadLocalIds(prev => {
+        const next = Array.from(new Set([...prev, ...localIds]));
+        saveLocalList(user.id, 'read', next);
+        return next;
+      });
+    }
+
+    const jobs = [];
+    if (annIds.length) jobs.push(persistAnnouncementReads(nextAnn));
+    if (personalIds.length) {
+      jobs.push(supabase.from('notifications').update({ is_read: true }).in('id', personalIds).eq('user_id', user.id)
+        .then(({ error }) => { if (error) console.error('[Notif] Kişisel okundu hatası:', error); return !error; }));
+    }
+    const results = await Promise.all(jobs);
+    return results.every(Boolean);
+  }, [user?.id, notifications, readAnnIds, persistAnnouncementReads]);
+
+  const markNotificationRead = useCallback(
+    (notificationId) => markAllRead([notificationId]),
+    [markAllRead]
+  );
+
+  /** Bildirimi kutudan kaldırır (yerel olarak gizler, kişiselse sunucudan da siler). */
+  const dismissNotification = useCallback(async (notificationIds) => {
+    if (!user?.id) return;
+    const ids = Array.isArray(notificationIds) ? notificationIds : [notificationIds];
+    const targets = notifications.filter(n => ids.includes(n.id));
+    setDismissedIds(prev => {
+      const next = Array.from(new Set([...prev, ...ids]));
+      saveLocalList(user.id, 'dismissed', next);
+      return next;
+    });
+    // Kaldırılanlar okunmuş sayılsın ki sayaç doğru kalsın
+    await markAllRead(ids);
+    const personalIds = targets.filter(n => n.source === 'personal').map(n => n.originalId);
+    if (personalIds.length) {
+      const { error } = await supabase.from('notifications').delete().in('id', personalIds).eq('user_id', user.id);
+      if (!error) setRawPersonal(prev => prev.filter(p => !personalIds.includes(p.id)));
+    }
+  }, [user?.id, notifications, markAllRead]);
+
+  const clearAllNotifications = useCallback(
+    () => dismissNotification(notifications.filter(n => !n.pinned).map(n => n.id)),
+    [dismissNotification, notifications]
+  );
 
   // ── Authentication Boot & Listeners ──────────────────────────────────
   useEffect(() => {
@@ -768,6 +830,32 @@ export function AuthProvider({ children }) {
     });
   }, [user?.id]);
 
+  const updateNotificationSettings = useCallback(async (partial) => {
+    if (!user?.id) return false;
+    const current = resolveNotifSettings(user.notification_settings);
+    const next = { ...current, ...partial };
+    await updateProfile({ notification_settings: next });
+    return true;
+  }, [user?.id, user?.notification_settings, updateProfile]);
+
+  const toggleTrackSeries = useCallback(async (seriesId) => {
+    if (!user?.id || !seriesId) return false;
+    const strId = String(seriesId);
+    const current = resolveNotifSettings(user.notification_settings);
+    const set = new Set(current.scheduleSeriesIds || []);
+    const wasTracked = set.has(strId);
+    if (wasTracked) set.delete(strId);
+    else set.add(strId);
+    const nextList = Array.from(set);
+    await updateProfile({
+      notification_settings: {
+        ...current,
+        scheduleSeriesIds: nextList,
+      },
+    });
+    return !wasTracked;
+  }, [user?.id, user?.notification_settings, updateProfile]);
+
   const logout = async () => {
     // 1. İstemci (tarayıcı) tarafındaki HER ŞEYİ KESİNLİKLE SİL
     setUser(null);
@@ -871,9 +959,17 @@ export function AuthProvider({ children }) {
     addToHistory,
     notifications,
     unreadCount,
+    notificationsLoading,
+    fetchNotifications,
+    notificationSettings,
+    trackedSeriesIds,
     sendNotification,
     markAllRead,
     markNotificationRead,
+    dismissNotification,
+    clearAllNotifications,
+    updateNotificationSettings,
+    toggleTrackSeries,
     updateXP,
     updateReadingProgress,
     calculateTitle,

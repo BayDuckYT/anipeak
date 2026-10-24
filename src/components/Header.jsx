@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import AnimeAvatar from './AnimeAvatar.jsx';
+import NotificationCenter from './NotificationCenter.jsx';
 import effectsData from '../data/effects.json';
 import { getOptimizedImage, handleImageError } from '../utils/imageOpt.js';
 
@@ -289,49 +290,12 @@ export default function Header({ onAuthOpen }) {
                   initial={{ opacity: 0, y: 8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-3 w-[min(22rem,calc(100vw-1.5rem))] glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
+                  className="absolute right-0 top-full mt-3 z-50 shadow-2xl"
                 >
-                  <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between">
-                    <span className="text-white text-sm font-bold">Bildirimler</span>
-                    {user && unreadCount > 0 && (
-                      <button onClick={markAllRead} className="text-xs text-purple-300 hover:text-white flex items-center gap-1">
-                        <CheckCheck size={12} /> Tümünü okundu işaretle
-                      </button>
-                    )}
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {user ? (
-                      notifications?.length > 0 ? (
-                        notifications.map((n) => (
-                          <button key={n.id} onClick={async () => {
-                            if (!n.read) await markNotificationRead(n.id);
-                            if (n.seriesId) { const target = series.find(item => String(item.id) === String(n.seriesId)); if (target?.slug) { setNotifOpen(false); navigate(`/manga/${target.slug}`); } }
-                          }} className={`w-full text-left flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors ${!n.read ? 'bg-purple-500/5' : ''}`}>
-                            <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.read ? 'bg-purple-400' : 'bg-slate-700'}`} />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-slate-200 text-xs leading-relaxed">{n?.text}</p>
-                              <p className="text-slate-500 text-[10px] mt-1">{n?.time}{n.chapterNum ? ` · Bölüm ${n.chapterNum}` : ''}</p>
-                            </div>
-                            {!n.read && <span className="text-[10px] text-purple-300">Yeni</span>}
-                          </button>
-                        ))
-                      ) : (
-                        <div className="px-4 py-6 text-center text-slate-500 text-xs">Henüz bildirim yok.</div>
-                      )
-                    ) : (
-                      <div className="px-4 py-6 text-center">
-                        <Bell size={28} className="text-red-500 mx-auto mb-3 opacity-60" />
-                        <p className="text-slate-300 text-xs font-semibold mb-1">Bildirimleri görmek için giriş yap</p>
-                        <p className="text-slate-500 text-[10px] mb-4">Yeni bölüm ve duyurulardan haberdar ol!</p>
-                        <button
-                          onClick={() => { setNotifOpen(false); onAuthOpen('login'); }}
-                          className="w-full py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-red-600 to-rose-600 text-white"
-                        >
-                          Giriş Yap
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <NotificationCenter
+                    onClose={() => setNotifOpen(false)}
+                    onAuthOpen={onAuthOpen}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

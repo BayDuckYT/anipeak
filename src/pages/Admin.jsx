@@ -13,6 +13,7 @@ import {
   CheckCircle2, AlertCircle, Clock, FileText, Mail, RefreshCw, Trash, Calendar, CreditCard, Ghost, AlertTriangle, Upload, KeyRound
 } from 'lucide-react';
 import ChapterEditor from '../components/ChapterEditor.jsx';
+import AdminAnnouncementsPanel from '../components/admin/AdminAnnouncementsPanel.jsx';
 import { ERROR_DICTIONARY } from '../utils/errorDictionary.js';
 import { uploadAdminImage } from '../lib/imageService';
 
@@ -699,88 +700,7 @@ function QuickAddForm({ seriesList, showToast }) {
 // Sub-component: Announcements Panel  (useState at TOP LEVEL — no IIFE!)
 // ─────────────────────────────────────────────────────────────────────────────
 function AnnouncementsPanel({ showToast }) {
-  const { announcements, addAnnouncement, deleteAnnouncement } = useApp();
-  const [newAnn, setNewAnn] = useState('');
-  const [annType, setAnnType] = useState('system');
-  const [sending, setSending] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
-
-  return (
-    <div className="space-y-6">
-      <div className="glass border border-white/8 rounded-2xl p-6">
-        <h3 className="text-white font-black text-xl mb-4">Yeni Duyuru Yayınla</h3>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <select value={annType} onChange={e => setAnnType(e.target.value)}
-            className="bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
-            <option value="system">Sistem Duyurusu</option>
-            <option value="important">Kritik Uyarı</option>
-            <option value="event">Etkinlik</option>
-          </select>
-          <textarea maxLength={240} rows={2} placeholder="Kısa ve anlaşılır duyuru metni..." value={newAnn} onChange={e => setNewAnn(e.target.value)}
-            className="flex-1 bg-[#0a0a14] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500" />
-          <button disabled={sending || !newAnn.trim()} onClick={async () => {
-            if (!newAnn.trim() || sending) return;
-            setSending(true);
-            try {
-              await addAnnouncement(newAnn, annType);
-              setNewAnn('');
-              showToast('Duyuru başarıyla yayınlandı.', 'success');
-            } catch (error) {
-              console.error('[Admin] Duyuru yayınlanamadı:', error);
-              showToast(`Duyuru yayınlanamadı: ${error.message || 'Bağlantıyı kontrol et.'}`, 'error');
-            } finally {
-              setSending(false);
-            }
-          }} className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-xl text-sm shadow-neon-purple hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-            {sending ? 'GÖNDERİLİYOR…' : 'YAYINLA'}
-          </button>
-        </div>
-        <p className="mt-2 text-right text-[11px] text-slate-500">{newAnn.length}/240 · Duyuru, bildirim tercihleri açık kullanıcılara gösterilir.</p>
-      </div>
-
-      <div className="glass border border-white/8 rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-white/8 bg-black/20">
-          <h3 className="text-white font-black text-lg">Mevcut Duyurular</h3>
-        </div>
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-white/5 bg-black/40">
-            {['Duyuru', 'Tip', 'Tarih', 'İşlem'].map(h => (
-              <th key={h} className="text-left text-xs uppercase tracking-wider text-slate-400 font-bold px-5 py-4">{h}</th>
-            ))}
-          </tr></thead>
-          <tbody>
-            {announcements.map(a => (
-              <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                <td className="px-5 py-4 text-slate-200 max-w-xs truncate">{a.text}</td>
-                <td className="px-5 py-4">
-                  <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${a.type === 'chapter' ? 'bg-emerald-500/10 text-emerald-400' :
-                    a.type === 'series' ? 'bg-blue-500/10 text-blue-400' :
-                      'bg-purple-500/10 text-purple-400'}`}>{a.type}</span>
-                </td>
-                <td className="px-5 py-4 text-slate-500 text-xs">
-                  {new Date(a.created_at || a.ts).toLocaleString('tr-TR')}
-                </td>
-                <td className="px-5 py-4">
-                  <button disabled={deletingId === a.id} onClick={async () => {
-                    setDeletingId(a.id);
-                    try { await deleteAnnouncement(a.id); showToast('Duyuru silindi.', 'success'); }
-                    catch (error) { console.error('[Admin] Duyuru silinemedi:', error); showToast(`Duyuru silinemedi: ${error.message || 'Tekrar dene.'}`, 'error'); }
-                    finally { setDeletingId(null); }
-                  }}
-                    className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-all">
-                    <Trash2 size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {announcements.length === 0 && (
-              <tr><td colSpan={4} className="px-5 py-10 text-center text-slate-500">Henüz duyuru yok.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return <AdminAnnouncementsPanel showToast={showToast} />;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
