@@ -7,7 +7,7 @@ data class Series(
     val title: String,
     val cover: String,
     val description: String?,
-    @SerializedName("reads_num") val readsNum: Long,
+    @SerializedName("reads_num") val readsNum: Int,
     val rating: Float,
     val genre: List<String>?,
     @SerializedName("is_trending") val isTrending: Boolean,

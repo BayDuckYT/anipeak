@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MahoraPeak" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#050508</item>
-        <item name="android:windowBackground">#050508</item>
+    <color name="app_background">#0A0810</color>
+    <color name="app_icon_background">#100C19</color>
+    <string name="app_name">MahoraPeak</string>
+
+    <style name="Theme.MahoraPeak" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#C084FC</item>
+        <item name="android:statusBarColor">@color/app_background</item>
+        <item name="android:navigationBarColor">@color/app_background</item>
+        <item name="android:windowBackground">@color/app_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
     </style>
 </resources>

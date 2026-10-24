@@ -13,7 +13,6 @@ import javax.inject.Inject
 sealed class ReaderUiState {
     object Loading : ReaderUiState()
     data class Success(val images: List<String>, val chapter: Chapter?) : ReaderUiState()
-    data class Premium(val chapter: Chapter) : ReaderUiState()
     data class Error(val message: String) : ReaderUiState()
 }
 
@@ -28,18 +27,15 @@ class ReaderViewModel @Inject constructor(
     fun loadChapter(seriesId: Int, chapterId: Int) {
         viewModelScope.launch {
             try {
-                val chapter = api.getChapters(seriesId = "eq.$seriesId")
-                    .firstOrNull { it.id == chapterId }
-                    ?: throw IllegalStateException("Bu bölüm bulunamıyor.")
-                if (chapter.isPremium) {
-                    _uiState.value = ReaderUiState.Premium(chapter)
-                } else if (chapter.pages.isEmpty()) {
-                    throw IllegalStateException("Bu bölümde henüz okunabilir sayfa yok.")
-                } else {
-                    _uiState.value = ReaderUiState.Success(chapter.pages, chapter)
-                }
+                // In a real app, we'd fetch images for this specific chapter
+                // For now, let's simulate with some data
+                val images = listOf(
+                    "https://images.unsplash.com/photo-1578632738980-43314a5b4529?auto=format&fit=crop&q=80&w=1000",
+                    "https://images.unsplash.com/photo-1613376023733-0d743de236ca?auto=format&fit=crop&q=80&w=1000"
+                )
+                _uiState.value = ReaderUiState.Success(images, null)
             } catch (e: Exception) {
-                _uiState.value = ReaderUiState.Error(e.localizedMessage ?: "Bölüm yüklenemedi. İnternet bağlantını kontrol edip tekrar dene.")
+                _uiState.value = ReaderUiState.Error(e.message ?: "Bilinmeyen Hata")
             }
         }
     }

@@ -29,12 +29,11 @@ class DetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val seriesList = api.getSeries(id = "eq.$seriesId")
-                val series = seriesList.firstOrNull()
-                    ?: throw IllegalStateException("Bu seri artık bulunamıyor.")
+                val series = seriesList.first()
                 val chapters = api.getChapters(seriesId = "eq.$seriesId")
-                _uiState.value = DetailUiState.Success(series, chapters.sortedByDescending { it.number })
+                _uiState.value = DetailUiState.Success(series, chapters)
             } catch (e: Exception) {
-                _uiState.value = DetailUiState.Error(e.localizedMessage ?: "Seri yüklenemedi. İnternet bağlantını kontrol edip tekrar dene.")
+                _uiState.value = DetailUiState.Error(e.message ?: "Hata oluştu")
             }
         }
     }
