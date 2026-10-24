@@ -33,8 +33,19 @@ export default function ScheduleSection() {
     fetchSchedule();
   }, []);
 
+  const getItemDay = (item) => {
+    if (item.release_day !== undefined && item.release_day !== null && item.release_day !== '') {
+      return Number(item.release_day);
+    }
+    if (item.release_date) {
+      const d = new Date(`${item.release_date}T00:00:00`);
+      if (!isNaN(d.getDay())) return d.getDay();
+    }
+    return 0;
+  };
+
   const dailyPrograms = useMemo(() => {
-    return schedule.filter(item => item.release_day === selectedDay);
+    return schedule.filter(item => getItemDay(item) === selectedDay);
   }, [schedule, selectedDay]);
 
   const upcomingPrograms = useMemo(() => {
@@ -43,8 +54,9 @@ export default function ScheduleSection() {
     
     return schedule
       .filter(item => {
-        if (item.release_day > today) return true;
-        if (item.release_day === today && item.release_time > now) return true;
+        const itemDay = getItemDay(item);
+        if (itemDay > today) return true;
+        if (itemDay === today && (item.release_time?.slice(0, 5) || '18:00') > now) return true;
         return false;
       })
       .slice(0, 5);
