@@ -13,6 +13,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
+import android.view.KeyEvent
 import android.webkit.CookieManager
 import android.webkit.SslErrorHandler
 import android.webkit.ValueCallback
@@ -128,6 +129,7 @@ class MainActivity : ComponentActivity() {
     private var updateState by mutableStateOf<UpdateUiState>(UpdateUiState.Hidden)
     private var downloadedUpdate: File? = null
     private var installSettingsOpened = false
+    private var isReaderPage = false
     private val notificationPermissionRequest = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         Toast.makeText(this, if (granted) "Telefon bildirimleri açıldı" else "Bildirim izni verilmedi", Toast.LENGTH_SHORT).show()
     }
@@ -259,6 +261,20 @@ class MainActivity : ComponentActivity() {
         if (installSettingsOpened && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && packageManager.canRequestPackageInstalls()) installDownloadedUpdate()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val isVolumeKey = event.keyCode == KeyEvent.KEYCODE_VOLUME_UP || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
+        val volumeNavigationEnabled = getSharedPreferences("reader_preferences", MODE_PRIVATE)
+            .getBoolean("volume_navigation", true)
+        if (isVolumeKey && isReaderPage && volumeNavigationEnabled) {
+            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+                val step = if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP) 1 else -1
+                webView?.evaluateJavascript("window.__mahoraReaderControls && window.__mahoraReaderControls.step($step)", null)
+            }
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     private val filePicker = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val callback = fileChooserCallback ?: return@registerForActivityResult
         fileChooserCallback = null
@@ -332,12 +348,16 @@ class MainActivity : ComponentActivity() {
                                         hasPageError = false
                                         isLoading = true
                                         pageProgress = 0
+                                        isReaderPage = isReaderUrl(url)
+                                        window.decorView.keepScreenOn = isReaderPage
                                     }
 
                                     override fun onPageFinished(view: WebView?, url: String?) {
                                         isLoading = false
                                         hasPageError = false
                                         swipeRefresh.isRefreshing = false
+                                        isReaderPage = isReaderUrl(url)
+                                        window.decorView.keepScreenOn = isReaderPage
                                         view?.evaluateJavascript(MOBILE_APP_SCRIPT, null)
                                     }
 
@@ -521,6 +541,15 @@ class MainActivity : ComponentActivity() {
                     val payload = runCatching { JSONObject(message.data ?: "") }.getOrNull() ?: return
                     when (payload.optString("action")) {
                         "requestNotifications" -> requestNotificationPermission()
+                        "setReaderMode" -> {
+                            isReaderPage = payload.optBoolean("enabled", false)
+                            window.decorView.keepScreenOn = isReaderPage
+                        }
+                        "toggleVolumeNavigation" -> {
+                            val enabled = payload.optBoolean("enabled", true)
+                            getSharedPreferences("reader_preferences", MODE_PRIVATE).edit().putBoolean("volume_navigation", enabled).apply()
+                            replyProxy.postMessage(JSONObject().put("action", "volumeNavigationState").put("enabled", enabled).toString())
+                        }
                         "showNotification" -> showPhoneNotification(
                             payload.optString("title").take(80).ifBlank { "MahoraPeak" },
                             payload.optString("body").take(180).ifBlank { "Yeni bir bildirimin var." }
@@ -570,6 +599,11 @@ class MainActivity : ComponentActivity() {
         private const val ANDROID_APK_ASSET = "mahorapeak-android.apk"
         private const val WEB_VIEW_STATE = "mahorapeak.webview.state"
         private const val NOTIFICATION_CHANNEL_ID = "mahorapeak_updates"
+
+        private fun isReaderUrl(url: String?): Boolean = url?.let {
+            Regex("^https://(?:www\\.)?mahorapeak\\.com\\.tr/manga/[^/]+/bolum-[^/?#]+", RegexOption.IGNORE_CASE).containsMatchIn(it)
+        } == true
+
         private const val MOBILE_APP_SCRIPT = """
             (function() {
               if (window.__mahoraMobileEnhancementInstalled) return;
@@ -609,8 +643,130 @@ class MainActivity : ComponentActivity() {
               var style = document.getElementById('mahorapeak-native-mobile-style');
               if (!style) { style = document.createElement('style'); style.id = 'mahorapeak-native-mobile-style'; document.head.appendChild(style); }
               style.textContent = css;
+              var readerPath = '';
+              var nativeReaderMode = null;
+              var readerDock = null;
+              var readerHideTimer = 0;
+              var readerRestoreAttempt = 0;
+              var readerSaveTimer = 0;
+              function scheduleReaderDockHide() {
+                clearTimeout(readerHideTimer);
+                readerHideTimer = setTimeout(function() { if (readerDock) readerDock.classList.add('mp-reader-hidden'); }, 3200);
+              }
+              function readerStep(direction) {
+                window.scrollBy({ top: Math.round(window.innerHeight * 0.82 * direction), behavior: 'smooth' });
+                if (readerDock) { readerDock.classList.remove('mp-reader-hidden'); updateReaderProgress(); scheduleReaderDockHide(); }
+              }
+              window.__mahoraReaderControls = { step: readerStep };
+              function updateReaderProgress() {
+                if (!readerDock) return;
+                var label = readerDock.querySelector('[data-reader-progress]');
+                var pages = Array.from(document.querySelectorAll('img[alt^="Page "]'));
+                if (!pages.length) { label.textContent = Math.round((window.scrollY / Math.max(1, document.documentElement.scrollHeight - window.innerHeight)) * 100) + '%'; return; }
+                var marker = window.scrollY + window.innerHeight * 0.32;
+                var current = 0;
+                pages.forEach(function(page, index) { if (page.getBoundingClientRect().top + window.scrollY <= marker) current = index; });
+                label.textContent = 'Sayfa ' + (current + 1) + ' / ' + pages.length;
+              }
+              function restoreReaderPosition(path) {
+                var ratio = Number(localStorage.getItem('mp-reader-position:' + path) || 0);
+                if (!ratio) return;
+                var pagesReady = document.querySelectorAll('img[alt^="Page "]').length > 0;
+                var maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+                if (pagesReady && maxScroll > 0) {
+                  window.scrollTo({ top: Math.round(maxScroll * Math.min(1, ratio)), behavior: 'instant' });
+                  updateReaderProgress();
+                  return;
+                }
+                if (readerRestoreAttempt++ < 12) setTimeout(function() { restoreReaderPosition(path); }, 350);
+              }
+              function installReaderControls() {
+                var isReader = /^\/manga\/[^/]+\/bolum-[^/]+/i.test(location.pathname);
+                if (nativeReaderMode !== isReader) {
+                  nativeReaderMode = isReader;
+                  if (window.MahoraPeakAndroid) window.MahoraPeakAndroid.postMessage(JSON.stringify({ action: 'setReaderMode', enabled: isReader }));
+                }
+                if (!isReader) {
+                  if (readerDock) readerDock.remove();
+                  readerDock = null;
+                  readerPath = '';
+                  return;
+                }
+                if (!readerDock) {
+                  var readerStyle = document.getElementById('mahorapeak-reader-controls-style');
+                  if (!readerStyle) {
+                    readerStyle = document.createElement('style'); readerStyle.id = 'mahorapeak-reader-controls-style';
+                    readerStyle.textContent = `
+                      #mahorapeak-reader-dock { position:fixed; z-index:10020; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 12px); transform:translateX(-50%); display:flex; align-items:center; gap:7px; padding:8px; border:1px solid rgba(196,154,255,.28); border-radius:20px; background:rgba(14,10,23,.9); color:#fff; box-shadow:0 12px 36px rgba(0,0,0,.44),0 0 24px rgba(128,65,220,.18); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); transition:opacity .24s ease, transform .24s ease; }
+                      #mahorapeak-reader-dock.mp-reader-hidden { opacity:0; pointer-events:none; transform:translate(-50%,12px); }
+                      #mahorapeak-reader-dock button { min-width:42px; height:42px; padding:0 11px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:rgba(255,255,255,.07); color:#f6f1ff; font:700 13px system-ui,sans-serif; touch-action:manipulation; }
+                      #mahorapeak-reader-dock button:active { background:rgba(145,78,230,.5); transform:scale(.96); }
+                      #mahorapeak-reader-dock [data-reader-progress] { min-width:72px; color:#d8c5ff; text-align:center; font:700 11px system-ui,sans-serif; white-space:nowrap; }
+                      #mahorapeak-reader-dock [data-reader-volume] { min-width:54px; color:#d8c5ff; font-size:10px; }
+                      .mp-reader-tap-zone { position:fixed; z-index:10010; top:12%; bottom:18%; width:min(17vw,64px); border:0; background:transparent; opacity:.16; color:#fff; font-size:24px; touch-action:manipulation; }
+                      .mp-reader-tap-zone:active { opacity:.8; }
+                      #mp-reader-prev-zone { left:0; } #mp-reader-next-zone { right:0; }
+                      @media (prefers-reduced-motion: reduce) { #mahorapeak-reader-dock { transition:none; } }
+                    `;
+                    document.head.appendChild(readerStyle);
+                  }
+                  readerDock = document.createElement('div'); readerDock.id = 'mahorapeak-reader-dock';
+                  readerDock.innerHTML = '<button type="button" data-reader-step="-1" aria-label="Önceki ekran">‹</button><span data-reader-progress>Sayfa</span><button type="button" data-reader-step="1" aria-label="Sonraki ekran">›</button><button type="button" data-reader-chapters aria-label="Bölüm listesi">Bölüm</button><button type="button" data-reader-volume aria-label="Ses tuşu ayarı">Ses: Açık</button>';
+                  document.body.appendChild(readerDock);
+                  ['-1','1'].forEach(function(direction) { readerDock.querySelector('[data-reader-step="' + direction + '"]').addEventListener('click', function(event) { event.stopPropagation(); readerStep(Number(direction)); }); });
+                  readerDock.querySelector('[data-reader-chapters]').addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    var chapterMenu = document.querySelector('button[aria-label="Ayarlar ve bölüm seçimi"]');
+                    if (chapterMenu) chapterMenu.click();
+                    else window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+                    scheduleReaderDockHide();
+                  });
+                  var volumeButton = readerDock.querySelector('[data-reader-volume]');
+                  var volumeEnabled = localStorage.getItem('mp-reader-volume-navigation') !== 'false';
+                  function paintVolumeButton() { volumeButton.textContent = volumeEnabled ? 'Ses: Açık' : 'Ses: Kapalı'; volumeButton.setAttribute('aria-pressed', String(volumeEnabled)); }
+                  paintVolumeButton();
+                  volumeButton.addEventListener('click', function(event) {
+                    event.stopPropagation(); volumeEnabled = !volumeEnabled;
+                    localStorage.setItem('mp-reader-volume-navigation', String(volumeEnabled)); paintVolumeButton();
+                    if (window.MahoraPeakAndroid) window.MahoraPeakAndroid.postMessage(JSON.stringify({ action: 'toggleVolumeNavigation', enabled: volumeEnabled }));
+                    scheduleReaderDockHide();
+                  });
+                  document.addEventListener('click', function(event) {
+                    if (!readerDock || !/^\/manga\/[^/]+\/bolum-[^/]+/i.test(location.pathname)) return;
+                    if (event.target.closest('#mahorapeak-reader-dock,.mp-reader-tap-zone,a,button,input,textarea,select')) return;
+                    readerDock.classList.remove('mp-reader-hidden'); scheduleReaderDockHide();
+                  }, true);
+                  var previousZone = document.createElement('button'); previousZone.type = 'button'; previousZone.id = 'mp-reader-prev-zone'; previousZone.className = 'mp-reader-tap-zone'; previousZone.setAttribute('aria-label','Önceki ekran'); previousZone.textContent = '‹';
+                  var nextZone = document.createElement('button'); nextZone.type = 'button'; nextZone.id = 'mp-reader-next-zone'; nextZone.className = 'mp-reader-tap-zone'; nextZone.setAttribute('aria-label','Sonraki ekran'); nextZone.textContent = '›';
+                  [previousZone,nextZone].forEach(function(zone) { zone.addEventListener('click', function(event) { event.stopPropagation(); readerStep(zone === nextZone ? 1 : -1); }); document.body.appendChild(zone); });
+                  window.addEventListener('message', function(event) {
+                    var data = event.data;
+                    if (typeof data === 'string') { try { data = JSON.parse(data); } catch (_) { return; } }
+                    if (data && data.action === 'volumeNavigationState') {
+                      volumeEnabled = !!data.enabled; localStorage.setItem('mp-reader-volume-navigation', String(volumeEnabled)); paintVolumeButton();
+                    }
+                  });
+                }
+                if (readerPath !== location.pathname) {
+                  readerPath = location.pathname; readerRestoreAttempt = 0;
+                  setTimeout(function() { restoreReaderPosition(readerPath); }, 450);
+                }
+                updateReaderProgress();
+                scheduleReaderDockHide();
+              }
+              window.addEventListener('scroll', function() {
+                if (!readerPath || readerSaveTimer) return;
+                readerSaveTimer = setTimeout(function() {
+                  readerSaveTimer = 0;
+                  var maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+                  localStorage.setItem('mp-reader-position:' + readerPath, String(Math.min(1, window.scrollY / maxScroll)));
+                  updateReaderProgress();
+                }, 650);
+              }, { passive: true });
+              window.addEventListener('resize', updateReaderProgress, { passive: true });
               function guardAndStyle() {
                 if (['/indir', '/apps', '/uygulama'].includes(location.pathname)) { location.replace('/'); return; }
+                installReaderControls();
                 var notificationButton = document.querySelector('button[aria-label="Bildirimler"]');
                 var notificationScope = notificationButton && notificationButton.parentElement;
                 var notificationPanel = notificationScope ? Array.from(notificationScope.querySelectorAll('div')).find(function(node) {
