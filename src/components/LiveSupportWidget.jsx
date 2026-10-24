@@ -44,6 +44,7 @@ export default function LiveSupportWidget() {
   const [ticket, setTicket] = useState(null);
   const [myTickets, setMyTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [ticketListFilter, setTicketListFilter] = useState('active');
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -114,16 +115,16 @@ export default function LiveSupportWidget() {
         .from('support_tickets')
         .select('*')
         .eq('user_id', user.id)
-        .in('status', ['open', 'waiting_admin', 'in_progress'])
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(30);
 
       if (error) throw error;
       const activeTickets = data || [];
       setMyTickets(activeTickets);
 
-      if (activeTickets.length > 0) {
-        const currentTicket = { ...activeTickets[0], user_plan: activeTickets[0].user_plan || activeTickets[0].plan_id || 'member' };
+      const currentTicketRow = activeTickets.find(item => !['resolved', 'closed'].includes(item.status)) || activeTickets[0];
+      if (currentTicketRow) {
+        const currentTicket = { ...currentTicketRow, user_plan: currentTicketRow.user_plan || currentTicketRow.plan_id || 'member' };
         setTicket(currentTicket);
         if (currentTicket.subject && !topicSelectionTouchedRef.current) {
           const matched = SUPPORT_TOPICS.find(t => t.label.includes(currentTicket.subject) || currentTicket.subject.includes(t.id));
@@ -197,6 +198,41 @@ export default function LiveSupportWidget() {
     };
   }, [ticket?.id, isOpen]);
 
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`support_tickets_user_${user.id}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'support_tickets', filter: `user_id=eq.${user.id}`
+      }, (payload) => {
+        if (payload.eventType === 'DELETE') {
+          setMyTickets(prev => prev.filter(item => item.id !== payload.old.id));
+          return;
+        }
+        const updated = payload.new;
+        setMyTickets(prev => [updated, ...prev.filter(item => item.id !== updated.id)]
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, 30));
+        setTicket(prev => prev?.id === updated.id ? { ...prev, ...updated } : prev);
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id || !ticket?.id || String(ticket.id).startsWith('local_')) return;
+    const channel = supabase
+      .channel(`support_ticket_guest_${ticket.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'support_tickets', filter: `id=eq.${ticket.id}`
+      }, ({ new: updated }) => {
+        setTicket(prev => prev?.id === updated.id ? { ...prev, ...updated } : prev);
+        setMyTickets(prev => [updated, ...prev.filter(item => item.id !== updated.id)]);
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [user?.id, ticket?.id]);
+
   // Yeni Bilet Açma veya Varolanı Alma
   const getOrCreateTicket = async (initialQuery = '', contact = {}, startInQueue = false, forceNew = false) => {
     if (!forceNew && ticket && !String(ticket.id).startsWith('local_')) return ticket;
@@ -240,6 +276,8 @@ export default function LiveSupportWidget() {
   const openSupportConversation = async (selectedTicket) => {
     setTicket(selectedTicket);
     setSupportView('chat');
+    setMessages([]);
+    topicSelectionTouchedRef.current = true;
     const matched = SUPPORT_TOPICS.find(topic => topic.label === selectedTicket.subject || selectedTicket.subject?.includes(topic.id));
     if (matched) setSelectedTopic(matched);
     if (String(selectedTicket.id).startsWith('local_')) return;
@@ -356,8 +394,7 @@ export default function LiveSupportWidget() {
         return;
       }
 
-      setMessages(prev => [
-        ...prev.filter(message => message.id !== savedMessage.id),
+      setMessages([
         { id: `support-opened-${Date.now()}`, sender_type: 'system', message: 'Talebiniz alındı. Bu sohbetten destek ekibiyle yazışabilirsiniz.', created_at: new Date().toISOString() },
         normalizeSupportMessage(savedMessage)
       ]);
@@ -375,9 +412,25 @@ export default function LiveSupportWidget() {
     topicSelectionTouchedRef.current = false;
     setSupportStep(1);
     setIntakeError('');
+    setTicketListFilter('active');
     setSupportView(ticketsLoading ? 'inbox' : (myTickets.length > 0 || ticket ? 'inbox' : 'intake'));
     setIsOpen(true);
   };
+
+  const startNewSupportRequest = () => {
+    newTicketRequestedRef.current = true;
+    topicSelectionTouchedRef.current = false;
+    setSelectedTopic(SUPPORT_TOPICS[0]);
+    setIssueDescription('');
+    setIntakeError('');
+    setSupportStep(1);
+    setSupportView('intake');
+  };
+
+  const isClosedTicket = (item) => ['resolved', 'closed'].includes(item?.status);
+  const closedTicketCount = myTickets.filter(isClosedTicket).length;
+  const visibleTickets = myTickets.filter(item => ticketListFilter === 'closed' ? isClosedTicket(item) : !isClosedTicket(item));
+  const currentTicketIsClosed = isClosedTicket(ticket);
 
   // Mesaj Gönderme
   const handleSendMessage = async (textToSend) => {
@@ -604,17 +657,32 @@ export default function LiveSupportWidget() {
                     <p className="mt-1 text-xs text-gray-400">Aktif destek taleplerini buradan açabilirsin.</p>
                   </div>
                   <span className="shrink-0 rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-semibold text-violet-200">
-                    {myTickets.length} aktif
+                    {ticketListFilter === 'closed' ? closedTicketCount : myTickets.length - closedTicketCount} sohbet
                   </span>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
+                  {[
+                    { id: 'active', label: 'Açık', count: myTickets.length - closedTicketCount },
+                    { id: 'closed', label: 'Kapatılan', count: closedTicketCount }
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setTicketListFilter(tab.id)}
+                      className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${ticketListFilter === tab.id ? 'bg-violet-600/80 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                    >
+                      {tab.label} <span className="ml-1 opacity-70">{tab.count}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
                 {ticketsLoading ? (
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5 text-center text-sm text-gray-400">Sohbetlerin yükleniyor…</div>
-                ) : myTickets.length > 0 ? (
+                ) : visibleTickets.length > 0 ? (
                   <div className="space-y-2">
-                    {myTickets.map(item => (
+                    {visibleTickets.map(item => (
                       <button
                         key={item.id}
                         type="button"
@@ -626,13 +694,13 @@ export default function LiveSupportWidget() {
                             <span className="block truncate text-sm font-bold text-white">{item.subject || '❔ Genel Destek'}</span>
                             <span className="mt-1 block truncate text-xs text-gray-400">{item.last_message || 'Sohbeti açıp destek ekibiyle yazışmaya devam et.'}</span>
                           </span>
-                          <span className="shrink-0 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2 py-1 text-[9px] font-bold text-cyan-200">
-                            {item.status === 'in_progress' ? 'Yanıtlanıyor' : 'Aktif'}
+                          <span className={`shrink-0 rounded-full border px-2 py-1 text-[9px] font-bold ${isClosedTicket(item) ? 'border-white/10 bg-white/5 text-gray-400' : 'border-cyan-300/20 bg-cyan-400/10 text-cyan-200'}`}>
+                            {isClosedTicket(item) ? 'Kapatıldı' : item.status === 'in_progress' ? 'Yanıtlanıyor' : 'Aktif'}
                           </span>
                         </span>
                         <span className="mt-3 flex items-center justify-between text-[10px] text-gray-500">
                           <span>{item.last_message_at ? new Date(item.last_message_at).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' }) : 'Destek talebi'}</span>
-                          <span className="font-semibold text-violet-200">Sohbete git →</span>
+                          <span className="font-semibold text-violet-200">{isClosedTicket(item) ? 'Geçmişi oku →' : 'Sohbete git →'}</span>
                         </span>
                       </button>
                     ))}
@@ -640,8 +708,8 @@ export default function LiveSupportWidget() {
                 ) : (
                   <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.025] px-5 py-8 text-center">
                     <MessageSquare className="mx-auto h-8 w-8 text-violet-300" />
-                    <p className="mt-3 text-sm font-semibold text-white">Henüz aktif sohbetin yok</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-400">Yeni bir destek talebi oluşturduğunda sohbetin burada görünecek.</p>
+                    <p className="mt-3 text-sm font-semibold text-white">{ticketListFilter === 'closed' ? 'Kapatılmış sohbet yok' : 'Açık sohbetin yok'}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-400">{ticketListFilter === 'closed' ? 'Kapatılan destek konuşmaların burada saklanır.' : 'Yeni bir destek talebi oluşturduğunda sohbetin burada görünür.'}</p>
                   </div>
                 )}
               </div>
@@ -649,15 +717,7 @@ export default function LiveSupportWidget() {
               <div className="border-t border-white/[0.07] bg-[#090614] px-4 py-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    newTicketRequestedRef.current = true;
-                    topicSelectionTouchedRef.current = false;
-                    setSelectedTopic(SUPPORT_TOPICS[0]);
-                    setIssueDescription('');
-                    setIntakeError('');
-                    setSupportStep(1);
-                    setSupportView('intake');
-                  }}
+                  onClick={startNewSupportRequest}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-950/30 transition hover:brightness-110"
                 >
                   <MessageSquare size={16} /> Yeni destek talebi
@@ -783,16 +843,17 @@ export default function LiveSupportWidget() {
               </span>
             </div>
 
-            <button
+            {!currentTicketIsClosed && <button
+              type="button"
               onClick={() => setShowTopicSelect(!showTopicSelect)}
               className="text-[10px] font-bold px-2 py-1 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-400/30 transition flex items-center gap-1"
             >
               <span>Değiştir</span>
               <ChevronDown className={`w-3 h-3 transition-transform ${showTopicSelect ? 'rotate-180' : ''}`} />
-            </button>
+            </button>}
 
             {/* Konu Seçim Menüsü */}
-            {showTopicSelect && (
+            {showTopicSelect && !currentTicketIsClosed && (
               <div className="absolute top-full left-0 right-0 z-20 bg-[#0c0724] border-b border-purple-500/30 shadow-2xl p-2 space-y-1 animate-in fade-in slide-in-from-top-2">
                 <p className="text-[10px] font-extrabold uppercase tracking-wider text-purple-400 px-2 py-1">Yardım Konunuzu Seçin</p>
                 {SUPPORT_TOPICS.map((topic) => (
@@ -819,6 +880,13 @@ export default function LiveSupportWidget() {
               <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${priorityMeta.badge}`}>
                 {getSupportPlanLabel(supportPlan)}{priorityScore >= 250 ? ' · Öncelikli kuyruk' : ''}
               </span>
+            </div>
+          )}
+
+          {currentTicketIsClosed && (
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.03] px-4 py-2.5">
+              <p className="text-[11px] leading-relaxed text-gray-400">Bu destek sohbeti kapatıldı. Geçmiş mesajları okuyabilir veya yeni bir talep açabilirsin.</p>
+              <button type="button" onClick={startNewSupportRequest} className="shrink-0 rounded-lg bg-violet-600 px-3 py-2 text-[10px] font-bold text-white hover:bg-violet-500">Yeni talep</button>
             </div>
           )}
 
@@ -929,7 +997,7 @@ export default function LiveSupportWidget() {
           </div>
 
           {/* HIZLI KONU ETİKETLERİ */}
-          <div className="px-3 py-1.5 bg-[#070314]/90 border-t border-purple-500/20 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          {!currentTicketIsClosed && <div className="px-3 py-1.5 bg-[#070314]/90 border-t border-purple-500/20 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
             <button
               onClick={() => handleSendMessage('Aura bakiye nasıl yüklenir?')}
               className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-gray-300 text-[10px] border border-white/10 transition"
@@ -954,10 +1022,10 @@ export default function LiveSupportWidget() {
             >
               <Headphones className="w-3 h-3" /> Canlı Yetkili
             </button>
-          </div>
+          </div>}
 
           {/* MESAJ YAZMA ALANI */}
-          <form
+          {!currentTicketIsClosed ? <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage();
@@ -982,7 +1050,7 @@ export default function LiveSupportWidget() {
             >
               <Send className="w-4 h-4" />
             </button>
-          </form>
+          </form> : <div className="px-3 py-3 text-center text-[10px] text-gray-500">Bu sohbet kapalı olduğu için yeni mesaj gönderemezsin.</div>}
             </>
           )}
         </div>

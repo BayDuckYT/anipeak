@@ -47,7 +47,7 @@ export default function AdminSupportDesk() {
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('all'); // all, waiting_admin, open, resolved
+  const [statusFilter, setStatusFilter] = useState('all'); // all, waiting_admin, in_progress, closed
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef(null);
@@ -62,7 +62,9 @@ export default function AdminSupportDesk() {
         .order('priority', { ascending: false })
         .order('created_at', { ascending: true });
 
-      if (statusFilter !== 'all') {
+      if (statusFilter === 'closed') {
+        query = query.in('status', ['resolved', 'closed']);
+      } else if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
 
@@ -76,10 +78,10 @@ export default function AdminSupportDesk() {
           return byPriority || new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         });
         setTickets(ordered);
-        // Eğer seçili bilet yoksa ilkini seç
-        if (ordered.length > 0 && !selectedTicket) {
-          setSelectedTicket(ordered[0]);
-        }
+        setSelectedTicket(previous => !previous || !ordered.some(item => item.id === previous.id) ? (ordered[0] || null) : previous);
+      } else if (!error) {
+        setTickets([]);
+        setSelectedTicket(null);
       }
     } catch (err) {
       console.warn('Destek biletleri çekilirken hata:', err);
@@ -157,7 +159,7 @@ export default function AdminSupportDesk() {
   // Admin Mesaj Gönderme
   const handleSendAdminReply = async (textToSend) => {
     const text = (textToSend || replyText).trim();
-    if (!text || !selectedTicket?.id) return;
+    if (!text || !selectedTicket?.id || ['resolved', 'closed'].includes(selectedTicket.status)) return;
 
     setSending(true);
     setReplyText('');
@@ -201,13 +203,19 @@ export default function AdminSupportDesk() {
     if (!selectedTicket?.id) return;
 
     try {
-      await supabase
+      const { error } = await supabase
         .from('support_tickets')
         .update({ status: newStatus })
         .eq('id', selectedTicket.id);
+      if (error) throw error;
 
       setSelectedTicket(prev => ({ ...prev, status: newStatus }));
-      setTickets(prev => prev.map(t => t.id === selectedTicket.id ? { ...t, status: newStatus } : t));
+      setTickets(prev => {
+        const shouldRemain = statusFilter === 'all' ||
+          (statusFilter === 'closed' ? ['resolved', 'closed'].includes(newStatus) : statusFilter === newStatus);
+        if (!shouldRemain) return prev.filter(t => t.id !== selectedTicket.id);
+        return prev.map(t => t.id === selectedTicket.id ? { ...t, status: newStatus } : t);
+      });
     } catch (err) {
       console.error('Bilet durumu güncellenemedi:', err);
     }
@@ -225,7 +233,7 @@ export default function AdminSupportDesk() {
 
   const waitingCount = tickets.filter(t => t.status === 'waiting_admin').length;
   const activeCount = tickets.filter(t => ['open', 'in_progress'].includes(t.status)).length;
-  const priorityCount = tickets.filter(t => getTicketPriority(t) >= 250 && t.status !== 'resolved').length;
+  const priorityCount = tickets.filter(t => getTicketPriority(t) >= 250 && !['resolved', 'closed'].includes(t.status)).length;
 
   return (
     <div className="flex flex-col lg:flex-row h-[min(780px,calc(100dvh-190px))] min-h-[560px] bg-[#090614]/90 rounded-2xl border border-purple-500/20 overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.7)]">
@@ -285,7 +293,7 @@ export default function AdminSupportDesk() {
               { id: 'open', label: '🆕 Yeni' },
               { id: 'waiting_admin', label: '⚡ Yetkili Bekleyen' },
               { id: 'in_progress', label: '💬 Aktif' },
-              { id: 'resolved', label: '✅ Çözülen' }
+              { id: 'closed', label: '✅ Kapatılan' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -365,12 +373,12 @@ export default function AdminSupportDesk() {
                     <span className={`px-2 py-0.5 rounded font-medium ${
                       t.status === 'waiting_admin' ? 'bg-amber-500/20 text-amber-300' :
                       t.status === 'in_progress' ? 'bg-cyan-500/20 text-cyan-300' :
-                      t.status === 'resolved' ? 'bg-emerald-500/20 text-emerald-300' :
+                      ['resolved', 'closed'].includes(t.status) ? 'bg-emerald-500/20 text-emerald-300' :
                       'bg-purple-500/20 text-purple-300'
                     }`}>
                       {t.status === 'waiting_admin' ? 'Yetkili Bekliyor' :
                        t.status === 'in_progress' ? 'Görüşülüyor' :
-                       t.status === 'resolved' ? 'Çözüldü' : 'Açık'}
+                       ['resolved', 'closed'].includes(t.status) ? 'Kapatıldı' : 'Açık'}
                     </span>
                   </div>
                 </div>
@@ -410,7 +418,7 @@ export default function AdminSupportDesk() {
 
               {/* Bilet Durum Eylemleri */}
               <div className="flex items-center gap-2">
-                {selectedTicket.status !== 'resolved' ? (
+                {!['resolved', 'closed'].includes(selectedTicket.status) ? (
                   <button
                     onClick={() => handleUpdateStatus('resolved')}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-[0_0_12px_rgba(16,185,129,0.3)] transition"
@@ -482,6 +490,11 @@ export default function AdminSupportDesk() {
               <div ref={messagesEndRef} />
             </div>
 
+            {['resolved', 'closed'].includes(selectedTicket.status) ? (
+              <div className="border-t border-white/10 bg-white/[0.03] px-4 py-3 text-center text-xs text-gray-400">
+                Bu talep kapatıldı. Yanıt göndermek için önce <span className="font-semibold text-violet-200">Yeniden Aç</span> seçin.
+              </div>
+            ) : <>
             {/* HAZIR ŞABLON HIZLI CEVAPLAR (CANNED RESPONSES) */}
             <div className="p-2.5 bg-[#080514] border-t border-purple-500/10">
               <div className="flex items-center gap-1.5 mb-1.5 text-[11px] font-semibold text-purple-300">
@@ -525,6 +538,7 @@ export default function AdminSupportDesk() {
                 <span>Gönder</span>
               </button>
             </form>
+            </>}
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-500">
