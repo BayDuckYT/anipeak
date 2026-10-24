@@ -258,6 +258,7 @@ export default function LiveSupportWidget() {
     }
 
     setStartingChat(true);
+    let supportStage = 'destek talebini oluşturma';
     try {
       const contact = user ? {} : { name: guestName.trim(), email: guestEmail.trim() };
       const activeTicket = await getOrCreateTicket(description, contact, true);
@@ -266,12 +267,14 @@ export default function LiveSupportWidget() {
         return;
       }
 
+      supportStage = 'destek kuyruğuna ekleme';
       const queueReady = await escalateTicketToAdmin(activeTicket, description);
       if (!queueReady) {
         setIntakeError('Talebiniz şu anda destek kuyruğuna eklenemedi. Lütfen yeniden deneyin; sorun sürerse biraz sonra tekrar yazın.');
         return;
       }
 
+      supportStage = 'ilk mesajı kaydetme';
       const { data: savedMessage, error: messageError } = await supabase
         .from('support_messages')
         .insert([{
@@ -297,8 +300,8 @@ export default function LiveSupportWidget() {
       ]);
       setSupportView('chat');
     } catch (error) {
-      console.warn('Canlı destek başlatılamadı:', error);
-      setIntakeError('Canlı destek şu anda başlatılamadı. Lütfen tekrar deneyin.');
+      console.error(`Canlı destek başlatılamadı (${supportStage}):`, error);
+      setIntakeError(`Canlı destek başlatılamadı: ${supportStage} adımında beklenmeyen bir hata oluştu. Biraz sonra yeniden deneyin.`);
     } finally {
       setStartingChat(false);
     }

@@ -119,6 +119,7 @@ export function getPriorityMeta(priority) {
  * Hazır Destek Konuları (Kullanıcının bilet konusu seçebilmesi için)
  */
 export const SUPPORT_TOPICS = [
+  { id: 'general', label: '❔ Genel Destek', description: 'Listede olmayan her türlü soru ve yardım talebi', placeholder: 'Konuyu ve nasıl yardımcı olabileceğimizi kısaca anlatın...' },
   { id: 'account', label: '🔑 Hesap ve Giriş', description: 'Giriş, şifre, profil veya hesap işlemleri', placeholder: 'Hesabınızla ilgili yaşadığınız durumu anlatın...' },
   { id: 'payment', label: '💳 Üyelik ve Ödeme', description: 'Premium paket, Aura, ödeme veya iade işlemleri', placeholder: 'Ödeme ya da üyelik işlemini ve varsa işlem tarihini yazın...' },
   { id: 'campaign', label: '🎁 Kod ve Kampanyalar', description: 'Promosyon kodu, hediye veya kampanya sorunları', placeholder: 'Kampanya ya da kod adını ve karşılaştığınız durumu yazın...' },
