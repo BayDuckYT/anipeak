@@ -31,9 +31,19 @@ export default {
         .addRoleOption(opt => opt.setName('rol').setDescription('Verilecek rol').setRequired(true))
     )
     .addSubcommand(sub =>
+      sub.setName('herkesten-al')
+        .setDescription('Belirtilen rolü herkesten topluca geri alır.')
+        .addRoleOption(opt => opt.setName('rol').setDescription('Alınacak rol').setRequired(true))
+    )
+    .addSubcommand(sub =>
       sub.setName('botlara')
         .setDescription('Tüm botlara bir rol verir.')
         .addRoleOption(opt => opt.setName('rol').setDescription('Verilecek rol').setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName('botlardan-al')
+        .setDescription('Belirtilen rolü tüm botlardan topluca geri alır.')
+        .addRoleOption(opt => opt.setName('rol').setDescription('Alınacak rol').setRequired(true))
     )
     .addSubcommand(sub =>
       sub.setName('bilgi')
@@ -104,6 +114,9 @@ export default {
 
       case 'herkese': {
         const role = interaction.options.getRole('rol');
+        if (role.position >= interaction.member.roles.highest.position) {
+          return interaction.editReply({ content: '❌ Bu rolü yönetecek yetkiniz bulunmuyor.' });
+        }
         const members = await interaction.guild.members.fetch();
         const humans = members.filter(m => !m.user.bot);
         let count = 0;
@@ -116,8 +129,28 @@ export default {
         break;
       }
 
+      case 'herkesten-al': {
+        const role = interaction.options.getRole('rol');
+        if (role.position >= interaction.member.roles.highest.position) {
+          return interaction.editReply({ content: '❌ Bu rolü yönetecek yetkiniz bulunmuyor.' });
+        }
+        const members = await interaction.guild.members.fetch();
+        const humansWithRole = members.filter(m => !m.user.bot && m.roles.cache.has(role.id));
+        let count = 0;
+
+        for (const [, member] of humansWithRole) {
+          try { await member.roles.remove(role); count++; } catch {}
+        }
+
+        await interaction.editReply({ embeds: [baseEmbed(COLORS.WARNING).setTitle('⬇️ Toplu Rol Geri Alındı').setDescription(`${role} → **${count}** üyeden başarıyla alındı.`)] });
+        break;
+      }
+
       case 'botlara': {
         const role = interaction.options.getRole('rol');
+        if (role.position >= interaction.member.roles.highest.position) {
+          return interaction.editReply({ content: '❌ Bu rolü yönetecek yetkiniz bulunmuyor.' });
+        }
         const members = await interaction.guild.members.fetch();
         const bots = members.filter(m => m.user.bot);
         let count = 0;
@@ -127,6 +160,23 @@ export default {
         }
 
         await interaction.editReply({ embeds: [baseEmbed(COLORS.SUCCESS).setTitle('✅ Bot Rolü Verildi').setDescription(`${role} → **${count}** bota verildi.`)] });
+        break;
+      }
+
+      case 'botlardan-al': {
+        const role = interaction.options.getRole('rol');
+        if (role.position >= interaction.member.roles.highest.position) {
+          return interaction.editReply({ content: '❌ Bu rolü yönetecek yetkiniz bulunmuyor.' });
+        }
+        const members = await interaction.guild.members.fetch();
+        const botsWithRole = members.filter(m => m.user.bot && m.roles.cache.has(role.id));
+        let count = 0;
+
+        for (const [, bot] of botsWithRole) {
+          try { await bot.roles.remove(role); count++; } catch {}
+        }
+
+        await interaction.editReply({ embeds: [baseEmbed(COLORS.WARNING).setTitle('⬇️ Botlardan Rol Geri Alındı').setDescription(`${role} → **${count}** bottan başarıyla alındı.`)] });
         break;
       }
 
