@@ -6,6 +6,7 @@ import DOMPurify from 'dompurify';
 import { ChevronRight, FileText, Activity } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
 import Loader from '../components/Loader';
+import { DEFAULT_LEGAL_PAGES } from '../data/legalPages';
 
 export default function StaticPage() {
   const { slug } = useParams();
@@ -21,9 +22,20 @@ export default function StaticPage() {
   useEffect(() => {
     async function fetchPage() {
       setLoading(true);
-      const { data } = await supabase.from('pages').select('*').eq('slug', slug).single();
-      if (data) setPage(data);
-      setLoading(false);
+      try {
+        const { data } = await supabase.from('pages').select('*').eq('slug', slug).maybeSingle();
+        if (data) {
+          setPage(data);
+        } else if (DEFAULT_LEGAL_PAGES[slug]) {
+          setPage(DEFAULT_LEGAL_PAGES[slug]);
+        }
+      } catch (err) {
+        if (DEFAULT_LEGAL_PAGES[slug]) {
+          setPage(DEFAULT_LEGAL_PAGES[slug]);
+        }
+      } finally {
+        setLoading(false);
+      }
     }
     fetchPage();
   }, [slug]);

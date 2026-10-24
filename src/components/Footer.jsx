@@ -43,19 +43,22 @@ export default function Footer() {
             <Link to="/achievements" className={linkCls}>Başarımlar</Link>
             <Link to="/takvim" className={linkCls}>Takvim</Link>
             <Link to="/oracle" className={linkCls}>Oracle</Link>
-            <Link to="/elite-upgrade" className={linkCls}>Premium</Link>
+            <Link to="/oneriler" className={linkCls}>Öneriler</Link>
             <Link to="/indir" className={`${linkCls} text-violet-300 font-semibold flex items-center gap-1`}>
               <span>Uygulama İndir</span>
               <span className="text-[9px] bg-violet-500/20 text-violet-300 px-1 rounded border border-violet-400/30">APK</span>
             </Link>
           </nav>
 
-          {/* Kurumsal */}
-          <nav aria-label="Kurumsal" className="flex flex-col gap-2.5">
-            <h2 className="text-white font-bold text-sm mb-1">Kurumsal</h2>
+          {/* YASAL */}
+          <nav aria-label="Yasal" className="flex flex-col gap-2.5">
+            <h2 className="text-white font-bold text-sm mb-1 uppercase tracking-wider">Yasal</h2>
+            <Link to="/hakkinda" className={linkCls}>Hakkında</Link>
             <Link to="/sartlar" className={linkCls}>Kullanım Şartları</Link>
             <Link to="/gizlilik" className={linkCls}>Gizlilik Politikası</Link>
-            <Link to="/oneriler" className={linkCls}>Öneriler</Link>
+            <Link to="/topluluk-kurallari" className={linkCls}>Topluluk Kuralları</Link>
+            <Link to="/iade-ve-teslimat" className={linkCls}>İade ve Teslimat</Link>
+            <Link to="/dmca" className={linkCls}>DMCA</Link>
             <Link to="/iletisim" className={linkCls}>İletişim</Link>
           </nav>
 
