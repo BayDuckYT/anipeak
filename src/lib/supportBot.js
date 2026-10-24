@@ -1,5 +1,5 @@
 // src/lib/supportBot.js
-// AniPeak Akıllı Canlı Destek Botu ("Mahora Destek Asistanı") ve Öncelik Hesaplayıcı
+// MahoraPeak Akıllı Canlı Destek Botu ("Mahora Destek Asistanı") ve Öncelik Hesaplayıcı
 
 export const PRIORITY_WEIGHTS = {
   aethe: 1000,     // Aethe VIP en yüksek öncelik
@@ -26,12 +26,12 @@ export function calculateSupportPriority(user, profile) {
 }
 
 /**
- * Öncelik bilgisi için UI rozeti
+ * Öncelik bilgisi için UI rozeti (Yalnızca Admin panelinde veya gizli sistemde kullanılır)
  */
 export function getPriorityMeta(priority) {
   if (priority >= 1000) {
     return {
-      label: '👑 AETHE VIP (1. Seviye Öncelik)',
+      label: '👑 AETHE VIP (1. Sıra)',
       short: 'AETHE VIP',
       color: 'from-amber-400 to-yellow-500 text-black',
       glow: 'shadow-[0_0_15px_rgba(251,191,36,0.6)]',
@@ -80,20 +80,32 @@ export function getPriorityMeta(priority) {
 }
 
 /**
+ * Hazır Destek Konuları (Kullanıcının bilet konusu seçebilmesi için)
+ */
+export const SUPPORT_TOPICS = [
+  { id: 'payment', label: '💳 Ödeme / Aura Yükleme', placeholder: 'Aura ödemeniz veya yükleme işleminizle ilgili detay girin...' },
+  { id: 'video', label: '🎬 Bölüm / Player Hatası', placeholder: 'Hangi seri ve hangi bölümde sorun yaşıyorsunuz?' },
+  { id: 'vip', label: '👑 Aethe / VIP Avantajları', placeholder: 'VIP paketiniz veya üyelik haklarınızla ilgili sorunuz...' },
+  { id: 'app', label: '📱 Mobil / Masaüstü Uygulama', placeholder: 'Android veya Windows uygulaması hakkında sorunuz...' },
+  { id: 'account', label: '🔑 Hesap / Şifre / Giriş', placeholder: 'Hesabınız veya e-posta onayınız hakkında sorunuz...' },
+  { id: 'other', label: '💬 Diğer / Genel Destek', placeholder: 'Size nasıl yardımcı olabiliriz?' }
+];
+
+/**
  * Otomatik Bot Cevap Şablonları & Intent Eşleştirme Motoru
  */
 export const BOT_KNOWLEDGE_BASE = [
   {
     id: 'connect_admin',
     keywords: ['yetkili', 'admin', 'canlı destek', 'insan', 'temsilci', 'destek ekibi', 'gerçek kişi', 'bağlan', 'görüşmek'],
-    reply: 'Sizi hemen canlı destek yetkilimize aktarıyorum. Talebiniz VIP seviyenize göre öncelikli sıraya alındı! Yetkilimiz en kısa sürede buradan cevap verecektir.',
+    reply: 'Talebiniz canlı destek yetkilimize aktarıldı. Lütfen bekleyin sayfayı kapatmayın, buradan yanıt verilecektir!',
     escalateToAdmin: true,
     actions: []
   },
   {
     id: 'aura_balance',
     keywords: ['aura', 'bakiye', 'para', 'cüzdan', 'yükle', 'ödeme', 'papara', 'iban', 'havale', 'kart'],
-    reply: 'Aura yükleme işlemlerinizi sitemizin Cüzdan sayfasından 3D Güvenli ödeme veya Havale/EFT ile anında gerçekleştirebilirsiniz. Yüklediğiniz Auralar saniyeler içinde hesabınıza geçer!',
+    reply: 'Aura yükleme işlemlerinizi MahoraPeak Cüzdan sayfasından 3D Güvenli ödeme veya Havale/EFT ile anında gerçekleştirebilirsiniz. Yüklediğiniz Auralar saniyeler içinde hesabınıza geçer!',
     actions: [
       { label: '💳 Cüzdana Git', url: '/cuzdan' },
       { label: '🛒 Market & VIP', url: '/market' }
@@ -111,7 +123,7 @@ export const BOT_KNOWLEDGE_BASE = [
   {
     id: 'app_download',
     keywords: ['uygulama', 'indir', 'apk', 'android', 'windows', 'ios', 'ipho', 'mobil', 'pc', 'telefon'],
-    reply: 'AniPeak mobil ve masaüstü uygulamalarını İndir sayfamızdan edinebilirsiniz! Android APK ve Windows için v2.4 sürümü aktiftir. iOS uygulamamız şu an TestFlight aşamasındadır.',
+    reply: 'MahoraPeak mobil ve masaüstü uygulamalarını İndir sayfamızdan edinebilirsiniz! Android APK ve Windows için v2.4 sürümü aktiftir. iOS uygulamamız şu an TestFlight aşamasındadır.',
     actions: [
       { label: '📱 Uygulamaları İndir', url: '/indir' },
       { label: '📲 Android APK İndir', url: 'https://github.com/BayDuckYT/anipeak-app/releases/download/v2.4.0/anipeak-android-v2.4.0.apk', external: true }
@@ -144,7 +156,7 @@ export const BOT_KNOWLEDGE_BASE = [
   {
     id: 'greetings',
     keywords: ['selam', 'merhaba', 'sa', 'slm', 'hey', 'günaydın', 'iyi günler', 'iyi akşamlar', 'naber'],
-    reply: 'Merhaba! Ben AniPeak Asistanı Mahora 🤖 Size nasıl yardımcı olabilirim? Aşağıdaki hızlı konulardan seçebilir veya sorunuzu yazabilirsiniz!',
+    reply: 'Merhaba! Ben MahoraPeak Asistanı Mahora 🤖 Size nasıl yardımcı olabilirim? Aşağıdaki hızlı konulardan seçebilir veya sorunuzu yazabilirsiniz!',
     actions: [
       { label: '💎 Aura & Bakiye', trigger: 'aura' },
       { label: '👑 Aethe VIP', trigger: 'aethe' },
@@ -182,13 +194,11 @@ export function analyzeSupportMessage(text) {
     }
   }
 
-  // 2. Eşleşme yoksa nezaketle cevap ver ve yetkiliye aktar
+  // 2. Eşleşme yoksa yetkiliye aktar
   return {
     matched: false,
-    reply: 'Bu konuda size daha iyi yardımcı olabilmem için sorunuzu Canlı Destek yetkilimize iletiyorum. Lütfen ayrılmayın, hemen ilgileneceğiz!',
-    actions: [
-      { label: '👨‍💻 Yetkiliye Bağlan', trigger: 'force_admin' }
-    ],
+    reply: 'Talebiniz canlı destek yetkilimize aktarıldı. Lütfen bekleyin sayfayı kapatmayın, buradan yanıt verilecektir!',
+    actions: [],
     escalateToAdmin: true,
     intent: 'fallback'
   };
@@ -200,7 +210,7 @@ export function analyzeSupportMessage(text) {
 export const ADMIN_CANNED_RESPONSES = [
   {
     title: '👋 Karşılama',
-    text: 'Merhaba! AniPeak Canlı Destek ekibinden ben. Talebiniz inceleniyor, size nasıl yardımcı olabilirim?'
+    text: 'Merhaba! MahoraPeak Canlı Destek ekibinden ben. Talebiniz inceleniyor, size nasıl yardımcı olabilirim?'
   },
   {
     title: '🔍 İnceleme Sürüyor',
@@ -220,6 +230,6 @@ export const ADMIN_CANNED_RESPONSES = [
   },
   {
     title: '✅ Çözüm & Kapanış',
-    text: 'Sorununuz çözüme kavuşturulmuştur. Başka bir konuda yardımcı olabilir miyim? AniPeak\'i tercih ettiğiniz için teşekkür ederiz!'
+    text: 'Sorununuz çözüme kavuşturulmuştur. Başka bir konuda yardımcı olabilir miyim? MahoraPeak\'i tercih ettiğiniz için teşekkür ederiz!'
   }
 ];
