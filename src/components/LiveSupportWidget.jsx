@@ -262,7 +262,7 @@ export default function LiveSupportWidget() {
       const contact = user ? {} : { name: guestName.trim(), email: guestEmail.trim() };
       const activeTicket = await getOrCreateTicket(description, contact, true);
       if (activeTicket.id.startsWith('local_')) {
-        setIntakeError('Destek talebi kaydedilemedi. Biraz sonra tekrar deneyin.');
+        setIntakeError('Destek talebi veritabanına kaydedilemedi. Supabase SQL Editor’da MahoraPeak destek şeması (supabase_support_v3.sql) çalıştırıldıktan sonra yeniden deneyin.');
         return;
       }
 
@@ -447,26 +447,16 @@ export default function LiveSupportWidget() {
 
   return (
     <>
-      {/* SAĞ ALT TETİKLEME BUTONU - BİR TIK YUKARIDA VE FERAH */}
+      {/* Kompakt destek açma düğmesi */}
       <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
         {!isOpen && (
           <button
           onClick={launchSupport}
           aria-label="Yardıma mı ihtiyacınız var?"
-            className="relative group flex items-center gap-3 px-4 py-3.5 rounded-full bg-gradient-to-r from-purple-800 via-indigo-700 to-pink-600 text-white font-semibold shadow-[0_8px_30px_rgba(147,51,234,0.5)] hover:shadow-[0_12px_45px_rgba(147,51,234,0.75)] transition-all duration-300 hover:scale-105 active:scale-95 border border-purple-400/30"
+            title="MahoraPeak destek merkezi"
+            className="relative group grid h-12 w-12 place-items-center rounded-full border border-purple-300/40 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 text-white shadow-[0_6px_24px_rgba(147,51,234,0.5)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_32px_rgba(147,51,234,0.7)] active:scale-95"
           >
-            {/* Arka Parlama Efekti */}
-            <span className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 opacity-60 blur-md group-hover:opacity-100 transition duration-300 -z-10 animate-pulse"></span>
-
-            <div className="relative">
-              <CircleHelp className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-violet-300 rounded-full border-2 border-[#090614]" />
-            </div>
-
-            <div className="flex flex-col text-left">
-              <span className="text-xs uppercase tracking-wider font-extrabold text-pink-200">Yardıma mı ihtiyacın var?</span>
-              <span className="text-[11px] text-white/80 font-medium">MahoraPeak destek merkezi</span>
-            </div>
+            <CircleHelp className="h-6 w-6" aria-hidden="true" />
 
             {/* Okunmamış Rozet */}
             {unreadCount > 0 && (
@@ -572,7 +562,6 @@ export default function LiveSupportWidget() {
                       <span>Talebinizin doğru ekibe ulaşması için birkaç ayrıntı ekleyin.</span>
                       <span className="shrink-0">{issueDescription.trim().length} / 20 min.</span>
                     </div>
-                    {user && <p className="mt-4 rounded-xl border border-violet-400/15 bg-violet-400/[0.06] px-3 py-2.5 text-xs leading-relaxed text-violet-200">Hesabınızla giriş yaptığınız için iletişim bilgisi adımını atlayıp sohbete geçeceksiniz.</p>}
                   </div>
                 )}
 

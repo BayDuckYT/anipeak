@@ -120,11 +120,12 @@ export function getPriorityMeta(priority) {
  */
 export const SUPPORT_TOPICS = [
   { id: 'account', label: '🔑 Hesap ve Giriş', description: 'Giriş, şifre, profil veya hesap işlemleri', placeholder: 'Hesabınızla ilgili yaşadığınız durumu anlatın...' },
-  { id: 'payment', label: '💳 Üyelik ve Ödeme', description: 'Premium, Aura, ödeme veya fatura işlemleri', placeholder: 'Ödeme veya üyelik işlemiyle ilgili detayları yazın...' },
-  { id: 'app', label: '📱 Uygulama Desteği', description: 'Android, iOS veya masaüstü uygulaması', placeholder: 'Cihazınızı ve uygulamada yaşadığınız sorunu yazın...' },
-  { id: 'video', label: '🎬 Bölüm ve Oynatıcı', description: 'Bölüm, görüntü, ses veya altyazı sorunu', placeholder: 'Seri adını ve bölüm numarasını da ekleyin...' },
-  { id: 'vip', label: '👑 Premium Avantajları', description: 'Paketler ve üyelik ayrıcalıkları', placeholder: 'Paketiniz veya üyelik haklarınızla ilgili sorunuzu yazın...' },
-  { id: 'other', label: '💬 Diğer Konular', description: 'Öneri, geri bildirim veya başka bir konu', placeholder: 'Size nasıl yardımcı olabiliriz?' }
+  { id: 'payment', label: '💳 Üyelik ve Ödeme', description: 'Premium paket, Aura, ödeme veya iade işlemleri', placeholder: 'Ödeme ya da üyelik işlemini ve varsa işlem tarihini yazın...' },
+  { id: 'campaign', label: '🎁 Kod ve Kampanyalar', description: 'Promosyon kodu, hediye veya kampanya sorunları', placeholder: 'Kampanya ya da kod adını ve karşılaştığınız durumu yazın...' },
+  { id: 'content', label: '📚 Manga ve İçerik Talebi', description: 'Seri, bölüm, çeviri veya içerik önerisi', placeholder: 'Seri adını ve istediğiniz bölüm/içerik bilgisini ekleyin...' },
+  { id: 'reader', label: '📖 Okuyucu ve Bölüm Sorunu', description: 'Sayfa yüklenmesi, görsel, indirme veya çevrimdışı okuma', placeholder: 'Seri, bölüm, cihaz ve gördüğünüz hata mesajını yazın...' },
+  { id: 'partnership', label: '🤝 İş Birliği ve Reklam', description: 'Yayıncı, içerik üreticisi ve marka iş birlikleri', placeholder: 'İş birliği teklifinizi ve iletişim bilginizi paylaşın...' },
+  { id: 'feedback', label: '💬 Öneri ve Geri Bildirim', description: 'Site deneyimi, özellik önerisi veya genel sorunlar', placeholder: 'Önerinizi ya da yaşadığınız sorunu ayrıntılarıyla yazın...' }
 ];
 
 /**
