@@ -95,6 +95,19 @@ export default function Header({ onAuthOpen }) {
   const userEffect = (user?.active_mix?.avatar || user?.active_decoration) && (user?.active_mix?.avatar !== 'none' && user?.active_decoration !== 'none')
     ? effectsData.find(e => e.id === (user?.active_mix?.avatar || user?.active_decoration)) 
     : null;
+
+  // Bulunabilen aktif isim efekti (nametag)
+  const nameEffectId = user?.active_mix?.nametag || user?.active_name_effect;
+  const userNameEffect = nameEffectId && nameEffectId !== 'none'
+    ? effectsData.find(e => e.id === nameEffectId)
+    : null;
+  const nameTagHue = user?.active_mix?.nametagHue || 0;
+
+  // Bulunabilen aktif isimlik (nameplate video)
+  const rawNameplate = user?.active_mix?.nameplate;
+  const userNameplate = rawNameplate && rawNameplate !== 'none'
+    ? rawNameplate.replace('nameplate_', '')
+    : null;
     
   // Aktif plan ikonunu getir
   const activePlan = user?.is_elite && user.active_plan_id 
@@ -322,32 +335,19 @@ export default function Header({ onAuthOpen }) {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-0.5 sm:gap-2 pl-0.5 sm:pl-1 pr-0.5 sm:pr-2 py-1 rounded-full hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all"
+                  className="flex items-center gap-1.5 p-1 pr-2 sm:pr-2.5 rounded-full hover:bg-white/10 border border-white/10 hover:border-purple-500/40 bg-white/5 transition-all active:scale-95 flex-shrink-0"
                   aria-label="Profil menüsünü aç"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-violet-600 flex items-center justify-center text-white text-sm font-bold relative flex-shrink-0">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-red-600 via-purple-600 to-indigo-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold relative flex-shrink-0 shadow-md">
                     <AnimeAvatar 
                       src={user.avatar_url ? getOptimizedImage(user.avatar_url, 100) : null} 
                       effect={userEffect}
-                      size="w-8 h-8"
+                      size="w-8 h-8 sm:w-9 sm:h-9"
                       forcePlay={true}
                     />
                     {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                   </div>
-                  <div className="hidden sm:flex flex-col items-start justify-center">
-                    <p className={`text-[11px] font-black leading-tight uppercase tracking-tight flex items-center gap-1 ${
-                      user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow' : 
-                      user.baseRank === 'Mahora Hükümdarı' ? 'rank-glow-purple' : 'text-white'
-                    }`}>
-                      {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
-                      {user.username}
-                    </p>
-                    <span className={`text-[8px] font-black uppercase tracking-[0.2em] flex items-center gap-0.5 mt-0.5 ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-slate-500'}`}>
-                      {user.is_elite && <Crown size={8} className="text-amber-400" />}
-                      {user.rank}
-                    </span>
-                  </div>
-                  <ChevronDown size={14} className={`hidden sm:block text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={14} className={`text-slate-400 group-hover:text-white transition-transform duration-200 ${profileOpen ? 'rotate-180 text-purple-400' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -356,111 +356,137 @@ export default function Header({ onAuthOpen }) {
                       initial={{ opacity: 0, y: 8, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      className="absolute right-0 top-full mt-3 w-56 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl"
+                      className="absolute right-0 top-full mt-3 w-64 sm:w-72 bg-[#0e0a1f] border border-purple-500/25 rounded-3xl overflow-hidden z-50 shadow-[0_20px_60px_rgba(0,0,0,0.95)]"
                     >
                       {/* User info header */}
-                      <div className="px-4 py-3 border-b border-white/8 bg-gradient-to-r from-red-500/10 to-violet-500/10">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-violet-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg relative">
-                            <AnimeAvatar 
-                              src={user.avatar_url ? getOptimizedImage(user.avatar_url, 100) : null} 
-                              effect={userEffect}
-                              size="w-10 h-10"
-                              forcePlay={true}
-                            />
-                            {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-black truncate uppercase tracking-tight text-white">
-                               {user.username}
-                             </p>
-                             <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-80' : 'text-red-400'}`}>
-                                {user.is_elite && <Crown size={10} className="text-amber-400" />}
-                                {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse" />}
-                                {user.rank}
-                              </span>
-                               <span className="w-1 h-1 rounded-full bg-slate-700" />
-                               <span className="text-[9px] font-bold text-slate-400 uppercase">XP: {user.xp || 0}</span>
+                      <div className="relative px-4 py-3.5 border-b border-white/10 bg-gradient-to-r from-purple-950/60 via-[#140d2e] to-indigo-950/60 overflow-hidden">
+                        {userNameplate && (
+                          <video
+                            src={`/nameplates/${userNameplate}`}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none"
+                          />
+                        )}
+                        <div className="relative z-10 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-red-600 via-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg relative">
+                              <AnimeAvatar 
+                                src={user.avatar_url ? getOptimizedImage(user.avatar_url, 100) : null} 
+                                effect={userEffect}
+                                size="w-11 h-11"
+                                forcePlay={true}
+                              />
+                              {!user.avatar_url && !userEffect && <span className="absolute z-10">{avatarLetter}</span>}
                             </div>
+                            <div className="min-w-0">
+                              <p 
+                                className={`text-sm sm:text-base font-black truncate uppercase tracking-tight ${
+                                  userNameEffect 
+                                    ? 'name-effect-text drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]' 
+                                    : user.rankStyle === 'elite-gold-glow' 
+                                    ? 'elite-gold-glow' 
+                                    : user.baseRank === 'Mahora Hükümdarı' 
+                                    ? 'rank-glow-purple' 
+                                    : 'text-white'
+                                }`}
+                                style={userNameEffect ? { backgroundImage: `url(${userNameEffect.url})`, filter: `hue-rotate(${nameTagHue}deg)` } : {}}
+                              >
+                                {user.username}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${user.rankStyle === 'elite-gold-glow' ? 'elite-gold-glow opacity-90' : 'text-amber-400'}`}>
+                                  {user.is_elite && <Crown size={10} className="text-amber-400 shrink-0" />}
+                                  {['Baş Admin', 'Yönetici', 'Admin Yardımcısı', 'Editör', 'Tester'].includes(user.role) && <Gem size={10} className="text-cyan-400 animate-pulse shrink-0" />}
+                                  {user.rank}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 text-right">
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">XP</span>
+                            <span className="text-xs font-black text-purple-300 font-mono">{(user.xp || 0).toLocaleString('tr-TR')}</span>
                           </div>
                         </div>
                         
-                        {/* XP Progress Mini Bar */}
-                        <div className="mt-3">
-                          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                        {/* XP Progress Bar */}
+                        <div className="relative z-10 mt-3">
+                          <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                              <motion.div 
                                initial={{ width: 0 }}
-                               animate={{ width: `${Math.min((user.xp || 0) / 15, 100)}%` }}
-                               className="h-full bg-gradient-to-r from-red-500 to-violet-500"
+                               animate={{ width: `${Math.min(Math.max(((user.xp || 0) % 1000) / 10, 8), 100)}%` }}
+                               className="h-full bg-gradient-to-r from-red-500 via-purple-500 to-indigo-500 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.7)]"
                              />
                           </div>
                         </div>
                       </div>
 
-                      <div className="p-1.5">
+                      <div className="p-2 space-y-0.5">
                         <Link
                           to={`/profil/${user.username}`}
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
-                          <User size={15} className="text-red-400 group-hover:scale-110 transition-transform" />
-                          Profilim
+                          <User size={16} className="text-red-400 group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold">Profilim</span>
                         </Link>
                         <Link
                           to="/cuzdan"
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center justify-between px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                          className="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
                           <div className="flex items-center gap-3">
-                            <Wallet size={15} className="text-pink-400 group-hover:scale-110 transition-transform" />
-                            Cüzdanım
+                            <Wallet size={16} className="text-pink-400 group-hover:scale-110 transition-transform" />
+                            <span className="font-semibold">Cüzdanım</span>
                           </div>
                           <div className="flex items-center gap-1.5 bg-pink-500/10 px-2 py-0.5 rounded-lg border border-pink-500/20">
-                            <span className="text-[10px] font-black text-pink-400">AURA</span>
-                            <span className="text-xs font-bold text-white">{user.aura ? user.aura.toLocaleString('tr-TR') : '0'}</span>
+                            <span className="text-[9px] font-black text-pink-400 tracking-wider">AURA</span>
+                            <span className="text-xs font-black text-white">{(user.aura || 0).toLocaleString('tr-TR')}</span>
                           </div>
                         </Link>
                         <Link
                           to="/market"
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
-                          <ShoppingCart size={15} className="text-violet-400 group-hover:scale-110 transition-transform" />
-                          Aura Market
+                          <ShoppingCart size={16} className="text-violet-400 group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold">Aura Market</span>
                         </Link>
                         <Link
                           to="/profile"
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
-                          <Library size={15} className="text-blue-400 group-hover:scale-110 transition-transform" />
-                          Okuduklarım
+                          <Library size={16} className="text-blue-400 group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold">Okuduklarım</span>
                         </Link>
                         <Link
                           to="/achievements"
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
-                          <Award size={15} className="text-amber-400 group-hover:scale-110 transition-transform" />
-                          Başarımlar
+                          <Award size={16} className="text-amber-400 group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold">Başarımlar</span>
                         </Link>
                         <Link
                           to="/settings"
                           onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm group"
                         >
-                          <Settings size={15} className="text-emerald-400 group-hover:scale-110 transition-transform" />
-                          Ayarlar
+                          <Settings size={16} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+                          <span className="font-semibold">Ayarlar</span>
                         </Link>
                       </div>
 
-                      <div className="p-1.5 border-t border-white/8">
+                      <div className="p-2 border-t border-white/8 bg-black/20">
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-bold"
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all text-sm font-bold"
                         >
-                          <LogOut size={15} />
+                          <LogOut size={16} />
                           Çıkış Yap
                         </button>
                       </div>
