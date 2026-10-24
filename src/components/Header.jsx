@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Compass, TrendingUp, Shield, LogIn, UserPlus,
   Menu, X, Bell, Search, User, Settings, LogOut, Library,
-  ChevronDown, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles, Gem, Wallet, ShoppingCart,
+  ChevronDown, ChevronRight, Crown, CheckCheck, Zap, SendHorizontal, Award, Calendar, Star, Ghost, Sparkles, Gem, Wallet, ShoppingCart,
   Smartphone, HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -62,7 +62,7 @@ export default function Header({ onAuthOpen }) {
     const handleSearchKeyDown = (event) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        setSearchOpen(false);
+        closeSearch();
       }
     };
     window.addEventListener('keydown', handleSearchKeyDown);
@@ -103,6 +103,14 @@ export default function Header({ onAuthOpen }) {
     setSearchResults([]);
     setSearchOpen(false);
   };
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  const suggestedSeries = series.filter(item => !item.isDeleted).slice(0, 6);
 
   const handleLogout = () => {
     logout();
@@ -245,12 +253,12 @@ export default function Header({ onAuthOpen }) {
                 <motion.div
                   role="presentation"
                   onMouseDown={(event) => {
-                    if (event.target === event.currentTarget) setSearchOpen(false);
+                    if (event.target === event.currentTarget) closeSearch();
                   }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[120] flex items-start justify-center overflow-y-auto bg-[#05030b]/90 px-4 pt-[12vh] pb-8 backdrop-blur-md sm:pt-[16vh]"
+                  className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-[#030208]/[0.97] p-4 backdrop-blur-xl sm:p-6"
                 >
                   <motion.section
                     role="dialog"
@@ -261,18 +269,17 @@ export default function Header({ onAuthOpen }) {
                     exit={{ opacity: 0, y: 12, scale: 0.98 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     onMouseDown={(event) => event.stopPropagation()}
-                    className="w-full max-w-2xl overflow-hidden rounded-3xl border border-purple-400/25 bg-[#100b1b] shadow-[0_30px_100px_rgba(0,0,0,0.8),0_0_50px_rgba(124,58,237,0.16)]"
+                    className="flex max-h-[min(82dvh,720px)] w-full max-w-[640px] flex-col overflow-hidden rounded-[26px] border border-violet-500/35 bg-[#0d0917] shadow-[0_30px_100px_rgba(0,0,0,0.85),0_0_60px_rgba(124,58,237,0.14)]"
                   >
-                    <div className="border-b border-white/[0.08] bg-gradient-to-r from-purple-950/80 via-[#130d21] to-indigo-950/70 p-4 sm:p-5">
-                      <div className="mb-3 flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">MAHORAPEAK KEŞİF</p>
-                          <h2 className="mt-1 text-lg font-extrabold text-white sm:text-xl">Seri ara</h2>
-                        </div>
+                    <div className="border-b border-white/[0.07] bg-[#0d0917] p-5 sm:p-6">
+                      <div className="mb-5 flex items-center justify-between gap-3">
+                        <h2 className="flex items-center gap-3 text-base font-bold text-white sm:text-lg">
+                          <Search size={19} className="text-cyan-400" /> MahoraPeak Kataloğunda Ara
+                        </h2>
                         <button
                           type="button"
-                          onClick={() => setSearchOpen(false)}
-                          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 transition hover:border-purple-300/30 hover:bg-purple-500/15 hover:text-white"
+                          onClick={closeSearch}
+                          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-cyan-400 transition hover:border-cyan-400/30 hover:bg-cyan-400/10 hover:text-cyan-200"
                           aria-label="Aramayı kapat"
                         >
                           <X size={17} />
@@ -287,18 +294,44 @@ export default function Header({ onAuthOpen }) {
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Manga veya seri adı yaz..."
-                          className="w-full rounded-2xl border border-purple-400/30 bg-[#090611] py-3.5 pl-12 pr-4 text-sm text-white shadow-inner outline-none transition placeholder:text-slate-500 focus:border-violet-400 focus:ring-2 focus:ring-violet-500/15"
+                          className="w-full rounded-2xl border border-cyan-400/30 bg-[#07050d] py-3.5 pl-12 pr-4 text-sm text-white shadow-inner outline-none transition placeholder:text-slate-500 focus:border-cyan-300/70 focus:ring-2 focus:ring-cyan-400/10"
                         />
                       </div>
                     </div>
 
-                    <div className="max-h-[min(55vh,420px)] overflow-y-auto p-3 sm:p-4">
+                    <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
                       {searchQuery.trim().length < 2 ? (
-                        <div className="rounded-2xl border border-dashed border-white/10 px-5 py-8 text-center">
-                          <Search className="mx-auto mb-3 h-7 w-7 text-violet-300/70" />
-                          <p className="text-sm font-semibold text-slate-200">Aramak için yazmaya başla</p>
-                          <p className="mt-1 text-xs text-slate-500">Seri adı, yazar veya türle arayabilirsin.</p>
-                        </div>
+                        <>
+                          <p className="mb-3 px-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-500">Önerilen seriler</p>
+                          <div className="space-y-1">
+                            {suggestedSeries.map((m) => (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => handleSelect(m.slug)}
+                                className="group flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left transition hover:bg-white/[0.05]"
+                              >
+                                <img
+                                  src={getOptimizedImage(m?.cover, 120)}
+                                  alt={m?.title || 'Seri kapağı'}
+                                  onError={handleImageError}
+                                  width={40}
+                                  height={52}
+                                  decoding="async"
+                                  className="h-[52px] w-10 shrink-0 rounded-lg border border-white/10 object-cover"
+                                />
+                                <span className="min-w-0 flex-1">
+                                  <span className="block truncate text-[13px] font-bold text-slate-100 group-hover:text-cyan-200">{m?.title}</span>
+                                  <span className="mt-1 flex items-center gap-1.5 truncate text-[11px] text-slate-500">
+                                    <span>{Array.isArray(m?.genre) ? m.genre.join(', ') : m?.genre || 'Genel'}</span>
+                                    {Number(m?.rating) > 0 && <><span>·</span><Star size={11} className="fill-amber-400 text-amber-400" /><span>{Number(m.rating).toFixed(1)}</span></>}
+                                  </span>
+                                </span>
+                                <ChevronRight size={17} className="shrink-0 text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" />
+                              </button>
+                            ))}
+                          </div>
+                        </>
                       ) : searchResults.length > 0 ? (
                         <div className="space-y-1.5">
                           <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Sonuçlar</p>
@@ -323,7 +356,7 @@ export default function Header({ onAuthOpen }) {
                                 <p className="mt-1 truncate text-xs text-slate-400">{Array.isArray(m?.genre) ? m.genre.join(', ') : m?.genre || 'Genel'}</p>
                                 {m?.author && <p className="mt-0.5 truncate text-[11px] text-slate-500">{m.author}</p>}
                               </div>
-                              <ChevronDown className="-rotate-90 text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-violet-300" size={17} />
+                              <ChevronRight className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" size={17} />
                             </button>
                           ))}
                         </div>
@@ -337,7 +370,7 @@ export default function Header({ onAuthOpen }) {
 
                     <div className="flex items-center justify-between border-t border-white/[0.07] px-4 py-3 text-[10px] text-slate-500 sm:px-5">
                       <span>Arama · Başlık, yazar ve tür</span>
-                      <span><kbd className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-0.5 font-sans text-slate-300">Esc</kbd> kapat</span>
+                      <span><kbd className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-0.5 font-sans text-slate-300">Esc</kbd> ile kapat</span>
                     </div>
                   </motion.section>
                 </motion.div>
