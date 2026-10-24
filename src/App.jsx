@@ -119,6 +119,7 @@ function AnimatedRoutes({ onAuthOpen }) {
           <Route path="/indir" element={<AppsPage />} />
           <Route path="/apps" element={<AppsPage />} />
           <Route path="/uygulama" element={<AppsPage />} />
+          <Route path="/sayfa/:slug" element={<StaticPage />} />
           <Route path="/:slug" element={<StaticPage />} />
         </Routes>
       </Suspense>
