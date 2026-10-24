@@ -55,16 +55,19 @@ export default function LiveSupportWidget() {
   const [guestEmail, setGuestEmail] = useState('');
   const [intakeError, setIntakeError] = useState('');
   const [startingChat, setStartingChat] = useState(false);
-  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const topicSelectionTouchedRef = useRef(false);
+  const sendingMessageRef = useRef(false);
 
   const account = user;
   const priorityScore = calculateSupportPriority(account);
   const supportPlan = getSupportPlan(account);
   const priorityMeta = getPriorityMeta(priorityScore);
 
-  // Otomatik aşağı kaydır
+  // Yalnızca sohbet listesini kaydır; scrollIntoView sayfanın tamamını aşağı çekebiliyor.
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (container) container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -111,7 +114,7 @@ export default function LiveSupportWidget() {
 
       if (data) {
         setTicket({ ...data, user_plan: data.user_plan || data.plan_id || 'member' });
-        if (data.subject) {
+        if (data.subject && !topicSelectionTouchedRef.current) {
           const matched = SUPPORT_TOPICS.find(t => t.label.includes(data.subject) || data.subject.includes(t.id));
           if (matched) setSelectedTopic(matched);
         }
@@ -154,6 +157,17 @@ export default function LiveSupportWidget() {
           const newMsg = normalizeSupportMessage(payload.new);
           setMessages((prev) => {
             if (prev.some(m => m.id === newMsg.id)) return prev;
+            const optimisticIndex = prev.findIndex(m =>
+              (String(m.id).startsWith('usr_') || String(m.id).startsWith('bot_')) &&
+              m.ticket_id === newMsg.ticket_id &&
+              m.sender_type === newMsg.sender_type &&
+              m.message === newMsg.message
+            );
+            if (optimisticIndex !== -1) {
+              const reconciled = [...prev];
+              reconciled[optimisticIndex] = newMsg;
+              return reconciled;
+            }
             return [...prev, newMsg];
           });
 
@@ -209,6 +223,7 @@ export default function LiveSupportWidget() {
 
   // Konu Değiştirme
   const handleSelectTopic = async (topic) => {
+    topicSelectionTouchedRef.current = true;
     setSelectedTopic(topic);
     setShowTopicSelect(false);
 
@@ -219,6 +234,7 @@ export default function LiveSupportWidget() {
           .update({ subject: topic.label })
           .eq('id', ticket.id);
         if (error) console.warn('Destek konusu güncellenemedi:', error);
+        else setTicket(prev => prev?.id === ticket.id ? { ...prev, subject: topic.label } : prev);
       } catch (error) {
         console.warn('Destek konusu güncellenemedi:', error);
       }
@@ -271,6 +287,14 @@ export default function LiveSupportWidget() {
         return;
       }
 
+      if (activeTicket.subject !== selectedTopic?.label) {
+        const { error: topicError } = await supabase
+          .from('support_tickets')
+          .update({ subject: selectedTopic?.label || '❔ Genel Destek' })
+          .eq('id', activeTicket.id);
+        if (topicError) console.warn('Destek talebi konusu kaydedilemedi:', topicError);
+      }
+
       supportStage = 'destek kuyruğuna ekleme';
       const queueReady = await escalateTicketToAdmin(activeTicket, description);
       if (!queueReady) {
@@ -312,6 +336,7 @@ export default function LiveSupportWidget() {
   };
 
   const launchSupport = () => {
+    topicSelectionTouchedRef.current = false;
     setSupportStep(1);
     setIntakeError('');
     setSupportView('intake');
@@ -321,10 +346,12 @@ export default function LiveSupportWidget() {
   // Mesaj Gönderme
   const handleSendMessage = async (textToSend) => {
     const text = (textToSend || inputText).trim();
-    if (!text) return;
+    if (!text || sendingMessageRef.current) return;
+    sendingMessageRef.current = true;
 
     setInputText('');
 
+    try {
     const activeTicket = await getOrCreateTicket(text);
 
     // 1. Kullanıcı mesajı ekle
@@ -341,15 +368,18 @@ export default function LiveSupportWidget() {
 
     // Veritabanına kaydet
     if (!activeTicket.id.startsWith('local_')) {
-      const { error } = await supabase.from('support_messages').insert([{
-        ticket_id: activeTicket.id,
-        sender: 'user',
-        sender_name: userMsg.sender_name,
-        sender_avatar: account?.avatar_url || null,
-        message: text
-      }]);
+      const { data: savedUserMessage, error } = await supabase.from('support_messages').insert([{
+          ticket_id: activeTicket.id,
+          sender: 'user',
+          sender_name: userMsg.sender_name,
+          sender_avatar: account?.avatar_url || null,
+          message: text
+        }]).select().single();
       if (error) console.warn('Kullanıcı mesajı kaydedilemedi:', error);
       else {
+        if (savedUserMessage) {
+          setMessages(prev => prev.map(message => message.id === userMsg.id ? normalizeSupportMessage(savedUserMessage) : message));
+        }
         await supabase.from('support_tickets').update({
           last_message: text,
           last_message_at: new Date().toISOString(),
@@ -392,11 +422,25 @@ export default function LiveSupportWidget() {
             sender: 'bot',
             sender_name: 'Mahora Asistan',
             message: botResult.reply
-          }]).then(({ error }) => { if (error) console.warn('Asistan mesajı kaydedilemedi:', error); });
+          }]).select().single().then(({ data, error }) => {
+            if (error) console.warn('Asistan mesajı kaydedilemedi:', error);
+            else if (data) setMessages(prev => prev.map(message => message.id === botMsg.id ? normalizeSupportMessage(data) : message));
+          });
         }
 
       }
     }, 600);
+    } catch (error) {
+      console.error('Destek mesajı gönderilemedi:', error);
+      setMessages(prev => [...prev, {
+        id: `send-error-${Date.now()}`,
+        sender_type: 'system',
+        message: 'Mesaj gönderilemedi. Bağlantınızı kontrol edip yeniden deneyin.',
+        created_at: new Date().toISOString()
+      }]);
+    } finally {
+      sendingMessageRef.current = false;
+    }
   };
 
   // Yetkiliye Aktar (Admin Kuyruğuna Al)
@@ -543,7 +587,7 @@ export default function LiveSupportWidget() {
                         <button
                           key={topic.id}
                           type="button"
-                          onClick={() => setSelectedTopic(topic)}
+                          onClick={() => { topicSelectionTouchedRef.current = true; setSelectedTopic(topic); }}
                           className={`flex w-full items-center gap-3 px-3 py-3 text-left transition ${selected ? 'bg-violet-500/10' : 'hover:bg-white/[0.04]'}`}
                         >
                           <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border text-base ${selected ? 'border-violet-400/30 bg-violet-500/15' : 'border-white/10 bg-white/[0.04]'}`}>{topic.label.split(' ')[0]}</span>
@@ -659,7 +703,7 @@ export default function LiveSupportWidget() {
           )}
 
           {/* SOHBET MESAJ ALANI */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-purple-600/30 hover:scrollbar-thumb-purple-500/50">
+          <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-purple-600/30 hover:scrollbar-thumb-purple-500/50">
             {messages.map((msg, index) => {
               const isUser = msg.sender_type === 'user';
               const isBot = msg.sender_type === 'bot';
@@ -762,7 +806,6 @@ export default function LiveSupportWidget() {
               </div>
             )}
 
-            <div ref={messagesEndRef} />
           </div>
 
           {/* HIZLI KONU ETİKETLERİ */}
@@ -803,6 +846,7 @@ export default function LiveSupportWidget() {
           >
             <input
               type="text"
+              enterKeyHint="send"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={selectedTopic?.placeholder || "Bir soru yazın veya yardım isteyin..."}
@@ -812,6 +856,7 @@ export default function LiveSupportWidget() {
             />
             <button
               type="submit"
+              aria-label="Mesajı gönder"
               disabled={!inputText.trim()}
               className="p-2.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 text-white disabled:opacity-40 hover:opacity-95 active:scale-95 transition shadow-[0_0_15px_rgba(168,85,247,0.4)]"
             >
