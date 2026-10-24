@@ -317,6 +317,18 @@ async fn open_site(window: tauri::WebviewWindow) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn open_search(window: tauri::WebviewWindow) -> Result<(), String> {
+    if !site_is_reachable().await {
+        return window
+            .navigate("http://tauri.localhost/offline-home.html".parse().unwrap())
+            .map_err(|e| e.to_string());
+    }
+    let mut url = SITE.parse::<url::Url>().map_err(|e| e.to_string())?;
+    url.set_query(Some("desktop-search=1"));
+    window.navigate(url).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn open_home(window: tauri::WebviewWindow) -> Result<(), String> {
     open_site(window).await
 }
@@ -455,6 +467,7 @@ fn main() {
             read_offline_chapter,
             delete_offline_chapter,
             open_site,
+            open_search,
             open_home,
             check_site_available,
             open_offline_home,

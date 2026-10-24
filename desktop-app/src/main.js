@@ -1,5 +1,6 @@
 import './style.css';
 import './frame.css';
+import './shortcuts.css';
 import { invoke } from '@tauri-apps/api/core';
 
 const bytes = value => {
@@ -25,6 +26,7 @@ async function refreshLibrary() {
 
 async function handleAction(action) {
   if (action === 'site') await invoke('open_site');
+  if (action === 'search') await invoke('open_search');
   if (action === 'home') await invoke('open_home');
   if (action === 'library') await invoke('open_offline_library');
   if (action === 'fullscreen') await invoke('toggle_fullscreen');
@@ -40,5 +42,34 @@ document.addEventListener('click', event => {
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (action) handleAction(action).catch(console.error);
 });
+
+document.addEventListener('keydown', event => {
+  const key = event.key.toLowerCase();
+  if ((event.ctrlKey || event.metaKey) && key === 'k') {
+    event.preventDefault();
+    invoke('open_search').catch(console.error);
+  } else if ((event.ctrlKey || event.metaKey) && event.shiftKey && key === 'l') {
+    event.preventDefault();
+    invoke('open_offline_library').catch(console.error);
+  } else if ((event.ctrlKey || event.metaKey) && event.shiftKey && key === 'h') {
+    event.preventDefault();
+    invoke('open_home').catch(console.error);
+  } else if (event.key === 'F11') {
+    event.preventDefault();
+    invoke('toggle_fullscreen').catch(console.error);
+  } else if (event.key === '?' && !event.ctrlKey && !event.metaKey) {
+    event.preventDefault();
+    document.querySelector('#desktop-shortcuts-dialog')?.showModal();
+  } else if (event.key === 'Escape') {
+    document.querySelector('#desktop-shortcuts-dialog[open]')?.close();
+  }
+});
+
+const shortcutDialog = document.createElement('dialog');
+shortcutDialog.id = 'desktop-shortcuts-dialog';
+shortcutDialog.innerHTML = `<h2>Klavye kısayolları</h2><div><span>Manga / seri ara</span><kbd>Ctrl K</kbd></div><div><span>Çevrimdışı kütüphane</span><kbd>Ctrl ⇧ L</kbd></div><div><span>Ana sayfa</span><kbd>Ctrl ⇧ H</kbd></div><div><span>Tam ekran</span><kbd>F11</kbd></div><p>Canlı sitede de <kbd>?</kbd> tuşuyla bu listeyi açabilirsin.</p><button type="button">Kapat</button>`;
+shortcutDialog.querySelector('button').addEventListener('click', () => shortcutDialog.close());
+shortcutDialog.addEventListener('click', event => { if (event.target === shortcutDialog) shortcutDialog.close(); });
+document.body.append(shortcutDialog);
 
 refreshLibrary();

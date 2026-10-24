@@ -92,6 +92,52 @@
       Object.assign(node.style,{position:'fixed',right:'18px',top:'66px',zIndex:'2147483647',padding:'11px 14px',borderRadius:'10px',background:'#21192c',color:'#fff',border:'1px solid #ffffff24',font:'13px Segoe UI,sans-serif',boxShadow:'0 12px 35px #0008'});
       document.documentElement.append(node); setTimeout(() => node.remove(), 4200);
     };
+    const shortcuts = document.createElement('section');
+    shortcuts.id = 'mahorapeak-shortcuts-dialog';
+    shortcuts.hidden = true;
+    shortcuts.innerHTML = `<style>
+      #mahorapeak-shortcuts-dialog{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#05040bcc;backdrop-filter:blur(9px);font:14px Segoe UI,sans-serif;color:#f5f0ff}
+      #mahorapeak-shortcuts-dialog[hidden]{display:none}#mahorapeak-shortcuts-dialog .card{width:min(420px,calc(100vw - 32px));padding:24px;border:1px solid #ffffff24;border-radius:20px;background:linear-gradient(145deg,#211637,#11101b 72%);box-shadow:0 25px 90px #000a;animation:mpShortcutIn .22s ease-out}
+      #mahorapeak-shortcuts-dialog h2{margin:0 0 16px;font-size:20px}#mahorapeak-shortcuts-dialog .row{display:flex;justify-content:space-between;gap:18px;padding:9px 0;border-bottom:1px solid #ffffff12;color:#c9c1d6}
+      #mahorapeak-shortcuts-dialog kbd{padding:4px 7px;border:1px solid #ffffff24;border-radius:6px;background:#ffffff0b;color:#fff;font:600 11px Segoe UI,sans-serif;white-space:nowrap}
+      #mahorapeak-shortcuts-dialog button{margin-top:18px;padding:9px 14px;border:1px solid #ffffff22;border-radius:9px;background:#ffffff0d;color:#fff;cursor:pointer}@keyframes mpShortcutIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+    </style><div class="card" role="dialog" aria-modal="true" aria-labelledby="mp-shortcut-title"><h2 id="mp-shortcut-title">Klavye kısayolları</h2><div class="row"><span>Manga / seri ara</span><kbd>Ctrl K</kbd></div><div class="row"><span>Çevrimdışı kütüphane</span><kbd>Ctrl ⇧ L</kbd></div><div class="row"><span>Ana sayfa</span><kbd>Ctrl ⇧ H</kbd></div><div class="row"><span>Tam ekran</span><kbd>F11</kbd></div><div class="row"><span>Aramayı / pencereyi kapat</span><kbd>Esc</kbd></div><button type="button" data-shortcuts-close>Kapat</button></div>`;
+    document.documentElement.append(shortcuts);
+    const closeShortcuts = () => { shortcuts.hidden = true; };
+    shortcuts.addEventListener('click', event => { if (event.target === shortcuts || event.target.closest('[data-shortcuts-close]')) closeShortcuts(); });
+    const openSearch = () => {
+      const input = [...document.querySelectorAll('input')].find(node => /manhwa ara/i.test(node.placeholder || '') && node.getClientRects().length);
+      if (input) { input.focus(); input.select(); return; }
+      const button = document.querySelector('button[aria-label="Arama"]');
+      if (!button) { toast('Arama bu sayfada kullanılamıyor.'); return; }
+      button.click();
+      setTimeout(() => {
+        const searchInput = [...document.querySelectorAll('input')].find(node => /manhwa ara/i.test(node.placeholder || '') && node.getClientRects().length);
+        searchInput?.focus(); searchInput?.select();
+      }, 80);
+    };
+    const runDesktopShortcut = event => {
+      const key = event.key.toLowerCase();
+      const typing = event.target instanceof HTMLElement && (event.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName));
+      if (event.key === 'Escape') {
+        if (!shortcuts.hidden) { closeShortcuts(); event.preventDefault(); return; }
+        const searchInput = [...document.querySelectorAll('input')].find(node => /manhwa ara/i.test(node.placeholder || '') && node.getClientRects().length);
+        if (searchInput) { document.querySelector('button[aria-label="Arama"]')?.click(); event.preventDefault(); }
+        return;
+      }
+      if ((event.ctrlKey || event.metaKey) && key === 'k') {
+        event.preventDefault(); event.stopPropagation(); openSearch(); return;
+      }
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && key === 'l') { event.preventDefault(); invoke?.('open_offline_library'); return; }
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && key === 'h') { event.preventDefault(); invoke?.('open_home'); return; }
+      if (event.key === 'F11') { event.preventDefault(); invoke?.('toggle_fullscreen'); return; }
+      if (!typing && event.key === '?') { event.preventDefault(); shortcuts.hidden = false; shortcuts.querySelector('[data-shortcuts-close]')?.focus(); }
+    };
+    window.addEventListener('keydown', runDesktopShortcut, true);
+    if (new URLSearchParams(location.search).has('desktop-search')) {
+      history.replaceState(history.state, '', location.pathname + location.hash);
+      setTimeout(openSearch, 450);
+    }
     const dialog=document.createElement('section');dialog.id='mahorapeak-update-dialog';dialog.hidden=true;
     dialog.dataset.state='checking';
     dialog.innerHTML='<div class="card"><div class="update-mark" aria-hidden="true"></div><div class="eyebrow">MAHORAPEAK DESKTOP · GÜNCELLEME</div><h2 data-update-title>Güncellemeler kontrol ediliyor</h2><p data-update-copy>Yeni sürüm olup olmadığını kontrol ediyoruz…</p><progress data-update-progress hidden max="100" value="0"></progress><div class="actions"><button data-update-retry hidden>Yeniden dene</button><button data-update-install hidden>Güncellemeyi indir</button><button data-update-close>Kapat</button></div></div>';

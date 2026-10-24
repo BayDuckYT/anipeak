@@ -1,0 +1,5 @@
+.keyboard-hint{margin:16px 0 0;color:#93899f;font-size:12px}.keyboard-hint span{padding:0 5px;color:#5c5268}.keyboard-hint kbd,#desktop-shortcuts-dialog kbd{padding:3px 6px;border:1px solid #ffffff24;border-radius:6px;background:#ffffff0b;color:#e8dcff;font:600 10px 'DM Sans','Segoe UI',sans-serif;white-space:nowrap}
+#desktop-shortcuts-dialog{width:min(420px,calc(100vw - 32px));padding:25px;border:1px solid #ffffff24;border-radius:20px;background:linear-gradient(145deg,#211637,#11101b 72%);color:#f5f0ff;box-shadow:0 25px 90px #000a}
+#desktop-shortcuts-dialog::backdrop{background:#05040bcc;backdrop-filter:blur(9px)}#desktop-shortcuts-dialog h2{margin:0 0 15px;font:700 21px 'Space Grotesk','Segoe UI',sans-serif}
+#desktop-shortcuts-dialog>div{display:flex;justify-content:space-between;gap:18px;padding:10px 0;border-bottom:1px solid #ffffff12;color:#c9c1d6;font-size:13px}
+#desktop-shortcuts-dialog p{margin:16px 0 0;color:#93899f;font-size:12px}#desktop-shortcuts-dialog button{margin-top:16px;padding:9px 14px;border:1px solid #ffffff22;border-radius:9px;background:#ffffff0d;color:#fff;cursor:pointer}

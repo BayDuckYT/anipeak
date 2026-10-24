@@ -237,6 +237,12 @@
           "markdownDescription": "Enables the open_offline_library command without any pre-configured scope."
         },
         {
+          "description": "Enables the open_search command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-open-search",
+          "markdownDescription": "Enables the open_search command without any pre-configured scope."
+        },
+        {
           "description": "Enables the open_site command without any pre-configured scope.",
           "type": "string",
           "const": "allow-open-site",
@@ -337,6 +343,12 @@
           "type": "string",
           "const": "deny-open-offline-library",
           "markdownDescription": "Denies the open_offline_library command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the open_search command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-open-search",
+          "markdownDescription": "Denies the open_search command without any pre-configured scope."
         },
         {
           "description": "Denies the open_site command without any pre-configured scope.",
