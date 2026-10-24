@@ -22,11 +22,20 @@ import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { 
   getPriorityMeta, 
+  getSupportPriority,
+  getSupportPlanLabel,
   ADMIN_CANNED_RESPONSES 
 } from '../../lib/supportBot';
 
+const getTicketPriority = (ticket) => {
+  const storedPriority = Number(ticket?.priority);
+  const plan = ticket?.user_plan || ticket?.plan_id;
+  if (plan) return Math.max(Number.isFinite(storedPriority) ? storedPriority : 0, getSupportPriority({ active_plan_id: plan }));
+  return Number.isFinite(storedPriority) && storedPriority > 0 ? storedPriority : 50;
+};
+
 export default function AdminSupportDesk() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -34,6 +43,7 @@ export default function AdminSupportDesk() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all'); // all, waiting_admin, open, resolved
+  const [priorityFilter, setPriorityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -53,10 +63,14 @@ export default function AdminSupportDesk() {
 
       const { data, error } = await query;
       if (!error && data) {
-        setTickets(data);
+        const ordered = [...data].sort((a, b) => {
+          const byPriority = getTicketPriority(b) - getTicketPriority(a);
+          return byPriority || new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        });
+        setTickets(ordered);
         // Eğer seçili bilet yoksa ilkini seç
-        if (data.length > 0 && !selectedTicket) {
-          setSelectedTicket(data[0]);
+        if (ordered.length > 0 && !selectedTicket) {
+          setSelectedTicket(ordered[0]);
         }
       }
     } catch (err) {
@@ -68,6 +82,14 @@ export default function AdminSupportDesk() {
 
   useEffect(() => {
     fetchTickets();
+  }, [statusFilter]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-support-ticket-queue')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => fetchTickets())
+      .subscribe();
+    return () => supabase.removeChannel(channel);
   }, [statusFilter]);
 
   // Seçili bilet değiştikçe mesajlarını çek
@@ -136,8 +158,8 @@ export default function AdminSupportDesk() {
       ticket_id: selectedTicket.id,
       sender_id: user?.id || null,
       sender_type: 'admin',
-      sender_name: profile?.username || 'Yetkili Destek Ekibi',
-      sender_avatar: profile?.avatar_url || null,
+      sender_name: user?.username || 'Yetkili Destek Ekibi',
+      sender_avatar: user?.avatar_url || null,
       message: text
     };
 
@@ -196,14 +218,19 @@ export default function AdminSupportDesk() {
       t.user_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.user_email?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    const matchesPriority = priorityFilter === 'all' || (priorityFilter === 'priority' ? getTicketPriority(t) >= 250 : getTicketPriority(t) < 250);
+    return matchesSearch && matchesPriority;
   });
 
+  const waitingCount = tickets.filter(t => t.status === 'waiting_admin').length;
+  const activeCount = tickets.filter(t => ['open', 'in_progress'].includes(t.status)).length;
+  const priorityCount = tickets.filter(t => getTicketPriority(t) >= 250 && t.status !== 'resolved').length;
+
   return (
-    <div className="flex flex-col lg:flex-row h-[780px] bg-[#090614]/90 rounded-2xl border border-purple-500/20 overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.7)]">
+    <div className="flex flex-col lg:flex-row h-[min(780px,calc(100dvh-190px))] min-h-[560px] bg-[#090614]/90 rounded-2xl border border-purple-500/20 overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.7)]">
       
       {/* SOL PANEL: ÖNCELİKLİ KUYRUK LİSTESİ */}
-      <div className="w-full lg:w-96 border-b lg:border-b-0 lg:border-r border-purple-500/20 flex flex-col bg-[#070410]">
+      <div className="w-full lg:w-96 min-h-0 border-b lg:border-b-0 lg:border-r border-purple-500/20 flex flex-col bg-[#070410]">
         
         {/* Panel Başlığı & Yenile */}
         <div className="p-4 border-b border-purple-500/20 flex items-center justify-between">
@@ -213,7 +240,7 @@ export default function AdminSupportDesk() {
             </div>
             <div>
               <h2 className="font-bold text-white text-sm">Canlı Destek Masası</h2>
-              <p className="text-[11px] text-gray-400">VIP Öncelikli Sıralama</p>
+              <p className="text-[11px] text-gray-400">Önceliğe ve bekleme süresine göre</p>
             </div>
           </div>
           <button
@@ -223,6 +250,19 @@ export default function AdminSupportDesk() {
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-purple-400' : ''}`} />
           </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 px-3 pt-3">
+          {[
+            { label: 'Yanıt bekliyor', value: waitingCount, tone: 'text-amber-300' },
+            { label: 'Açık görüşme', value: activeCount, tone: 'text-cyan-300' },
+            { label: 'Öncelikli', value: priorityCount, tone: 'text-violet-300' }
+          ].map(stat => (
+            <div key={stat.label} className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-2 py-2">
+              <div className={`text-lg font-bold leading-none ${stat.tone}`}>{stat.value}</div>
+              <div className="mt-1 text-[9px] leading-tight text-gray-500">{stat.label}</div>
+            </div>
+          ))}
         </div>
 
         {/* Arama & Durum Filtreleri */}
@@ -241,6 +281,7 @@ export default function AdminSupportDesk() {
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
             {[
               { id: 'all', label: 'Tümü' },
+              { id: 'open', label: '🆕 Yeni' },
               { id: 'waiting_admin', label: '⚡ Yetkili Bekleyen' },
               { id: 'in_progress', label: '💬 Aktif' },
               { id: 'resolved', label: '✅ Çözülen' }
@@ -258,6 +299,20 @@ export default function AdminSupportDesk() {
               </button>
             ))}
           </div>
+          <div className="flex items-center gap-2 text-[10px] text-gray-500">
+            <Filter className="h-3 w-3 shrink-0" />
+            <select
+              value={priorityFilter}
+              onChange={e => setPriorityFilter(e.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-purple-500/15 bg-[#100b1e] px-2 py-1.5 text-[11px] text-gray-300 outline-none focus:border-purple-400/50"
+              aria-label="Destek önceliği filtresi"
+            >
+              <option value="all">Tüm öncelikler</option>
+              <option value="priority">Öncelikli üyeler</option>
+              <option value="standard">Standart sıra</option>
+            </select>
+            <span className="shrink-0">{filteredTickets.length} talep</span>
+          </div>
         </div>
 
         {/* Bilet Listesi */}
@@ -268,7 +323,8 @@ export default function AdminSupportDesk() {
             </div>
           ) : (
             filteredTickets.map((t, idx) => {
-              const meta = getPriorityMeta(t.priority || 50);
+              const priority = getTicketPriority(t);
+              const meta = getPriorityMeta(priority);
               const isSelected = selectedTicket?.id === t.id;
 
               return (
@@ -290,7 +346,7 @@ export default function AdminSupportDesk() {
                     </div>
 
                     {/* VIP Rozet */}
-                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${meta.badge} ${t.priority >= 1000 ? 'animate-pulse' : ''}`}>
+                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${meta.badge}`}>
                       {meta.short}
                     </span>
                   </div>
@@ -302,7 +358,7 @@ export default function AdminSupportDesk() {
                   <div className="flex items-center justify-between text-[10px] text-gray-500">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(t.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' })} · {new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
 
                     <span className={`px-2 py-0.5 rounded font-medium ${
@@ -324,7 +380,7 @@ export default function AdminSupportDesk() {
       </div>
 
       {/* SAĞ PANEL: SEÇİLİ BİLET VE CANLI CHAT */}
-      <div className="flex-1 flex flex-col bg-[#0b071a]">
+      <div className="flex-1 min-h-0 flex flex-col bg-[#0b071a]">
         {selectedTicket ? (
           <>
             {/* ÜST BİLET BİLGİ ÇUBUĞU */}
@@ -337,7 +393,7 @@ export default function AdminSupportDesk() {
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-white text-sm">{selectedTicket.user_name}</h3>
                     {(() => {
-                      const meta = getPriorityMeta(selectedTicket.priority);
+                      const meta = getPriorityMeta(getTicketPriority(selectedTicket));
                       return (
                         <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${meta.badge}`}>
                           {meta.label}
@@ -346,7 +402,7 @@ export default function AdminSupportDesk() {
                     })()}
                   </div>
                   <p className="text-[11px] text-gray-400">
-                    {selectedTicket.user_email} • Açılış: {new Date(selectedTicket.created_at).toLocaleString('tr-TR')}
+                    {selectedTicket.user_email || 'Misafir'} · {getSupportPlanLabel(selectedTicket.user_plan || selectedTicket.plan_id || 'member')} · Açılış: {new Date(selectedTicket.created_at).toLocaleString('tr-TR')}
                   </p>
                 </div>
               </div>

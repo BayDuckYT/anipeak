@@ -2,27 +2,53 @@
 // MahoraPeak Akıllı Canlı Destek Botu ("Mahora Destek Asistanı") ve Öncelik Hesaplayıcı
 
 export const PRIORITY_WEIGHTS = {
-  aethe: 1000,     // Aethe VIP en yüksek öncelik
-  shadow: 500,     // Shadow / Ruler
-  ruler: 500,
-  pro: 250,        // Pro Üye
-  member: 50,      // Standart Üye
-  guest: 10        // Giriş Yapmamış Misafir
+  aethe: 1000,
+  ruler: 750,
+  shadow: 500,
+  pro: 250,
+  member: 50,
+  guest: 10
 };
+
+const PLAN_ALIASES = [
+  { id: 'aethe', terms: ['aethe', 'efsanevi'] },
+  { id: 'shadow', terms: ['shadow', 'gölge'] },
+  { id: 'ruler', terms: ['ruler', 'hükümdar'] },
+  { id: 'pro', terms: ['pro', 'vip'] }
+];
+
+export function getSupportPlan(user, fallbackPlan = '') {
+  const source = [
+    user?.active_plan_id,
+    user?.plan_id,
+    user?.subscription_plan,
+    user?.plan,
+    user?.role,
+    user?.user_metadata?.plan,
+    fallbackPlan
+  ].filter(Boolean).join(' ').toLocaleLowerCase('tr-TR');
+
+  const plan = PLAN_ALIASES.find(({ terms }) => terms.some(term => source.includes(term)));
+  if (plan) return plan.id;
+  if (!user) return 'guest';
+  return user.is_elite || user.premium ? 'pro' : 'member';
+}
+
+export function getSupportPriority(user, fallbackPlan = '') {
+  const plan = getSupportPlan(user, fallbackPlan);
+  return PRIORITY_WEIGHTS[plan] ?? PRIORITY_WEIGHTS.member;
+}
+
+export function getSupportPlanLabel(plan) {
+  return ({ aethe: 'Aethe', ruler: 'Hükümdar', shadow: 'Hükümdar Gölgesi', pro: 'Pro', member: 'Standart üye', guest: 'Misafir' })[String(plan || '').toLowerCase()] || 'Standart üye';
+}
 
 /**
  * Kullanıcı profil/abonelik bilgisine göre kuyruk öncelik puanı belirler
  * Eşit puanlarda veritabanı "created_at ASC" ile ilk yazanı en üste koyar!
  */
 export function calculateSupportPriority(user, profile) {
-  if (!user) return PRIORITY_WEIGHTS.guest;
-
-  const planId = (profile?.subscription_plan || profile?.plan || user?.user_metadata?.plan || '').toLowerCase();
-
-  if (planId.includes('aethe')) return PRIORITY_WEIGHTS.aethe;
-  if (planId.includes('shadow') || planId.includes('ruler')) return PRIORITY_WEIGHTS.shadow;
-  if (planId.includes('pro') || planId.includes('vip')) return PRIORITY_WEIGHTS.pro;
-  return PRIORITY_WEIGHTS.member;
+  return getSupportPriority(user, profile?.active_plan_id || profile?.subscription_plan || profile?.plan);
 }
 
 /**
@@ -39,10 +65,20 @@ export function getPriorityMeta(priority) {
       badge: 'bg-amber-400/20 text-amber-300 border-amber-400/40'
     };
   }
+  if (priority >= 750) {
+    return {
+      label: 'Hükümdar · Öncelikli',
+      short: 'HÜKÜMDAR',
+      color: 'from-amber-400 to-orange-500 text-black',
+      glow: 'shadow-[0_0_12px_rgba(251,191,36,0.35)]',
+      border: 'border-amber-400/50',
+      badge: 'bg-amber-500/15 text-amber-200 border-amber-400/30'
+    };
+  }
   if (priority >= 500) {
     return {
-      label: '🔥 SHADOW (Öncelikli)',
-      short: 'SHADOW VIP',
+      label: 'Hükümdar Gölgesi · Öncelikli',
+      short: 'GÖLGE',
       color: 'from-purple-500 to-indigo-600 text-white',
       glow: 'shadow-[0_0_12px_rgba(168,85,247,0.5)]',
       border: 'border-purple-500/50',
@@ -123,7 +159,7 @@ export const BOT_KNOWLEDGE_BASE = [
   {
     id: 'app_download',
     keywords: ['uygulama', 'indir', 'apk', 'android', 'windows', 'ios', 'ipho', 'mobil', 'pc', 'telefon'],
-    reply: 'MahoraPeak mobil ve masaüstü uygulamalarını İndir sayfamızdan edinebilirsiniz! Android APK ve Windows için v2.4 sürümü aktiftir. iOS uygulamamız şu an TestFlight aşamasındadır.',
+    reply: 'MahoraPeak uygulamalarının güncel indirme seçeneklerini Uygulamalar sayfasında bulabilirsiniz. Cihazınızı seçerek uyumlu sürüm ve kurulum adımlarını görüntüleyin.',
     actions: [
       { label: '📱 Uygulamaları İndir', url: '/indir' },
       { label: '📲 Android APK İndir', url: 'https://github.com/BayDuckYT/anipeak-app/releases/download/v2.4.0/anipeak-android-v2.4.0.apk', external: true }
@@ -214,7 +250,7 @@ export const ADMIN_CANNED_RESPONSES = [
   },
   {
     title: '🔍 İnceleme Sürüyor',
-    text: 'Bildirdiğiniz durumu sistem ekibimize ilettik. En geç 5-10 dakika içerisinde kontrol edip geri dönüş yapıyoruz.'
+    text: 'Bildirdiğiniz durumu inceliyoruz. Kontrol tamamlandığında bu sohbet üzerinden size bilgi vereceğiz.'
   },
   {
     title: '💳 Ödeme / Aura Onayı',
