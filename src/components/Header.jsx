@@ -30,6 +30,7 @@ export default function Header({ onAuthOpen }) {
   const profileRef = useRef(null);
   const notifRef = useRef(null);
   const searchRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -51,6 +52,27 @@ export default function Header({ onAuthOpen }) {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => searchInputRef.current?.focus());
+
+    const handleSearchKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleSearchKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleSearchKeyDown);
+    };
+  }, [searchOpen]);
+
   // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
@@ -65,12 +87,12 @@ export default function Header({ onAuthOpen }) {
   // Live search
   useEffect(() => {
     if (searchQuery.trim().length < 2) { setSearchResults([]); return; }
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.toLocaleLowerCase('tr-TR');
     const results = series.filter(s => !s.isDeleted).filter((m) => {
-      const titleMatches = m.title && m.title.toLowerCase().includes(q);
-      const authorMatches = m.author && m.author.toLowerCase().includes(q);
+      const titleMatches = m.title && m.title.toLocaleLowerCase('tr-TR').includes(q);
+      const authorMatches = m.author && m.author.toLocaleLowerCase('tr-TR').includes(q);
       const docGenres = Array.isArray(m.genre) ? m.genre : m.genre ? [m.genre] : [];
-      const genreMatches = docGenres.some(g => typeof g === 'string' && g.toLowerCase().includes(q));
+      const genreMatches = docGenres.some(g => typeof g === 'string' && g.toLocaleLowerCase('tr-TR').includes(q));
       return titleMatches || authorMatches || genreMatches;
     }).slice(0, 5);
     setSearchResults(results);
@@ -171,8 +193,8 @@ export default function Header({ onAuthOpen }) {
         {/* Center: Desktop Navigation with Icons, Generous Spacing & Glowing Active Underline */}
         <nav className="hidden lg:flex items-center gap-7 xl:gap-11" aria-label="Ana navigasyon">
           {[
-            { label: 'Ana Sayfa', path: '/', icon: Compass, iconColor: 'text-red-500', isActive: location.pathname === '/' && location.hash !== '#trendler', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
-            { label: 'Trendler', path: '/#trendler', icon: TrendingUp, iconColor: 'text-purple-400', isActive: location.hash === '#trendler' },
+            { label: 'Ana Sayfa', path: '/', icon: Compass, iconColor: 'text-red-500', isActive: location.pathname === '/' && !location.hash, onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+            { label: 'Kütüphane', path: '/kutuphane', icon: BookOpen, iconColor: 'text-purple-400', isActive: location.pathname === '/kutuphane' || location.pathname === '/all-series' },
             { label: 'Takvim', path: '/takvim', icon: Calendar, iconColor: 'text-indigo-400', isActive: location.pathname === '/takvim' },
             { label: 'Rehber', path: '/rehber', icon: HelpCircle, iconColor: 'text-emerald-400', isActive: location.pathname === '/rehber' },
             { label: 'Oracle', path: '/oracle', icon: Sparkles, iconColor: 'text-cyan-400', isActive: location.pathname === '/oracle' },
@@ -212,7 +234,7 @@ export default function Header({ onAuthOpen }) {
           {/* Circular Search Toggle Button */}
           <div className="relative" ref={searchRef}>
             <button
-              onClick={() => setSearchOpen(!searchOpen)}
+              onClick={() => setSearchOpen(true)}
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-all active:scale-95"
               aria-label="Arama"
             >
@@ -222,51 +244,103 @@ export default function Header({ onAuthOpen }) {
             <AnimatePresence>
               {searchOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  className="absolute top-full right-0 mt-3 w-72 sm:w-80 glass-strong border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl p-2.5"
+                  role="presentation"
+                  onMouseDown={(event) => {
+                    if (event.target === event.currentTarget) setSearchOpen(false);
+                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[120] flex items-start justify-center overflow-y-auto bg-[#05030b]/90 px-4 pt-[12vh] pb-8 backdrop-blur-md sm:pt-[16vh]"
                 >
-                  <div className="relative mb-2">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                    <input
-                      type="text"
-                      autoFocus
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Manhwa ara..."
-                      className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-red-500 transition-all"
-                    />
-                  </div>
-                  
-                  {/* Search results */}
-                  {searchResults.length > 0 && (
-                    <div className="max-h-64 overflow-y-auto pr-1 custom-scrollbar">
-                      {searchResults.map((m) => (
+                  <motion.section
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Seri ara"
+                    initial={{ opacity: 0, y: 18, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 12, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    onMouseDown={(event) => event.stopPropagation()}
+                    className="w-full max-w-2xl overflow-hidden rounded-3xl border border-purple-400/25 bg-[#100b1b] shadow-[0_30px_100px_rgba(0,0,0,0.8),0_0_50px_rgba(124,58,237,0.16)]"
+                  >
+                    <div className="border-b border-white/[0.08] bg-gradient-to-r from-purple-950/80 via-[#130d21] to-indigo-950/70 p-4 sm:p-5">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">MAHORAPEAK KEŞİF</p>
+                          <h2 className="mt-1 text-lg font-extrabold text-white sm:text-xl">Seri ara</h2>
+                        </div>
                         <button
-                          key={m.id}
-                          onClick={() => handleSelect(m.slug)}
-                          className="w-full flex items-center gap-3 px-2 py-2 hover:bg-white/5 rounded-xl transition-colors text-left"
+                          type="button"
+                          onClick={() => setSearchOpen(false)}
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 transition hover:border-purple-300/30 hover:bg-purple-500/15 hover:text-white"
+                          aria-label="Aramayı kapat"
                         >
-                          <img 
-                            src={getOptimizedImage(m?.cover, 100)} 
-                            alt={m?.title || 'Seri kapağı'} 
-                            onError={handleImageError}
-                            width={32}
-                            height={40}
-                            decoding="async"
-                            className="w-8 h-10 rounded-lg object-cover flex-shrink-0" 
-                          />
-                          <div className="min-w-0">
-                            <p className="text-white text-xs font-semibold truncate">{m?.title}</p>
-                            <p className="text-slate-400 text-[10px] truncate">
-                              {Array.isArray(m?.genre) ? m.genre.join(', ') : m?.genre || 'Genel'}
-                            </p>
-                          </div>
+                          <X size={17} />
                         </button>
-                      ))}
+                      </div>
+
+                      <div className="relative">
+                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-300" />
+                        <input
+                          ref={searchInputRef}
+                          type="search"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Manga veya seri adı yaz..."
+                          className="w-full rounded-2xl border border-purple-400/30 bg-[#090611] py-3.5 pl-12 pr-4 text-sm text-white shadow-inner outline-none transition placeholder:text-slate-500 focus:border-violet-400 focus:ring-2 focus:ring-violet-500/15"
+                        />
+                      </div>
                     </div>
-                  )}
+
+                    <div className="max-h-[min(55vh,420px)] overflow-y-auto p-3 sm:p-4">
+                      {searchQuery.trim().length < 2 ? (
+                        <div className="rounded-2xl border border-dashed border-white/10 px-5 py-8 text-center">
+                          <Search className="mx-auto mb-3 h-7 w-7 text-violet-300/70" />
+                          <p className="text-sm font-semibold text-slate-200">Aramak için yazmaya başla</p>
+                          <p className="mt-1 text-xs text-slate-500">Seri adı, yazar veya türle arayabilirsin.</p>
+                        </div>
+                      ) : searchResults.length > 0 ? (
+                        <div className="space-y-1.5">
+                          <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Sonuçlar</p>
+                          {searchResults.map((m) => (
+                            <button
+                              key={m.id}
+                              type="button"
+                              onClick={() => handleSelect(m.slug)}
+                              className="group flex w-full items-center gap-3 rounded-2xl border border-transparent px-2.5 py-2.5 text-left transition hover:border-purple-400/20 hover:bg-purple-500/[0.09]"
+                            >
+                              <img
+                                src={getOptimizedImage(m?.cover, 120)}
+                                alt={m?.title || 'Seri kapağı'}
+                                onError={handleImageError}
+                                width={44}
+                                height={58}
+                                decoding="async"
+                                className="h-[58px] w-11 shrink-0 rounded-xl border border-white/10 object-cover"
+                              />
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-bold text-white group-hover:text-violet-200">{m?.title}</p>
+                                <p className="mt-1 truncate text-xs text-slate-400">{Array.isArray(m?.genre) ? m.genre.join(', ') : m?.genre || 'Genel'}</p>
+                                {m?.author && <p className="mt-0.5 truncate text-[11px] text-slate-500">{m.author}</p>}
+                              </div>
+                              <ChevronDown className="-rotate-90 text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-violet-300" size={17} />
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-2xl border border-white/[0.07] bg-black/15 px-5 py-8 text-center">
+                          <p className="text-sm font-semibold text-slate-200">Bu aramayla eşleşen seri bulamadık.</p>
+                          <p className="mt-1 text-xs text-slate-500">Başka bir ad veya yazım deneyebilirsin.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-white/[0.07] px-4 py-3 text-[10px] text-slate-500 sm:px-5">
+                      <span>Arama · Başlık, yazar ve tür</span>
+                      <span><kbd className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-0.5 font-sans text-slate-300">Esc</kbd> kapat</span>
+                    </div>
+                  </motion.section>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -570,8 +644,8 @@ export default function Header({ onAuthOpen }) {
             <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-200 hover:text-white hover:bg-white/5 transition-all min-h-[44px]">
               <Compass size={16} className="text-red-500" /> Keşfet
             </Link>
-            <Link to="/#trendler" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-200 hover:text-white hover:bg-white/5 transition-all min-h-[44px]">
-              <TrendingUp size={16} className="text-purple-400" /> Trendler
+            <Link to="/kutuphane" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-200 hover:text-white hover:bg-white/5 transition-all min-h-[44px]">
+              <BookOpen size={16} className="text-purple-400" /> Kütüphane
             </Link>
             <Link to="/takvim" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-200 hover:text-white hover:bg-white/5 transition-all min-h-[44px]">
               <Calendar size={16} className="text-indigo-400" /> Takvim
