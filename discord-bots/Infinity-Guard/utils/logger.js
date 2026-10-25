@@ -4,6 +4,7 @@
 // ============================================================
 
 import { LOG_CHANNEL_NAME, CEZA_LOG_CHANNEL_ID } from './config.js';
+import { getSettings } from './settingsManager.js';
 
 /**
  * Log kanalını bulur ve embed gönderir.
@@ -13,8 +14,9 @@ export async function sendLog(guild, embed) {
   if (!guild) return;
 
   try {
-    // Önce ID ile kanalı bulmaya çalış
-    let logChannel = guild.channels.cache.get(CEZA_LOG_CHANNEL_ID);
+    // Önce ID ile kanalı bulmaya çalış (şablon kurulumu → sabit ceza log)
+    const tplLogId = getSettings().templates?.[guild.id]?.channels?.log;
+    let logChannel = (tplLogId && guild.channels.cache.get(tplLogId)) || guild.channels.cache.get(CEZA_LOG_CHANNEL_ID);
 
     // ID ile bulunamadıysa isimle ara
     if (!logChannel) {

@@ -6,6 +6,7 @@ export default {
   name: Events.GuildRoleDelete,
   async execute(role, client) {
     if (!role.guild) return;
+    if (client.templateBuilding?.has(role.guild.id)) return; // /sunucu-kur sırasında log spam'i önle
 
     try {
       // Audit logdan kimin sildiğini bulmaya çalış

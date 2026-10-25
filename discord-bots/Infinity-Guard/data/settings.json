@@ -6,454 +6,136 @@
     "capsFilter": true,
     "duplicateFilter": true
   },
-  "channels": {
-    "1494328426570449077": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426570449078": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426570449083": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426318925985": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1500418696555003934": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426755264552": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328427388469498": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426990141456": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970858": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426755264555": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426318925983": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1500249094432624711": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970852": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707416": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559639": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559640": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428646629381": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428646629378": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559638": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426755264554": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707418": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970856": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1500269111379230852": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970854": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426990141452": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559645": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1500568998847447171": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426990141458": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428072013940": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559644": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428646629377": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707417": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970855": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970850": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328427388469492": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426570449085": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428646629376": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707415": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428072013939": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970853": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707412": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559637": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707414": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428072013938": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428646629380": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426990141454": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1501633126353338479": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426570449086": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559641": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328427388469491": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428072013942": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426755264559": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426990141459": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426755264553": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707411": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426041970849": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328427388469490": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428646629379": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328425752559643": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426318925981": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328428340707409": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426990141457": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1494328426990141453": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
-    },
-    "1500243006937370645": {
-      "antiSpam": true,
-      "antiLink": true,
-      "badWords": false,
-      "capsFilter": true,
-      "duplicateFilter": true
+  "channels": {},
+  "templates": {
+    "1494328424465174609": {
+      "roles": {
+        "sep_exec": "1563849101378981960",
+        "kurucu": "1563849102780010567",
+        "ceo": "1563849104105152682",
+        "byk": "1563849105716019322",
+        "coo": "1563849108291068046",
+        "cto": "1563849109457084488",
+        "sep_yonetim": "1563849110711443539",
+        "uyk": "1563849113110585447",
+        "ayk": "1563849114767065168",
+        "lead_mod": "1563849115983413411",
+        "mod": "1563849118311514142",
+        "spoiler_mod": "1563849119703769229",
+        "destek": "1563849122837041194",
+        "sep_ekip": "1563849124418420776",
+        "yayindirektoru": "1563849125982634014",
+        "ceviri_lider": "1563849127669006337",
+        "ceviri": "1563849129581346936",
+        "cleaner": "1563849131116601544",
+        "typesetter": "1563849132563767327",
+        "redaktor": "1563849133729517621",
+        "tasarim": "1563849136976040076",
+        "gelistirici": "1563849138389520454",
+        "haber": "1563849139345821778",
+        "sep_elite": "1563849141120016486",
+        "vip_aethe": "1563849143347056681",
+        "vip_ruler": "1563849145150869557",
+        "vip_shadow": "1563849146681528361",
+        "vip_pro": "1563849148250333274",
+        "partner": "1563849150091632690",
+        "booster": "1563849152717135973",
+        "sep_haneler": "1563849154604703744",
+        "h_kizil_ejder": "1563849155883966595",
+        "h_gumus_kitsune": "1563849157071081483",
+        "h_buz_kurt": "1563849158614327386",
+        "h_altin_anka": "1563849159839187024",
+        "sep_seviye": "1563849161416380426",
+        "r_hukumdar": "1563849162641113139",
+        "r_muhafiz": "1563849164532744274",
+        "r_sovalye": "1563849165643972700",
+        "r_avci": "1563849167007260804",
+        "r_maceraci": "1563849168919990362",
+        "r_caylak": "1563849169729359928",
+        "sep_bildirim": "1563849171859939418",
+        "n_bolum": "1563849173273415720",
+        "n_duyuru": "1563849174687027261",
+        "n_etkinlik": "1563849177581228037",
+        "n_cekilis": "1563849179397234748",
+        "sep_uye": "1563849180840075365",
+        "bot": "1563849182547152987",
+        "uye": "1563849184308625520",
+        "cezali": "1563849185680298024"
+      },
+      "channels": {
+        "cat_baslangic": "1563849191619305522",
+        "hosgeldin": "1563849192982446171",
+        "kurallar": "1563849195448700958",
+        "site_rehber": "1563849197197729832",
+        "cat_bilgi": "1563849198938361856",
+        "duyurular": "1563849200712556585",
+        "yeni_bolum": "1563849202155655251",
+        "bolum_sohbet": "1563849204349014137",
+        "etkinlikler": "1563849206425194527",
+        "cekilisler": "1563849208778461316",
+        "rol_al": "1563849210791596043",
+        "hane_sec": "1563849212200882209",
+        "cat_sohbet": "1563849213811359824",
+        "genel": "1563849215585820685",
+        "manga_chat": "1563849218052063323",
+        "teoriler": "1563849220165738567",
+        "spoiler": "1563849221680013453",
+        "panel_paylas": "1563849223324049488",
+        "bot_komut": "1563849224645517332",
+        "cat_citadel": "1563849226658513018",
+        "aura_pazari": "1563849229405786214",
+        "hane_meydani": "1563849231368986687",
+        "oneri_istek": "1563849232597909576",
+        "hata_bildir": "1563849233977577523",
+        "cat_elite_vip": "1563849237182021692",
+        "vip_sohbet": "1563849238369144854",
+        "vip_erken": "1563849240260911175",
+        "v_vip": "1563849242768965733",
+        "cat_ses": "1563849244178124822",
+        "v_genel": "1563849245977485484",
+        "v_okuma": "1563849247764258856",
+        "v_muzik": "1563849249932714015",
+        "v_oyun": "1563849252210212916",
+        "afk": "1563849254856949871",
+        "cat_fansub": "1563849256601657405",
+        "f_duyuru": "1563849259818815540",
+        "f_sohbet": "1563849261710450808",
+        "f_teslim": "1563849262960222251",
+        "f_ham": "1563849264747126824",
+        "v_fansub": "1563849266181578764",
+        "cat_yetkili": "1563849267813154927",
+        "y_duyuru": "1563849269180633190",
+        "y_sohbet": "1563849270870675527",
+        "y_ceza": "1563849272456388619",
+        "v_yetkili": "1563849274096361543",
+        "cat_yonetim": "1563849275991920671",
+        "yk_sohbet": "1563849277200138251",
+        "yk_site": "1563849278974332928",
+        "v_yk": "1563849280953778199",
+        "cat_clevel": "1563849284216946698",
+        "c_sohbet": "1563849285848797204",
+        "v_clevel": "1563849287543160882",
+        "cat_log": "1563849288927289354",
+        "log": "1563849290848272495",
+        "ticket_log": "1563849293037707365",
+        "haber_log": "1563849295705145434"
+      },
+      "verify": false,
+      "createdAt": "2026-10-25T09:38:56.173Z",
+      "createdBy": "841364868087021599"
+    }
+  },
+  "maintenance": {
+    "1494328424465174609": {
+      "active": true,
+      "roleId": "1563850109865828463",
+      "categoryId": "1563850112911015946",
+      "announcementChannelId": "1563850131265163364",
+      "chatChannelId": "1563850133949517924",
+      "reason": "Bakım",
+      "estimatedTime": "En kısa sürede",
+      "startedAt": "2026-10-25T09:42:24.638Z",
+      "startedBy": "841364868087021599"
     }
   }
 }

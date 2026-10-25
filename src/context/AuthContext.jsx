@@ -116,6 +116,9 @@ export function AuthProvider({ children }) {
         faction:         data?.faction || null,
         used_promo_codes: data?.used_promo_codes || [],
         wallet_history: data?.wallet_history || [],
+        appearance_settings: data?.appearance_settings || null,
+        notification_settings: data?.notification_settings || null,
+        privacy_settings: data?.privacy_settings || null,
       };
 
       setUser(merged);

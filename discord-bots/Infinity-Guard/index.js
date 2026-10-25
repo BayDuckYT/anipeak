@@ -81,19 +81,46 @@ async function registerSlashCommands() {
 
   if (commands.length === 0) return;
 
-  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+  slashCommandBody = commands;
 
   try {
     console.log(`[Infinity-Guard] 🔄 ${commands.length} slash komut kaydediliyor...`);
-    await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-      { body: commands },
-    );
+    await registerGuildCommands(process.env.GUILD_ID);
     console.log(`[Infinity-Guard] ✅ Slash komutlar başarıyla kaydedildi!`);
   } catch (error) {
     console.error('[Infinity-Guard] ❌ Slash komut kayıt hatası:', error);
   }
+
+  // Botun bulunduğu diğer sunuculara da kaydet (ör. /sunucu-kur için yeni sunucu)
+  const registerOthers = async () => {
+    for (const guild of client.guilds.cache.values()) {
+      if (guild.id === process.env.GUILD_ID) continue;
+      await registerGuildCommands(guild.id)
+        .then(() => console.log(`[Infinity-Guard] ✅ Komutlar kaydedildi: ${guild.name}`))
+        .catch((e) => console.error(`[Infinity-Guard] ❌ ${guild.name} komut kaydı:`, e.message));
+    }
+  };
+  if (client.isReady()) await registerOthers();
+  else client.once('clientReady', registerOthers);
 }
+
+// ── Tek sunucuya slash komut kaydı ──────────────────────────
+let slashCommandBody = null;
+async function registerGuildCommands(guildId) {
+  if (!slashCommandBody || !guildId) return;
+  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+  await rest.put(
+    Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
+    { body: slashCommandBody },
+  );
+}
+
+// Bot yeni bir sunucuya eklendiğinde komutları anında kaydet
+client.on('guildCreate', (guild) => {
+  registerGuildCommands(guild.id)
+    .then(() => console.log(`[Infinity-Guard] ➕ Yeni sunucu: ${guild.name} — komutlar kaydedildi.`))
+    .catch((e) => console.error(`[Infinity-Guard] ❌ ${guild.name} komut kaydı:`, e.message));
+});
 
 // ── Event Handler ───────────────────────────────────────────
 const eventsPath = path.join(__dirname, 'events');
@@ -145,6 +172,13 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         await modHandlers.handleModButton(interaction);
+        return;
+      }
+
+      // Sunucu şablonu: doğrulama & bildirim rolleri
+      if (customId.startsWith('kur:')) {
+        const { handleTemplateButton } = await import('./utils/serverBuilder.js');
+        await handleTemplateButton(interaction);
         return;
       }
 

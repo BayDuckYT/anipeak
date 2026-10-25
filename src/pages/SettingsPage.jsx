@@ -253,12 +253,14 @@ export default function SettingsPage() {
       }
 
       const croppedBlob = await getCroppedImg(cropModal.imageSrc, cropModal.croppedAreaPixels, targetDim);
-      const url = await uploadAvatar(croppedBlob, user.id);
+      const url = await uploadAvatar(croppedBlob, isAvatar ? 'avatar' : 'banner');
 
       if (isAvatar) {
         await handleSave({ avatar_url: url }, 'Profil Fotoğrafı Güncellendi');
       } else {
-        await handleSave({ banner_url: url }, 'Kapak Fotoğrafı Güncellendi');
+        const nextAppearance = { ...(user?.appearance_settings || appearanceSettings || {}), custom_banner_url: url };
+        setAppearanceSettings(nextAppearance);
+        await handleSave({ appearance_settings: nextAppearance }, 'Kapak Fotoğrafı Güncellendi');
       }
 
       setCropModal({ isOpen: false, imageSrc: null, type: 'avatar', file: null, crop: { x: 0, y: 0 }, zoom: 1, croppedAreaPixels: null, outputSize: 'medium' });
@@ -285,12 +287,14 @@ export default function SettingsPage() {
       }
 
       const finalFile = await resizeImage(gifSizeModal.file, maxDim);
-      const url = await uploadAvatar(finalFile, user.id);
+      const url = await uploadAvatar(finalFile, isAvatar ? 'avatar' : 'banner');
 
       if (isAvatar) {
         await handleSave({ avatar_url: url }, 'Hareketli Avatar Güncellendi');
       } else {
-        await handleSave({ banner_url: url }, 'Hareketli Kapak Güncellendi');
+        const nextAppearance = { ...(user?.appearance_settings || appearanceSettings || {}), custom_banner_url: url };
+        setAppearanceSettings(nextAppearance);
+        await handleSave({ appearance_settings: nextAppearance }, 'Hareketli Kapak Güncellendi');
       }
 
       setGifSizeModal({ isOpen: false, file: null, type: 'avatar', previewUrl: null, selectedSize: 'medium' });
@@ -633,8 +637,8 @@ export default function SettingsPage() {
                     <div className="relative rounded-3xl overflow-hidden border border-purple-500/20 bg-black/50">
                       {/* Banner Görseli */}
                       <div className="h-44 sm:h-52 w-full bg-gradient-to-r from-purple-950 via-[#0e0722] to-indigo-950 relative group">
-                        {user?.banner_url ? (
-                          <img src={user.banner_url} alt="Kapak" className="w-full h-full object-cover" />
+                        {(user?.appearance_settings?.custom_banner_url || user?.banner_url) ? (
+                          <img src={user?.appearance_settings?.custom_banner_url || user?.banner_url} alt="Kapak" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-purple-400/30 text-xs font-black uppercase tracking-widest">
                             Özel Kapak Görseli Ekleyin

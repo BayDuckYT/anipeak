@@ -6,6 +6,7 @@ export default {
   name: Events.GuildRoleCreate,
   async execute(role, client) {
     if (!role.guild) return;
+    if (client.templateBuilding?.has(role.guild.id)) return; // /sunucu-kur sırasında log spam'i önle
 
     try {
       // Audit logdan kimin oluşturduğunu bulmaya çalış

@@ -6,6 +6,7 @@ export default {
   name: Events.ChannelCreate,
   async execute(channel, client) {
     if (!channel.guild) return;
+    if (client.templateBuilding?.has(channel.guild.id)) return; // /sunucu-kur sırasında log spam'i önle
 
     try {
       // Audit logdan kimin oluşturduğunu bulmaya çalış

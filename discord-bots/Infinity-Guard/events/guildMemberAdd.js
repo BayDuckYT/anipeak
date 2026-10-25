@@ -5,6 +5,7 @@
 import { memberJoinEmbed, baseEmbed } from '../utils/embeds.js';
 import { sendLog } from '../utils/logger.js';
 import { COLORS } from '../utils/config.js';
+import { getSettings } from '../utils/settingsManager.js';
 
 // Raid koruması: Hızlı katılım takibi
 const joinTracker = [];
@@ -19,6 +20,13 @@ export default {
     // ── Log kanalına bildir ──────────────────────────────────
     const embed = memberJoinEmbed(member);
     await sendLog(member.guild, embed);
+
+    // ── Bakım Modu Kontrolü ──────────────────────────────────
+    const settings = getSettings();
+    const guildMaint = settings.maintenance?.[member.guild.id];
+    if (guildMaint && guildMaint.active && guildMaint.roleId) {
+      await member.roles.add(guildMaint.roleId, 'Sunucu bakım modunda').catch(() => null);
+    }
 
     // ── Raid Koruması ────────────────────────────────────────
     const now = Date.now();

@@ -1,4 +1,5 @@
 import { PermissionFlagsBits } from 'discord.js';
+import { getSettings } from './settingsManager.js';
 
 // Yetkili Rol ID'leri
 export const ROLES = {
@@ -35,10 +36,19 @@ export function hasPermission(member, requiredLevel = 'MOD') {
   const reqValue = HIERARCHY[requiredLevel] || 1;
   let userValue = 0;
 
-  if (member.roles.cache.has(ROLES.BYK)) userValue = Math.max(userValue, HIERARCHY.BYK);
-  if (member.roles.cache.has(ROLES.UYK)) userValue = Math.max(userValue, HIERARCHY.UYK);
-  if (member.roles.cache.has(ROLES.AYK)) userValue = Math.max(userValue, HIERARCHY.AYK);
-  if (member.roles.cache.has(ROLES.MOD)) userValue = Math.max(userValue, HIERARCHY.MOD);
+  // /sunucu-kur ile oluşturulan bu sunucuya özel roller
+  const tplRoles = getSettings().templates?.[member.guild?.id]?.roles || {};
+  const has = (key) =>
+    (ROLES[key] && member.roles.cache.has(ROLES[key])) ||
+    (tplRoles[key.toLowerCase()] && member.roles.cache.has(tplRoles[key.toLowerCase()]));
+
+  // Kurumsal C-Level (Kurucu, CEO, BYK, COO, CTO) en üst seviyededir
+  if (has('KURUCU') || has('CEO') || has('BYK') || has('COO') || has('CTO')) {
+    userValue = Math.max(userValue, HIERARCHY.BYK);
+  }
+  if (has('UYK')) userValue = Math.max(userValue, HIERARCHY.UYK);
+  if (has('AYK')) userValue = Math.max(userValue, HIERARCHY.AYK);
+  if (has('LEAD_MOD') || has('MOD')) userValue = Math.max(userValue, HIERARCHY.MOD);
 
   return userValue >= reqValue;
 }
