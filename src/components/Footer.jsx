@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, Instagram, ArrowRight } from 'lucide-react';
+import { Heart, Instagram, ArrowRight, Asterisk } from 'lucide-react';
 
 function DiscordIcon({ size = 16, className = '' }) {
   return (
@@ -98,10 +98,19 @@ export default function Footer() {
         </p>
 
         <div className="mt-6 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <span>© 2026 MahoraPeak. Tüm hakları saklıdır.</span>
-          <span className="inline-flex items-center gap-1.5">
-            <Heart size={12} className="text-fuchsia-500 fill-fuchsia-500" /> Manga &amp; Manhwa tutkunları için
-          </span>
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center sm:text-left">
+            <span>© 2026 MahoraPeak. Tüm hakları saklıdır.</span>
+            <span className="hidden sm:inline text-slate-600">•</span>
+            <span className="text-slate-400"><span className="text-violet-400 font-medium">MahoraGlobal</span> bünyesinde bir projedir.</span>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-5">
+            <span className="inline-flex items-center gap-1.5">
+              <Heart size={12} className="text-fuchsia-500 fill-fuchsia-500" /> Manga &amp; Manhwa tutkunları için
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-slate-300" aria-label="Mahora Software Studio tarafından geliştiriliyor">
+              <Asterisk size={13} className="text-lime-300" /> Mahora Software Studio tarafından geliştiriliyor
+            </span>
+          </div>
         </div>
       </div>
     </footer>
