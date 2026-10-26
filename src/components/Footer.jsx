@@ -107,8 +107,8 @@ export default function Footer() {
             <span className="inline-flex items-center gap-1.5">
               <Heart size={12} className="text-fuchsia-500 fill-fuchsia-500" /> Manga &amp; Manhwa tutkunları için
             </span>
-            <span className="inline-flex items-center gap-1.5 text-slate-300" aria-label="Mahora Software Studio tarafından geliştiriliyor">
-              <Asterisk size={13} className="text-lime-300" /> Mahora Software Studio tarafından geliştiriliyor
+            <span className="inline-flex items-center gap-1.5 text-slate-300" aria-label="MahoraGlobal Software Studio tarafından geliştiriliyor">
+              <Asterisk size={13} className="text-lime-300" /> MahoraGlobal Software Studio tarafından geliştiriliyor
             </span>
           </div>
         </div>
